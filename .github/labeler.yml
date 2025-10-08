@@ -1,0 +1,27 @@
+# Adds a 'sig-<sig>' label when there are changes in specific tests/** subtrees
+# and/or their corresponding utilities/*.py files.
+
+sig-infra:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'stps/sig-infra/**'
+
+sig-iuo:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'stps/sig-iuo/**'
+
+sig-network:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'stps/sig-network/**'
+
+sig-storage:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'stps/sig-storage/**'
+
+sig-virt:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'stps/sig-virt/**'
