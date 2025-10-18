@@ -1,0 +1,163 @@
+# Markdownlint configuration for OpenShift Virtualization test documentation
+# See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md for rule details
+
+# Enable all rules by default, then override specific ones below
+default: true
+
+# MD001 - Heading levels should only increment by one level at a time
+MD001: true
+
+# MD003 - Heading style consistency (atx, atx_closed, setext)
+MD003: true
+
+# MD004 - Unordered list style consistency
+MD004: true
+
+# MD005 - Consistent indentation for list items at the same level
+MD005: true
+
+# MD007 - Unordered list indentation (how many spaces for nested items)
+MD007: true
+
+# MD009 - Trailing spaces (allows 2 spaces for hard line breaks in markdown)
+MD009: true
+
+# MD010 - Hard tabs - DISABLED: Code examples may use hard tabs
+MD010: false
+
+# MD012 - Multiple consecutive blank lines
+MD012: true
+
+# MD013 - Line length - DISABLED: No line length restrictions for flexibility
+MD013: false
+
+# MD014 - Dollar signs used before commands without showing output
+MD014: true
+
+# MD018 - No space after hash on atx style heading
+MD018: true
+
+# MD019 - Multiple spaces after hash on atx style heading
+MD019: true
+
+# MD020 - No space inside hashes on closed atx style heading
+MD020: true
+
+# MD021 - Multiple spaces inside hashes on closed atx style heading
+MD021: true
+
+# MD022 - Headings should be surrounded by blank lines - DISABLED: Flexible spacing
+MD022: false
+
+# MD023 - Headings must start at the beginning of the line
+MD023: true
+
+# MD024 - Multiple headings with the same content
+MD024: false
+
+# MD025 - Multiple top-level headings - DISABLED: Allows multiple H1 headings in the same document
+MD025: false
+
+# MD026 - Trailing punctuation in heading
+MD026: true
+
+# MD027 - Multiple spaces after blockquote symbol
+MD027: true
+
+# MD028 - Blank line inside blockquote
+MD028: true
+
+# MD029 - Ordered list item prefix (ordered, one, zero)
+MD029: true
+
+# MD030 - Spaces after list markers
+MD030: true
+
+# MD031 - Fenced code blocks surrounded by blank lines - DISABLED: Flexible spacing
+MD031: true
+
+# MD032 - Lists surrounded by blank lines - DISABLED: Flexible spacing
+MD032: false
+
+# MD033 - Inline HTML - DISABLED: Allows HTML for complex tables and formatting
+MD033: false
+
+# MD034 - Bare URL used - DISABLED: Allows URLs without angle brackets or link text
+MD034: false
+
+# MD035 - Horizontal rule style
+MD035: true
+
+# MD036 - Emphasis used instead of a heading - DISABLED: Allows emphasized text that looks like headings
+MD036: false
+
+# MD037 - Spaces inside emphasis markers
+MD037: true
+
+# MD038 - Spaces inside code span elements
+MD038: true
+
+# MD039 - Spaces inside link text
+MD039: true
+
+# MD040 - Fenced code blocks should have a language specified
+MD040: true
+
+# MD041 - First line in file should be a top level heading - DISABLED: Flexible document structure
+MD041: false
+
+# MD042 - No empty links
+MD042: true
+
+# MD043 - Required heading structure
+MD043: true
+
+# MD044 - Proper names should have the correct capitalization
+MD044: true
+
+# MD045 - Images should have alternate text (alt text)
+MD045: true
+
+# MD046 - Code block style (consistent, fenced, indented)
+MD046: true
+
+# MD047 - Files should end with a single newline character - DISABLED: Flexible file endings
+MD047: false
+
+# MD048 - Code fence style (consistent, backtick, tilde)
+MD048: true
+
+# MD049 - Emphasis style - DISABLED: Allows both * and _ for emphasis
+MD049: false
+
+# MD050 - Strong style - DISABLED: Allows both ** and __ for bold
+MD050: false
+
+# MD051 - Link fragments should be valid
+MD051: true
+
+# MD052 - Reference links and images should use a label that is defined
+MD052: true
+
+# MD053 - Link and image reference definitions should be needed
+MD053: true
+
+# Additional named rules (aliases for MD rules above)
+line-length: false              # Alias for MD013
+no-hard-tabs: false             # Alias for MD010 - allows tabs in code examples
+no-bare-urls: false             # Alias for MD034 - allows bare URLs in documentation
+single-title: false             # Alias for MD025 - allows multiple H1 headings
+no-emphasis-as-heading: false   # Alias for MD036 - allows emphasized text as section markers
+no-inline-html: false           # Alias for MD033 - allows HTML for complex formatting
+ul-style: false                 # Alias for MD004 - flexible unordered list markers (*, -, +)
+ol-prefix: false                # Alias for MD029 - flexible ordered list numbering
+blanks-around-fences: false     # Alias for MD031 - flexible spacing around code blocks
+blanks-around-headings: false   # Alias for MD022 - flexible spacing around headings
+blanks-around-lists: false      # Alias for MD032 - flexible spacing around lists
+single-trailing-newline: false  # Alias for MD047 - flexible file endings
+no-multiple-blanks: false       # Alias for MD012 - allows multiple blank lines for readability
+no-trailing-spaces: false       # Alias for MD009 - allows trailing spaces
+emphasis-style: false           # Alias for MD049 - flexible emphasis style
+strong-style: false             # Alias for MD050 - flexible strong/bold style
+no-space-in-emphasis: false     # Alias for MD037 - flexible spacing in emphasis
+commands-show-output: false     # Shell command examples don't need to show output
