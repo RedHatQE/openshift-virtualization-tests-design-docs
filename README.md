@@ -138,7 +138,7 @@ pre-commit run markdownlint --all-files
 
 #### Linting Rules
 
-The repository uses `.markdownlintrc` with the following key settings:
+The repository uses `.markdownlint.yaml` with the following key settings:
 
 - **Line length**: Disabled (no line length restrictions)
 - **Bare URLs**: Allowed
@@ -147,7 +147,7 @@ The repository uses `.markdownlintrc` with the following key settings:
 - **Trailing whitespace**: Allowed
 - **Emphasis style**: Flexible
 
-See `.markdownlintrc` for complete configuration.
+See `.markdownlint.yaml` for complete configuration with detailed comments for each rule.
 
 ## **Common Questions**
 
