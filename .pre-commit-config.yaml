@@ -1,0 +1,28 @@
+# Pre-commit hooks for OpenShift Virtualization test documentation
+# See https://pre-commit.com for more information
+
+repos:
+  # Markdownlint for Markdown file linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown files
+        files: \.md$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v6.0.0"
+    hooks:
+      - id: check-merge-conflict
+        stages: [pre-commit]
+      - id: trailing-whitespace
+        stages: [pre-commit]
+      - id: end-of-file-fixer
+        stages: [pre-commit]
+      - id: detect-private-key
+      - id: mixed-line-ending
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: "v8.28.0"
+    hooks:
+      - id: gitleaks
