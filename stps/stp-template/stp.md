@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-| Field                  | Details                                                                | 
+| Field                  | Details                                                                |
 |:-----------------------|:-----------------------------------------------------------------------|
 | **Enhancement(s)**     | [Links to enhancement(s)]                                              |
 | **Feature in Jira**    | [Link(s) to the relevant feature/epic in Jira                          |
@@ -31,7 +31,7 @@ This section documents the mandatory QE review process. The goal is to understan
 | **Acceptance Criteria**                |              | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** |              | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
-- [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)  
+- [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
 - [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements)
 
 #### **2. Technology and Design Review**
@@ -51,17 +51,18 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 #### **1. Introduction and Scope**
 
-*   **Purpose:** This document describes the overall approach to testing for [Feature name + link]. It outlines the testing objectives, scope, methodology, and resources required to ensure the **quality and reliability** of the software.
-*   **Scope of Testing:** Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**. Must ensure user stories are included and aligned to downstream user stories.
-*   **Document Conventions:** [Define any document conventions, e.g., acronyms, definitions specific to this document.]
+- **Purpose:** This document describes the overall approach to testing for [Feature name + link]. It outlines the testing objectives, scope, methodology, and resources required to ensure the **quality and reliability** of the software.
+- **Scope of Testing:** Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**. Must ensure user stories are included and aligned to downstream user stories.
+- **Document Conventions:** [Define any document conventions, e.g., acronyms, definitions specific to this document.]
 
 #### **2. Test Objectives**
 
 The primary goals of this test plan are to:
-*   **Verify** that the software meets all specified requirements.
-*   **Identify and report** software defects and issues.
-*   **Ensure** the software performs as expected under various conditions.
-*   **Assess** the overall quality and readiness of the software for release.
+
+- **Verify** that the software meets all specified requirements.
+- **Identify and report** software defects and issues.
+- **Ensure** the software performs as expected under various conditions.
+- **Assess** the overall quality and readiness of the software for release.
 
 #### **3. Motivation**
 
@@ -71,26 +72,26 @@ This section captures the feature motivation from a QE perspective, focusing on 
 
 Document key user stories that drive testing priorities:
 
-*   **As a** [user role], **I want** [capability] **so that** [benefit].
-    *   **QE Focus:** [What aspects of this user story are critical to test]
-*   **As a** [user role], **I need** [functionality] **because** [reason].
-    *   **QE Focus:** [Key test scenarios for this user story]
+- **As a** [user role], **I want** [capability] **so that** [benefit].
+  - **QE Focus:** [What aspects of this user story are critical to test]
+- **As a** [user role], **I need** [functionality] **because** [reason].
+  - **QE Focus:** [Key test scenarios for this user story]
 
 ##### **B. Testing Goals**
 
 Define specific, measurable testing objectives for this feature:
 
-*   [ ] [Goal 1: e.g., Achieve 90% feature coverage for core functionality]
-*   [ ] [Goal 2: e.g., Validate all user workflows end-to-end]
-*   [ ] [Goal 3: e.g., Ensure performance meets defined SLAs]
-*   [ ] [Goal 4: e.g., Verify backward compatibility with version X]
-*   [ ] [Goal 5: e.g., Confirm security requirements are met]
+- [ ] [Goal 1: e.g., Achieve 90% feature coverage for core functionality]
+- [ ] [Goal 2: e.g., Validate all user workflows end-to-end]
+- [ ] [Goal 3: e.g., Ensure performance meets defined SLAs]
+- [ ] [Goal 4: e.g., Verify backward compatibility with version X]
+- [ ] [Goal 5: e.g., Confirm security requirements are met]
 
 ##### **C. Non-Goals (Testing Scope Exclusions)**
 
 Explicitly document what is **out of scope** for testing. **Critical:** All non-goals require explicit stakeholder agreement to prevent "I assumed you were testing that" issues.
 
-| Non-Goal                                                             | Rationale              | PM/ Lead Agreement | 
+| Non-Goal                                                             | Rationale              | PM/ Lead Agreement |
 |:---------------------------------------------------------------------|:-----------------------|:-------------------|
 | [e.g., Testing of deprecated features]                               | [Why this is excluded] | [ ] Name/Date      |
 | [e.g., Performance testing beyond defined load limits]               | [Why this is excluded] | [ ] Name/Date      |
@@ -136,7 +137,7 @@ If a testing area is not applicable, it should NOT be removed from the table, sh
 | Environment Component       | Value | Specification Examples                                                                |
 |:----------------------------|:------|:--------------------------------------------------------------------------------------|
 | **Cluster Topology**        |       | [e.g., 3-master/3-worker bare-metal, SNO, Compact Cluster, Hypershift hosted cluster] |
-| **OCP & CNV Version(s)**    |       | [e.g., OCP 4.20 with CNV 4.20]                                                        |
+| **OCP & OpenShift Virtualization Version(s)**    |       | [e.g., OCP 4.20 with OpenShift Virtualization 4.20]                                                        |
 | **CPU Virtualization**      |       | [e.g., Nodes with VT-x (Intel) or AMD-V (AMD) enabled in BIOS]                        |
 | **Compute Resources**       |       | [e.g., Minimum per worker node: 8 vCPUs, 32GB RAM]                                    |
 | **Special Hardware**        |       | [e.g., Specific NICs for SR-IOV, GPU etc]                                             |
@@ -155,19 +156,21 @@ If a testing area is not applicable, it should NOT be removed from the table, sh
 ##### **A. Entry Criteria**
 
 The following conditions must be met before testing can begin:
-*   Requirements and design documents are **approved and stable**.
-*   Test environment is **set up and configured**.
-*   Test cases are **reviewed and approved**.
+
+- Requirements and design documents are **approved and stable**.
+- Test environment is **set up and configured**.
+- Test cases are **reviewed and approved**.
 
 ##### **B. Exit Criteria**
 
 The following conditions must be met for testing to be considered complete:
-*   All **high-priority defects are resolved and verified**.
-*   **Test coverage goals are achieved**.
-*   **Test automation merged** (required for GA sign-off).
-*   All planned test cycles are completed.
-*   Test summary report is approved.
-*   Acceptance criteria are met.
+
+- All **high-priority defects are resolved and verified**.
+- **Test coverage goals are achieved**.
+- **Test automation merged** (required for GA sign-off).
+- All planned test cycles are completed.
+- Test summary report is approved.
+- Acceptance criteria are met.
 
 #### **7. Risk Management**
 If a risk is not applicable, it should NOT be removed from the table, should be marked as "N/A", and a justification should be provided.
@@ -184,8 +187,8 @@ If a risk is not applicable, it should NOT be removed from the table, should be 
 
 #### **8. Limitations**
 
-*   [List any known limitations or trade-offs in the implementation]
-*   [Document constraints or edge cases that are not covered]
+- [List any known limitations or trade-offs in the implementation]
+- [Document constraints or edge cases that are not covered]
 
 ---
 
@@ -199,8 +202,8 @@ All test cases for this feature are managed in: **[Link to Polarion]**
 
 #### **2. Traceability Matrix**
 
-This matrix maps requirements to high-level test scenarios that validate them. This is **not** a list of all test steps, but a **high-level proof of coverage** that enables stakeholders to answer: *"Do we have test coverage for all requirements?"*  
-Example:  
+This matrix maps requirements to high-level test scenarios that validate them. This is **not** a list of all test steps, but a **high-level proof of coverage** that enables stakeholders to answer: *"Do we have test coverage for all requirements?"*
+Example:
 
 | Requirement / User Story (from Section I) | Mapped Test Scenarios (High-Level)                         | Priority | Test Type(s)                | Automation Status         |
 |:------------------------------------------|:-----------------------------------------------------------|:---------|:----------------------------|:--------------------------|
@@ -217,23 +220,22 @@ Provide brief descriptions of key test scenarios for stakeholder understanding:
 
 ##### **High Priority (P1) Scenarios**
 
-*   **[Test Scenario Name]:** [Brief description of what this test validates and why it's critical]
-    *   **Requirements Covered:** [List of requirement IDs]
-    *   **Test Approach:** [High-level approach, for example,: automated end-to-end, manual exploratory]
+- **[Test Scenario Name]:** [Brief description of what this test validates and why it's critical]
+  - **Requirements Covered:** [List of requirement IDs]
+  - **Test Approach:** [High-level approach, for example,: automated end-to-end, manual exploratory]
 
 ##### **Medium Priority (P2) Scenarios**
 
-*   **[Test Scenario Name]:** [Description]
-    *   **Requirements Covered:** [IDs]
-    *   **Test Approach:** [Approach]
-
+- **[Test Scenario Name]:** [Description]
+  - **Requirements Covered:** [IDs]
+  - **Test Approach:** [Approach]
 
 #### **4. Traceability Maintenance**
 
-*   **Owner:** [Name/Team responsible for maintaining traceability]
-*   **Update Frequency:** [e.g., Updated during each sprint/milestone]
-*   **Review Process:** [How and when traceability is reviewed with stakeholders]
-*   **Tool:** [Tool used to maintain traceability - Jira, Excel, TestRail, etc.]
+- **Owner:** [Name/Team responsible for maintaining traceability]
+- **Update Frequency:** [e.g., Updated during each sprint/milestone]
+- **Review Process:** [How and when traceability is reviewed with stakeholders]
+- **Tool:** [Tool used to maintain traceability - Jira, Excel, TestRail, etc.]
 
 ---
 
@@ -255,7 +257,7 @@ This Software Test Plan requires approval from the following stakeholders:
 
 * Reviewers:
   - TBD
-  - "@alice.doe"  
+  - "@alice.doe"
 * Approvers:
   - TBD
   - "@oscar.doe"
