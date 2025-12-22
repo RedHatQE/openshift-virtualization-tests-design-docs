@@ -86,7 +86,13 @@ Explicitly document what is **out of scope** for testing. **Critical:** All non-
 
 #### **4. Test Strategy**
 
-##### **A. Types of Testing**
+##### **A. General**
+Testing this feature should consider and cover the following:
+* Capability 1
+* Capability 2
+* ...
+
+##### **B. Types of Testing**
 
 The following types of testing must be reviewed and addressed.
 
@@ -104,7 +110,7 @@ The following types of testing must be reviewed and addressed.
 | Upgrade Testing                |                         |          |
 | Backward Compatibility Testing |                         |          |
 
-##### **B. Potential Areas to Consider**
+##### **C. Potential Areas to Consider**
 
 **Note:** Mark "Y" if applicable, "N/A" if not applicable (with justification in Comment). Empty cells indicate incomplete review.
 
