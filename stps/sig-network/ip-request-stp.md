@@ -31,18 +31,16 @@ This section documents the mandatory QE review process. The goal is to understan
 | **Acceptance Criteria**                | [V]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
-- [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
-- [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements)
 
 #### **2. Technology and Design Review**
 
-| Check                            | Done | Details/Notes                                                                                                                                           | Comments |
-|:---------------------------------|:-----|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
-| **Developer Handoff/QE Kickoff** | [ ]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |          |
-| **Technology Challenges**        | [V]  | Identified potential testing challenges related to the underlying technology.                                                                           |          |
-| **Test Environment Needs**       | [V]  | Determined necessary **test environment setups and tools**.                                                                                             |          |
-| **API Extensions**               | [V]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |          |
-| **Topology Considerations**      | [ ]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   |          |
+| Check                            | Done | Details/Notes                                                                                                                                           | Comments                                                                                                                                           |
+|:---------------------------------|:-----|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Developer Handoff/QE Kickoff** | [V]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |                                                                                                                                                    |
+| **Technology Challenges**        | [V]  | Identified potential testing challenges related to the underlying technology.                                                                           |                                                                                                                                                    |
+| **Test Environment Needs**       | [V]  | Determined necessary **test environment setups and tools**.                                                                                             |                                                                                                                                                    |
+| **API Extensions**               | [V]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |                                                                                                                                                    |
+| **Topology Considerations**      | [V]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   | Same as in the setups that are used for the MTV IPAM claim testing.<br/>3rd party will provide UDN and annotated VM, CNV testing starts from that. |
 
 
 ### **II. Software Test Plan (STP)**
@@ -74,10 +72,10 @@ Explicitly document what is **out of scope** for testing. **Critical:** All non-
 
 **Note:** Replace example rows with your actual non-goals. Each non-goal must have PM/Lead sign-off.
 
-| Non-Goal                                            | Rationale                                                                      | PM/ Lead Agreement |
-|:----------------------------------------------------|:-------------------------------------------------------------------------------|:-------------------|
-| Templating VM spec with the `addresses` annottaion. | It's the responsibility of the 3rd party integrator, and not accessible by us. | [ ] Name/Date      |
-| Creating C/UDN with IP range.                       | Same                                                                           | [ ] Name/Date      |
+| Non-Goal                                            | Rationale                                                                                                                                           | PM/ Lead Agreement |
+|:----------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------|:-------------------|
+| Templating VM spec with the `addresses` annottaion. | It's the responsibility of the 3rd party integrator, and not accessible by us.<br/>We cannot and will not test the integration with the 3rd party. | [ ] Name/Date      |
+| Creating C/UDN with IP range.                       | Same                                                                                                                                                | [ ] Name/Date      |
 
 
 **Important Notes:**
@@ -91,11 +89,12 @@ Testing this feature should consider and cover the following:
 * see the IP address in the VMI status
 * see it in the guest
 * verify the address is pingable
-* verify this interface can maintain TCP connectivity
+* verify this interface can maintain TCP connectivity - east/west and north/south.
 * the feature should be applied on both IPv4/6 families
 * verify the assigned address and connectivity are maintained after VM reboot
 * verify the assigned address and connectivity are maintained after VM migration
 * verify the assigned address can be reclaimed and re-used after deleting the VM
+* verify no collision - try annotating 2 VMs with the same IP claim.
 
 
 ##### **B. Types of Testing**
@@ -122,7 +121,7 @@ The following types of testing must be reviewed and addressed.
 
 | Item                   | Description                                                                                                        | Applicable (Y/N or N/A) | Comment |
 |:-----------------------|:-------------------------------------------------------------------------------------------------------------------|:------------------------|:--------|
-| **Dependencies**       | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |Depends on OVN-k8s ability to manage requested IPs, which is already implemented. All the cases in the STD are necessarily Openshift Virtualization cases, thus tested by CNV network only.
+| **Dependencies**       | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |Depends on OVN-k8s ability to manage requested IPs, which is already implemented. All the cases in the STP are necessarily Openshift Virtualization cases, thus tested by CNV network only.
          |
 | **Monitoring**         | Does the feature require metrics and/or alerts?                                                                    |N                         |         |
 | **Cross Integrations** | Does the feature affect other features/require testing by other components? Identify what is tested by which team. |N                         |         |
@@ -189,9 +188,9 @@ Document specific risks and limitations for this feature. If a risk category is 
 
 Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
 
-- Feature does not support IPv6 (only IPv4)
 - No support for ARM64 architecture in this release
 - At this point the feature is limited only to primary UDN VM interface (no secondary).
+- There will be no integration with the 3rd party providers; 3rd party is responsible for providing valid UDN and annotated VM specs, which will be the starting point of the testing in CNV.
 
 
 ---
@@ -199,7 +198,7 @@ Document any known limitations, constraints, or trade-offs in the feature implem
 ### **III. Test Scenarios & Traceability**
 
 This section links requirements to test coverage, enabling reviewers to verify all requirements are tested.
-
+* The testing scenarioa and goals are specified in "4. Test Strategy" section.Do
 | Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Test Type(s)                | Priority |
 |:------------------|:----------------------|:-----------------------------------------------------------|:----------------------------|:---------|
 | CNV-67524        |           |                 |               |        |
