@@ -17,6 +17,7 @@
 ---
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
+
 This section documents the mandatory QE review process. The goal is to understand the feature's value, technology, and testability prior to formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
@@ -30,62 +31,46 @@ This section documents the mandatory QE review process. The goal is to understan
 | **Acceptance Criteria**                | [v]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** | [V]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
-#### Overview
+---
 
-Golden images are commonly used OS boot disk images that are used to create virtual machines (VMs) in a Kubernetes
-cluster. Their purpose is to ensure these images are automatically available and kept up-to-date. The original design of
-the golden images is documented in the [kubevirt/community repository](https://github.com/kubevirt/community/blob/69d061862e0839608932d225a728a7a6e7a89f29/design-proposals/golden-image-delivery-and-update-pipeline.md).
+##### **Background**
 
-The initial design assumed homogeneous clusters, where all nodes in the cluster share the same architecture. However, as
-there is a need to support heterogeneous clusters, where nodes may have different architectures (e.g., `arm64`, `amd64`,
-`s390x`), this assumption does not apply anymore, and some changes are required to support this use-case.
+**What are Golden Images?**
 
-#### Motivation
+Golden images are pre-configured OS boot disk images used to create virtual machines (VMs) in OpenShift Virtualization. They serve as ready-to-use templates that are automatically available and kept up-to-date, eliminating the need for users to manually configure OS images for each VM.
 
-The high level flow of the golden images is as follows:
+The original golden images design (documented in the [kubevirt/community repository](https://github.com/kubevirt/community/blob/69d061862e0839608932d225a728a7a6e7a89f29/design-proposals/golden-image-delivery-and-update-pipeline.md)) was built for **homogeneous clusters** where all nodes share the same CPU architecture.
 
-1. The HyperConverged Cluster Operator (HCO) image, includes predefined DataImportCronTemplate files. HCO generates
-   a list of `DataImportCronTemplate` objects in the `SSP` CR, based on these files.
-2. SSP creates `DataImportCron` CRs from the `DataImportCronTemplate` objects in the `SSP` CR.
-3. Either SSP or CDI create a `DataSource` CRs based on the `DataImportCron` CRs.
-   The CDI monitors the `DataImportCron` CRs, and ensures the corresponding `DataSource` CRs are updated as needed.
-4. CDI checks the image URL or the ImageStream periodically (according to the cron expression in the
-   `DataImportCron` CR), and if the image is updated, it creates a new `VolumeSnapshot` (or a `PVC`), imports the
-   latest version of the requested image into this new `VolumeSnapshot`/`PVC`, and modifies the `DataSource` CR to point
-   to the latest `VolumeSnapshot`/`PVC`.
-   
-   To perform the actual import, CDI creates a `DataVolume` CR, from the `spec.template` field in the `DataImportCron`
-   CR.
-5. When creating a VM, users set the VM's `spec.dataVolumeTemplate` field, to point to the desired `DataSource` CR.
-   CDI creates a new `PVC`, and clones the `VolumeSnapshot`/`PVC` that is referenced by the `DataSource`,
-   into this `PVC`.
+**The Problem: Heterogeneous Clusters**
 
-Cluster administrators can create custom golden images, by adding `DataImportCronTemplate` objects to the
-`HyperConverged` CR. The HCO adds these custom templates to the `SSP` custom resource, initiating the same workflow.
+Modern Kubernetes clusters increasingly run nodes with different CPU architectures (e.g., `amd64`, `arm64`, `s390x`). The current golden images implementation does not support this:
 
-**Technology Challenges**  
-The current design assumes homogeneous clusters, where all nodes in the cluster share the same architecture. However,
-heterogeneous clusters with nodes of different architectures (e.g., `arm64`, `amd64`, `s390x`) introduce challenges:
+1. **Wrong architecture image selection**: When the CDI-importer pulls a multi-architecture image, it selects the image variant matching the *importer pod's node architecture*, not the target VM's architecture. For example, if the importer runs on an `arm64` node but the VM will run on `amd64`, the wrong image is imported and the VM fails to boot.
 
-* CDI-importer may pick wrong arch image to pull:
-The predefined `DataImportCronTemplate` already configured with multi-architecture images (image manifests pointing to
-multiple architecture-specific images). However, when the cdi-importer pulls an image, it selects one suitable for the
-node's architecture, which may not match the architecture of the VM being created. For example, pulling an `arm64`
-image for a VM running on an `amd64` node will cause the VM to fail.
+2. **No custom multi-arch support**: Cluster administrators cannot define custom golden images that work across multiple architectures.
 
-* Custom templates arch specific
-Users may need to create VMs with specific architectures to run architecture-specific applications. For that, they
-will want to create a custom golden image with a specific architecture, and use it to create VMs with the same
-architecture. This use-case is not supported by the current design.
+---
 
-##### HCO part
+##### **Motivation**
 
-#### User stories
+This feature enables OpenShift Virtualization to properly manage golden images in heterogeneous clusters by:
 
-1. As a VM creator, I want to create virtual machines with specific architectures to run architecture-specific applications.
-2. As a cluster administrator, I want to define custom golden images with multi-architecture support, enabling VM  creators to deploy VMs with the desired architecture.
-3. As a VM creator, I want my existing tools and script will continue to work as before, without any changes.
+- Tracking which CPU architectures exist in the cluster
+- Creating architecture-specific `DataSource` resources for each golden image
+- Ensuring VMs boot from images matching their target architecture
+- Maintaining backward compatibility with existing tooling and scripts
 
+---
+
+##### **User Stories**
+
+| ID   | User Story                                                                                                                                                          |
+|:-----|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| US-1 | As a **VM creator**, I want to create virtual machines with specific CPU architectures to run architecture-specific applications.                                   |
+| US-2 | As a **cluster administrator**, I want to define custom golden images with multi-architecture support, so VM creators can deploy VMs on any supported architecture. |
+| US-3 | As a **VM creator**, I want my existing tools and scripts to continue working without modification after this feature is enabled.                                   |
+
+---
 
 #### **2. Technology and Design Review**
 
@@ -94,44 +79,149 @@ architecture. This use-case is not supported by the current design.
 | **Developer Handoff/QE Kickoff** | [V]  | Met with Nahshon from HCO team.                                                   |                          |
 | **Technology Challenges**        | [V]  | CDI-importer picking the correct image arch, custom templates arch specific       |                          |
 | **Test Environment Needs**       | [V]  | HA cluster for simple functionality testing, MultiArch cluster for full coverage. | Jenkins deploy job exist |
-| **API Extensions**               | [V]  | HCO nodeInfo, dataImportCronTemplates                                             |                          |
-| **Topology Considerations**      | [V]  | ARM64 and S390X vms are supported since cnv-4.19                                  |                          |
+| **API Extensions**               | [V]  | HCO `status.nodeInfo`, `status.dataImportCronTemplates` with new fields           |                          |
+| **Topology Considerations**      | [V]  | ARM64 and S390X VMs are supported since CNV-4.19                                  |                          |
 
+#### **HCO Operator Changes**
 
+📖 **Feature Documentation:** [Golden Images in Heterogeneous Clusters](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/virtualization/advanced-vm-creation#virt-golden-image-heterogeneous-clusters)
+The HyperConverged Cluster Operator (HCO) is highly affected by this feature. The following changes are introduced:
+
+##### **New Feature Gate**
+
+| Item              | Details                                                                    |
+|:------------------|:---------------------------------------------------------------------------|
+| **Feature Gate**  | `enableMultiArchBootImageImport`                                           |
+| **Default Value** | `false` (disabled)                                                         |
+| **Purpose**       | Enables heterogeneous cluster support for golden images when set to `true` |
+
+##### **New Status Fields**
+
+HCO `status` is extended with a `nodeInfo` field that tracks cluster node architectures. for example:
+
+```yaml
+status:
+  nodeInfo:
+    controlPlaneArchitectures:
+      - amd64
+    workloadsArchitectures:
+      - amd64
+      - arm64
+```
+
+| Field                       | Description                                              |
+|:----------------------------|:---------------------------------------------------------|
+| `controlPlaneArchitectures` | List of CPU architectures present on control-plane nodes |
+| `workloadsArchitectures`    | List of CPU architectures present on workload nodes      |
+
+##### **DataImportCronTemplates Enhancements**
+
+Each `DataImportCronTemplate` in the HCO status is enhanced with:
+
+| Field/Annotation                     | Description                                                                                             |
+|:-------------------------------------|:--------------------------------------------------------------------------------------------------------|
+| `ssp.kubevirt.io/dict.architectures` | Annotation listing architectures supported by the image (filtered to cluster's available architectures) |
+| `originalSupportedArchitectures`     | Status field showing original architectures from the image manifest                                     |
+| `conditions`                         | Status conditions for issues (e.g., `UnsupportedArchitectures`)                                         |
+
+Example status with an unsupported architecture:
+
+```yaml
+status:
+  dataImportCronTemplates:
+    - metadata:
+        name: centos-stream10-image-cron
+        annotations:
+          ssp.kubevirt.io/dict.architectures: "amd64"
+      status:
+        originalSupportedArchitectures: "amd64,arm64,s390x"
+        conditions:
+          - type: Deployed
+            status: "False"
+            reason: UnsupportedArchitectures
+            message: "DataImportCronTemplate has no supported architectures for the current cluster"
+```
+
+##### **Node Architecture Tracking**
+
+| Behavior                    | Description                                                                                    |
+|:----------------------------|:-----------------------------------------------------------------------------------------------|
+| **Workload Node Detection** | By default, nodes labeled with `node-role.kubernetes.io/worker`                                |
+| **Custom Node Placement**   | If `spec.workloads.nodePlacement` is set, HCO uses it to determine workload nodes              |
+| **Control-Plane Detection** | Nodes labeled with `node-role.kubernetes.io/control-plane` or `node-role.kubernetes.io/master` |
+| **Dynamic Updates**         | Architecture lists are updated automatically as nodes are added/removed                        |
+
+##### **Architecture Filtering**
+
+When the feature gate is enabled, HCO:
+
+1. Reads the `ssp.kubevirt.io/dict.architectures` annotation from each predefined `DataImportCronTemplate`
+2. Filters out architectures not present in the cluster's workload nodes
+3. Propagates the filtered list to the SSP CR for `DataImportCron` and `DataSource` creation
+
+##### **Monitoring & Alerts**
+
+New alerts are introduced to help administrators manage golden images in heterogeneous clusters:
+
+| Alert                                                                                                                              | Description                                                                                                                                                                                                                                       |
+|:-----------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`HCOMultiArchGoldenImagesDisabled`](https://kubevirt.io/monitoring/runbooks/HCOMultiArchGoldenImagesDisabled.html)                | Fires when the cluster has workload nodes with different CPU architectures but `enableMultiArchBootImageImport` is disabled. Without this feature gate, golden images may be imported with the wrong architecture, causing VMs to fail to start.  |
+| [`HCOGoldenImageWithNoArchitectureAnnotation`](https://kubevirt.io/monitoring/runbooks/HCOGoldenImageWithNoArchitectureAnnotation) | Fires when a custom `DataImportCronTemplate` is missing the `ssp.kubevirt.io/dict.architectures` annotation (only when FG is enabled). Without this annotation, the golden image has no defined architecture and VMs may fail to start.           |
+| [`HCOGoldenImageWithNoSupportedArchitecture`](https://kubevirt.io/monitoring/runbooks/HCOGoldenImageWithNoSupportedArchitecture)   | Fires when a `DataImportCronTemplate`'s `ssp.kubevirt.io/dict.architectures` annotation doesn't include any architecture supported by the cluster (only when FG is enabled). The golden image won't be created since no cluster nodes can use it. |
+
+**Examples:**
+- **`HCOMultiArchGoldenImagesDisabled`**: A cluster with both `amd64` and `arm64` worker nodes triggers this alert if the feature gate is disabled, warning that VMs may boot from incompatible images.
+- **`HCOGoldenImageWithNoArchitectureAnnotation`**: A custom DICT `my-custom-image` defined in `spec.dataImportCronTemplates` without the `ssp.kubevirt.io/dict.architectures` annotation triggers this alert.
+- **`HCOGoldenImageWithNoSupportedArchitecture`**: A DICT annotated with `ssp.kubevirt.io/dict.architectures: s390x` on a cluster with only `amd64` and `arm64` workers triggers this alert, and the DICT status shows `reason: UnsupportedArchitectures`.
+
+---
 
 
 ### **II. Software Test Plan (STP)**
 
 This STP serves as the **overall roadmap for testing**, detailing the scope, approach, resources, and schedule.
 
+**Document Conventions:**
+
+| Term                  | Definition                                                                                                                 |
+|:----------------------|:---------------------------------------------------------------------------------------------------------------------------|
+| **MultiArch cluster** | Heterogeneous cluster with 3 amd64 control-plane nodes, 2 amd64 worker nodes, and 1-2 arm64 worker nodes                   |
+| **HA cluster**        | Homogeneous cluster with 3 control-plane nodes and 3 amd64 worker nodes                                                    |
+| **FG**                | `enableMultiArchBootImageImport` feature gate in HCO CR (see Section I.5.1)                                                |
+| **Related resources** | Golden image associated resources: `DataImportCron`, `DataSource`, `DataVolume`, `VolumeSnapshot`                          |
+| **nodeInfo**          | HCO status field tracking cluster architectures (`status.nodeInfo`)                                                        |
+
 #### **1. Scope of Testing**
 
-This testplan covers FG activation, propagation to other components and new alerts & metrics tested.
+This test plan covers scenarios related to HCO, and monitoring:
 
-**Document Conventions (if applicable):**  
-- **MultiArch cluster** - heterogeneous cluster with 3 amd64 control-plane nodes, 2 amd64 worker nodes, and 1/2 arm64 worker nodes.
-- **HA cluster** - homogenous cluster with 3 control-plane and 3 amd64 worker node.
-- **Archs** - architectures.
-- **Related resources** - golden images accosiated DataImportCron,DataSource,DV/VMsnapshot CRs.
-- **FG** - enableMultiArchBootImageImport FeatureGate in HCO CR enabling this feature.
+* HCO node architecture tracking nodeInfo.
+* FG activation and propagation to CNV components.
+* DataImportCronTemplates architecture annotations and filtering.
+* New alerts & metrics validation.
 
 **In Scope:**
 ##### Functional Testing
-- HCO monitors the cluster's nodes architectures correctly.
-- HCO dataImportCronTemplates annotations listing the correct architectures and propagates to SSP.
-- Correct resources created and ready to use for common golden images per arch.
-- Correct resources created and ready to use for custom golden images per arch.
+* HCO monitors the cluster's nodes architectures correctly.
+* HCO dataImportCronTemplates annotations listing the correct architectures and propagates to SSP.
+* Correct resources created and ready to use for common golden images per arch.
+* Correct resources created and ready to use for custom golden images per arch.
 
-##### Non-Functional Testing  
+##### Alerts Testing
+* `HCOMultiArchGoldenImagesDisabled` fires on heterogeneous cluster with FG disabled.
+* `HCOGoldenImageWithNoArchitectureAnnotation` fires when custom DICT missing architecture annotation.
+* `HCOGoldenImageWithNoSupportedArchitecture` fires when DICT has no cluster-supported architecture.
+
+##### Non-Functional Testing
 **Regression Testing**
-- spec.workloads.nodePlacement should determine the workload nodes architecture.
-- spec.workloads.nodePlacement of not existing arch.
+* spec.workloads.nodePlacement should determine the workload nodes architecture.
+* spec.workloads.nodePlacement of not existing arch.
 
 **Backward Compatibility Testing**
-- Legacy Datasource points to the arch specific Datasource
+* Legacy Datasource points to the arch specific Datasource
 
 **Upgrade testing**
-- Verify that resources names preserved as expected after upgrade.
+* Verify that resources names preserved as expected after upgrade.
 
 
 #### **2. Testing Goals**
@@ -188,36 +278,21 @@ Explicitly document what is **out of scope** for testing. **Critical:** All non-
 
 | Item                   | Description                                                                                                        | Applicable (Y/N or N/A) | Comment                        |
 |:-----------------------|:-------------------------------------------------------------------------------------------------------------------|:------------------------|:-------------------------------|
-| **Dependencies**       | Dependent on deliverables from other components/products? Identify what is tested by which team.                   | N                       |                                |
-| **Monitoring**         | Does the feature require metrics and/or alerts?                                                                    | Y                       | Two new alerts & metrics added |
+| **Dependencies**       | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |                                |
+| **Monitoring**         | Does the feature require metrics and/or alerts?                                                                    | Y                       | Three new alerts added         |
 | **Cross Integrations** | Does the feature affect other features/require testing by other components? Identify what is tested by which team. | Y                       | SSP, storage, virt, upgrade    |
 | **UI**                 | Does the feature require UI? If so, ensure the UI aligns with the requirements.                                    | Y                       |                                |
 
-**Dependencies**
+##### **C. Dependencies/Cross Integration**
 
+This is a cross-team feature for CNV. Testing responsibilities are divided as follows:
 
-###### Dependencies/Cross Integration
-Since it's a cross-team feature for CNV, the following should be tested:
-**IUO** 
-- Testing HCO monitors new nodes architectures correctly.
-- Testing FG activation and propagation to CNV components.
-- Verifies new metrics & alerts.
-- Verifies upgrade.
-
-**SSP**
-- Templates creation & utilization
-- Verify new SSP API.
-
-**Storage**
-- Verify that cdi-importer doing so successfully.
-- Verify Legacy datasource's backwards compatibility.
-- etc
-
-**Virt**
-- Verify VMs picked correctly the appropriate node by arch.
-- Verify VMs migrated to nodes with the same arch.
-- Verify upgrade.
-- etc
+| Team        | Testing Responsibility                                                                                       |
+|:------------|:-------------------------------------------------------------------------------------------------------------|
+| **IUO**     | HCO node architecture tracking (`status.nodeInfo`), FG activation/propagation, new metrics & alerts, upgrade |
+| **SSP**     | Templates creation & utilization, new SSP API (`enableMultipleArchitectures`, `cluster` fields)              |
+| **Storage** | CDI-importer architecture selection, legacy `DataSource` backward compatibility, new CDI `platform` API      |
+| **Virt**    | VM scheduling to correct architecture nodes, VM migration between same-arch nodes, upgrade                   |
 
 #### **5. Test Environment**
 
@@ -225,16 +300,16 @@ Since it's a cross-team feature for CNV, the following should be tested:
 
 | Environment Component                         | Configuration            | Comments                                                       |
 |:----------------------------------------------|:-------------------------|:---------------------------------------------------------------|
-| **Cluster Topology**                          | MultiArch cluster        | 3 control-plan and 3/4 worker nodes.                           |
-| **OCP & OpenShift Virtualization Version(s)** | OCP 4.21, CNV-4.21       | OCP 4.21 and openshift-virtualization 4.21.                    |
-| **CPU Virtualization**                        | Multi-arch cluster       | 3 amd64 control-plane, 2 amd64 workers, and 1/2 arm64 workers. |
-| **Compute Resources**                         | N/A                      |                                                                |
-| **Special Hardware**                          |                          |                                                                |
-| **Storage**                                   | io2-csi storage class    |                                                                |
-| **Network**                                   | OVN-Kubernetes (default) | No network requirements                                        |
-| **Required Operators**                        |                          |                                                                |
-| **Platform**                                  | AWS                      |                                                                |
-| **Special Configurations**                    |                          |                                                                |
+| **Cluster Topology**                          | MultiArch cluster        | 3 control-plane and 3-4 worker nodes                           |
+| **OCP & OpenShift Virtualization Version(s)** | OCP 4.21, CNV-4.21       | OCP 4.21 and OpenShift Virtualization 4.21                     |
+| **CPU Virtualization**                        | Multi-arch cluster       | 3 amd64 control-plane, 2 amd64 workers, and 1-2 arm64 workers  |
+| **Compute Resources**                         | N/A                      | No special compute requirements                                |
+| **Special Hardware**                          | N/A                      | No special hardware required                                   |
+| **Storage**                                   | io2-csi storage class    | AWS EBS io2 CSI driver                                         |
+| **Network**                                   | OVN-Kubernetes (default) | No special network requirements                                |
+| **Required Operators**                        | HCO, SSP, CDI            | Standard OpenShift Virtualization operators                    |
+| **Platform**                                  | AWS                      | ARM64 workers available on AWS                                 |
+| **Special Configurations**                    | N/A                      | No special configurations required                             |
 
 #### **5.5. Testing Tools & Frameworks**
 
@@ -246,16 +321,15 @@ Document any **new or additional** testing tools, frameworks, or infrastructure 
 |:-------------------|:------------------------------|
 | **Test Framework** | MultiArch cluster, HA cluster |
 | **CI/CD**          | Jenkins pipeline              |
-| **Other Tools**    |                               |
+| **Other Tools**    | N/A                           |
 
 #### **6. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
-- [] Requirements and design documents are **approved and merged**
-- [] Test environment can be **set up and configured**
-- [] multi-cpu architecture enabled in openshift-virtualization repo
-- [ ] [ֿAdd feature-specific entry criteria as needed]
+- [X] VEP [dic-on-heterogeneous-cluster](https://github.com/kubevirt/enhancements/tree/main/veps/sig-storage/dic-on-heterogeneous-cluster) is **approved and merged**
+- [x] Test environment (MultiArch cluster) can be **set up and configured**
+- [ ] Multi-CPU architecture support enabled in openshift-virtualization repo
 
 #### **7. Risks and Limitations**
 
@@ -263,19 +337,24 @@ Document specific risks and limitations for this feature. If a risk category is 
 
 **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable with justification.
 
-| Risk Category                      | Specific Risk for This Feature                                                  | Mitigation Strategy                                                                            | Status |
-|:-----------------------------------|:--------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|:-------|
-| Timeline/Schedule                  | Code-Freeze in 2 weeks                                                          | prioritize this week                                                                           | [ ]    |
-| Test Coverage                      | Cannot perform automation testing until virt team enable multi-cpu architecture |                                                                                                | [ ]    |
-| Test Environment                   | Cannot test upgrade well until additional ARM64 worker will be added by Devops  | Try to do so manually                                                                          | [ ]    |
-| Untestable Aspects                 | N/A                                                                             |                                                                                                | [ ]    |
-| Resource Constraints               | Feature includes almost all CNV teams                                           | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
-| Dependencies                       | SSP, Storage and Virt team finishing their part                                 | Sync                                                                                           | [ ]    |
-| Blocker Bug for legacy DataSources | CNV-75762                                                                       | Already fixed, Storage QE need to verify                                                       | [ ]    |
+| Risk Category                      | Specific Risk for This Feature                                                  | Mitigation Strategy                                                 | Status |
+|:-----------------------------------|:--------------------------------------------------------------------------------|:--------------------------------------------------------------------|:-------|
+| Timeline/Schedule                  | Code-Freeze in 2 weeks                                                          | Prioritize HCO-specific testing this week                           | [ ]    |
+| Test Coverage                      | Cannot perform automation testing until virt team enable multi-cpu architecture | Coordinate with virt team on timeline; prepare test code in advance | [ ]    |
+| Test Environment                   | Cannot test upgrade well until additional ARM64 worker added by DevOps          | Manual testing as fallback                                          | [ ]    |
+| Untestable Aspects                 | N/A                                                                             | N/A                                                                 | [x]    |
+| Resource Constraints               | Feature spans multiple CNV teams (IUO, SSP, Storage, Virt)                      | Focus automation on HCO-specific paths; coordinate with other teams | [ ]    |
+| Dependencies                       | SSP, Storage, and Virt teams must complete their implementations                | Regular sync meetings; track dependencies in Jira                   | [ ]    |
+| Blocker Bug for legacy DataSources | CNV-75762                                                                       | Already fixed; Storage QE to verify                                 | [ ]    |
 
 #### **8. Known Limitations**
 
-Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
+| Limitation                            | Description                                                                            | Impact                                       |
+|:--------------------------------------|:---------------------------------------------------------------------------------------|:---------------------------------------------|
+| Existing VMs not updated              | VMs already running will not automatically use new architecture-specific resources     | Users must recreate VMs to use new resources |
+| Platform variant format not supported | Format like `linux/arm64/v8` is not supported in this phase                            | Future enhancement if needed                 |
+| Manual annotation in HCO image build  | `ssp.kubevirt.io/dict.architectures` annotation is set manually during HCO image build | May be automated in future phases            |
+| Architecture validation not performed | Custom golden image architectures are not validated by the system                      | Users responsible for correct configuration  |
 
 ---
 
@@ -283,16 +362,21 @@ Document any known limitations, constraints, or trade-offs in the feature implem
 
 This section links requirements to test coverage, enabling reviewers to verify all requirements are tested.
 
-| Requirement ID | Requirement Summary   | Test Scenario(s)                                                             | Test Type(s)           | Priority |
-|:---------------|:----------------------|:-----------------------------------------------------------------------------|:-----------------------|:---------|
-| [Jira-xxx]     | As a user...          | HCO listing supported archs correctly                                        | Functional             | P0       |
-| [Jira-xxx]     | As an admin...        | HCO annotating dataImportCronTemplates with supported archs                  | Functional             | P0       |
-| [Jira-xxx]     | NFR-2 (Security)      | Correct resources created and ready to use for common golden images per arch | Functional             | P1       |
-| [Jira-xxx]     | As a cluster admin... | Correct resources created and ready to use for custom golden images per arch | Functional             | P1       |
-| [Jira-xxx]     | As a cluster admin... | nodePlacement should determine the workload nodes architecture               | Regression             | P1       |
-| [Jira-xxx]     | As a cluster admin... | nodePlacement of not existing arch                                           | Regression             | P1       |
-| [Jira-xxx]     | As a cluster admin... | Legacy Datasource points to the arch specific Datasource                     | Backward Compatibility | P1       |
-| [Jira-xxx]     | As a cluster admin... | related resources names preserved as expected after upgrade                  | Upgrade                | P1       |
+| Requirement ID | User Story | Test Scenario                                                                                           | Test Type(s)           | Priority |
+|:---------------|:-----------|:--------------------------------------------------------------------------------------------------------|:-----------------------|:---------|
+|                | US-1       | Enable FG and verify feature activates                                                                  | Functional             | P0       |
+|                | US-1       | Verify `status.nodeInfo.workloadsArchitectures` lists correct architectures                             | Functional             | P0       |
+|                | US-1       | Verify `status.nodeInfo.controlPlaneArchitectures` lists correct architectures                          | Functional             | P0       |
+|                | US-1, US-2 | Verify `ssp.kubevirt.io/dict.architectures` annotation is set on DataImportCronTemplates                | Functional             | P0       |
+|                | US-1       | Verify unsupported architectures are filtered from annotations and presented in status                  | Functional             | P1       |
+|                | US-2       | Verify custom golden images get correct architecture annotations                                        | Functional             | P1       |
+|                | US-1       | Verify `spec.workloads.nodePlacement` overrides workload node detection                                 | Regression             | P1       |
+|                | US-1       | Verify behavior with `nodePlacement` specifying non-existing architecture                               | Regression             | P1       |
+|                | US-3       | Verify legacy `DataSource` points to architecture-specific `DataSource`                                 | Backward Compatibility | P1       |
+|                | US-3       | Verify resource names preserved after upgrade                                                           | Upgrade                | P1       |
+|                | US-1       | Verify `HCOMultiArchGoldenImagesDisabled` alert fires on heterogeneous cluster with FG disabled         | Functional             | P2       |
+|                | US-2       | Verify `HCOGoldenImageWithNoArchitectureAnnotation` alert fires when custom DICT missing annotation     | Functional             | P2       |
+|                | US-2       | Verify `HCOGoldenImageWithNoSupportedArchitecture` alert fires when DICT has no cluster-supported arch  | Functional             | P2       |
 
 ---
 
