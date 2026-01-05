@@ -14,11 +14,14 @@
 | **Participating SIGs** | [List of participating SIGs]                                           |
 | **Current Status**     | [Draft / QE Review Complete / Testing In Progress / GA Sign-off Ready] |
 
+**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+
 ---
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
-This section documents the mandatory QE review process. The goal is to understand the feature's value, technology, and testability prior to formal test planning.
+This section documents the mandatory QE review process. The goal is to understand the feature's value,
+technology, and testability prior to formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
@@ -31,6 +34,7 @@ This section documents the mandatory QE review process. The goal is to understan
 | **Acceptance Criteria**                | [ ]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
+**Remove if not needed**
 - [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
 - [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements)
 
@@ -51,71 +55,97 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 #### **1. Scope of Testing**
 
-Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**. Must ensure user stories are included and aligned to downstream user stories from Section I.
+Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**.
+Must ensure user stories are included and aligned to downstream user stories from Section I.
 
 **In Scope:**
 - [List key functional areas to be tested]
 - [List non-functional requirements to be tested]
 - [Reference specific user stories from Section I]
 
-**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+**Out of Scope (Testing Scope Exclusions)**
 
-#### **2. Testing Goals**
+Explicitly document what is **out of scope** for testing.
+**Critical:** All out-of-scope items require explicit stakeholder agreement to prevent "I assumed you were testing
+that" issues; each out-of-scope item must have PM/Lead sign-off.
 
-Define specific, measurable testing objectives for this feature, such as:
+- Items without stakeholder agreement are considered **risks** and must be escalated
+- Review the items during Developer Handoff/QE Kickoff meeting
 
-- [ ] [Goal 1: e.g., Achieve 90% feature coverage for core functionality]
-- [ ] [Goal 2: e.g., Validate all user workflows end-to-end]
-- [ ] [Goal 3: e.g., Verify backward compatibility with version X]
+**Note:** Replace example rows with your actual out-of-scope items.
 
-#### **3. Non-Goals (Testing Scope Exclusions)**
-
-Explicitly document what is **out of scope** for testing. **Critical:** All non-goals require explicit stakeholder agreement to prevent "I assumed you were testing that" issues.
-
-**Note:** Replace example rows with your actual non-goals. Each non-goal must have PM/Lead sign-off.
-
-| Non-Goal                                                             | Rationale              | PM/ Lead Agreement |
+| Out-of-Scope Item                                                    | Rationale              | PM/ Lead Agreement |
 |:---------------------------------------------------------------------|:-----------------------|:-------------------|
 | [e.g., Testing of deprecated features]                               | [Why this is excluded] | [ ] Name/Date      |
 | [e.g., Performance testing]                                          | [Why this is excluded] | [ ] Name/Date      |
 | [e.g., Testing on XXX architecture]                                  | [Why this is excluded] | [ ] Name/Date      |
 
-**Important Notes:**
-- Non-goals without stakeholder agreement are considered **risks** and must be escalated (see Section II.7 - Risks and Limitations)
-- Review non-goals during Developer Handoff/QE Kickoff meeting (see Section I.2 - Technology and Design Review)
 
-#### **4. Test Strategy**
+#### **2. Testing Goals**
 
-##### **A. Types of Testing**
+Define specific, measurable testing objectives for this feature using **SMART criteria**
+(Specific, Measurable, Achievable, Relevant, Time-bound).
+Each goal should tie back to requirements from Section I and be independently verifiable.
 
-The following types of testing must be reviewed and addressed.
+**How to Define Good Testing Goals:**
+- **Specific**: Clearly state what will be tested (not "test the feature" but "validate VM live migration
+  with SR-IOV networks")
+- **Measurable**: Define quantifiable success criteria (e.g., "95% of VM migrations complete within SLA"
+  or "zero critical bugs in P0 test scenarios")
+- **Achievable**: Realistic given resources and timeline
+- **Relevant**: Directly supports feature acceptance criteria and user stories
+- **Verifiable**: Can be objectively confirmed as complete
 
-**Note:** Mark "Y" if applicable, "N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review.
+**Priority Levels:**
+- **P0**: Blocking GA - must be complete before release
+- **P1**: High priority - required for full feature coverage
+- **P2**: Nice-to-have - can be deferred if timeline constraints exist
 
-| Item (Testing Type)            | Applicable (Y/N or N/A) | Comments |
-|:-------------------------------|:------------------------|:---------|
-| Functional Testing             |                         |          |
-| Automation Testing             |                         |          |
-| Performance Testing            |                         |          |
-| Security Testing               |                         |          |
-| Usability Testing              |                         |          |
-| Compatibility Testing          |                         |          |
-| Regression Testing             |                         |          |
-| Upgrade Testing                |                         |          |
-| Backward Compatibility Testing |                         |          |
+**Example - Functional Goals**:
+- **[P0]** Verify VM live migration completes successfully with new network binding plugin across
+  OVN-Kubernetes and secondary networks
+- **[P1]** Validate hotplug/hotunplug operations work with new storage class without VM restart
+- **[P0]** Confirm RBAC permissions model correctly restricts non-admin users from accessing
+  cluster-wide configuration API
+- **[P2]** Validate UI correctly displays new metrics dashboard with real-time VM performance data
+  (CPU, memory, network, disk I/O)
 
-##### **B. Potential Areas to Consider**
+**Example - Quality Goals**:
+- **[P0]** Verify VM live migration completes in <30 seconds for VMs with <8GB memory
+  (performance baseline from VEP-XXXX)
+- **[P1]** Confirm feature operates correctly in disconnected/air-gapped environments with local
+  image registry
+- **[P0]** Validate zero data loss during live migration under network latency up to 100ms
 
-**Note:** Mark "Y" if applicable, "N/A" if not applicable (with justification in Comment). Empty cells indicate incomplete review.
+**Example - Integration Goals**:
+- **[P0]** Verify backward compatibility: upgrade from OCP 4.19 to 4.20 preserves existing VM
+  configurations without manual intervention
+- **[P0]** Confirm interoperability with OpenShift Service Mesh when VMs use Istio sidecar injection
+- **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
+  alerts fire correctly in Alertmanager
 
-| Item                   | Description                                                                                                        | Applicable (Y/N or N/A) | Comment |
-|:-----------------------|:-------------------------------------------------------------------------------------------------------------------|:------------------------|:--------|
-| **Dependencies**       | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |         |
-| **Monitoring**         | Does the feature require metrics and/or alerts?                                                                    |                         |         |
-| **Cross Integrations** | Does the feature affect other features/require testing by other components? Identify what is tested by which team. |                         |         |
-| **UI**                 | Does the feature require UI? If so, ensure the UI aligns with the requirements.                                    |                         |         |
+#### **3. Test Strategy**
 
-#### **5. Test Environment**
+The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
+"N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review.
+
+| Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments |
+|:-------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------|:---------|
+| Functional Testing             | Validates that the feature works according to specified requirements and user stories                                                                        |                         |          |
+| Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          |                         |          |
+| Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       |                         |          |
+| Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              |                         |          |
+| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements |                         |          |
+| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               |                         |          |
+| Regression Testing             | Verifies that new changes do not break existing functionality                                                                                                |                         |          |
+| Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               |                         |          |
+| Backward Compatibility Testing | Ensures feature maintains compatibility with previous API versions and configurations                                                                        |                         |          |
+| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             |                         |          |
+| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           |                         |          |
+| Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              |                         |          |
+| Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     |                         |          |
+
+#### **4. Test Environment**
 
 **Note:** "N/A" means explicitly not applicable. Cannot leave empty cells.
 
@@ -132,11 +162,11 @@ The following types of testing must be reviewed and addressed.
 | **Platform**                                  |               | [e.g., Bare metal, AWS, Azure, GCP etc]                                                       |
 | **Special Configurations**                    |               | [e.g., Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled]                 |
 
-#### **5.5. Testing Tools & Frameworks**
+#### **4.1. Testing Tools & Frameworks**
 
-Document any **new or additional** testing tools, frameworks, or infrastructure required specifically for this feature.
-
-**Note:** Only list tools that are **new** or **different** from standard testing infrastructure. Leave empty if using standard tools.
+Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
+for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
+Leave empty if using standard tools.
 
 | Category           | Tools/Frameworks                                                  |
 |:-------------------|:------------------------------------------------------------------|
@@ -144,19 +174,21 @@ Document any **new or additional** testing tools, frameworks, or infrastructure 
 | **CI/CD**          | [e.g., Special test lane, custom pipeline config, or leave empty] |
 | **Other Tools**    | [e.g., Special monitoring, performance tools, or leave empty]     |
 
-#### **6. Entry Criteria**
+#### **5. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
-- [ ] Test environment can be **set up and configured** (see Section II.5 - Test Environment)
+- [ ] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
 - [ ] [Add feature-specific entry criteria as needed]
 
-#### **7. Risks and Limitations**
+#### **6. Risks**
 
-Document specific risks and limitations for this feature. If a risk category is not applicable, mark as "N/A" with justification in mitigation strategy.
+Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
+justification in mitigation strategy.
 
-**Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable with justification.
+**Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
+with justification.
 
 | Risk Category        | Specific Risk for This Feature                                                                                 | Mitigation Strategy                                                                            | Status |
 |:---------------------|:---------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|:-------|
@@ -168,7 +200,7 @@ Document specific risks and limitations for this feature. If a risk category is 
 | Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]                              | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
 | Other                | [Any other specific risks]                                                                                     | [Mitigation strategy]                                                                          | [ ]    |
 
-#### **8. Known Limitations**
+#### **7. Known Limitations**
 
 Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
 
@@ -183,7 +215,8 @@ Document any known limitations, constraints, or trade-offs in the feature implem
 
 ### **III. Test Scenarios & Traceability**
 
-This section links requirements to test coverage, enabling reviewers to verify all requirements are tested.
+This section links requirements to test coverage, enabling reviewers to verify all requirements are
+tested.
 
 | Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Test Type(s)                | Priority |
 |:------------------|:----------------------|:-----------------------------------------------------------|:----------------------------|:---------|
