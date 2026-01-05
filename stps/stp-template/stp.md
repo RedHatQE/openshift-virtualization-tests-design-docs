@@ -21,7 +21,7 @@
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
 This section documents the mandatory QE review process. The goal is to understand the feature's value,
-technology, and testability prior to formal test planning.
+technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
@@ -34,7 +34,7 @@ technology, and testability prior to formal test planning.
 | **Acceptance Criteria**                | [ ]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
-**Remove if not needed**
+[Template Note: Remove this section if not applicable]
 - [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
 - [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements)
 
@@ -218,12 +218,12 @@ Document any known limitations, constraints, or trade-offs in the feature implem
 This section links requirements to test coverage, enabling reviewers to verify all requirements are
 tested.
 
-| Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Test Type(s)                | Priority |
-|:------------------|:----------------------|:-----------------------------------------------------------|:----------------------------|:---------|
-| [Jira-123]        | As a user...          | Verify VM can be created with new feature X                | Functional, UI              | P0       |
-| [Jira-124]        | As an admin...        | Verify API for feature X is backward compatible            | API, Backward Compatibility | P0       |
-| [Jira-125]        | NFR-2 (Security)      | Verify feature X follows RBAC permissions model            | Security, Functional        | P1       |
-| [Jira-126]        | As a cluster admin... | Verify upgrade from version X to Y preserves feature state | Upgrade, Backward Compat.   | P2       |
+| Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Tier   | Priority |
+|:------------------|:----------------------|:-----------------------------------------------------------|:-------|:---------|
+| [Jira-123]        | As a user...          | Verify VM can be created with new feature X                | Tier 1 | P0       |
+| [Jira-124]        | As an admin...        | Verify API for feature X is backward compatible            | Tier 2 | P0       |
+| [Jira-125]        | NFR-2 (Security)      | Verify feature X follows RBAC permissions model            | ...    | P1       |
+| [Jira-126]        | As a cluster admin... | Verify upgrade from version X to Y preserves feature state | ....   | P2       |
 
 ---
 
