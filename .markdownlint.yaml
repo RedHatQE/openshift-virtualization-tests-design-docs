@@ -142,6 +142,12 @@ MD052: true
 # MD053 - Link and image reference definitions should be needed
 MD053: true
 
+# MD058 - Tables should be surrounded by blank lines
+MD058: true
+
+# MD060 - Table column style - DISABLED: Complex tables with long content don't need aligned pipes
+MD060: false
+
 # Additional named rules (aliases for MD rules above)
 line-length: false              # Alias for MD013
 no-hard-tabs: false             # Alias for MD010 - allows tabs in code examples
