@@ -131,7 +131,7 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [V] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
-- [ ] Multi-CPU architecture support enabled in openshift-virtualization repo 
+- [ ] Multi-CPU architecture support enabled in openshift-virtualization repo
 
 #### **6. Risks**
 
