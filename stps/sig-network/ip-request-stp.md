@@ -1,19 +1,19 @@
 # Openshift-virtualization-tests Test plan
 
-## **Request a specific IP for a VM in UDN through a third party integration - Quality Engineering Plan**
+## **Request a specific IP for a VM in UDN through a 3rd party integration - Quality Engineering Plan**
 
 ### **Metadata & Tracking**
 
-| Field                   | Details                                                                    |
-|:----------------------- |:---------------------------------------------------------------------------|
-| **Enhancement(s)**      | [As close as possible to VEP](https://access.redhat.com/solutions/7133388) |
-|                         | Also note that this feature is based on the [IP request in imported VM](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md). |
-| **Feature in Jira**     | https://issues.redhat.com/browse/CNV-67524                                 |
-| **Jira Tracking**       | https://issues.redhat.com/browse/CNV-70089                                 |
-| **QE Owner(s)**         | Yoss Segev (ysegev@redhat.com)                                             |
-| **Owning SIG**          | sig-network                                                                |
-| **Participating SIGs**  | sig-network                                                                |
-| **Current Status**      | Draft                                                                      |
+| Field                   | Details                                                                                                                                                                                                              |
+|:----------------------- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enhancement(s)**      | [OpenShift enhancement](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md)                                    |
+|                         | (This feature is based on the [IP request in imported VM](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md)) |
+| **Feature in Jira**     | https://issues.redhat.com/browse/CNV-67524                                                                                                                                                                           |
+| **Jira Tracking**       | https://issues.redhat.com/browse/CNV-70089                                                                                                                                                                           |
+| **QE Owner(s)**         | Yoss Segev (ysegev@redhat.com)                                                                                                                                                                                       |
+| **Owning SIG**          | sig-network                                                                                                                                                                                                          |
+| **Participating SIGs**  | sig-network                                                                                                                                                                                                          |
+| **Current Status**      | Draft                                                                                                                                                                                                                |
 
 ---
 
@@ -26,51 +26,70 @@ This section documents the mandatory QE review process. The goal is to understan
 | Check                                   | Done | Details/Notes                                                                                                                                                                           | Comments  |
 |:--------------------------------------- |:-----|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------- |
 | **Review Requirements**                 | [V]  | Reviewed the relevant requirements.                                                                                                                                                     |           |
-| **Understand Value**                    | [V]  | Enabling VM import with desired static IP (from 3rd party integrator) expands the motivation to import to RedHat.                                                                       |           |
-| **Customer Use Cases**                  | [V]  | Ensured requirements contain relevant **customer use cases**.                                                                                                                           |           |
+| **Understand Value**                    | [V]  | Allow seamless migration to OpenShift, with minimal network changes to customer's workloads.                                                                                            |           |
+| **Customer Use Cases**                  | [V]  | Run OpenShift VMs with in-advance IP claim, allowing to maintain network connectivity as in ole provider.                                                                               |           |
 | **Testability**                         | [V]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                |           |
 |                                         |      | Test cases are similar to those of the MTV IPAM Claim feature.                                                                                                                          |           |
 | **Acceptance Criteria**                 | [V]  | Clearly defined in the [epic](https://issues.redhat.com/browse/CNV-67524).                                                                                                              |           |
 | **Non-Functional Requirements (NFRs)**  | [V]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |           |
-|                                         |      | All relevant NFRs detailed in the epic and docs.                                                                                                                                        |           |
+|                                         |      | [Scale](https://issues.redhat.com/browse/CNV-75797)                                                                                                                                     |           |
+|                                         |      | Performance and downtime: Same as all network performance requirements, which are still in-design.                                                                                      |           |
+|                                         |      | Security: Enforced by ovn-k8s allowing only addresses claimed via annotation.                                                                                                           |           |
+|                                         |      | Connectivity: Covered in most of the test cases of the feature.                                                                                                                         |           |
+|                                         |      | Usability: No UI required.                                                                                                                                                              |           |
+|                                         |      | Portability: Currently no special treatment for "special" clusters.                                                                                                                     |           |
+|                                         |      | Docs: No requirement.                                                                                                                                                                   |           |
 
 
 #### **2. Technology and Design Review**
 
-| Check                             | Done  | Details/Notes                                                                                                                                                                         | Comments                                                                                                                                            |
-|:--------------------------------- |:----- |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Developer Handoff/QE Kickoff**  | [V]   | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**                               |                                                                                                                                                     |
-| **Technology Challenges**         | [V]   | Identified potential testing challenges related to the underlying technology.                                                                                                         |                                                                                                                                                     |
-| **Test Environment Needs**        | [V]   | Determined necessary **test environment setups and tools**.                                                                                                                           |                                                                                                                                                     |
-| **API Extensions**                | [V]   | Reviewed new or modified APIs and their impact on testing.                                                                                                                            |                                                                                                                                                     |
-|                                   |       | The change in VirtualMachine CRD is also covered in the [MTV-IPAMClaim epic](https://issues.redhat.com/browse/CNV-61227),                                                             |                                                                                                                                                     |
-|                                   |       | and can be found in the [docs](https://docs.google.com/document/d/1xvd__b5QYm60laKwwxsaYTpZqDIZg_xdN1d1rCdh6H8/edit?tab=t.0#heading=h.ig6baarsl73l) (_Example VirtualMachine Manifest_) |                                                                                                                                                     |
-| **Topology Considerations**       | [V]   | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                                                 | Same as in the setups that are used for the MTV IPAM claim testing.<br/>3rd party will provide UDN and annotated VM, CNV testing starts from that.  |
+| Check                             | Done  | Details/Notes                                                                                                                                                                                | Comments                                                                                                                                            |
+|:--------------------------------- |:----- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Developer Handoff/QE Kickoff**  | [V]   | Several meetings held + design docs exechanged.                                                                                                                                              |                                                                                                                                                     |
+| **Technology Challenges**         | [V]   | Mainly - providing the annotated VM manifest as an input (evetually addressed as in MYV-IPAMClaim testing).                                                                                  |                                                                                                                                                     |
+| **Test Environment Needs**        | [V]   | Any OpenShift cluster (virtual/BM) with external access.                                                                                                                                     |                                                                                                                                                     |
+| **API Extensions**                | [V]   | Reviewed new or modified APIs and their impact on testing.                                                                                                                                   |                                                                                                                                                     |
+|                                   |       | The change in VirtualMachine CRD is also covered in the [MTV-IPAMClaim epic](https://issues.redhat.com/browse/CNV-61227),                                                                    |                                                                                                                                                     |
+|                                   |       | and in the [OpenShift enhancement](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md) |                                                                                                                                                     |
+| **Topology Considerations**       | [V]   | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                                                        | Same as in the setups that are used for the MTV IPAM claim testing.<br/>3rd party will provide UDN and annotated VM, CNV testing starts from that.  |
 
 
 ### **II. Software Test Plan (STP)**
 
-This STP serves as the **overall roadmap for testing**, detailing the scope, approach, resources, and schedule.
+This STP covers testing of the VMs with claimed IP addresses arriving from 3rd-party external providers,
+interested in importing their virtual machine workloads to OpenShift.
+The testing should cover input VM manifests conforming to the convention required for this feature -
+UDN manifest with desired IP subnet, and a VM manifest with a dedicated annotation to specify
+the desired IP address.
 
 #### **1. Scope of Testing**
 
-As testing starts at Openshift Virtualization part, it will be similar to the testing
-of the MTV-IPAMClaim feature.
+As testing starts at OpenShift Virtualization part, it will be similar to the testing
+of the MTV-IPAMClaim feature. The setup, however, even though is similar between the
+features at the current point, will be done individually, so if the setup or implementation
+of one of the features is changed, than the other one won't be affected.
 
 **In Scope:**
 - Testing of known networking flows on VMs, where specific IP is requested for primary interface over
 Cluster/UserDefinedNetwork.\
-The uniqueness in this feature is how the IP is assigned - using the new `network.kubevirt.io/addresses` annotation
+The uniqueness in this feature is how the IP is assigned - using the new `network.kubevirt.io/addresses` annotation.
+- Main tests in scope:
+  - [P0] Verify user-required eventually assigned to VM's interface.
+  - [P0] Verify north/south and east/west TCP connectivity over the claimed IP address.
+  - [P0] Verify IP persistence (over reboot, migration, ...)
+  - [P1] Error enforcement and handling ("negative" scenarios)
+  - [P1] OVN-k8s Network-policy enforced
+  - [P1] Utilizing k8s services over VM's primary interface with claimed IP.
+  - [P1] Seamless upgrade (mainly from pre-released 4.20) for VMs with already claimed IP addresses.
 
-**Document Conventions (if applicable):** None
+**Document Conventions (if applicable):**
+* UDN: User-Defined Network (OVN-Kubernetes overlay network)
+* IPAMClaim: Request for IP address allocation from an IPPool
+* IPAM: IP Address Management
 
 #### **2. Testing Goals**
 
-Define specific, measurable testing objectives for this feature, such as:
-
-- [ ] Goal 1: Verify known networking scenarios are still valid when primary static IP is assigned via the new\
-annotation.
-- [ ] [Goal 2: Consider new cases to be tested, presented by this new feature.
+Detailed in _Scope of Testing_ section.
 
 #### **3. Non-Goals (Testing Scope Exclusions)**
 
@@ -81,6 +100,7 @@ Explicitly document what is **out of scope** for testing. **Critical:** All non-
 | Non-Goal                                            | Rationale                                                                                                                                          | PM/ Lead Agreement  |
 |:----------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------|:------------------- |
 | Templating VM spec with the `addresses` annotation. | It's the responsibility of the 3rd party integrator, and not accessible by us.<br/>We cannot and will not test the integration with the 3rd party. | [ ] Name/Date       |
+|                                                     | Our side start with an annotated VM manifest.                                                                                                      |                     |
 | Creating C/UDN with IP range.                       | Same                                                                                                                                               | [ ] Name/Date       |
 | Secondary UDN interfaces.                           | Not supported                                                                                                                                      | [ ] Name/Date       |
 | Annotated address out of UDN range.                 | Unsupported by OVN-k8s and behavior is unexpected.                                                                                                 | [ ] Name/Date       |
@@ -103,9 +123,9 @@ The following types of testing must be reviewed and addressed.
 | Functional Testing              | Y                       |                                                                                                                                                                  |
 | Automation Testing              | Y                       |                                                                                                                                                                  |
 | Performance Testing             | Y                       | https://issues.redhat.com/browse/CNV-75797                                                                                                                       |
-| Security Testing                | N/A                     |                                                                                                                                                                  |
-| Usability Testing               | N                       | The annotation is done by the 3rd-party intergrator, therefore no new UI capability to test.                                                                     |
-| Compatibility Testing           |                         | This feature is implemented in kubevirt and is environment-agnostic.                                                                                             |
+| Security Testing                | N/A                     | ovn-k8s security enforecment is not covered in OpenShift Virtualization specific tests.                                                                          |
+| Usability Testing               | N                       | The annotation is done by the 3rd-party integrator, therefore no new UI capability to test.                                                                      |
+| Compatibility Testing           | N/A                     | This feature is implemented in kubevirt and is environment-agnostic.                                                                                             |
 | Regression Testing              | Y                       | Verify this feature can work with secondary interfaces (i.e. have a VM with primary UDN with the annotated address + secondary interface, either UDN or bridged) |
 | Upgrade Testing                 | Y                       | Add pre./post-upgrade tests to ensure this feature survives upgrade.                                                                                             |
 | Backward Compatibility Testing  | N/A                     |                                                                                                                                                                  |
@@ -116,10 +136,10 @@ The following types of testing must be reviewed and addressed.
 
 | Item                    | Description                                                                                                         | Applicable (Y/N or N/A) | Comment                                                                                                                                                                                     |
 |:----------------------- |:------------------------------------------------------------------------------------------------------------------- |:------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Dependencies**        | Dependent on deliverables from other components/products? Identify what is tested by which team.                    |                         | Depends on OVN-k8s ability to manage requested IPs, which is already implemented. All the cases in the STP are necessarily Openshift Virtualization cases, thus tested by CNV network only. |
+| **Dependencies**        | Dependent on deliverables from other components/products? Identify what is tested by which team.                    |                         | Depends on OVN-k8s ability to manage requested IPs, which is already implemented. All the cases in the STP are necessarily OpenShift Virtualization cases, thus tested by CNV network only. |
 | **Monitoring**          | Does the feature require metrics and/or alerts?                                                                     | N                       |                                                                                                                                                                                             |
 | **Cross Integrations**  | Does the feature affect other features/require testing by other components? Identify what is tested by which team.  | N                       |                                                                                                                                                                                             |
-| **UI**                  | Does the feature require UI? If so, ensure the UI aligns with the requirements.                                     | N                       | No UI intergration, configuration is done in the 3rd-party.                                                                                                                                 |
+| **UI**                  | Does the feature require UI? If so, ensure the UI aligns with the requirements.                                     | N                       | No UI integration, configuration is done in the 3rd-party.                                                                                                                                  |
 
 #### **5. Test Environment**
 
@@ -156,11 +176,11 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.5 - Test Environment)
-- [ ] The starting point of this testing, from Openshift VIrtualization networking perspective, is by performing the 2\
+- [ ] The starting point of this testing, from OpenShift VIrtualization networking perspective, is by performing the 2\
 actions:\
   * Create the C/UDN resource, with the desired IP range specified in it
   * Create the VM manifest with the new `addresses` annotation\
-At this point we cannot integrate with the third-party IPAM providers, so we need to patch 	these inputs ourselves.
+At this point we cannot integrate with the 3rd-party IPAM providers, so we need to patch 	these inputs ourselves.
 
 #### **7. Risks and Limitations**
 
@@ -168,15 +188,15 @@ Document specific risks and limitations for this feature. If a risk category is 
 
 **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable with justification.
 
-| Risk Category         | Specific Risk for This Feature                                                                                         | Mitigation Strategy  | Status  |
-|:--------------------- |:---------------------------------------------------------------------------------------------------------------------- |:-------------------- |:------- |
-| Timeline/Schedule     |                                                                                                                        |                      | [ ]     |
-| Test Coverage         | STD is yet to be composed.                                                                                             |                      | [ ]     |
-| Test Environment      | No special HW requirement; any stable cluster should do.                                                               |                      | [ ]     |
-| Untestable Aspects    | The third-party integration. Our testing will start with the step of creating UDN and VM with `addresses` annotation.  |                      | [ ]     |
-| Resource Constraints  | None                                                                                                                   |                      | [ ]     |
-| Dependencies          |                                                                                                                        |                      | [ ]     |
-| Other                 |                                                                                                                        |                      | [ ]     |
+| Risk Category         | Specific Risk for This Feature                                                                                 | Mitigation Strategy | Status      |
+|:--------------------- |:---------------------------------------------------------------------------------------------------------------|:--------------------|:------------|
+| Timeline/Schedule     | Targetted for 4.21 but test automation won't be ready for code-freeze.                                         | Negotiated.         | [discussed] |
+| Test Coverage         | Testing is similar to test cases of MTV IPAMClaim feature (while setup will be done separately).               |                     | [V]         |
+| Test Environment      | No special HW requirement; any stable cluster should do.                                                       |                     | [V]         |
+| Untestable Aspects    | The 3rd-party integration.                                                                                     | Our testing will start with the step of creating UDN and VM with `addresses` annotation.                    | [V]         |
+| Resource Constraints  | None                                                                                                           |                     | [V]         |
+| Dependencies          | As mentioned above - the dependency of 3rd-party integrators is mitigated by self creating required resources. |                     | [V]         |
+| Other                 | None                                                                                                           |                     | [V]         |
 
 #### **8. Known Limitations**
 
@@ -191,24 +211,21 @@ Document any known limitations, constraints, or trade-offs in the feature implem
 
 ### **III. Test Scenarios & Traceability**
 
-This section links requirements to test coverage, enabling reviewers to verify all requirements are tested.
+Everything will be tested in tier-2, as the feature is an OVN-k8s so kubevirt developers cannot test it in tier-1.
 
-| Requirement ID     | Requirement Summary                                                              | Test Scenario(s)                                            | Test Type(s)     | Priority  |
-|:------------------ |:---------------------------------------------------------------------------------|:----------------------------------------------------------- |:-----------------|:--------- |
-| CNV-67524 (epic)          | The requirement is covered by these following scenarios:                         |                                                             |                  |           |
-|                    | See the IP address in the VMI status                                             |                                                             | Functional       |           |
-|                    | See it in the guest                                                              |                                                             | Functional       |           |
-|                    | Verify the address is pingable                                                   |                                                             | Functional       |           |
-|                    | Verify this interface can maintain TCP connectivity - east/west and north/south. |                                                             | Functional (E2E) |           |
-|                    | The feature should be applied on both IPv4/6 families                            |                                                             | Functional                 |           |                                                         |                                                             |                              |           |
-|                    | Verify the assigned address and connectivity are maintained after VM reboot.     |                                                             | Functional                 |           |
-|                    | Verify the assigned address and connectivity are maintained after VM migration.  |                                                             | Functional                 |           |
-|                    | Verify the assigned address can be reclaimed and re-used after deleting the VM   |                                                             | Functional                 |           |
-|                    | Verify no collision - try annotating 2 VMs with the same IP claim.                                                                                | Functional                                                            |                  |           |
-*
-* v
-* v
-* v
+| Requirement ID   | Requirement Summary                                                              | Test Scenario(s)                                                     | Test Type(s)     | Priority |
+|:-----------------|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------|:-----------------|:---------|
+| CNV-67524 (epic) | The requirement is covered by these following scenarios:                         |                                                                      |                  |          |
+|                  | See the IP address in the VMI status                                             | IP visible in VMI status                                             | Functional       | P1       |
+|                  | See it in the guest                                                              | IP visible in guest VM                                               | Functional       | P0       |
+|                  | Verify the address is pingable                                                   | Successful ping to claimed address                                   | Functional       | P0       |
+|                  | Verify this interface can maintain TCP connectivity - east/west and north/south. | TCP connection: 1. East/west (inside cluster                         | Functional (E2E) | P0       |
+|                  |                                                                                  | 2. North/south - external                                            |                  |          |
+|                  | The feature should be applied on both IPv4/6 families                            | Verifying selected cases (or all) over both IPv4/6                   | Functional       | P0       |
+|                  | Verify the assigned address and connectivity are maintained after VM reboot.     | Repeat connectivity tests after reboot                               | Functional       | P0       |
+|                  | Verify the assigned address and connectivity are maintained after VM migration.  | Repeat connectivity tests after migration                            | Functional       | P0       |
+|                  | Verify the assigned address can be reclaimed and re-used after deleting the VM   | Delete VM and re-use address for any other VM, no IP conflict raised | Functional       | P1       |
+|                  | Verify no collision - try annotating 2 VMs with the same IP claim.               | Annotate 2 VMs similiarily - second expected to fail running         | Functional       | P0       |
 
 ---
 
@@ -217,8 +234,8 @@ This section links requirements to test coverage, enabling reviewers to verify a
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - Orel Misan: Main feature developer (Openshift Virtualization network)
+  - Orel Misan: Main feature developer (OpenShift Virtualization network)
   - Anat Wax / Asia Zhivov Khromov / Sergei Volkov: QE team colleagues
-  - Edward Haas: Principal developer (Openshift Virtualization network)
-  - Ruth Netser: Openshift Virtualization tech-lead
-  - Petr Horacek: Openshift Virtualization network team lead
+  - Edward Haas: Principal developer (OpenShift Virtualization network)
+  - Ruth Netser: OpenShift Virtualization tech-lead
+  - Petr Horacek: OpenShift Virtualization network team lead
