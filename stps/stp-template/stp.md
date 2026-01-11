@@ -16,6 +16,13 @@
 
 **Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
 
+### **Feature Overview**
+
+<!-- Provide a brief (2-4 sentences) description of the feature being tested.
+Include: what it does, why it matters to customers, and key technical components. -->
+
+[Brief description of the feature and its purpose]
+
 <!-- [Template Note: Remove this section if not applicable]
 - [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
 - [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements) -->
@@ -29,6 +36,11 @@ technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
+<!-- **How to complete this checklist:**
+1. **Done column**: Mark [x] when the check is complete
+2. **Details/Notes column**: Summary of the topic (e.g., list key requirements, describe customer value, note acceptance criteria)
+3. **Comments column**: Document any concerns, gaps, or follow-up items needed -->
+
 | Check                                  | Done | Details/Notes                                                                                                                                                                           | Comments |
 |:---------------------------------------|:-----|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
 | **Review Requirements**                | [ ]  | Reviewed the relevant requirements.                                                                                                                                                     |          |
@@ -39,6 +51,11 @@ technology, and testability before formal test planning.
 | **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
 #### **2. Technology and Design Review**
+
+<!-- **How to complete this checklist:**
+1. **Done column**: Mark [x] when the review is complete
+2. **Details/Notes column**: Summary of the item (e.g., list technology challenges, special environment needs, significant API changes)
+3. **Comments column**: Note any blockers, risks, or items requiring follow-up -->
 
 | Check                            | Done | Details/Notes                                                                                                                                           | Comments |
 |:---------------------------------|:-----|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
@@ -213,6 +230,12 @@ with justification. -->
 
 <!-- This section links requirements to test coverage, enabling reviewers to verify all requirements are
 tested. -->
+
+<!-- **Requirement ID:**
+- Use Jira issue key (e.g., CNV-12345)
+- Each row should trace back to a specific testable requirement in Jira
+
+**Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
 | Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Tier   | Priority |
 |:------------------|:----------------------|:-----------------------------------------------------------|:-------|:---------|
