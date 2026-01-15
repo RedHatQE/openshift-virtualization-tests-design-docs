@@ -1,6 +1,6 @@
 # Openshift-virtualization-tests Test plan
 
-## CDI support for heterogeneous multi-arch clusters - Quality Engineering Pla
+## CDI support for heterogeneous multi-arch clusters - Quality Engineering Plan
 
 ### **Metadata & Tracking**
 
@@ -35,7 +35,7 @@ technology, and testability before formal test planning.
 | **Review Requirements**                | [x]  | Reviewed the relevant requirements                                                                                                                                                                                                         |          |
 | **Understand Value**                   | [x]  | CDI changes to support arch-specific registry imports for both pull modes                                                                                                                                                                  |          |
 | **Customer Use Cases**                 | [x]  | VM creation with architecture-specific DataSources                                                                                                                                                                                         |          |
-| **Testability**                        | [x]  | Requirements are testable andunambiguous                                                                                                                                                                                                   |          |
+| **Testability**                        | [x]  | Requirements are testable and andunambiguous                                                                                                                                                                                                   |          |
 | **Acceptance Criteria**                | [x]  | When importing an image from a [OCI Image Index](https://specs.opencontainers.org/image-spec/image-index/), I want to optionally specify a `platform` field to influence which image variant is selected from the multi-platform manifest. |          |
 | **Non-Functional Requirements (NFRs)** | [x]  | NFRs (Performance, Usability, Monitoring, Scalability) are out of scope for this test plan                                                                                                                                                 |          |
 
@@ -105,9 +105,9 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 - **[P0]** Verify multi-arch image matching architecture with pull method Node
 
-- **[P0]** Validata DataSource pointing to another DataSource
+- **[P0]** Validate DataSource pointing to another DataSource
 
-  **Out of Scope (Testing Scope Exclusions)**
+**Out of Scope (Testing Scope Exclusions)**
 
   | Non-Goal                       | Rationale                                                                                          | PM/ Lead Agreement |
   |:------------------------------ |:-------------------------------------------------------------------------------------------------- |:------------------ |
