@@ -4,16 +4,15 @@
 
 ### **Metadata & Tracking**
 
-| Field                   | Details                                                                                                                                                                                                              |
-|:----------------------- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Enhancement(s)**      | [OpenShift enhancement](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md)                                    |
-|                         | (This feature is based on the [IP request in imported VM](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md)) |
-| **Feature in Jira**     | https://issues.redhat.com/browse/CNV-67524                                                                                                                                                                           |
-| **Jira Tracking**       | https://issues.redhat.com/browse/CNV-70089                                                                                                                                                                           |
-| **QE Owner(s)**         | Yoss Segev (ysegev@redhat.com)                                                                                                                                                                                       |
-| **Owning SIG**          | sig-network                                                                                                                                                                                                          |
-| **Participating SIGs**  | sig-network                                                                                                                                                                                                          |
-| **Current Status**      | Draft                                                                                                                                                                                                                |
+| Field                   | Details                                                                                                                                                                          |
+|:----------------------- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enhancement(s)**      | [Enhancement proposal](https://docs.google.com/document/d/1M5YMM6w-Cimuqxd_hUdB-FcuBxrsmDSJNTjQJ-UcDDA/edit?tab=t.0#heading=h.tyhl44z6ygky)                                    |
+| **Feature in Jira**     | https://issues.redhat.com/browse/CNV-67524                                                                                                                                       |
+| **Jira Tracking**       | https://issues.redhat.com/browse/CNV-70089                                                                                                                                       |
+| **QE Owner(s)**         | Yoss Segev (ysegev@redhat.com)                                                                                                                                                   |
+| **Owning SIG**          | sig-network                                                                                                                                                                      |
+| **Participating SIGs**  | sig-network                                                                                                                                                                      |
+| **Current Status**      | Draft                                                                                                                                                                            |
 
 ---
 
@@ -26,10 +25,10 @@ This section documents the mandatory QE review process. The goal is to understan
 | Check                                   | Done | Details/Notes                                                                                                                                                                           | Comments  |
 |:--------------------------------------- |:-----|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------- |
 | **Review Requirements**                 | [V]  | Reviewed the relevant requirements.                                                                                                                                                     |           |
-| **Understand Value**                    | [V]  | Allow seamless migration to OpenShift, with minimal network changes to customer's workloads.                                                                                            |           |
-| **Customer Use Cases**                  | [V]  | Run OpenShift VMs with in-advance IP claim, allowing to maintain network connectivity as in ole provider.                                                                               |           |
+| **Understand Value**                    | [V]  | Allowing Openshift customers to integrate with third-party IPAM providers for their VMs.                                                                                                |           |
+| **Customer Use Cases**                  | [V]  | Run OpenShift VMs with in-advance IP claim, allowing to maintain network connectivity as in old provider.                                                                               |           |
 | **Testability**                         | [V]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                |           |
-|                                         |      | Test cases are similar to those of the MTV IPAM Claim feature.                                                                                                                          |           |
+|                                         |      | Testing is possible by setting up the annotated VM and UDN resource.                                                                                                                    |           |
 | **Acceptance Criteria**                 | [V]  | Clearly defined in the [epic](https://issues.redhat.com/browse/CNV-67524).                                                                                                              |           |
 | **Non-Functional Requirements (NFRs)**  | [V]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |           |
 |                                         |      | [Scale](https://issues.redhat.com/browse/CNV-75797)                                                                                                                                     |           |
@@ -43,15 +42,14 @@ This section documents the mandatory QE review process. The goal is to understan
 
 #### **2. Technology and Design Review**
 
-| Check                             | Done  | Details/Notes                                                                                                                                                                                | Comments                                                                                                                                            |
-|:--------------------------------- |:----- |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Developer Handoff/QE Kickoff**  | [V]   | Several meetings held + design docs exechanged.                                                                                                                                              |                                                                                                                                                     |
-| **Technology Challenges**         | [V]   | Mainly - providing the annotated VM manifest as an input (evetually addressed as in MYV-IPAMClaim testing).                                                                                  |                                                                                                                                                     |
-| **Test Environment Needs**        | [V]   | Any OpenShift cluster (virtual/BM) with external access.                                                                                                                                     |                                                                                                                                                     |
-| **API Extensions**                | [V]   | Reviewed new or modified APIs and their impact on testing.                                                                                                                                   |                                                                                                                                                     |
-|                                   |       | The change in VirtualMachine CRD is also covered in the [MTV-IPAMClaim epic](https://issues.redhat.com/browse/CNV-61227),                                                                    |                                                                                                                                                     |
-|                                   |       | and in the [OpenShift enhancement](https://github.com/openshift/enhancements/blob/master/enhancements/network/requesting-staticips-for-vms-being-migrated-into-primary-l2-udns-using-MTV.md) |                                                                                                                                                     |
-| **Topology Considerations**       | [V]   | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                                                        | Same as in the setups that are used for the MTV IPAM claim testing.<br/>3rd party will provide UDN and annotated VM, CNV testing starts from that.  |
+| Check                             | Done  | Details/Notes                                                                                                                               | Comments                                                                                                                                            |
+|:--------------------------------- |:----- |:--------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Developer Handoff/QE Kickoff**  | [V]   | Several meetings held + design docs exchanged.                                                                                              |                                                                                                                                                     |
+| **Technology Challenges**         | [V]   | Mainly - providing the annotated VM manifest as an input (eventually addressed as in MYV-IPAMClaim testing).                                |                                                                                                                                                     |
+| **Test Environment Needs**        | [V]   | Any OpenShift cluster (virtual/BM) with external access.                                                                                    |                                                                                                                                                     |
+| **API Extensions**                | [V]   | Reviewed new or modified APIs and their impact on testing.                                                                                  |                                                                                                                                                     |
+|                                   |       | [Enhancement proposal](https://docs.google.com/document/d/1M5YMM6w-Cimuqxd_hUdB-FcuBxrsmDSJNTjQJ-UcDDA/edit?tab=t.0#heading=h.tyhl44z6ygky) |                                                                                                                                                     |
+| **Topology Considerations**       | [V]   | Evaluated multi-cluster, network topology, and architectural impacts.                                                                       | Same as in the setups that are used for the MTV IPAM claim testing.<br/>3rd party will provide UDN and annotated VM, CNV testing starts from that.  |
 
 
 ### **II. Software Test Plan (STP)**
@@ -123,7 +121,7 @@ The following types of testing must be reviewed and addressed.
 | Functional Testing              | Y                       |                                                                                                                                                                  |
 | Automation Testing              | Y                       |                                                                                                                                                                  |
 | Performance Testing             | Y                       | https://issues.redhat.com/browse/CNV-75797                                                                                                                       |
-| Security Testing                | N/A                     | ovn-k8s security enforecment is not covered in OpenShift Virtualization specific tests.                                                                          |
+| Security Testing                | N/A                     | ovn-k8s security enforcement is not covered in OpenShift Virtualization specific tests.                                                                          |
 | Usability Testing               | N                       | The annotation is done by the 3rd-party integrator, therefore no new UI capability to test.                                                                      |
 | Compatibility Testing           | N/A                     | This feature is implemented in kubevirt and is environment-agnostic.                                                                                             |
 | Regression Testing              | Y                       | Verify this feature can work with secondary interfaces (i.e. have a VM with primary UDN with the annotated address + secondary interface, either UDN or bridged) |
@@ -176,7 +174,7 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.5 - Test Environment)
-- [ ] The starting point of this testing, from OpenShift VIrtualization networking perspective, is by performing the 2\
+- [ ] The starting point of this testing, from OpenShift Virtualization networking perspective, is by performing the 2\
 actions:\
   * Create the C/UDN resource, with the desired IP range specified in it
   * Create the VM manifest with the new `addresses` annotation\
@@ -190,10 +188,10 @@ Document specific risks and limitations for this feature. If a risk category is 
 
 | Risk Category         | Specific Risk for This Feature                                                                                 | Mitigation Strategy | Status      |
 |:--------------------- |:---------------------------------------------------------------------------------------------------------------|:--------------------|:------------|
-| Timeline/Schedule     | Targetted for 4.21 but test automation won't be ready for code-freeze.                                         | Negotiated.         | [discussed] |
-| Test Coverage         | Testing is similar to test cases of MTV IPAMClaim feature (while setup will be done separately).               |                     | [V]         |
+| Timeline/Schedule     | Targeted for 4.21 but test automation won't be ready for code-freeze.                                          | Negotiated.         | [discussed] |
+| Test Coverage         | Automation is starting.                                                                                        |                     | [V]         |
 | Test Environment      | No special HW requirement; any stable cluster should do.                                                       |                     | [V]         |
-| Untestable Aspects    | The 3rd-party integration.                                                                                     | Our testing will start with the step of creating UDN and VM with `addresses` annotation.                    | [V]         |
+| Untestable Aspects    | The 3rd-party integration. Our testing will start with the step of creating UDN and VM with `addresses` annotation. |                     | [V]         |
 | Resource Constraints  | None                                                                                                           |                     | [V]         |
 | Dependencies          | As mentioned above - the dependency of 3rd-party integrators is mitigated by self creating required resources. |                     | [V]         |
 | Other                 | None                                                                                                           |                     | [V]         |
@@ -225,7 +223,7 @@ Everything will be tested in tier-2, as the feature is an OVN-k8s so kubevirt de
 |                  | Verify the assigned address and connectivity are maintained after VM reboot.     | Repeat connectivity tests after reboot                               | Functional       | P0       |
 |                  | Verify the assigned address and connectivity are maintained after VM migration.  | Repeat connectivity tests after migration                            | Functional       | P0       |
 |                  | Verify the assigned address can be reclaimed and re-used after deleting the VM   | Delete VM and re-use address for any other VM, no IP conflict raised | Functional       | P1       |
-|                  | Verify no collision - try annotating 2 VMs with the same IP claim.               | Annotate 2 VMs similiarily - second expected to fail running         | Functional       | P0       |
+|                  | Verify no collision - try annotating 2 VMs with the same IP claim.               | Annotate 2 VMs similarly - second expected to fail running           | Functional       | P0       |
 
 ---
 
