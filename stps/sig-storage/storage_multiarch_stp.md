@@ -106,7 +106,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **[P0]** Verify multi-arch image matching architecture with pull method Node
 
 - **[P0]** Validata DataSource pointing to another DataSource
-  
+
   **Out of Scope (Testing Scope Exclusions)**
 
   | Non-Goal                       | Rationale                                                                                          | PM/ Lead Agreement |
@@ -115,12 +115,12 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Security Testing               | Out of scope for this test plan                                                                    | [ ] Name/Date      |
   | Usability testing              | Should be done by UI team                                                                          | [ ] Name/Date      |
   | Backward Compatibility Testing | VM creation using architecture-specific DataSources and legacy DataSource covered by SSP test plan | [ ] Name/Date      |
-  
+
   #### **2. Test Strategy**
-  
+
   <!-- The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
   "N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review. -->
-  
+
   | Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
   |:------------------------------ |:------------------------------------------------------------------------------------------------------------------------------------------------------------ |:----------------------- |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
   | Functional Testing             | Validates that the new storage api                                                                                                                           | Y                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -136,11 +136,11 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           | Y                       | **IUO**: HCO node architecture tracking (`status.nodeInfo`), FG activation/propagation, new metrics & alerts, upgrade<br/> **SSP**: Templates creation & utilization, new SSP API (`enableMultipleArchitectures`, `cluster` fields)<br/> **Storage**: CDI-importer architecture selection, legacy `DataSource` backward compatibility, new CDI `platform` API<br/> **Virt**: VM scheduling to correct architecture nodes, VM migration between same-arch nodes, upgrade |
   | Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N/A                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
   | Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N/A                     | not related to cloud                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-  
+
   #### **3. Test Environment**
-  
+
   <!-- **Note:** "N/A" means explicitly not applicable. Cannot leave empty cells. -->
-  
+
   | Environment Component                         | Configuration            | Comments                                                      |
   |:--------------------------------------------- |:------------------------ |:------------------------------------------------------------- |
   | **Cluster Topology**                          | MultiArch cluster        | 3 control-plane and 3-4 worker nodes                          |
@@ -153,21 +153,21 @@ Each goal should tie back to requirements from Section I and be independently ve
   | **Required Operators**                        | N/A                      | N/A                                                           |
   | **Platform**                                  | AWS                      | ARM64 workers available on AWS                                |
   | **Special Configurations**                    | N/A                      | No special configurations required                            |
-  
+
   #### **3.1. Testing Tools & Frameworks**
-  
+
   <!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
   for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
   Leave empty if using standard tools. -->
-  
+
   | Category           | Tools/Frameworks  |
   |:------------------ |:----------------- |
   | **Test Framework** | MultiArch cluster |
   | **CI/CD**          |                   |
   | **Other Tools**    |                   |
-  
+
   #### **4. Entry Criteria**
-  
+
   The following conditions must be met before testing can begin:
 
 - [x] VEP [dic-on-heterogeneous-cluster](https://github.com/kubevirt/enhancements/tree/main/veps/sig-storage/dic-on-heterogeneous-cluster) is approved and merged
@@ -177,16 +177,16 @@ Each goal should tie back to requirements from Section I and be independently ve
 - [ ] Test environment (MultiArch cluster) can be set up and configured
 
 - [x] Feature gate enableMultiArchBootImageImport can be enabled
-  
-  
-  
+
+
+
   #### **5. Risks**
-  
+
   <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
   justification in mitigation strategy.
   **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
   with justification. -->
-  
+
   | Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy | Status |
   |:-------------------- |:------------------------------------------------------- |:------------------- |:------ |
   | Timeline/Schedule    | Code-Freeze                                             |                     | [ ]    |
@@ -196,9 +196,9 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Resource Constraints | N/A                                                     |                     | [ ]    |
   | Dependencies         | N/A                                                     |                     | [ ]    |
   | Known Bugs           | [CNV-75762](https://issues.redhat.com/browse/CNV-75762) |                     | [ ]    |
-  
+
   #### **6. Known Limitations**
-  
+
   <!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
   **Examples:**
 
