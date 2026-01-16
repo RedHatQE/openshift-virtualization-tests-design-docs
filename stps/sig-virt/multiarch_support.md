@@ -1,173 +1,265 @@
 # Openshift-virtualization-tests Test plan
 
-## VM creation and Live Migration on a multi arch cluster - Quality Engineering Plan**
+## VM Creation and Live Migration on a Multi-Arch Cluster - Quality Engineering Plan
 
 ### **Metadata & Tracking**
 
-| Field                  | Details                                                                                                                                                          |
-| :--------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Enhancement(s)**     | [dic-on-heterogeneous-cluster](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/dic-on-heterogeneous-cluster/dic-on-heterogeneous-cluster.md) |
-| **Feature in Jira**    | [VIRTSTRAT-494](https://issues.redhat.com/browse/VIRTSTRAT-494)                                                                                                  |
-| **Jira Tracking**      | [CNV-26818](https://issues.redhat.com/browse/CNV-26818)                                                                                                          |
-| **QE Owner(s)**        | Akriti Gupta                                                                                                                                                     |
-| **Owning SIG**         | sig-iuo                                                                                                                                                          |
-| **Participating SIGs** | sig-infra, sig-storage, sig-virt                                                                                                                                 |
-| **Current Status**     | Draft                                                                                                                                                            |
+- **Enhancement(s):** [dic-on-heterogeneous-cluster](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/dic-on-heterogeneous-cluster/dic-on-heterogeneous-cluster.md)
+- **Feature Tracking:** [VIRTSTRAT-494](https://issues.redhat.com/browse/VIRTSTRAT-494)
+- **Epic Tracking:** [CNV-26818](https://issues.redhat.com/browse/CNV-26818)
+- **QE Owner(s):** Akriti Gupta
+- **Owning SIG:** sig-virt
+- **Participating SIGs:** sig-infra, sig-storage, sig-iuo
 
-**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
-- VM : Virtual Machine
+**Document Conventions:**
+
+| Term                       | Definition                                                                                            |
+| :------------------------- | :---------------------------------------------------------------------------------------------------- |
+| **VM**                     | Virtual Machine                                                                                       |
+| **VMI**                    | VirtualMachineInstance                                                                                 |
+| **Live Migration**         | Moving a running VM from one node to another without downtime                                         |
+| **Heterogeneous cluster**  | Cluster with worker nodes of different CPU architectures (amd64 and arm64)                            |
+| **Golden Image**           | Pre-configured bootable OS volume used as template for VM creation                                    |
+| **FG**                     | Feature Gate (`enableMultiArchBootImageImport` in HCO CR)                                             |
+
+### **Feature Overview**
+
+This feature enables arm64 VM support in mixed-architecture (amd64/arm64) OpenShift Virtualization clusters. VMs must be scheduled only on nodes matching their CPU architecture, and live migration is restricted to same-architecture nodes. This child STP covers the sig-virt responsibilities assigned by the [parent STP](stps/sig-iuo/multiarch_arm_support.md): VM scheduling, live migration, upgrade validation, and regression testing on heterogeneous clusters.
+
 ---
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
-This section documents the mandatory QE review process. The goal is to understand the feature's value,
-technology, and testability before formal test planning.
+> **Note:** This is a child STP. The full feature-wide requirements review, user stories, and technology/design review
+> are documented in the [parent STP](stps/sig-iuo/multiarch_arm_support.md) ([PR #12](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/12)).
+> This section covers the sig-virt perspective only: VM scheduling and live migration on multi-arch clusters.
 
 #### **1. Requirement & User Story Review Checklist**
 
-| Check                                  | Done | Details/Notes                                                                                                                                                                                                                            | Comments |
-| :------------------------------------- | :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- |
-| **Review Requirements**                | [V]  | Reviewed the relevant requirements.                                                                                                                                                                                                      |          |
-| **Understand Value**                   | [V]  | Confirmed clear user stories and understood.  <br/>Ensures workload uptime and hardware flexibility by enabling seamless VM creation and architecture-safe live migration across x86 and ARM nodes within a single managed cluster.<br/> |          |
-| **Customer Use Cases**                 | [V]  | Ensured requirements contain relevant **customer use cases**.                                                                                                                                                                            |          |
-| **Testability**                        | [V]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                                                                 |          |
-| **Acceptance Criteria**                | [V]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                                                                      |          |
-| **Non-Functional Requirements (NFRs)** | [V]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.                                                  |          |
+- [x] **Review Requirements**
+  - *List the key D/S requirements reviewed:* VMs must be scheduled only on nodes matching their CPU architecture; live migration restricted to same-arch nodes.
 
+- [x] **Understand Value and Customer Use Cases**
+  - *Describe the feature's value to customers:* Ensures workload uptime and hardware flexibility by enabling seamless VM creation and architecture-safe live migration across amd64 and arm64 nodes within a single managed cluster.
+  - *List the customer use cases identified:* Admins consolidate heterogeneous workloads on a single cluster; developers test across amd64 and arm64 without separate infrastructure.
 
-#### **2. Technology and Design Review**
+- [x] **Testability**
+  - *Note any requirements that are unclear or untestable:* None
 
-| Check                            | Done | Details/Notes                                                                                                                                           | Comments |
-| :------------------------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------ | :------- |
-| **Developer Handoff/QE Kickoff** | [V]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |          |
-| **Technology Challenges**        | [V]  | Identified potential testing challenges related to the underlying technology.                                                                           |          |
-| **Test Environment Needs**       | [V]  | Determined necessary **test environment setups and tools**.                                                                                             |          |
-| **API Extensions**               | [V]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |          |
-| **Topology Considerations**      | [V]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   |          |
+- [x] **Acceptance Criteria**
+  - *List the acceptance criteria:* VMs are scheduled and migrated successfully on correct architecture nodes.
+  - *Note any gaps or missing criteria:* None
 
+- [x] **Non-Functional Requirements (NFRs)**
+  - *List applicable NFRs and their targets:* **Regression**: Run T1+T2 tests on multiarch clusters. **Upgrade**: VMs survive upgrade with correct architecture placement preserved.
+  - *Note any NFRs not covered and why:* None
+
+#### **2. Known Limitations**
+
+- Container Disk VM testing is limited: no defaulting of the architecture based on the containerdisk arch, so VMs won't schedule on expected architecture nodes unless manually providing `spec.template.spec.architecture` in the VM.
+- Cross-architecture live migration is not supported (e.g., amd64 to arm64).
+
+#### **3. Technology and Design Review**
+
+- [x] **Developer Handoff/QE Kickoff**
+  - *Key takeaways and concerns:* Attended cross-SIG kickoff. See [parent STP](stps/sig-iuo/multiarch_arm_support.md) for full design walkthrough details. Covered in parent STP and in team discussions.
+
+- [x] **Technology Challenges**
+  - *List identified challenges:* MultiArch cluster available only for 12 hours; need 2 arm64 + 2 amd64 worker nodes for live migration testing.
+  - *Impact on testing approach:* Limited cluster availability requires efficient test execution.
+
+- [x] **API Extensions**
+  - *List new or modified APIs:* `spec.template.spec.architecture` field used to target specific architecture.
+  - *Testing impact:* See [parent STP](stps/sig-iuo/multiarch_arm_support.md) for full API extensions across all SIGs.
+
+- [x] **Test Environment Needs**
+  - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
+
+- [x] **Topology Considerations**
+  - *Describe topology requirements:* Heterogeneous cluster: 3 amd64 control-plane, 2 amd64 workers, 2 arm64 workers.
+  - *Impact on test design:* At least 2 worker nodes per architecture required to test live migration.
 
 ### **II. Software Test Plan (STP)**
 
-This STP serves as the **overall roadmap for testing**, detailing the scope, approach, resources, and schedule.
+This child STP details the sig-virt scope, approach, and schedule for multiarch testing.
+See the [parent STP](stps/sig-iuo/multiarch_arm_support.md) for the overall feature roadmap.
 
 #### **1. Scope of Testing**
 
-This test plan checks if VMs schedules and live migrates correctly on a mixed architecture cluster
+This child STP covers sig-virt's responsibilities within the [parent multiarch STP](stps/sig-iuo/multiarch_arm_support.md):
+VM scheduling, live migration, upgrade, and regression testing on multi-arch clusters.
 
-**In Scope:**
-- Create VMs for both AMD and ARM and confirm the cluster automatically places them on respective architecture node.
-- Test VM creation using both DataSources and Qcow2 images and ensure they always land on the right nodes.
-- Verify that VMs can Live Migrate between nodes of the same type (x86 to x86 and ARM to ARM) without stopping.
+**Testing Goals**
+
+*Functional Goals:*
+
+- **[P0]** Verify VMs scheduled only on nodes matching their CPU architecture ([CNV-26818](https://issues.redhat.com/browse/CNV-26818)).
+- **[P0]** Verify VM migration between same-architecture nodes works correctly.
+- **[P0]** Verify VM creation using golden image DataSources on correct architecture nodes.
+- **[P0]** Verify VM creation using custom Qcow2 images on correct architecture nodes.
+
+*Upgrade Goals:*
+
+- **[P0]** Verify arm64 and amd64 VMs are migrated to same-architecture nodes during upgrades and correct placement is preserved.
+
+*Regression Goals:*
+
+- **[P0]** Run Tier 1 and Tier 2 test suites on multiarch clusters with both CPU architectures.
 
 **Out of Scope (Testing Scope Exclusions)**
-**Note:** Replace example rows with your actual out-of-scope items.
 
-| Out-of-Scope Item              | Rationale                                                                 | PM/ Lead Agreement |
-| :----------------------------- | :------------------------------------------------------------------------ | :----------------- |
-| Testing with container disk VM | There's no defaulting of the architecture based on the containerdisk arch | [ ] Name/Date      |
+- [ ] **Testing with container disk VM**
+  - *Rationale:* No defaulting of the architecture based on the containerdisk arch
+  - *PM/Lead Agreement:* [ ] Name/Date
 
+- [ ] **Cross-arch live migration**
+  - *Rationale:* Live migration between different architectures (e.g., amd64 to arm64) is not supported
+  - *PM/Lead Agreement:* [ ] Name/Date
 
+#### **2. Test Strategy**
 
-#### **2. Testing Goals**
-- Validate Correct Architecture Scheduling: Confirm that 100% of amd64 and arm64 VMs are automatically placed on worker nodes with the matching CPU architecture.
+**Functional**
 
-- Verify Live Migration: Successfully migrate running VMs between same-arch nodes (x86 to x86, ARM to ARM).
+- [x] **Functional Testing** — Validates that VMs schedule and live migrate on correct architecture nodes
+  - *Details:* Verify scheduling and migration behavior across amd64 and arm64 nodes.
 
-- Verify Multi-Method Provisioning: Achieve 100% success rate for VM creation using both DataSources and Qcow2 images across both architectures.
+- [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage
+  - *Details:* All test cases automated in `openshift-virtualization-tests` repo.
 
-#### **3. Test Strategy**
+- [x] **Regression Testing** — Verifies that new changes do not break existing functionality
+  - *Details:* Run T1 and T2 on multiarch clusters per regression goals.
 
-The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
-"N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review.
+**Non-Functional**
 
-| Item                           | Description                                                                                                        | Applicable (Y/N or N/A) | Comments |
-| :----------------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------------------- | :------- |
-| Functional Testing             | Yes                                                                                                                |                         |          |
-| Automation Testing             | Yes                                                                                                                |                         |          |
-| Performance Testing            | N/A                                                                                                                |                         |          |
-| Security Testing               | N/A                                                                                                                |                         |          |
-| Usability Testing              | Yes                                                                                                                |                         |          |
-| Compatibility Testing          | N/A                                                                                                                |                         |          |
-| Regression Testing             | Yes                                                                                                                |                         |          |
-| Upgrade Testing                | N/A                                                                                                                |                         |          |
-| Backward Compatibility Testing | N/A                                                                                                                |                         |          |
-| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |          |
-| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team. |                         |          |
-| Monitoring                     | Yes                                                                                                                |                         |          |
-| Cloud Testing                  | N/A                                                                                                                |                         |          |
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Details:* N/A — Not scale-related.
 
-#### **4. Test Environment**
+- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Details:* N/A — Not security-related.
 
-**Note:** "N/A" means explicitly not applicable. Cannot leave empty cells.
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* N/A — Out of scope for this test plan.
 
-| Environment Component                         | Configuration         | Specification Examples                                                                        |
-| :-------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------- |
-| **Cluster Topology**                          | MultiArch cluster     | 3 control-plane and 4 worker nodes                                                            |
-| **OCP & OpenShift Virtualization Version(s)** | OCP 4.21, CNV-4.21    | OCP 4.21 and OpenShift Virtualization 4.21                                                    |
-| **CPU Virtualization**                        | Multi-arch cluster    | 3 amd64 control-plane, 2 amd64 workers, and 2 arm64 workers                                   |
-| **Compute Resources**                         | N/A                   | [e.g., Minimum per worker node: 8 vCPUs, 32GB RAM]                                            |
-| **Special Hardware**                          | N/A                   | [e.g., Specific NICs for SR-IOV, GPU etc.]                                                     |
-| **Storage**                                   | io2-csi storage class | AWS EBS io2 CSI driver                                                                        |
-| **Network**                                   | N/A                   | [e.g., OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack] |
-| **Required Operators**                        | N/A                   | [e.g., NMState Operator]                                                                      |
-| **Platform**                                  | N/A                   | [e.g., Bare metal, AWS, Azure, GCP etc.]                                                       |
-| **Special Configurations**                    | N/A                   | [e.g., Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled]                 |
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* N/A — Out of scope for this test plan.
 
-#### **4.1. Testing Tools & Frameworks**
+**Integration & Compatibility**
 
-Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
-for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
-Leave empty if using standard tools.
+- [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+  - *Details:* N/A — Out of scope for this test plan.
 
-| Category           | Tools/Frameworks |
-| :----------------- | :--------------- |
-| **Test Framework** |                  |
-| **CI/CD**          |                  |
-| **Other Tools**    |                  |
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* Verify VMs migrate to same-arch nodes during upgrade and placement is preserved.
 
-#### **5. Entry Criteria**
+- [x] **Dependencies** — Blocked by deliverables from other components/products
+  - *Details:* Multi-arch cluster support in openshift-virtualization-tests [PR #3755](https://github.com/RedHatQE/openshift-virtualization-tests/pull/3755).
+
+- [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
+  - *Details:* Coordinated via [parent STP](stps/sig-iuo/multiarch_arm_support.md): sig-iuo (HCO/golden images), sig-storage (CDI imports), sig-infra (templates), sig-network (network tests).
+
+**Infrastructure**
+
+- [x] **Cloud Testing** — Does the feature require multi-cloud platform testing?
+  - *Details:* AWS cluster required for arm64 worker nodes.
+
+#### **3. Test Environment**
+
+- **Cluster Topology:** MultiArch cluster — 3 control-plane and 4 worker nodes
+
+- **OCP & OpenShift Virtualization Version(s):** OCP 4.22, CNV-4.22
+
+- **CPU Virtualization:** Multi-arch cluster — 3 amd64 control-plane, 2 amd64 workers, and 2 arm64 workers
+
+- **Compute Resources:** N/A — No special compute requirements
+
+- **Special Hardware:** N/A
+
+- **Storage:** io2-csi storage class (AWS EBS io2 CSI driver)
+
+- **Network:** OVN-Kubernetes (default) — No special network requirements
+
+- **Required Operators:** N/A
+
+- **Platform:** AWS — arm64 workers available on AWS
+
+- **Special Configurations:** N/A
+
+#### **3.1. Testing Tools & Frameworks**
+
+- **Test Framework:** pytest, openshift-virtualization-tests framework
+
+- **CI/CD:** `test-pytest-cnv-4.22-virt-multiarch`
+
+- **Other Tools:** oc CLI, virtctl
+
+#### **4. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
-- [V] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
-- [ ] Multi-CPU architecture support enabled in openshift-virtualization repo
+- [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
+- [ ] Multi-CPU architecture support enabled in openshift-virtualization-tests repo ([CNV-74481](https://issues.redhat.com/browse/CNV-74481))
 
-#### **6. Risks**
+#### **5. Risks**
 
-Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
-justification in mitigation strategy.
+**Timeline/Schedule**
 
-**Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
-with justification.
+- [ ] **Risk:** Feature delivery timeline constrained by code freeze and limited multi-arch cluster availability
+  - **Mitigation:** Prioritize P0 scenarios, automate in parallel
 
-| Risk Category        | Specific Risk for This Feature                                                     | Mitigation Strategy                                                                            | Status |
-| :------------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :----- |
-| Timeline/Schedule    | Code Freeze on Jan 12th                                                            | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
-| Test Coverage        | enable multi-arch cluster support is under WIP                                     | PR https://github.com/RedHatQE/openshift-virtualization-tests/pull/3147                        | [ ]    |
-| Test Environment     | [Describe environment risks, e.g., "Requires GPU hardware, limited availability"]  | [Your mitigation, e.g., "Reserve GPU nodes early, schedule tests in advance"]                  | [ ]    |
-| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
-| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"] | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
-| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]  | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
-| Other                | [Any other specific risks]                                                         | [Mitigation strategy]                                                                          | [ ]    |
+**Test Coverage**
 
-#### **7. Known Limitations**
+- N/A
 
-Testing on Container Disk VM is limited since, there's no defaulting of the architecture based on the containerdisk arch at the moment so VM won't schedule on expected architecture node unless manually providing spec.template.spec.architecture in the VM
+**Test Environment**
 
+- N/A
 
-### **III. Test Scenarios & Traceability**
+**Resource Constraints**
+
+- [ ] **Risk:** MultiArch cluster available only for 12 hours; limited number of AWS clusters available
+  - **Mitigation:** Coordinated via [parent STP](stps/sig-iuo/multiarch_arm_support.md).
+
+**Dependencies**
+
+- [ ] **Risk:** Depends on multi-arch cluster support being enabled in openshift-virtualization-tests
+  - **Mitigation:** Coordinate via [parent STP](stps/sig-iuo/multiarch_arm_support.md) and review PR when ready.
+
+---
+
+### **III. Test Scenarios & Traceability (sig-virt)**
 
 This section links requirements to test coverage, enabling reviewers to verify all requirements are
-tested.
+tested. Only sig-virt test cases are listed here; other participating SIGs track their scenarios in the
+[parent STP](stps/sig-iuo/multiarch_arm_support.md) and their own child STPs.
 
-| Requirement ID | Requirement Summary | Test Scenario(s)                                                               | Tier   | Priority |
-| :------------- | :------------------ | :----------------------------------------------------------------------------- | :----- | :------- |
-| [CNV-72102]    |                     | Deploy and Test with a Multi-Arch cluster with 4.21                            | Tier 2 | P2       |
-| [CNV-74480]    |                     | Test updating amd64 cpuModel in HCO and check arm64 VM creations on ARM nodes. | Tier 2 | P0       |
-| [CNV-75737]    |                     | Run Tier2 Tests on Multi-Arch Clusters (ARM64 and AMD64)                       | Tier 2 | P1       |
-| [CNV-74481]    |                     | Update Tier2 automation to handle Multi-Arch scenarios                         | Tier 2 | P2       |
-| [CNV-33896]    |                     | Run Conformance Tests on multi-arch cluster (ARM64 and AMD64)                  | Tier 1 | P1       |
+- **[CNV-26818](https://issues.redhat.com/browse/CNV-26818)** — VMs scheduled on matching CPU architecture nodes
+  - *Test Scenario:* [Tier 2] Verify amd64 VMs schedule on amd64 nodes and arm64 VMs schedule on arm64 nodes
+  - *Priority:* P0
+
+- **[CNV-26818](https://issues.redhat.com/browse/CNV-26818)** — VM live migration between same-architecture nodes
+  - *Test Scenario:* [Tier 2] Verify live migration succeeds between same-arch nodes (amd64-to-amd64, arm64-to-arm64)
+  - *Priority:* P0
+
+- **[CNV-26818](https://issues.redhat.com/browse/CNV-26818)** — VM creation with golden image DataSources on correct arch
+  - *Test Scenario:* [Tier 2] Verify VMs created from arch-specific golden image DataSources run on matching architecture nodes
+  - *Priority:* P0
+
+- **[CNV-26818](https://issues.redhat.com/browse/CNV-26818)** — VM creation with custom Qcow2 images on correct arch
+  - *Test Scenario:* [Tier 2] Verify VMs created from custom Qcow2 images schedule on correct architecture nodes
+  - *Priority:* P0
+
+- **[CNV-26818](https://issues.redhat.com/browse/CNV-26818)** — VMs migrate to same-arch nodes during upgrade
+  - *Test Scenario:* [Tier 2] Verify arm64 and amd64 VMs are migrated to same-architecture nodes during upgrades and placement preserved
+  - *Priority:* P0
+
+- **[CNV-75737](https://issues.redhat.com/browse/CNV-75737)** — Regression: Run T1+T2 on multiarch clusters
+  - *Test Scenario:* [Tier 2] Run Tier 1 and Tier 2 test suites on multiarch clusters with both CPU architectures
+  - *Priority:* P0
+
+- **[CNV-33896](https://issues.redhat.com/browse/CNV-33896)** — Conformance tests on multiarch cluster
+  - *Test Scenario:* [Tier 1] Run conformance tests on multi-arch cluster (arm64 and amd64)
+  - *Priority:* P1
 
 ---
 
@@ -178,6 +270,7 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Reviewers:**
   - dshchedr
   - vsibirsk
+  - rnetser
   - kbidarkar
   - SiboWang1997
   - jerry7z
@@ -185,3 +278,4 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Approvers:**
   - dshchedr
   - vsibirsk
+  - rnetser
