@@ -55,9 +55,9 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 This test plan checks if VMs schedules and live migrates correctly on a mixed architecture cluster
 
 **In Scope:**
-- Create VMs for both AMD and ARM and confirm the cluster automatically places them on respective architecture node.
-- Test VM creation using both DataSources and Qcow2 images and ensure they always land on the right nodes.
-- Verify that VMs can Live Migrate between nodes of the same type (x86 to x86 and ARM to ARM) without stopping.
+- Create VMs for both AMD64 and ARM64 arch types and confirm the cluster automatically schedules them on respective architecture node.
+- Test VM creation using both golden image DataSources and custom Qcow2 images and ensure they always land on the right nodes.
+- Verify that VMs can Live Migrate between nodes of the same type (`amd64` to `amd64` and `arm64` to `arm64`) without issues.
 
 **Out of Scope (Testing Scope Exclusions)**
 **Note:** Replace example rows with your actual out-of-scope items.
@@ -73,7 +73,7 @@ This test plan checks if VMs schedules and live migrates correctly on a mixed ar
 
 - Verify Live Migration: Successfully migrate running VMs between same-arch nodes (x86 to x86, ARM to ARM).
 
-- Verify Multi-Method Provisioning: Achieve 100% success rate for VM creation using both DataSources and Qcow2 images across both architectures.
+- Verify Multi-Method Provisioning: Achieve 100% success rate for VM creation using both golden image DataSources and custom Qcow2 images across both architectures.
 
 #### **3. Test Strategy**
 
@@ -82,19 +82,19 @@ The following test strategy considerations must be reviewed and addressed. Mark 
 
 | Item                           | Description                                                                                                        | Applicable (Y/N or N/A) | Comments |
 | :----------------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------------------- | :------- |
-| Functional Testing             | Yes                                                                                                                |                         |          |
-| Automation Testing             | Yes                                                                                                                |                         |          |
-| Performance Testing            | N/A                                                                                                                |                         |          |
-| Security Testing               | N/A                                                                                                                |                         |          |
-| Usability Testing              | Yes                                                                                                                |                         |          |
-| Compatibility Testing          | N/A                                                                                                                |                         |          |
-| Regression Testing             | Yes                                                                                                                |                         |          |
-| Upgrade Testing                | N/A                                                                                                                |                         |          |
-| Backward Compatibility Testing | N/A                                                                                                                |                         |          |
+| Functional Testing             |                                                                                                                    | Yes                     |          |
+| Automation Testing             |                                                                                                                    | Yes                     |          |
+| Performance Testing            |                                                                                                                    | N/A                     |          |
+| Security Testing               |                                                                                                                    | N/A                     |          |
+| Usability Testing              |                                                                                                                    | Yes                     |          |
+| Compatibility Testing          |                                                                                                                    | N/A                     |          |
+| Regression Testing             |                                                                                                                    | Yes                     |          |
+| Upgrade Testing                |                                                                                                                    | N/A                     |          |
+| Backward Compatibility Testing |                                                                                                                    | N/A                     |          |
 | Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |          |
 | Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team. |                         |          |
-| Monitoring                     | Yes                                                                                                                |                         |          |
-| Cloud Testing                  | N/A                                                                                                                |                         |          |
+| Monitoring                     |                                                                                                                    | Yes                     |          |
+| Cloud Testing                  |                                                                                                                    | N/A                     |          |
 
 #### **4. Test Environment**
 
@@ -106,11 +106,11 @@ The following test strategy considerations must be reviewed and addressed. Mark 
 | **OCP & OpenShift Virtualization Version(s)** | OCP 4.21, CNV-4.21    | OCP 4.21 and OpenShift Virtualization 4.21                                                    |
 | **CPU Virtualization**                        | Multi-arch cluster    | 3 amd64 control-plane, 2 amd64 workers, and 2 arm64 workers                                   |
 | **Compute Resources**                         | N/A                   | [e.g., Minimum per worker node: 8 vCPUs, 32GB RAM]                                            |
-| **Special Hardware**                          | N/A                   | [e.g., Specific NICs for SR-IOV, GPU etc.]                                                     |
+| **Special Hardware**                          | N/A                   | [e.g., Specific NICs for SR-IOV, GPU etc.]                                                    |
 | **Storage**                                   | io2-csi storage class | AWS EBS io2 CSI driver                                                                        |
 | **Network**                                   | N/A                   | [e.g., OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack] |
 | **Required Operators**                        | N/A                   | [e.g., NMState Operator]                                                                      |
-| **Platform**                                  | N/A                   | [e.g., Bare metal, AWS, Azure, GCP etc.]                                                       |
+| **Platform**                                  | AWS                   | AWS for Arm nodes.                                                                            |
 | **Special Configurations**                    | N/A                   | [e.g., Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled]                 |
 
 #### **4.1. Testing Tools & Frameworks**
@@ -119,18 +119,18 @@ Document any **new or additional** testing tools, frameworks, or infrastructure 
 for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
 Leave empty if using standard tools.
 
-| Category           | Tools/Frameworks |
-| :----------------- | :--------------- |
-| **Test Framework** |                  |
-| **CI/CD**          |                  |
-| **Other Tools**    |                  |
+| Category           | Tools/Frameworks  |
+| :----------------- | :---------------- |
+| **Test Framework** | MultiArch cluster |
+| **CI/CD**          |                   |
+| **Other Tools**    |                   |
 
 #### **5. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
-- [V] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
+- [ ] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
 - [ ] Multi-CPU architecture support enabled in openshift-virtualization repo
 
 #### **6. Risks**
@@ -141,15 +141,15 @@ justification in mitigation strategy.
 **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
 with justification.
 
-| Risk Category        | Specific Risk for This Feature                                                     | Mitigation Strategy                                                                            | Status |
-| :------------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :----- |
-| Timeline/Schedule    | Code Freeze on Jan 12th                                                            | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
-| Test Coverage        | enable multi-arch cluster support is under WIP                                     | PR https://github.com/RedHatQE/openshift-virtualization-tests/pull/3147                        | [ ]    |
-| Test Environment     | [Describe environment risks, e.g., "Requires GPU hardware, limited availability"]  | [Your mitigation, e.g., "Reserve GPU nodes early, schedule tests in advance"]                  | [ ]    |
-| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
-| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"] | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
-| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]  | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
-| Other                | [Any other specific risks]                                                         | [Mitigation strategy]                                                                          | [ ]    |
+| Risk Category        | Specific Risk for This Feature                                                                                                               | Mitigation Strategy                                                                            | Status |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :----- |
+| Timeline/Schedule    | Code Freeze on Jan 12th                                                                                                                      | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
+| Test Coverage        | enable multi-arch cluster support is under WIP                                                                                               | PR https://github.com/RedHatQE/openshift-virtualization-tests/pull/3147                        | [ ]    |
+| Test Environment     | For testing Live Migration we need 2 ARM64 nodes and two AMD64 nodes on a cluster current jenkins job deploys cluster with single ARM64 node | https://issues.redhat.com/browse/CNV-73894                                                     | [ ]    |
+| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                                                                          | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
+| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"]                                                           | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
+| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]                                                            | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
+| Other                | [Any other specific risks]                                                                                                                   | [Mitigation strategy]                                                                          | [ ]    |
 
 #### **7. Known Limitations**
 
