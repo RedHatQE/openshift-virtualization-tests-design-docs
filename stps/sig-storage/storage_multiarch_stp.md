@@ -17,6 +17,13 @@
 ---
 
 **Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+- **CDI**: Containerized Data Importer - responsible for importing VM disk images into Kubernetes
+- **DIC**: DataImportCron - automates periodic import of VM images
+- **SSP**: Scheduling, Scale and Performance Operator - manages VM templates and common resources
+- **HCO**: Hyperconverged Cluster Operator - orchestrates OpenShift Virtualization deployment
+- **IUO**: Integration/Update Operator - handles feature gate management and upgrades
+- **VEP**: Virtualization Enhancement Proposal - design document for new features
+- **Pull Method**: Mechanism for importing images (Pod-based or Node-based)
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
