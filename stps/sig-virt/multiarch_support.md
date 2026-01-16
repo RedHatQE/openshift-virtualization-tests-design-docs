@@ -18,6 +18,7 @@
 - VM : Virtual Machine
 ---
 
+
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
 This section documents the mandatory QE review process. The goal is to understand the feature's value,
@@ -27,23 +28,23 @@ technology, and testability before formal test planning.
 
 | Check                                  | Done | Details/Notes                                                                                                                                                                                                                            | Comments |
 | :------------------------------------- | :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- |
-| **Review Requirements**                | [V]  | Reviewed the relevant requirements.                                                                                                                                                                                                      |          |
-| **Understand Value**                   | [V]  | Confirmed clear user stories and understood.  <br/>Ensures workload uptime and hardware flexibility by enabling seamless VM creation and architecture-safe live migration across x86 and ARM nodes within a single managed cluster.<br/> |          |
-| **Customer Use Cases**                 | [V]  | Ensured requirements contain relevant **customer use cases**.                                                                                                                                                                            |          |
-| **Testability**                        | [V]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                                                                 |          |
-| **Acceptance Criteria**                | [V]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                                                                      |          |
-| **Non-Functional Requirements (NFRs)** | [V]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.                                                  |          |
+| **Review Requirements**                | [x]  | Reviewed the relevant requirements.                                                                                                                                                                                                      |          |
+| **Understand Value**                   | [x]  | Confirmed clear user stories and understood.  <br/>Ensures workload uptime and hardware flexibility by enabling seamless VM creation and architecture-safe live migration across x86 and ARM nodes within a single managed cluster.<br/> |          |
+| **Customer Use Cases**                 | [x]  | Ensured requirements contain relevant **customer use cases**.                                                                                                                                                                            |          |
+| **Testability**                        | [x]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                                                                 |          |
+| **Acceptance Criteria**                | [x]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                                                                      |          |
+| **Non-Functional Requirements (NFRs)** | [x]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.                                                  |          |
 
 
 #### **2. Technology and Design Review**
 
 | Check                            | Done | Details/Notes                                                                                                                                           | Comments |
 | :------------------------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------ | :------- |
-| **Developer Handoff/QE Kickoff** | [V]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |          |
-| **Technology Challenges**        | [V]  | Identified potential testing challenges related to the underlying technology.                                                                           |          |
-| **Test Environment Needs**       | [V]  | Determined necessary **test environment setups and tools**.                                                                                             |          |
-| **API Extensions**               | [V]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |          |
-| **Topology Considerations**      | [V]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   |          |
+| **Developer Handoff/QE Kickoff** | [x]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |          |
+| **Technology Challenges**        | [x]  | Identified potential testing challenges related to the underlying technology.                                                                           |          |
+| **Test Environment Needs**       | [x]  | Determined necessary **test environment setups and tools**.                                                                                             |          |
+| **API Extensions**               | [x]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |          |
+| **Topology Considerations**      | [x]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   |          |
 
 
 ### **II. Software Test Plan (STP)**
@@ -55,9 +56,9 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 This test plan checks if VMs schedules and live migrates correctly on a mixed architecture cluster
 
 **In Scope:**
-- Create VMs for both AMD and ARM and confirm the cluster automatically places them on respective architecture node.
-- Test VM creation using both DataSources and Qcow2 images and ensure they always land on the right nodes.
-- Verify that VMs can Live Migrate between nodes of the same type (x86 to x86 and ARM to ARM) without stopping.
+- Create VMs for both AMD64 and ARM64 arch types and confirm the cluster automatically schedules them on respective architecture node.
+- Test VM creation using both golden image DataSources and custom Qcow2 images and ensure they always land on the right nodes.
+- Verify that VMs can Live Migrate between nodes of the same type (`amd64` to `amd64` and `arm64` to `arm64`) without issues.
 
 **Out of Scope (Testing Scope Exclusions)**
 **Note:** Replace example rows with your actual out-of-scope items.
@@ -73,32 +74,31 @@ This test plan checks if VMs schedules and live migrates correctly on a mixed ar
 
 - Verify Live Migration: Successfully migrate running VMs between same-arch nodes (x86 to x86, ARM to ARM).
 
-- Verify Multi-Method Provisioning: Achieve 100% success rate for VM creation using both DataSources and Qcow2 images across both architectures.
+- Verify Multi-Method Provisioning: Achieve 100% success rate for VM creation using both golden image DataSources and custom Qcow2 images across both architectures.
 
 #### **3. Test Strategy**
 
 The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
 "N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review.
 
-| Item                           | Description                                                                                                        | Applicable (Y/N or N/A) | Comments |
-| :----------------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------------------- | :------- |
-| Functional Testing             | Yes                                                                                                                |                         |          |
-| Automation Testing             | Yes                                                                                                                |                         |          |
-| Performance Testing            | N/A                                                                                                                |                         |          |
-| Security Testing               | N/A                                                                                                                |                         |          |
-| Usability Testing              | Yes                                                                                                                |                         |          |
-| Compatibility Testing          | N/A                                                                                                                |                         |          |
-| Regression Testing             | Yes                                                                                                                |                         |          |
-| Upgrade Testing                | N/A                                                                                                                |                         |          |
-| Backward Compatibility Testing | N/A                                                                                                                |                         |          |
-| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                   |                         |          |
-| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team. |                         |          |
-| Monitoring                     | Yes                                                                                                                |                         |          |
-| Cloud Testing                  | N/A                                                                                                                |                         |          |
+| Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments |
+| :----------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------- | :------- |
+| Functional Testing             | Validates that the VM scedules and live migrates on corrcet architecture node stories                                                                        | Yes                     |          |
+| Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          | Yes                     |          |
+| Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       | N/A                     |          |
+| Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              | N/A                     |          |
+| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements | Yes                     |          |
+| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               | N/A                     |          |
+| Regression Testing             | Verifies that new changes do not break existing functionality                                                                                                | Yes                     |          |
+| Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               | N/A                     |          |
+| Backward Compatibility Testing | Ensures feature maintains compatibility with previous API versions and configurations                                                                        | N/A                     |          |
+| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             | N/A                     |          |
+| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           | N/A                     |          |
+| Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N/A                     |          |
+| Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N/A                     |          |
 
 #### **4. Test Environment**
 
-**Note:** "N/A" means explicitly not applicable. Cannot leave empty cells.
 
 | Environment Component                         | Configuration         | Specification Examples                                                                        |
 | :-------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------- |
@@ -106,50 +106,50 @@ The following test strategy considerations must be reviewed and addressed. Mark 
 | **OCP & OpenShift Virtualization Version(s)** | OCP 4.21, CNV-4.21    | OCP 4.21 and OpenShift Virtualization 4.21                                                    |
 | **CPU Virtualization**                        | Multi-arch cluster    | 3 amd64 control-plane, 2 amd64 workers, and 2 arm64 workers                                   |
 | **Compute Resources**                         | N/A                   | [e.g., Minimum per worker node: 8 vCPUs, 32GB RAM]                                            |
-| **Special Hardware**                          | N/A                   | [e.g., Specific NICs for SR-IOV, GPU etc.]                                                     |
+| **Special Hardware**                          | N/A                   | [e.g., Specific NICs for SR-IOV, GPU etc.]                                                    |
 | **Storage**                                   | io2-csi storage class | AWS EBS io2 CSI driver                                                                        |
 | **Network**                                   | N/A                   | [e.g., OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack] |
 | **Required Operators**                        | N/A                   | [e.g., NMState Operator]                                                                      |
-| **Platform**                                  | N/A                   | [e.g., Bare metal, AWS, Azure, GCP etc.]                                                       |
+| **Platform**                                  | AWS                   | AWS for Arm nodes.                                                                            |
 | **Special Configurations**                    | N/A                   | [e.g., Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled]                 |
 
 #### **4.1. Testing Tools & Frameworks**
 
-Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
+<!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
 for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
-Leave empty if using standard tools.
+Leave empty if using standard tools. -->
 
-| Category           | Tools/Frameworks |
-| :----------------- | :--------------- |
-| **Test Framework** |                  |
-| **CI/CD**          |                  |
-| **Other Tools**    |                  |
+| Category           | Tools/Frameworks  |
+| :----------------- | :---------------- |
+| **Test Framework** | MultiArch cluster |
+| **CI/CD**          |                   |
+| **Other Tools**    |                   |
 
 #### **5. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
-- [V] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
+- [ ] Test environment can be **set up and configured** (see Section II.4 - Test Environment)
 - [ ] Multi-CPU architecture support enabled in openshift-virtualization repo
 
 #### **6. Risks**
 
-Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
-justification in mitigation strategy.
+<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
+justification in mitigation strategy. -->
 
-**Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
-with justification.
+<!-- **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
+with justification. -->
 
-| Risk Category        | Specific Risk for This Feature                                                     | Mitigation Strategy                                                                            | Status |
-| :------------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :----- |
-| Timeline/Schedule    | Code Freeze on Jan 12th                                                            | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
-| Test Coverage        | enable multi-arch cluster support is under WIP                                     | PR https://github.com/RedHatQE/openshift-virtualization-tests/pull/3147                        | [ ]    |
-| Test Environment     | [Describe environment risks, e.g., "Requires GPU hardware, limited availability"]  | [Your mitigation, e.g., "Reserve GPU nodes early, schedule tests in advance"]                  | [ ]    |
-| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
-| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"] | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
-| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]  | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
-| Other                | [Any other specific risks]                                                         | [Mitigation strategy]                                                                          | [ ]    |
+| Risk Category        | Specific Risk for This Feature                                                                                                               | Mitigation Strategy                                                                            | Status |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :----- |
+| Timeline/Schedule    | Code Freeze on Jan 12th                                                                                                                      | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
+| Test Coverage        | enable multi-arch cluster support is under WIP                                                                                               | PR https://github.com/RedHatQE/openshift-virtualization-tests/pull/3147                        | [ ]    |
+| Test Environment     | For testing Live Migration we need 2 ARM64 nodes and two AMD64 nodes on a cluster current jenkins job deploys cluster with single ARM64 node | https://issues.redhat.com/browse/CNV-73894                                                     | [ ]    |
+| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                                                                          | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
+| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"]                                                           | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
+| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]                                                            | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
+| Other                | [Any other specific risks]                                                                                                                   | [Mitigation strategy]                                                                          | [ ]    |
 
 #### **7. Known Limitations**
 
