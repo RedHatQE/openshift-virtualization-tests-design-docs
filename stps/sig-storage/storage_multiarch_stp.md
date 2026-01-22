@@ -225,10 +225,11 @@ tested. -->
 
 | Requirement ID | Requirement Summary                                                             | Test Scenario(s)                                                                                                                              | Tier   | Priority |
 |:-------------- |:------------------------------------------------------------------------------- |:--------------------------------------------------------------------------------------------------------------------------------------------- |:------ |:-------- |
-|                | Pull multi-arch image matching architecture with pull method Pod                | Verify the import succeeded with spec.registry.pullMethod: pod and spec.registry.platform.architecture: arm64 and                             | Tier 1 | P1       |
-|                | Pull failed when multi-arch image with absent architecture with pull method Pod | Verify the import failed with spec.registry.pullMethod: pod and spec.registry.platform.architecture: absent                                   | Tier 1 | P0       |
-|                | node selector for multi-arch image architecture with pull method Node           | Verify the import pod label has "Unschedulable" condition with spec.registry.pullMethod: node and spec.registry.platform.architecture: absent | Tier 1 | P0       |
-|                | DataSource pointing to another DataSource                                       | Verify the import succeeded when define the DataSource to another DataSource                                                                  | Tier 1 | P1       |
+|     TC-01      | Pull multi-arch image matching architecture with pull method Pod                | Verify the import succeeded with spec.registry.pullMethod: pod and spec.registry.platform.architecture: arm64                                    | Tier 1 | P1       |
+|     TC-02      | Pull failed when multi-arch image with absent architecture with pull method Pod | Verify the import failed with spec.registry.pullMethod: pod and spec.registry.platform.architecture: absent                                   | Tier 1 | P0       |
+|     TC-03      | node selector for multi-arch image architecture with pull method Node           | Verify the import pod label has "Unschedulable" condition with spec.registry.pullMethod: node and spec.registry.platform.architecture: absent | Tier 1 | P0       |
+|     TC-04      | DataSource pointing to another DataSource                                       | Verify the import succeeded when define the DataSource to another DataSource                                                                  | Tier 1 | P1       |
+|     TC-05      | Cross-architecture VM cloning                                                   | Clone amd64 VM, verify clone uses amd64 DataSource. Attempt cross-arch clone, verify appropriate error                                   | Tier 2 | P1       |
 
 ---
 
@@ -237,8 +238,9 @@ tested. -->
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - [Name / @github-username]
-  - [Name / @github-username]
+  - 
+  - 
 * **Approvers:**
-  - [Name / @github-username]
-  - [Name / @github-username]
+  - 
+  - 
+
