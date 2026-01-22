@@ -238,9 +238,8 @@ tested. -->
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - 
-  - 
+  -
+  -
 * **Approvers:**
-  - 
-  - 
-
+  -
+  -
