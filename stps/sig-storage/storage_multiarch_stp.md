@@ -116,14 +116,14 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 **Out of Scope (Testing Scope Exclusions)**
 
-  | Non-Goal                       | Rationale                                                                                          | PM/ Lead Agreement |
-  |:------------------------------ |:-------------------------------------------------------------------------------------------------- |:------------------ |
-  | Performance Testing            | Out of scope for this test plan                                                                    | [ ] Name/Date      |
-  | Security Testing               | Out of scope for this test plan                                                                    | [ ] Name/Date      |
-  | Usability testing              | Should be done by UI team                                                                          | [ ] Name/Date      |
-  | Backward Compatibility Testing | VM creation using architecture-specific DataSources and legacy DataSource covered by SSP test plan | [ ] Name/Date      |
+| Non-Goal                       | Rationale                                                                                          | PM/ Lead Agreement |
+|:------------------------------ |:-------------------------------------------------------------------------------------------------- |:------------------ |
+| Performance Testing            | Out of scope for this test plan                                                                    | [ ] Name/Date      |
+| Security Testing               | Out of scope for this test plan                                                                    | [ ] Name/Date      |
+| Usability testing              | Should be done by UI team                                                                          | [ ] Name/Date      |
+| Backward Compatibility Testing | VM creation using architecture-specific DataSources and legacy DataSource covered by SSP test plan | [ ] Name/Date      |
 
-  ####**2. Test Strategy**
+####**2. Test Strategy**
 
   <!-- The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
   "N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review. -->
@@ -144,7 +144,7 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N/A                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
   | Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N/A                     | not related to cloud                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
-  ####**3. Test Environment**
+####**3. Test Environment**
 
   <!-- **Note:** "N/A" means explicitly not applicable. Cannot leave empty cells. -->
 
@@ -173,7 +173,7 @@ Each goal should tie back to requirements from Section I and be independently ve
   | **CI/CD**          |                   |
   | **Other Tools**    |                   |
 
-  ####**4. Entry Criteria**
+####**4. Entry Criteria**
 
   The following conditions must be met before testing can begin:
 
@@ -187,7 +187,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 
 
-  ####**5. Risks**
+####**5. Risks**
 
   <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
   justification in mitigation strategy.
@@ -204,12 +204,14 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Dependencies         | N/A                                                     |                     | [ ]    |
   | Known Bugs           | [CNV-75762](https://issues.redhat.com/browse/CNV-75762) |                     | [ ]    |
 
-  ####**6. Known Limitations**
+####**6. Known Limitations**
 
   <!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
   **Examples:**
+  - s390x is not testable due to hardware availability, the test will limit to amd64/arm64
+  -->
 
-- s390x is not testable due to hardware availability, the test will limit to amd64/arm64
+  None
 
 ---
 
