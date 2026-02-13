@@ -16,7 +16,7 @@
 
 ---
 
-**Document Conventions (if applicable):**
+**Document Conventions:**
 - **CDI**: Containerized Data Importer - responsible for importing VM disk images into Kubernetes
 - **DIC**: DataImportCron - automates periodic import of VM images
 - **SSP**: Scheduling, Scale and Performance Operator - manages VM templates and common resources
@@ -123,7 +123,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 | Usability testing              | Should be done by UI team                                                                          | [ ] Name/Date      |
 | Backward Compatibility Testing | VM creation using architecture-specific DataSources and legacy DataSource covered by SSP test plan | [ ] Name/Date      |
 
-####**2. Test Strategy**
+#### **2. Test Strategy**
 
   <!-- The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
   "N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review. -->
@@ -144,7 +144,7 @@ Each goal should tie back to requirements from Section I and be independently ve
   | Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N/A                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
   | Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N/A                     | not related to cloud                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
-####**3. Test Environment**
+#### **3. Test Environment**
 
   <!-- **Note:** "N/A" means explicitly not applicable. Cannot leave empty cells. -->
 
@@ -161,7 +161,7 @@ Each goal should tie back to requirements from Section I and be independently ve
   | **Platform**                                  | AWS                      | ARM64 workers available on AWS                                |
   | **Special Configurations**                    | N/A                      | No special configurations required                            |
 
-  ####**3.1. Testing Tools & Frameworks**
+#### **3.1. Testing Tools & Frameworks**
 
   <!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
   for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
@@ -173,7 +173,7 @@ Each goal should tie back to requirements from Section I and be independently ve
   | **CI/CD**          |                   |
   | **Other Tools**    |                   |
 
-####**4. Entry Criteria**
+#### **4. Entry Criteria**
 
   The following conditions must be met before testing can begin:
 
@@ -187,24 +187,24 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 
 
-####**5. Risks**
+#### **5. Risks**
 
   <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
   justification in mitigation strategy.
   **Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
   with justification. -->
 
-  | Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy | Status |
-  |:-------------------- |:------------------------------------------------------- |:------------------- |:------ |
-  | Timeline/Schedule    | N/A                                                     |                     | [ ]    |
-  | Test Coverage        | N/A                                                     |                     | [ ]    |
-  | Test Environment     | [CNV-76482](https://issues.redhat.com/browse/CNV-76482) |                     | [ ]    |
-  | Untestable Aspects   | N/A                                                     |                     | [ ]    |
-  | Resource Constraints | N/A                                                     |                     | [ ]    |
-  | Dependencies         | N/A                                                     |                     | [ ]    |
-  | Known Bugs           | [CNV-75762](https://issues.redhat.com/browse/CNV-75762) |                     | [ ]    |
+  | Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy                                              | Status |
+  |:-------------------- |:------------------------------------------------------- |:---------------------------------------------------------------- |:------ |
+  | Timeline/Schedule    | N/A                                                     | No timeline risks identified for this feature                    | [ ]    |
+  | Test Coverage        | N/A                                                     | Standard test coverage applies, no special risks                 | [ ]    |
+  | Test Environment     | [CNV-76482](https://issues.redhat.com/browse/CNV-76482) | Tracked in CNV-76482; coordinate testing schedules early         | [ ]    |
+  | Untestable Aspects   | N/A                                                     | All aspects are testable within multi-arch environment           | [ ]    |
+  | Resource Constraints | N/A                                                     | Standard resource requirements, no constraints                   | [ ]    |
+  | Dependencies         | N/A                                                     | No external dependencies blocking testing                        | [ ]    |
+  | Known Bugs           | [CNV-75762](https://issues.redhat.com/browse/CNV-75762) | Tracked in CNV-75762; monitor bug status for fixes              | [ ]    |
 
-####**6. Known Limitations**
+#### **6. Known Limitations**
 
   <!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
   **Examples:**
