@@ -8,7 +8,7 @@
 |:-----------------------|:------------------------------------------------------------------|
 | **Enhancement(s)** | [VEP #140: Live Update NAD Reference](https://github.com/kubevirt/enhancements/blob/main/veps/sig-network/hotpluggable-nad-ref.md) |
 | **Feature in Jira** | [CNV-72329](https://issues.redhat.com/browse/CNV-72329) |
-| **Jira Tracking** | [CNV-72329](https://issues.redhat.com/browse/CNV-72329) |
+| **Jira Tracking** | Epic: [CNV-72329](https://issues.redhat.com/browse/CNV-72329), Parent: [VIRTSTRAT-560](https://issues.redhat.com/browse/VIRTSTRAT-560) |
 | **QE Owner(s)** | TBD |
 | **Owning SIG** | sig-network |
 | **Participating SIGs** | sig-compute |
