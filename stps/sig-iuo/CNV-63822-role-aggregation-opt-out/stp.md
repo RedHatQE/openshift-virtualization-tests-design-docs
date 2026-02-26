@@ -6,12 +6,13 @@
 
 | Field                  | Details                                                 |
 |:-----------------------|:--------------------------------------------------------|
-| **Enhancement(s)**     | KubeVirt PR #16350 (pending merge)                      |
-| **Feature in Jira**    | [CNV-63822](https://issues.redhat.com/browse/CNV-63822) |
+| **Enhancement(s)**     | [Kubevirt VEP](https://github.com/kubevirt/enhancements/issues/160) |
+|                        |KubeVirt PR #16350 (pending merge)                      |
+| **Feature in Jira**    | [CNV-50792](https://issues.redhat.com/browse/CNV-50792) |
 | **Jira Tracking**      | [CNV-63822](https://issues.redhat.com/browse/CNV-63822) |
-| **QE Owner(s)**        | Ramon Lobillo (@rlobillo)                               |
+| **QE Owner(s)**        | Ramon Lobillo (@rlobillo), Alex Barker (@albarker-rh)   |
 | **Owning SIG**         | sig-iuo (Install, Upgrade, Operators)                   |
-| **Participating SIGs** | TBD                                                     |
+| **Participating SIGs** | sig-ui                                                  |
 | **Current Status**     | Draft - Waiting for upstream merge                      |
 
 ---
@@ -22,11 +23,12 @@
 
 | Check                                  | Done | Details/Notes                                                                   | Comments                                              |
 |:---------------------------------------|:-----|:--------------------------------------------------------------------------------|:------------------------------------------------------|
-| **Review Requirements**                | [x]  | Admins can disable automatic kubevirt.io role aggregation via config             | Per CNV-63822 epic acceptance criteria               |
-| **Understand Value**                   | [x]  | Enables strict RBAC: users must explicitly get kubevirt.io permissions           | Required for regulated/multi-tenant environments      |
-| **Customer Use Cases**                 | [x]  | Regulated environments, multi-tenant clusters, security-hardened deployments     | Aligns with enterprise RBAC requirements              |
+| **Review Requirements**                | [x]  | As a cluster-admin I want to decide which users will have access to the virtualization in the cluster. Not all project-admins should have this access but only the eligible ones            | Per CNV-50792 feature request |
+| **Understand Value**                   | [x]  | A cluster-admin wants to control which users has access to view/create/edit openshift virtualization resources on a given namespace | Per CNV-50792 feature request |
+| **Customer Use Cases**                 | [x]  | * multi-tenant clusters|different namespaces are used to allow different workloads and prevent unallowed usage of workload that the tenant is not eligible to us|
+|                                        |      | * Resources usage control|cluster admin wants to get a request to allow a specific user to create VMs and Storage|
 | **Testability**                        | [ ]  | Blocked until KubeVirt PR #16350 merges; need to confirm field name and API     | Cannot implement tests without actual implementation  |
-| **Acceptance Criteria**                | [x]  | (1) Config disables aggregation, (2) Users blocked without RoleBinding, (3) RoleBinding grants access | Clearly defined in CNV-63822                         |
+| **Acceptance Criteria**                | [x]  | (1) Config disables aggregation, (2) Users blocked without RoleBinding, (3) RoleBinding grants access | Defined in CNV-63822 epic |
 | **Non-Functional Requirements (NFRs)** | [x]  | Security (RBAC hardening), Backward Compatibility (default unchanged)            | Upgrade and docs coverage required                    |
 
 #### **2. Technology and Design Review**
@@ -34,117 +36,98 @@
 | Check                            | Done | Details/Notes                                                                   | Comments                                              |
 |:---------------------------------|:-----|:--------------------------------------------------------------------------------|:------------------------------------------------------|
 | **Developer Handoff/QE Kickoff** | [ ]  | Pending KubeVirt PR #16350 merge; will schedule once API is confirmed           | Need exact config field name and allowed values       |
-| **Technology Challenges**        | [x]  | RBAC testing requires unprivileged user (HTPasswd IdP already supported)        | Using existing test infrastructure                    |
+| **Technology Challenges**        | [x]  | N/A ||
 | **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing      | No special hardware required                          |
 | **API Extensions**               | [ ]  | KubeVirt spec field TBD; likely under spec.configuration per PR #16350          | Cannot finalize until upstream merged                 |
 | **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent             | Works on all topologies (standard, SNO, compact)      |
 
-[Kubevirt VEP](https://github.com/kubevirt/enhancements/issues/160)
 
 
 ### **II. Software Test Plan (STP)**
 
 #### **1. Scope of Testing**
 
-**In Scope:**
-- Verify role aggregation can be disabled via hyperconvergeds.hco.kubevirt.io config
-- Unprivileged users cannot access kubevirt resources without explicit RoleBinding (when disabled):
-- Explicit RoleBindings (admin, edit, view) grant access correctly
-  - admin = Allows all operations on API group "kubevirt.io", including deletecollection.
-  - edit =  Allows all operations on API group "kubevirt.io" excluding deletecollection operation.
-  - view = Accepts get list and watch verbs on API group "kubevirt.io", so cannot start/create/update/stop/delete VMs.
-- Default behavior (role aggregation enabled) remains unchanged
-- Configuration preserved across CNV z-stream upgrades
-- Backward compatibility validation
+**Testing Goals**
+- [P0] Verify opt-out role aggregation can be enabled via hyperconvergeds.hco.kubevirt.io config
+- [P0] Unprivileged users cannot access kubevirt resources without explicit RoleBinding when feature is enabled
+- [P0] Unprivileged users cannot access Virtualization view in UI without explicit RoleBinding when feature is enabled
+- [P0] Explicit RoleBindings (admin, edit, view) grant access correctly
+- [P0] Verify opt-out role aggregation can be disabled via hyperconvergeds.hco.kubevirt.io config
+
+**Backward compatibility Goals**
+
+- [P0] Default behavior (role aggregation enabled) remains unchanged
+- [P0] Default behaviour is preserved across CNV z-stream upgrades
 
 **Out of Scope:**
-- Testing OpenShift RBAC infrastructure itself (OCP responsibility)
-- Performance impact of RBAC enforcement
-- ARM64/s390x architectures (RBAC is architecture-independent)
-- External IdP testing beyond HTPasswd (feature is IdP-agnostic)
 
-#### **2. Testing Goals**
-
-- [ ] Validate functional test scenarios
-- [ ] Automate functional test scenarios for CI integration
-- [ ] Verify backward compatibility
-- [ ] Verify configuration remains between upgrades
-
-#### **3. Non-Goals (Testing Scope Exclusions)**
-
-| Non-Goal                                                  | Rationale                                                                     | PM/ Lead Agreement |
+| Out-of-Scope Item                                         | Rationale                                                                     | PM/ Lead Agreement |
 |:----------------------------------------------------------|:------------------------------------------------------------------------------|:-------------------|
-| Full regression with opt-out enabled from fresh install   | Deferred to post-GA manual testing if time-constrained                        | [ ] TBD            |
+| Testing OpenShift RBAC infrastructure itself              | OCP responsibility                                                            | [ ] TBD            |
+| Testing all rules within kubevirt.io roles                | kubevirt.io:{admin,edit,view} clusterroles contains rules that are not affected by this feature | [ ] TBD            |
 | External IdP compatibility (LDAP, Active Directory)       | RBAC is IdP-agnostic; HTPasswd testing validates core logic                   | [ ] TBD            |
 | Multi-tenant cluster scale testing (100+ users)           | RBAC overhead negligible; functional correctness sufficient at smaller scale  | [ ] TBD            |
-| Testing kubevirt.io:migrate role aggregation              | kubevirt.io:migrate has no aggregate labels (not a Kubernetes base role); already requires explicit RoleBinding regardless of strategy | [ ] TBD            |
+| Testing kubevirt.io:migrate role aggregation              | Already covered on tier2 regression testing: [test_migration_rights.py](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py) | [ ] TBD            |
 
-#### **4. Test Strategy**
 
-##### **A. Types of Testing**
+#### **2. Test Strategy**
 
-| Item (Testing Type)            | Applicable (Y/N or N/A) | Comments |
-|:-------------------------------|:------------------------|:---------|
-| Functional Testing             | Y                       | Core focus: verify RBAC opt-out behavior |
-| Automation Testing             | Y                       | All tests automated in openshift-virtualization-tests |
-| Performance Testing            | N/A                     | RBAC checks have negligible impact |
-| Security Testing               | Y                       | Feature IS a security enhancement; tested via functional scenarios |
-| Usability Testing              | N/A                     | Configuration via YAML, no UI component |
-| Compatibility Testing          | Y                       | Backward compatibility with default behavior |
-| Regression Testing             | Y                       | Ensure existing CNV functionality unaffected |
-| Upgrade Testing                | Y                       | Verify config preserved across z-stream upgrades |
-| Backward Compatibility Testing | Y                       | Default state (opt-out disabled) unchanged |
+| Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments |
+|:-------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------|:---------|
+| Functional Testing             | Validates that the feature works according to specified requirements and user stories                                                                        | Y                       | Core focus: verify RBAC opt-out behaviour |
+| Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          | Y                       |          |
+| Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       | N/A                     |          |
+| Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              | Y                       | Feature is a security enhancement |
+| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements | Y                       | unprivileged user should not see Virtualization view on UI with feature Enabled |
+| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               | Y                       | default behaviour will not change |
+| Regression Testing             | Verifies that new changes do not break existing functionality                                                                                                | Y                       |          |
+| Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               | Y                       |          |
+| Backward Compatibility Testing | Ensures feature maintains compatibility with previous API versions and configurations                                                                        | Y                       |          |
+| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             | N                       |          |
+| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           | Y                       | UI       |
+| Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N                       |          |
+| Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N                       |          |
 
-##### **B. Potential Areas to Consider**
 
-| Item                   | Description                                                                 | Applicable (Y/N or N/A) | Comment |
-|:-----------------------|:----------------------------------------------------------------------------|:------------------------|:--------|
-| **Dependencies**       | Depends on KubeVirt PR #16350 (upstream) and HCO integration (downstream)   | Y                       | Blocker until upstream merged |
-| **Monitoring**         | Feature doesn't require metrics/alerts                                      | N/A                     | RBAC enforcement is transparent |
-| **Cross Integrations** | All kubevirt features requiring VM interaction affected by RBAC changes     | Y                       | Verify cluster-admin retains all permissions |
-| **UI**                 | Configuration via HCO/KubeVirt CR YAML only                                 | N/A                     | No UI component |
-
-#### **5. Test Environment**
+#### **3. Test Environment**
 
 | Environment Component                         | Configuration                  | Specification Examples                                             |
 |:----------------------------------------------|:-------------------------------|:-------------------------------------------------------------------|
 | **Cluster Topology**                          | Standard or SNO                | Feature works on all topologies; multi-node preferred              |
-| **OCP & OpenShift Virtualization Version(s)** | OCP 4.21+ with CNV 4.22        | Target version where feature introduced                            |
+| **OCP & OpenShift Virtualization Version(s)** | OCP 4.22 with CNV 4.22         | Target version where feature introduced                            |
 | **CPU Virtualization**                        | N/A                            | Not relevant for RBAC testing                                      |
 | **Compute Resources**                         | Standard cluster resources     | Minimum per worker: 4 vCPUs, 16GB RAM                              |
 | **Special Hardware**                          | N/A                            | No special hardware required                                       |
 | **Storage**                                   | Any RWX storage class          | ocs-storagecluster-ceph-rbd-virtualization                         |
 | **Network**                                   | Default (OVN-Kubernetes)       | No special network requirements                                    |
 | **Required Operators**                        | OpenShift Virtualization       | Standard CNV installation                                          |
-| **Platform**                                  | Any supported platform         | Prefer AWS or bare-metal for CI integration                        |
+| **Platform**                                  | Any supported platform         |                                                                    |
 | **Special Configurations**                    | HTPasswd identity provider     | REQUIRED: Must have HTPasswd IdP with unprivileged user            |
 
-#### **5.5. Testing Tools & Frameworks**
+#### **3.1. Testing Tools & Frameworks**
 
-| Category           | Tools/Frameworks                                       |
-|:-------------------|:-------------------------------------------------------|
-| **Test Framework** | ginkgo for tier1 tests inside kubevirt repo            |
-|                    | pytest with openshift-virtualization-tests for tier2 tests    |
-| **CI/CD**          | Standard Jenkins CI lanes, no special pipeline needed  |
-| **Other Tools**    | Existing unprivileged_client fixture and RBAC utilities |
+| Category           | Tools/Frameworks |
+|:-------------------|:-----------------|
+| **Test Framework** |                  |
+| **CI/CD**          |                  |
+| **Other Tools**    |                  |
 
-#### **6. Entry Criteria**
+#### **4. Entry Criteria**
 
 - [ ] KubeVirt PR #16350 **merged** (upstream blocking dependency)
 - [ ] HCO downstream implementation **complete** (field integrated into HCO CR)
 - [ ] Requirements and design documents approved
-- [ ] Test environment configured with HTPasswd IdP
 - [ ] Developer Handoff/QE Kickoff meeting completed
 
-#### **7. Risks and Limitations**
+#### **5. Risks**
 
 | Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy                                     | Status     |
 |:---------------------|:--------------------------------------------------------|:--------------------------------------------------------|:-----------|
 | Timeline/Schedule    | KubeVirt PR #16350 not yet merged; blocks test implementation | Monitor PR status weekly; prepare test infrastructure in parallel | [x] Active |
 | Test Coverage        | Cannot exhaustively test all RBAC role combinations     | Test critical paths (all 4 roles); focus on acceptance criteria | [ ]        |
-| Test Environment     | Requires HTPasswd IdP setup; not all CI lanes support it | Use existing infrastructure; verify CI environment available | [ ]        |
 | Dependencies         | Blocking: PR #16350 merge. Soft: HCO downstream implementation | Track upstream progress; coordinate with HCO team       | [x] Active |
 | Untestable Aspects   | Limited to HTPasswd; cannot test LDAP/AD/OAuth         | RBAC logic is IdP-agnostic; HTPasswd validation sufficient | [ ]        |
+
 
 #### **8. Known Limitations**
 
@@ -159,26 +142,19 @@
 
 | Requirement ID           | Requirement Summary                                  | Test Scenario(s)                                                        | Test Type(s)     | Priority |
 |:-------------------------|:-----------------------------------------------------|:------------------------------------------------------------------------|:-----------------|:---------|
-| KubeVirt PR #16350       | `RoleAggregationStrategy config should keep aggregate labels when RoleAggregationStrategy is nil`                       || tier1 automation | P0       |
-| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should keep aggregate labels when RoleAggregationStrategy is AggregateToDefault`        || tier1 automation | P0       |
-| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should create ClusterRole without aggregate labels when RoleAggregationStrategy is Manual` ||  tier1 auto   | P0       |
-| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should remove aggregate labels from existing ClusterRole when strategy changes to Manual`  ||  tier1 auto   | P0       |
-| CNV-63822 (Acceptance 1) | Feature can be enabled via config                       | Set `spec.roleAggregation.enabled: False` in HCO CR; verify config persists | tier2 automation | P0       |
-| CNV-63822 (Acceptance 2) | Unprivileged user blocked without RoleBinding (*Note 1) | Verify ForbiddenError when unprivileged user lacks binding                  | tier2 automation | P0       |
-| CNV-63822 (Acceptance 3) | Explicit RoleBinding grants access (*Note 1)            | Verify new user gains access after RoleBinding created                      | tier2 automation | P0       |
-| CNV-63822 (Acceptance 4) | Feature can be disabled via config (*Note 1)            | Verify new user gains access after feature disabling                        | tier2 automation | P0       |
-| Default Behavior         | Role aggregation enabled by default (Back. Comp.)| Verify default config enables automatic role aggregation                    | Regression       | P0       |
-| Y Upgrade Testing        | Config preserved on Y upgrades (4.21.z → 4.22.0) | Test upgrade path preserves configuration and RBAC behavior                 | Regression       | P0       |
-
-**Note 1:** Tests should create a ns with one global role assigned at a time and perform below actions to confirm functionality is correctly provided:
-
-| Global clusterRole | kubevirt.io clusterRole | what can do | what cannot do |
-|:-------------------|:------------------------|:------------|:---------------|
-| admin              | kubevirt.io:admin       | deletecollections| nothing   |
-| edit               | kubevirt.io:edit        | start/stop VM    | deletecollections|
-| view               | kubevirt.io:view        | get VM           | start/stop VM|
-
-**Note 2:** tier2 automation tests can be inspired on *migrate* clusterRole tests: [test_migration_rights.py](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)
+| KubeVirt PR #16350       | `RoleAggregationStrategy config should keep aggregate labels when RoleAggregationStrategy is nil`                       | | tier1 automation | P0       |
+| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should keep aggregate labels when RoleAggregationStrategy is AggregateToDefault`        | | tier1 automation | P0       |
+| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should create ClusterRole without aggregate labels when RoleAggregationStrategy is Manual` | |  tier1 auto   | P0       |
+| KubeVirt PR #16350       | `RoleAggregationStrategy configuration should remove aggregate labels from existing ClusterRole when strategy changes to Manual`  | |  tier1 auto   | P0       |
+| CNV-63822                | As an admin I can enable the feature via config in hyperconverged CR  | Verify config persists once enabled  | tier2 automation | P0       |
+|                          | As an unprivileged user with admin role on a namespace, I cannot navigate into the virtualization view on openshift UI  | Verify unprivileged user cannot see the view | tier2 automation | P0       |
+|                          | As an unprivileged user with admin role on a namespace, I cannot perform kubevirt.io:admin actions with feature enabled | Verify ForbiddenError is returned | tier2 automation | P0       |
+|                          | As an unprivileged user with edit role on a namespace, I cannot perform kubevirt.io:edit actions with feature enabled | Verify ForbiddenError is returned | tier2 automation | P0       |
+|                          | As an unprivileged user with view role on a namespace, I cannot perform kubevirt.io:view actions with feature enabled| Verify ForbiddenError is returned | tier2 automation | P0       |
+|                          | As an admin, I can add roleBinding kubevirt.io:admin to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:admin action | tier2 automation | P0       |
+|                          | As an admin, I can add roleBinding kubevirt.io:edit to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:edit action | tier2 automation | P0       |
+|                          | As an admin, I can add roleBinding kubevirt.io:view to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:view action | tier2 automation | P0       |
+|                          | As an admin, I can disable the feature via config in hyperconverged CR | Verify config persists once disabled and unprivileged user with admin role in a namespace can perform kubevirt:admin action | tier2 automation | P0       |
 
 ---
 
@@ -188,11 +164,12 @@ This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
   - [QE Lead / @rnester]
-  - [sig-iuo representative / @orenc1 @hmeir @OhadRevah albarker-rh]
+  - [sig-iuo representative / @orenc1 @hmeir @OhadRevah @albarker-rh]
+  - [sig-ui representative / @gouyang]
 
 * **Approvers:**
   - [QE Manager / @kmajcher-rh @fabiand]
-  - [Product Manager / TBD]
+  - [Product Manager / Ronen Sde-Or]
 
 **Review Status:**
 - [X] Draft complete
