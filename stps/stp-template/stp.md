@@ -50,7 +50,27 @@ technology, and testability before formal test planning.
 | **Acceptance Criteria**                | [ ]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
 | **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
 
-#### **2. Technology and Design Review**
+#### **2. Known Limitations**
+The limitations are documented to ensure alignment between development, QA, and product teams.
+The following topics will not be tested or supported.
+
+<!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
+
+**Examples:**
+Feature related:
+- The feature is only supports YYY storage class
+- Feature does not support IPv6 (only IPv4)
+- No support for ARM64 architecture in this release
+- The feature is incompatible with ZZZ feature
+
+Tests related:
+- CPU xxx will not be tested due to lack of hardware
+- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data-->
+
+- [Limitation 1]
+- [Limitation 2]
+
+#### **3. Technology and Design Review**
 
 <!-- **How to complete this checklist:**
 1. **Done column**: Mark [x] when the review is complete
@@ -121,8 +141,11 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **[P2]** [Reference specific user stories from Section I with priority]
 
 **Out of Scope (Testing Scope Exclusions)**
+The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
+No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
 <!-- Explicitly document what is **out of scope** for testing.
+This section define the test boundaries; for example: test coverage by other teams, edge cases, low priority, etc.
 **Critical:** All out-of-scope items require explicit stakeholder agreement to prevent "I assumed you were testing
 that" issues; each out-of-scope item must have PM/Lead sign-off.
 
@@ -212,17 +235,6 @@ with justification. -->
 | Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"]                             | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
 | Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]                              | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
 | Other                | [Any other specific risks]                                                                                     | [Mitigation strategy]                                                                          | [ ]    |
-
-#### **6. Known Limitations**
-
-<!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
-
-**Examples:**
-- Feature does not support IPv6 (only IPv4)
-- No support for ARM64 architecture in this release -->
-
-- [List limitation 1]
-- [List limitation 2]
 
 ---
 
