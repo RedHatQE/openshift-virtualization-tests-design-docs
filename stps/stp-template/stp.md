@@ -4,15 +4,14 @@
 
 ### **Metadata & Tracking**
 
-| Field                  | Details                                                                |
-|:-----------------------|:-----------------------------------------------------------------------|
-| **Enhancement(s)**     | [Links to enhancement(s)]                                              |
-| **Feature in Jira**    | [Link(s) to the relevant feature/epic in Jira]                         |
-| **Jira Tracking**      | [Link to Jira Epic] (Tasks must be created to **block the epic**)      |
-| **QE Owner(s)**        | [Name(s)]                                                              |
-| **Owning SIG**         | <sig-xyz>                                                              |
-| **Participating SIGs** | [List of participating SIGs]                                           |
-| **Current Status**     | [Draft / QE Review Complete / Testing In Progress / GA Sign-off Ready] |
+| Field                  | Details                                                                           |
+|:-----------------------|:----------------------------------------------------------------------------------|
+| **Enhancement(s)**     | [Links to enhancement(s); KubeVirt, Openshift etc]                                |
+| **Feature in Jira**    | [Link to the relevant feature in Jira]                                            |
+| **Epic in Jira**       | [Link to the tracking Jira Epic] (Tasks must be created to **block the fearure**) |
+| **QE Owner(s)**        | [Name(s)]                                                                         |
+| **Owning SIG**         | <sig-xyz>                                                                         |
+| **Participating SIGs** | [List of participating SIGs]                                                      |
 
 **Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
 
@@ -22,10 +21,6 @@
 Include: what it does, why it matters to customers, and key technical components. -->
 
 [Brief description of the feature and its purpose]
-
-<!-- [Template Note: Remove this section if not applicable]
-- [KubeVirt Enhancements](https://github.com/kubevirt/enhancements/tree/main/veps)
-- [OCP Enhancements](https://github.com/openshift/enhancements/tree/master/enhancements) -->
 
 ---
 
@@ -37,20 +32,35 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 <!-- **How to complete this checklist:**
-1. **Done column**: Mark [x] when the check is complete
-2. **Details/Notes column**: Summary of the topic (e.g., list key requirements, describe customer value, note acceptance criteria)
-3. **Comments column**: Document any concerns, gaps, or follow-up items needed -->
+1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - add an explanation why in the `details` section
+2. Complete the relevant, needed details for the checklist item -->
 
-| Check                                  | Done | Details/Notes                                                                                                                                                                           | Comments |
-|:---------------------------------------|:-----|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
-| **Review Requirements**                | [ ]  | Reviewed the relevant requirements.                                                                                                                                                     |          |
-| **Understand Value**                   | [ ]  | Confirmed clear user stories and understood.  <br/>Understand the difference between U/S and D/S requirements<br/> **What is the value of the feature for RH customers**.               |          |
-| **Customer Use Cases**                 | [ ]  | Ensured requirements contain relevant **customer use cases**.                                                                                                                           |          |
-| **Testability**                        | [ ]  | Confirmed requirements are **testable and unambiguous**.                                                                                                                                |          |
-| **Acceptance Criteria**                | [ ]  | Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).                                                                     |          |
-| **Non-Functional Requirements (NFRs)** | [ ]  | Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs. |          |
+- [ ] **Review Requirements**
+  - Reviewed the relevant requirements.
+  - *List the key requirements reviewed:* [Summarize requirements here]
+
+- [ ] **Understand Value and Customer Use Cases**
+  - Confirmed clear user stories and understood. Understand the difference between U/S and D/S requirements. **What is the value of the feature for RH customers**.
+  - Ensured requirements contain relevant **customer use cases**.
+  - *Describe the feature's value to customers:* [Describe the customer value here]
+  - *List the customer use cases identified:* [List use cases here]
+
+- [ ] **Testability**
+  - Confirmed requirements are **testable and unambiguous**.
+  - *Note any requirements that are unclear or untestable:* [List unclear or untestable requirements, or "None"]
+
+- [ ] **Acceptance Criteria**
+  - Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).
+  - *List the acceptance criteria:* [Add acceptance criteria here]
+  - *Note any gaps or missing criteria:* [Describe gaps, or "None"]
+
+- [ ] **Non-Functional Requirements (NFRs)**
+  - Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.
+  - *List applicable NFRs and their targets:* [e.g., Usability: VM migration < 30s, Security: RBAC enforced, Scalability: supports 500 VMs]
+  - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
 
 #### **2. Known Limitations**
+
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following topics will not be tested or supported.
 
@@ -73,18 +83,32 @@ Tests related:
 #### **3. Technology and Design Review**
 
 <!-- **How to complete this checklist:**
-1. **Done column**: Mark [x] when the review is complete
-2. **Details/Notes column**: Summary of the item (e.g., list technology challenges, special environment needs, significant API changes)
-3. **Comments column**: Note any blockers, risks, or items requiring follow-up -->
+1. **Checkbox**: Mark [x] if done
+2. Complete the relevant, needed details for the checklist item -->
 
-| Check                            | Done | Details/Notes                                                                                                                                           | Comments |
-|:---------------------------------|:-----|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
-| **Developer Handoff/QE Kickoff** | [ ]  | A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.** |          |
-| **Technology Challenges**        | [ ]  | Identified potential testing challenges related to the underlying technology.                                                                           |          |
-| **Test Environment Needs**       | [ ]  | Determined necessary **test environment setups and tools**.                                                                                             |          |
-| **API Extensions**               | [ ]  | Reviewed new or modified APIs and their impact on testing.                                                                                              |          |
-| **Topology Considerations**      | [ ]  | Evaluated multi-cluster, network topology, and architectural impacts.                                                                                   |          |
+- [ ] **Developer Handoff/QE Kickoff**
+  - A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**
+  - *Key takeaways and concerns:* [Summarize key points and concerns]
 
+- [ ] **Technology Challenges**
+  - Identified potential testing challenges related to the underlying technology.
+  - *List identified challenges:* [Describe challenges here]
+  - *Impact on testing approach:* [Describe impact on testing]
+
+- [ ] **Test Environment Needs**
+  - Determined necessary **test environment setups** beyond standard infrastructure.
+  - *List required environment configurations:* [e.g., GPU nodes, SR-IOV NICs, disconnected cluster]
+  - *See also Section II.3 for detailed environment specification and Section II.3.1 for tools.*
+
+- [ ] **API Extensions**
+  - Reviewed new or modified APIs and their impact on testing.
+  - *List new or modified APIs:* [Add APIs here]
+  - *Testing impact:* [Describe testing impact]
+
+- [ ] **Topology Considerations**
+  - Evaluated multi-cluster, network topology, and architectural impacts.
+  - *Describe topology requirements:* [Add topology requirements here]
+  - *Impact on test design:* [Describe impact on test design]
 
 ### **II. Software Test Plan (STP)**
 
@@ -141,6 +165,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **[P2]** [Reference specific user stories from Section I with priority]
 
 **Out of Scope (Testing Scope Exclusions)**
+
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
@@ -152,51 +177,106 @@ that" issues; each out-of-scope item must have PM/Lead sign-off.
 - Items without stakeholder agreement are considered **risks** and must be escalated
 - Review the items during Developer Handoff/QE Kickoff meeting
 
-**Note:** Replace example rows with your actual out-of-scope items. -->
+**Note:** Replace examples with your actual out-of-scope items. -->
 
-| Out-of-Scope Item                                                    | Rationale              | PM/ Lead Agreement |
-|:---------------------------------------------------------------------|:-----------------------|:-------------------|
-| [e.g., Testing of deprecated features]                               | [Why this is excluded] | [ ] Name/Date      |
-| [e.g., Performance testing]                                          | [Why this is excluded] | [ ] Name/Date      |
-| [e.g., Testing on XXX architecture]                                  | [Why this is excluded] | [ ] Name/Date      |
+- [ ] **[e.g., Testing of deprecated features]**
+  - *Rationale:* [Why this is excluded]
+  - *PM/Lead Agreement:* [Name/Date]
+
+- [ ] **[e.g., Performance testing]**
+  - *Rationale:* [Why this is excluded]
+  - *PM/Lead Agreement:* [Name/Date]
+
+- [ ] **[e.g., Testing on XXX architecture]**
+  - *Rationale:* [Why this is excluded]
+  - *PM/Lead Agreement:* [Name/Date]
 
 #### **2. Test Strategy**
 
-<!-- The following test strategy considerations must be reviewed and addressed. Mark "Y" if applicable,
-"N/A" if not applicable (with justification in Comments). Empty cells indicate incomplete review. -->
+<!-- The following test strategy considerations must be reviewed and addressed. Mark [x] if applicable,
+leave unchecked if not applicable (with justification in Comments). Unchecked items without comments
+indicate incomplete review. -->
 
-| Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments |
-|:-------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------|:---------|
-| Functional Testing             | Validates that the feature works according to specified requirements and user stories                                                                        |                         |          |
-| Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          |                         |          |
-| Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       |                         |          |
-| Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              |                         |          |
-| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements |                         |          |
-| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               |                         |          |
-| Regression Testing             | Verifies that new changes do not break existing functionality                                                                                                |                         |          |
-| Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               |                         |          |
-| Backward Compatibility Testing | Ensures feature maintains compatibility with previous API versions and configurations                                                                        |                         |          |
-| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             |                         |          |
-| Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           |                         |          |
-| Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              |                         |          |
-| Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     |                         |          |
+**Functional**
+
+- [ ] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
+  - *Comments:*
+
+- [ ] **Automation Testing** — Ensures test cases are automated for continuous integration and regression coverage
+  - *Comments:*
+
+- [ ] **Regression Testing** — Verifies that new changes do not break existing functionality
+  - *Comments:*
+
+**Non-Functional**
+
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Comments:*
+
+- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Comments:*
+
+- [ ] **Usability Testing** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
+  - *Comments:*
+
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Comments:*
+
+**Integration & Compatibility**
+
+- [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+  - *Comments:*
+
+- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Comments:*
+
+- [ ] **Backward Compatibility Testing** — Ensures feature maintains compatibility with previous API versions and configurations
+  - *Comments:*
+
+- [ ] **Dependencies** — Dependent on deliverables from other components/products? Identify what is tested by which team.
+  - *Comments:*
+
+- [ ] **Cross Integrations** — Does the feature affect other features/require testing by other components? Identify what is tested by which team.
+  - *Comments:*
+
+**Infrastructure**
+
+- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
+  - *Comments:*
 
 #### **3. Test Environment**
 
-<!-- **Note:** "N/A" means explicitly not applicable. Cannot leave empty cells. -->
+<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
 
-| Environment Component                         | Configuration | Specification Examples                                                                        |
-|:----------------------------------------------|:--------------|:----------------------------------------------------------------------------------------------|
-| **Cluster Topology**                          |               | [e.g., 3-master/3-worker bare-metal, SNO, Compact Cluster, HCP]                               |
-| **OCP & OpenShift Virtualization Version(s)** |               | [e.g., OCP 4.20 with OpenShift Virtualization 4.20]                                           |
-| **CPU Virtualization**                        |               | [e.g., Nodes with VT-x (Intel) or AMD-V (AMD) enabled in BIOS]                                |
-| **Compute Resources**                         |               | [e.g., Minimum per worker node: 8 vCPUs, 32GB RAM]                                            |
-| **Special Hardware**                          |               | [e.g., Specific NICs for SR-IOV, GPU etc]                                                     |
-| **Storage**                                   |               | [e.g., Minimum 500GB per node, specific StorageClass(es)]                                     |
-| **Network**                                   |               | [e.g., OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack] |
-| **Required Operators**                        |               | [e.g., NMState Operator]                                                                      |
-| **Platform**                                  |               | [e.g., Bare metal, AWS, Azure, GCP etc]                                                       |
-| **Special Configurations**                    |               | [e.g., Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled]                 |
+- **Cluster Topology:** [Your configuration here]
+  - *Examples: 3-master/3-worker bare-metal, SNO, Compact Cluster, HCP*
+
+- **OCP & OpenShift Virtualization Version(s):** [Your configuration here]
+  - *Examples: OCP 4.20 with OpenShift Virtualization 4.20*
+
+- **CPU Virtualization:** [Your configuration here]
+  - *Examples: Nodes with VT-x (Intel) or AMD-V (AMD) enabled in BIOS*
+
+- **Compute Resources:** [Your configuration here]
+  - *Examples: Minimum per worker node: 8 vCPUs, 32GB RAM*
+
+- **Special Hardware:** [Your configuration here]
+  - *Examples: Specific NICs for SR-IOV, GPU etc*
+
+- **Storage:** [Your configuration here]
+  - *Examples: Minimum 500GB per node, specific StorageClass(es)*
+
+- **Network:** [Your configuration here]
+  - *Examples: OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack*
+
+- **Required Operators:** [Your configuration here]
+  - *Examples: NMState Operator*
+
+- **Platform:** [Your configuration here]
+  - *Examples: Bare metal, AWS, Azure, GCP etc*
+
+- **Special Configurations:** [Your configuration here]
+  - *Examples: Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled*
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -204,11 +284,9 @@ that" issues; each out-of-scope item must have PM/Lead sign-off.
 for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
 Leave empty if using standard tools. -->
 
-| Category           | Tools/Frameworks                                                  |
-|:-------------------|:------------------------------------------------------------------|
-| **Test Framework** | [e.g., New framework, custom test harness, or leave empty]        |
-| **CI/CD**          | [e.g., Special test lane, custom pipeline config, or leave empty] |
-| **Other Tools**    | [e.g., Special monitoring, performance tools, or leave empty]     |
+- [ ] **Test Framework:** [e.g., New framework, custom test harness, or "Standard"]
+- [ ] **CI/CD:** [e.g., Special test lane, custom pipeline config, or "Standard"]
+- [ ] **Other Tools:** [e.g., Special monitoring, performance tools, or "None"]
 
 #### **4. Entry Criteria**
 
@@ -223,18 +301,50 @@ The following conditions must be met before testing can begin:
 <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
 justification in mitigation strategy.
 
-**Note:** Empty "Specific Risk" cells mean this must be filled. "N/A" means explicitly not applicable
+**Note:** Empty risks mean this must be filled. "N/A" means explicitly not applicable
 with justification. -->
 
-| Risk Category        | Specific Risk for This Feature                                                                                 | Mitigation Strategy                                                                            | Status |
-|:---------------------|:---------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|:-------|
-| Timeline/Schedule    | [Describe your specific timeline risk, e.g., "Feature freeze in 2 weeks, complex test scenarios need 3 weeks"] | [Your specific mitigation, e.g., "Prioritize P1 scenarios, automate in parallel"]              | [ ]    |
-| Test Coverage        | [Describe coverage gaps, e.g., "Cannot test multi-cluster scenarios due to infrastructure limits"]             | [Your mitigation, e.g., "Document limitation, test single cluster thoroughly"]                 | [ ]    |
-| Test Environment     | [Describe environment risks, e.g., "Requires GPU hardware, limited availability"]                              | [Your mitigation, e.g., "Reserve GPU nodes early, schedule tests in advance"]                  | [ ]    |
-| Untestable Aspects   | [List what cannot be tested, e.g., "Production scale with 10k VMs"]                                            | [Your mitigation, e.g., "Test at smaller scale, extrapolate results, prod monitoring"]         | [ ]    |
-| Resource Constraints | [Describe resource issues, e.g., "Only 1 QE assigned, feature spans 3 components"]                             | [Your mitigation, e.g., "Focus automation on critical paths, coordinate with dev for testing"] | [ ]    |
-| Dependencies         | [Describe dependency risks, e.g., "Depends on Storage team delivering feature X"]                              | [Your mitigation, e.g., "Coordinate with Storage QE, have backup test plan"]                   | [ ]    |
-| Other                | [Any other specific risks]                                                                                     | [Mitigation strategy]                                                                          | [ ]    |
+**Timeline/Schedule**
+
+- [ ] **Risk:** [Describe the specific scheduling or deadline risk that could delay testing]
+  - **Mitigation:** [Propose how to adjust scope, priorities, or resources to meet the timeline]
+  - *Estimated impact on schedule:* [Add estimated delay or schedule impact]
+
+**Test Coverage**
+
+- [ ] **Risk:** [Describe gaps in test coverage and which areas remain unverified]
+  - **Mitigation:** [Propose alternative testing strategies or acceptance of reduced coverage]
+  - *Areas with reduced coverage:* [List affected areas]
+
+**Test Environment**
+
+- [ ] **Risk:** [Describe hardware, software, or infrastructure constraints that limit testing]
+  - **Mitigation:** [Propose how to secure required resources or adapt the test plan]
+  - *Missing resources or infrastructure:* [List what is unavailable]
+
+**Untestable Aspects**
+
+- [ ] **Risk:** [Describe scenarios or conditions that cannot be reproduced in a test environment]
+  - **Mitigation:** [Propose alternative validation methods such as smaller-scale tests or production monitoring]
+  - *Alternative validation approach:* [Describe fallback validation method]
+
+**Resource Constraints**
+
+- [ ] **Risk:** [Describe staffing, skill, or capacity limitations affecting test execution]
+  - **Mitigation:** [Propose how to prioritize work, cross-train, or coordinate with other teams]
+  - *Current capacity gaps:* [Describe staffing or skill gaps]
+
+**Dependencies**
+
+- [ ] **Risk:** [Describe external team or component dependencies that could block testing]
+  - **Mitigation:** [Propose coordination plans, fallback strategies, or stub implementations]
+  - *Dependent teams or components:* [List external dependencies]
+
+**Other**
+
+- [ ] **Risk:** [Describe any additional risks not covered by the categories above]
+  - **Mitigation:** [Propose a specific plan to reduce or eliminate this risk]
+  - *Additional context:* [Add any relevant details]
 
 ---
 
@@ -249,12 +359,12 @@ tested. -->
 
 **Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
-| Requirement ID    | Requirement Summary   | Test Scenario(s)                                           | Tier   | Priority |
-|:------------------|:----------------------|:-----------------------------------------------------------|:-------|:---------|
-| [Jira-123]        | As a user...          | Verify VM can be created with new feature X                | Tier 1 | P0       |
-| [Jira-124]        | As an admin...        | Verify API for feature X is backward compatible            | Tier 2 | P0       |
-| [Jira-125]        | NFR-2 (Security)      | Verify feature X follows RBAC permissions model            | ...    | P1       |
-| [Jira-126]        | As a cluster admin... | Verify upgrade from version X to Y preserves feature state | ....   | P2       |
+| Requirement ID | Requirement Summary   | Test Scenario(s)                                           | Priority |
+|:---------------|:----------------------|:-----------------------------------------------------------|:---------|
+| [Jira-123]     | As a user...          | [Tier 1] Verify VM can be created with new feature X       | P0       |
+| [Jira-124]     | As an admin...        | [Tier 2] Verify API for feature X is backward compatible   | P0       |
+| [Jira-125]     | NFR-2 (Security)      | [Tier 1] Verify feature X follows RBAC permissions model            | P1       |
+| [Jira-126]     | As a cluster admin... | [Tier 2] Verify upgrade from version X to Y preserves feature state | P2       |
 
 ---
 
