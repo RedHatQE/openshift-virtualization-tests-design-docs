@@ -95,15 +95,15 @@ Tests related:
   - *List identified challenges:* [Describe challenges here]
   - *Impact on testing approach:* [Describe impact on testing]
 
-- [ ] **Test Environment Needs**
-  - Determined necessary **test environment setups** beyond standard infrastructure.
-  - *List required environment configurations:* [e.g., GPU nodes, SR-IOV NICs, disconnected cluster]
-  - *See also Section II.3 for detailed environment specification and Section II.3.1 for tools.*
-
 - [ ] **API Extensions**
   - Reviewed new or modified APIs and their impact on testing.
   - *List new or modified APIs:* [Add APIs here]
   - *Testing impact:* [Describe testing impact]
+
+- [ ] **Test Environment Needs**
+  - Determined necessary **test environment setups** beyond standard infrastructure.
+  - *List required environment configurations:* [e.g., GPU nodes, SR-IOV NICs, disconnected cluster]
+  - *See also Section II.3 for detailed environment specification and Section II.3.1 for tools.*
 
 - [ ] **Topology Considerations**
   - Evaluated multi-cluster, network topology, and architectural impacts.
@@ -177,7 +177,7 @@ that" issues; each out-of-scope item must have PM/Lead sign-off.
 - Items without stakeholder agreement are considered **risks** and must be escalated
 - Review the items during Developer Handoff/QE Kickoff meeting
 
-**Note:** Replace examples with your actual out-of-scope items. -->
+**Note:** Replace examples with your actual out-of-scope items. If there are no items; delete the checklist and add `None`-->
 
 - [ ] **[e.g., Testing of deprecated features]**
   - *Rationale:* [Why this is excluded]
@@ -194,55 +194,58 @@ that" issues; each out-of-scope item must have PM/Lead sign-off.
 #### **2. Test Strategy**
 
 <!-- The following test strategy considerations must be reviewed and addressed. Mark [x] if applicable,
-leave unchecked if not applicable (with justification in Comments). Unchecked items without comments
+leave unchecked if not applicable (with justification in Details). Unchecked items without details
 indicate incomplete review. -->
 
 **Functional**
 
 - [ ] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Automation Testing** — Ensures test cases are automated for continuous integration and regression coverage
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 **Non-Functional**
 
 - [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
-- [ ] **Usability Testing** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
-  - *Comments:*
+- [ ] **Usability Testing -  UI** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+
+- [ ] **Usability Testing -  CLI/backend** — Validates user experience when using the CLI. Validate needed information is available (for example: a new condition is needed to reflect status)
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Backward Compatibility Testing** — Ensures feature maintains compatibility with previous API versions and configurations
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Dependencies** — Dependent on deliverables from other components/products? Identify what is tested by which team.
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 - [ ] **Cross Integrations** — Does the feature affect other features/require testing by other components? Identify what is tested by which team.
-  - *Comments:*
+  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
 
 **Infrastructure**
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
-  - *Comments:*
+  - *Details:*
 
 #### **3. Test Environment**
 
