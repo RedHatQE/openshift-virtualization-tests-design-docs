@@ -6,7 +6,7 @@
 
 | Field                  | Details                                                                           |
 |:-----------------------|:----------------------------------------------------------------------------------|
-| **Enhancement(s)**     | [Links to enhancement(s); KubeVirt, Openshift etc]                                |
+| **Enhancement(s)**     | [Links to enhancement(s); KubeVirt, OpenShift etc.]                                |
 | **Feature in Jira**    | [Link to the relevant feature in Jira]                                            |
 | **Epic in Jira**       | [Link to the tracking Jira Epic] (Tasks must be created to **block the feature**) |
 | **QE Owner(s)**        | [Name(s)]                                                                         |
@@ -40,7 +40,7 @@ technology, and testability before formal test planning.
   - *List the key requirements reviewed:* [Summarize requirements here]
 
 - [ ] **Understand Value and Customer Use Cases**
-  - Confirmed clear user stories and understood. Understand the difference between U/S and D/S requirements. **What is the value of the feature for RH customers**.
+  - Confirmed clear user stories and understood. Understand the difference between Upstream (U/S) and Downstream (D/S) requirements. **What is the value of the feature for RH customers**.
   - Ensured requirements contain relevant **customer use cases**.
   - *Describe the feature's value to customers:* [Describe the customer value here]
   - *List the customer use cases identified:* [List use cases here]
@@ -56,7 +56,7 @@ technology, and testability before formal test planning.
 
 - [ ] **Non-Functional Requirements (NFRs)**
   - Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.
-  - *List applicable NFRs and their targets:* [e.g., Usability: VM migration < 30s, Security: RBAC enforced, Scalability: supports 500 VMs]
+  - *List applicable NFRs and their targets:* [e.g., Resource Efficiency: < 5% CPU overhead on host during feature operation, Security: RBAC enforced, Scalability: supports 500 VMs]
   - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
 
 #### **2. Known Limitations**
