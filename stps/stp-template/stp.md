@@ -8,7 +8,7 @@
 |:-----------------------|:----------------------------------------------------------------------------------|
 | **Enhancement(s)**     | [Links to enhancement(s); KubeVirt, Openshift etc]                                |
 | **Feature in Jira**    | [Link to the relevant feature in Jira]                                            |
-| **Epic in Jira**       | [Link to the tracking Jira Epic] (Tasks must be created to **block the fearure**) |
+| **Epic in Jira**       | [Link to the tracking Jira Epic] (Tasks must be created to **block the feature**) |
 | **QE Owner(s)**        | [Name(s)]                                                                         |
 | **Owning SIG**         | <sig-xyz>                                                                         |
 | **Participating SIGs** | [List of participating SIGs]                                                      |
@@ -216,7 +216,7 @@ indicate incomplete review. -->
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* [ Add details ]
 
-- [ ] **Usability Testing -  UI** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
+- [ ] **Usability Testing - UI** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
   - *Details:* [ Add details ]
 
 - [ ] **Usability Testing -  CLI/backend** — Validates user experience when using the CLI. Validate needed information is available (for example: a new condition is needed to reflect status)
@@ -287,9 +287,9 @@ indicate incomplete review. -->
 for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
 Leave empty if using standard tools. -->
 
-- [ ] **Test Framework:** [e.g., New framework, custom test harness, or "Standard"]
-- [ ] **CI/CD:** [e.g., Special test lane, custom pipeline config, or "Standard"]
-- [ ] **Other Tools:** [e.g., Special monitoring, performance tools, or "None"]
+- **Test Framework:** [e.g., New framework, custom test harness, or "Standard"]
+- **CI/CD:** [e.g., Special test lane, custom pipeline config, or "Standard"]
+- **Other Tools:** [e.g., Special monitoring, performance tools, or "None"]
 
 #### **4. Entry Criteria**
 
