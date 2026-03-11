@@ -200,86 +200,86 @@ indicate incomplete review. -->
 **Functional**
 
 - [ ] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Automation Testing** — Ensures test cases are automated for continuous integration and regression coverage
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 **Non-Functional**
 
 - [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Usability Testing -  UI** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Usability Testing -  CLI/backend** — Validates user experience when using the CLI. Validate needed information is available (for example: a new condition is needed to reflect status)
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Backward Compatibility Testing** — Ensures feature maintains compatibility with previous API versions and configurations
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Dependencies** — Dependent on deliverables from other components/products? Identify what is tested by which team.
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 - [ ] **Cross Integrations** — Does the feature affect other features/require testing by other components? Identify what is tested by which team.
-  - *Details:* [ Add details, if needed. If unchecked - must be filled ]
+  - *Details:* [ Add details ]
 
 **Infrastructure**
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
-  - *Details:*
+  - *Details:* [ Add details ]
 
 #### **3. Test Environment**
 
 <!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
 
-- **Cluster Topology:** [Your configuration here]
-  - *Examples: 3-master/3-worker bare-metal, SNO, Compact Cluster, HCP*
+- **Cluster Topology:** 3-master/3-worker bare-metal
+  - *Change if different, e.g., SNO, Compact Cluster, HCP*
 
-- **OCP & OpenShift Virtualization Version(s):** [Your configuration here]
-  - *Examples: OCP 4.20 with OpenShift Virtualization 4.20*
+- **OCP & OpenShift Virtualization Version(s):** Latest OCP with matching OpenShift Virtualization
+  - *Specify exact versions when known, e.g., OCP 4.20 with OpenShift Virtualization 4.20*
 
-- **CPU Virtualization:** [Your configuration here]
-  - *Examples: Nodes with VT-x (Intel) or AMD-V (AMD) enabled in BIOS*
+- **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
+  - *Change only if specific CPU requirements exist*
 
-- **Compute Resources:** [Your configuration here]
-  - *Examples: Minimum per worker node: 8 vCPUs, 32GB RAM*
+- **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
+  - *Adjust based on feature requirements*
 
-- **Special Hardware:** [Your configuration here]
-  - *Examples: Specific NICs for SR-IOV, GPU etc*
+- **Special Hardware:** N/A
+  - *Fill if needed, e.g., SR-IOV NICs, GPUs*
 
-- **Storage:** [Your configuration here]
-  - *Examples: Minimum 500GB per node, specific StorageClass(es)*
+- **Storage:** ocs-storagecluster-ceph-rbd-virtualization
+  - *Change if specific StorageClass(es) required*
 
-- **Network:** [Your configuration here]
-  - *Examples: OVN-Kubernetes (default), Secondary Networks, Network Plugins, IPv4, IPv6, dual-stack*
+- **Network:** OVN-Kubernetes, IPv4
+  - *Change if needed, e.g., Secondary Networks, IPv6, dual-stack*
 
-- **Required Operators:** [Your configuration here]
-  - *Examples: NMState Operator*
+- **Required Operators:** N/A
+  - *Add if needed, e.g., NMState Operator*
 
-- **Platform:** [Your configuration here]
-  - *Examples: Bare metal, AWS, Azure, GCP etc*
+- **Platform:** Bare metal
+  - *Change if needed, e.g., AWS, Azure, GCP*
 
-- **Special Configurations:** [Your configuration here]
-  - *Examples: Disconnected/air-gapped cluster, Proxy environment, FIPS mode enabled*
+- **Special Configurations:** N/A
+  - *Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode*
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -301,8 +301,7 @@ The following conditions must be met before testing can begin:
 
 #### **5. Risks**
 
-<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
-justification in mitigation strategy.
+<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A".
 
 **Note:** Empty risks mean this must be filled. "N/A" means explicitly not applicable
 with justification. -->
