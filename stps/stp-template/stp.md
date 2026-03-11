@@ -301,10 +301,8 @@ The following conditions must be met before testing can begin:
 
 #### **5. Risks**
 
-<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A".
-
-**Note:** Empty risks mean this must be filled. "N/A" means explicitly not applicable
-with justification. -->
+<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
+justification in mitigation strategy. -->
 
 **Timeline/Schedule**
 
@@ -357,16 +355,24 @@ tested. -->
 
 <!-- **Requirement ID:**
 - Use Jira issue key (e.g., CNV-12345)
-- Each row should trace back to a specific testable requirement in Jira
 
 **Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
-| Requirement ID | Requirement Summary   | Test Scenario(s)                                           | Priority |
-|:---------------|:----------------------|:-----------------------------------------------------------|:---------|
-| [Jira-123]     | As a user...          | [Tier 1] Verify VM can be created with new feature X       | P0       |
-| [Jira-124]     | As an admin...        | [Tier 2] Verify API for feature X is backward compatible   | P0       |
-| [Jira-125]     | NFR-2 (Security)      | [Tier 1] Verify feature X follows RBAC permissions model            | P1       |
-| [Jira-126]     | As a cluster admin... | [Tier 2] Verify upgrade from version X to Y preserves feature state | P2       |
+- [ ] **[Jira-123]** — As a user...
+  - *Test Scenario:* [Tier 1] Verify VM can be created with new feature X
+  - *Priority:* P0
+
+- [ ] **[Jira-124]** — As an admin...
+  - *Test Scenario:* [Tier 2] Verify API for feature X is backward compatible
+  - *Priority:* P0
+
+- [ ] **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
+  - *Test Scenario:* [Tier 2] Verify non-admin user cannot delete a VM
+  - *Priority:* P1
+
+- [ ] **[Jira-126]** — As a cluster admin...
+  - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
+  - *Priority:* P2
 
 ---
 
