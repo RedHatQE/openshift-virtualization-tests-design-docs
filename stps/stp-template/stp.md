@@ -36,26 +36,27 @@ technology, and testability before formal test planning.
 2. Complete the relevant, needed details for the checklist item -->
 
 - [ ] **Review Requirements**
-  - Reviewed the relevant requirements. D/S requirements clearly defined in Jira
+  <!-- Reviewed the relevant requirements. D/S requirements clearly defined in Jira -->
   - *List the key requirements reviewed:* [Summarize requirements here]
 
 - [ ] **Understand Value and Customer Use Cases**
+  <!--
   - Confirmed clear user stories and understood. Understand the difference between Upstream (U/S) and Downstream (D/S) requirements. **What is the value of the feature for RH customers**.
-  - Ensured requirements contain relevant **customer use cases** — describes *what* the user does (scenarios, workflows).
+  - Ensured requirements contain relevant **customer use cases** — describes *what* the user does (scenarios, workflows). -->
   - *Describe the feature's value to customers:* [Describe the customer value here]
   - *List the customer use cases identified:* [List use cases here]
 
 - [ ] **Testability**
-  - Confirmed requirements are **testable and unambiguous**.
+  <!-- Confirmed requirements are **testable and unambiguous**. -->
   - *Note any requirements that are unclear or untestable:* [List unclear or untestable requirements, or "None"]
 
 - [ ] **Acceptance Criteria**
-  - Ensured acceptance criteria are **defined clearly** — defines *how we know it works* (specific, verifiable pass/fail conditions. For example, "VM migrates without downtime" ).
+  <!-- Ensured acceptance criteria are **defined clearly** — defines *how we know it works* (specific, verifiable pass/fail conditions. For example, "VM migrates without downtime" ).-->
   - *List the acceptance criteria:* [Add acceptance criteria here]
   - *Note any gaps or missing criteria:* [Describe gaps, or "None"]
 
 - [ ] **Non-Functional Requirements (NFRs)**
-  - Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.
+  <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
   - *List applicable NFRs and their targets:* [e.g., Resource Efficiency: < 5% CPU overhead on host during feature operation, Security: RBAC enforced, Scalability: supports 500 VMs]
   - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
 
@@ -87,26 +88,26 @@ Tests related:
 2. Complete the relevant, needed details for the checklist item -->
 
 - [ ] **Developer Handoff/QE Kickoff**
-  - A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**
+  <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**-->
   - *Key takeaways and concerns:* [Summarize key points and concerns]
 
 - [ ] **Technology Challenges**
-  - Identified potential testing challenges related to the underlying technology.
+  <!-- Identified potential testing challenges related to the underlying technology.-->
   - *List identified challenges:* [Describe challenges here]
   - *Impact on testing approach:* [Describe impact on testing]
 
 - [ ] **API Extensions**
-  - Reviewed new or modified APIs and their impact on testing.
+  <!-- Reviewed new or modified APIs and their impact on testing.-->
   - *List new or modified APIs:* [Add APIs here]
   - *Testing impact:* [Describe testing impact]
 
 - [ ] **Test Environment Needs**
-  - Determined necessary **test environment setups** beyond standard infrastructure.
+  <!-- Determined necessary **test environment setups** beyond standard infrastructure.-->
   - *List required environment configurations:* [e.g., GPU nodes, SR-IOV NICs, disconnected cluster]
   - *See also Section II.3 for detailed environment specification and Section II.3.1 for tools.*
 
 - [ ] **Topology Considerations**
-  - Evaluated multi-cluster, network topology, and architectural impacts.
+  <!-- Evaluated multi-cluster, network topology, and architectural impacts.-->
   - *Describe topology requirements:* [Add topology requirements here]
   - *Impact on test design:* [Describe impact on test design]
 
@@ -253,34 +254,34 @@ indicate incomplete review. -->
 <!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
 
 - **Cluster Topology:** 3-master/3-worker bare-metal
-  - *Change if different, e.g., SNO, Compact Cluster, HCP*
+  <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
 
 - **OCP & OpenShift Virtualization Version(s):** Latest OCP with matching OpenShift Virtualization
-  - *Specify exact versions when known, e.g., OCP 4.20 with OpenShift Virtualization 4.20*
+  <!-- Specify exact versions when known, e.g., OCP 4.20 with OpenShift Virtualization 4.20 -->
 
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
-  - *Change only if specific CPU requirements exist*
+  <!-- Change only if specific CPU requirements exist -->
 
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
-  - *Adjust based on feature requirements*
+  <!-- Adjust based on feature requirements -->
 
 - **Special Hardware:** N/A
-  - *Fill if needed, e.g., SR-IOV NICs, GPUs*
+  <!-- Fill if needed, e.g., SR-IOV NICs, GPUs -->
 
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization
-  - *Change if specific StorageClass(es) required*
+  <!-- Change if specific StorageClass(es) required -->
 
 - **Network:** OVN-Kubernetes, IPv4
-  - *Change if needed, e.g., Secondary Networks, IPv6, dual-stack*
+  <!-- Change if needed, e.g., Secondary Networks, IPv6, dual-stack -->
 
 - **Required Operators:** N/A
-  - *Add if needed, e.g., NMState Operator*
+  <!-- Add if needed, e.g., NMState Operator -->
 
 - **Platform:** Bare metal
-  - *Change if needed, e.g., AWS, Azure, GCP*
+  <!-- Change if needed, e.g., AWS, Azure, GCP -->
 
 - **Special Configurations:** N/A
-  - *Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode*
+  <!-- Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode -->
 
 #### **3.1. Testing Tools & Frameworks**
 
