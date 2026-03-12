@@ -102,9 +102,8 @@ Tests related:
   - *Testing impact:* [Describe testing impact]
 
 - [ ] **Test Environment Needs**
-  <!-- Determined necessary **test environment setups** beyond standard infrastructure.-->
-  - *List required environment configurations:* [e.g., GPU nodes, SR-IOV NICs, disconnected cluster]
-  - *See also Section II.3 for detailed environment specification and Section II.3.1 for tools.*
+  <!-- Identified whether special environment setups are needed beyond standard infrastructure.-->
+  - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
 - [ ] **Topology Considerations**
   <!-- Evaluated multi-cluster, network topology, and architectural impacts.-->
