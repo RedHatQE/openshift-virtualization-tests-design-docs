@@ -231,12 +231,10 @@ indicate incomplete review. -->
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+  - Does the feature maintain backward compatibility with previous API versions and configurations?
   - *Details:* [ Add details ]
 
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* [ Add details ]
-
-- [ ] **Backward Compatibility Testing** — Ensures feature maintains compatibility with previous API versions and configurations
   - *Details:* [ Add details ]
 
 - [ ] **Dependencies** — Dependent on deliverables from other components/products? Identify what is tested by which team.
