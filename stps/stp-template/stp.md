@@ -36,12 +36,12 @@ technology, and testability before formal test planning.
 2. Complete the relevant, needed details for the checklist item -->
 
 - [ ] **Review Requirements**
-  - Reviewed the relevant requirements.
+  - Reviewed the relevant requirements. D/S requirements clearly defined in Jira
   - *List the key requirements reviewed:* [Summarize requirements here]
 
 - [ ] **Understand Value and Customer Use Cases**
   - Confirmed clear user stories and understood. Understand the difference between Upstream (U/S) and Downstream (D/S) requirements. **What is the value of the feature for RH customers**.
-  - Ensured requirements contain relevant **customer use cases**.
+  - Ensured requirements contain relevant **customer use cases** — describes *what* the user does (scenarios, workflows).
   - *Describe the feature's value to customers:* [Describe the customer value here]
   - *List the customer use cases identified:* [List use cases here]
 
@@ -50,7 +50,7 @@ technology, and testability before formal test planning.
   - *Note any requirements that are unclear or untestable:* [List unclear or untestable requirements, or "None"]
 
 - [ ] **Acceptance Criteria**
-  - Ensured acceptance criteria are **defined clearly** (clear user stories; D/S requirements clearly defined in Jira).
+  - Ensured acceptance criteria are **defined clearly** — defines *how we know it works* (specific, verifiable pass/fail conditions. For example, "VM migrates without downtime" ).
   - *List the acceptance criteria:* [Add acceptance criteria here]
   - *Note any gaps or missing criteria:* [Describe gaps, or "None"]
 
