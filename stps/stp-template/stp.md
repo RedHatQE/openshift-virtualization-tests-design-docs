@@ -4,13 +4,13 @@
 
 ### **Metadata & Tracking**
 
-- [ ] **Enhancement(s):** [Links to enhancement(s); KubeVirt, OpenShift, etc.]
-- [ ] **Feature in Jira:** [Link to the relevant feature in Jira]
-- [ ] **Epic in Jira:** [Link to the tracking Jira Epic]
+- **Enhancement(s):** [Links to enhancement(s); KubeVirt, OpenShift, etc.]
+- **Feature Tracking:** [Link to the relevant feature in Jira]
+- **Epic Tracking:** [Link to the tracking Jira Epic]
   <!-- Tasks must be created to block the feature -->
-- [ ] **QE Owner(s):** [Name(s)]
-- [ ] **Owning SIG:** [sig-xyz]
-- [ ] **Participating SIGs:** [List of participating SIGs]
+- **QE Owner(s):** [Name(s)]
+- **Owning SIG:** [sig-xyz]
+- **Participating SIGs:** [List of participating SIGs]
 
 **Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
 
