@@ -255,8 +255,8 @@ indicate incomplete review. -->
 - **Cluster Topology:** 3-master/3-worker bare-metal
   <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
 
-- **OCP & OpenShift Virtualization Version(s):** Latest OCP with matching OpenShift Virtualization
-  <!-- Specify exact versions when known, e.g., OCP 4.20 with OpenShift Virtualization 4.20 -->
+- **OCP & OpenShift Virtualization Version(s):** [e.g., OCP 4.20 with OpenShift Virtualization 4.20]
+  <!-- Specify exact versions to allow version traceability -->
 
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
   <!-- Change only if specific CPU requirements exist -->
@@ -368,7 +368,7 @@ tested. -->
   - *Priority:* P0
 
 - [ ] **[Jira-124]** — As an admin...
-  - *Test Scenario:* [Tier 2] Verify API for feature X is backward compatible
+  - *Test Scenario:* [Tier 2] Verify API for feature X is backward-compatible
   - *Priority:* P0
 
 - [ ] **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
