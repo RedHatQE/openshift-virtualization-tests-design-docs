@@ -213,6 +213,9 @@ indicate incomplete review. -->
 - [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
   - *Details:* [ Add details ]
 
+- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
+  - *Details:* [ Add details ]
+
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* [ Add details ]
 
