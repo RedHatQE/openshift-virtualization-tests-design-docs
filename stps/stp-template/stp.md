@@ -350,7 +350,7 @@ justification in mitigation strategy. -->
 
 - [ ] **Risk:** [Describe any additional risks not covered by the categories above]
   - **Mitigation:** [Propose a specific plan to reduce or eliminate this risk]
-  - *Additional context:* [Add any relevant details]
+  <!-- If more context is needed for this item, add an entry with any relevant details-->
 
 ---
 
