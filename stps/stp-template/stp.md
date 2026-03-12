@@ -286,12 +286,16 @@ indicate incomplete review. -->
 #### **3.1. Testing Tools & Frameworks**
 
 <!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
-for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
-Leave empty if using standard tools. -->
+for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure. -->
 
-- **Test Framework:** [e.g., New framework, custom test harness, or "Standard"]
-- **CI/CD:** [e.g., Special test lane, custom pipeline config, or "Standard"]
-- **Other Tools:** [e.g., Special monitoring, performance tools, or "None"]
+- **Test Framework:** Standard
+  <!-- Change if needed, e.g., new framework, custom test harness, significant changes in tests infrastructure code etc  -->
+
+- **CI/CD:** N/A
+  <!-- Change if needed, e.g., special test lane, custom pipeline config -->
+
+- **Other Tools:** N/A
+  <!-- Fill if needed, e.g., special monitoring, performance tools -->
 
 #### **4. Entry Criteria**
 
