@@ -219,10 +219,10 @@ indicate incomplete review. -->
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* [ Add details ]
 
-- [ ] **Usability Testing - UI** — Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements
-  - *Details:* [ Add details ]
-
-- [ ] **Usability Testing -  CLI/backend** — Validates user experience when using the CLI. Validate needed information is available (for example: a new condition is needed to reflect status)
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - Does the feature require a UI? If so, ensure the UI aligns with the requirements (UI/UX consistency, accessibility)
+  - Does the feature expose CLI commands? If so, validate usability and that needed information is available (e.g., status conditions, clear output)
+  - Does the feature trigger backend operations that should be reported to the admin? If so, validate that the user receives clear feedback about the operation and its outcome (e.g., status conditions, events, or notifications indicating success or failure)
   - *Details:* [ Add details ]
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
