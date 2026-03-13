@@ -35,13 +35,13 @@ technology, and testability before formal test planning.
 2. Complete the relevant, needed details for the checklist item -->
 
 - [ ] **Review Requirements**
-  <!-- Reviewed the relevant requirements. D/S requirements clearly defined in Jira -->
-  - *List the key requirements reviewed:* [Summarize requirements here]
+  <!-- Review the D/S (Downstream) requirements as defined in Jira. Understand the difference between Upstream (U/S) and D/S requirements.
+  Example: "VMs must migrate without network downtime exceeding the defined threshold during node maintenance." -->
+  - *List the key D/S requirements reviewed:* [Summarize requirements here]
 
 - [ ] **Understand Value and Customer Use Cases**
-  <!--
-  - Confirmed clear user stories and understood. Understand the difference between Upstream (U/S) and Downstream (D/S) requirements. **What is the value of the feature for RH customers**.
-  - Ensured requirements contain relevant **customer use cases** — describes *what* the user does (scenarios, workflows). -->
+  <!-- Understand why the feature matters to customers from a D/S perspective and what the real-world use cases are.
+  Example: "Customers need to migrate VMs without network downtime to maintain SLA compliance during node maintenance." -->
   - *Describe the feature's value to customers:* [Describe the customer value here]
   - *List the customer use cases identified:* [List use cases here]
 
@@ -50,7 +50,8 @@ technology, and testability before formal test planning.
   - *Note any requirements that are unclear or untestable:* [List unclear or untestable requirements, or "None"]
 
 - [ ] **Acceptance Criteria**
-  <!-- Ensured acceptance criteria are **defined clearly** — defines *how we know it works* (specific, verifiable pass/fail conditions. For example, "VM migrates without downtime" ).-->
+  <!-- Acceptance criteria are the specific, verifiable conditions that must be met for the feature to be considered complete — they define *how we know it works*.
+  Example: "VM migrates without network downtime exceeding 500ms", "VM deletion is blocked for non-admin users." -->
   - *List the acceptance criteria:* [Add acceptance criteria here]
   - *Note any gaps or missing criteria:* [Describe gaps, or "None"]
 
@@ -96,7 +97,8 @@ Tests related:
   - *Impact on testing approach:* [Describe impact on testing]
 
 - [ ] **API Extensions**
-  <!-- Reviewed new or modified APIs and their impact on testing.-->
+  <!-- Review new or modified APIs and their impact on testing. Covers both new tests for new APIs and updates to existing tests for modified APIs.
+  Example: "New VirtualMachineSnapshot API v1beta2 — 3 new endpoints, 1 modified endpoint. Existing snapshot tests need updating." -->
   - *List new or modified APIs:* [Add APIs here]
   - *Testing impact:* [Describe testing impact]
 
@@ -120,7 +122,9 @@ Must ensure user stories are included and aligned to downstream user stories fro
 
 **Testing Goals**
 
-<!-- Define specific, measurable testing objectives for this feature using **SMART criteria**
+<!-- Testing goals are specific, measurable objectives — they say *what* must be verified and *how* success is measured.
+
+Define specific, measurable testing objectives for this feature using **SMART criteria**
 (Specific, Measurable, Achievable, Relevant, Time-bound).
 Each goal should tie back to requirements from Section I and be independently verifiable.
 
@@ -194,14 +198,19 @@ that" issues; each out-of-scope item must have PM/Lead sign-off.
 
 <!-- The following test strategy considerations must be reviewed and addressed. Mark [x] if applicable,
 leave unchecked if not applicable (with justification in Details). Unchecked items without details
-indicate incomplete review. -->
+indicate incomplete review.
+
+Note: Strategy defines *which types of testing* apply and the high-level approach. Goals (Section II.1) define the specific, measurable objectives.
+Example: Strategy says "Performance testing is applicable — we will measure migration stuntime." Goals say "[P0] Verify VM stuntime during live migration is below 500ms." -->
 
 **Functional**
 
 - [ ] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
+  <!-- Mark if this feature requires functional testing. Functional testing validates that the feature works as specified — as opposed to non-functional testing (performance, security, scale, etc.) which validates how well it works. -->
   - *Details:* [ Add details ]
 
-- [ ] **Automation Testing** — Ensures test cases are automated for continuous integration and regression coverage
+- [ ] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
+  <!-- Example: "All Tier 2 tests automated by sprint 3, integrated into nightly CI lane." -->
   - *Details:* [ Add details ]
 
 - [ ] **Regression Testing** — Verifies that new changes do not break existing functionality
@@ -236,10 +245,12 @@ indicate incomplete review. -->
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
   - *Details:* [ Add details ]
 
-- [ ] **Dependencies** — Dependent on deliverables from other components/products? Identify what is tested by which team.
+- [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
+  <!-- Example: "Blocked on Storage team delivering CSI driver v2.0 — cannot test snapshot feature without it." -->
   - *Details:* [ Add details ]
 
-- [ ] **Cross Integrations** — Does the feature affect other features/require testing by other components? Identify what is tested by which team.
+- [ ] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
+  <!-- Example: "Our API change affects the UI team's VM details page — they need to update their tests." -->
   - *Details:* [ Add details ]
 
 **Infrastructure**
@@ -354,27 +365,33 @@ justification in mitigation strategy. -->
 
 ### **III. Test Scenarios & Traceability**
 
-<!-- This section links requirements to test coverage, enabling reviewers to verify all requirements are
-tested. -->
+<!-- This section links D/S requirements to test coverage, enabling reviewers to verify all requirements are tested.
+
+**What goes here:** New test scenarios specific to this feature. Each scenario should trace to a D/S Jira requirement.
+**Granularity:** If one scenario can fail while another passes, they should be separate items. For example:
+- Different conditions (VMs with feature X vs without) → separate scenarios
+- Feature Gate enable/disable → separate scenarios (different expected behavior)
+- Multiple alerts → separate if different trigger conditions, group if same flow
+**What does NOT go here:** Regression tests (covered in Test Strategy). -->
 
 <!-- **Requirement ID:**
 - Use Jira issue key (e.g., CNV-12345)
 
 **Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
-- [ ] **[Jira-123]** — As a user...
+- **[Jira-123]** — As a user...
   - *Test Scenario:* [Tier 1] Verify VM can be created with new feature X
   - *Priority:* P0
 
-- [ ] **[Jira-124]** — As an admin...
+- **[Jira-124]** — As an admin...
   - *Test Scenario:* [Tier 2] Verify API for feature X is backward-compatible
   - *Priority:* P0
 
-- [ ] **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
+- **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
   - *Test Scenario:* [Tier 2] Verify non-admin user cannot delete a VM
   - *Priority:* P1
 
-- [ ] **[Jira-126]** — As a cluster admin...
+- **[Jira-126]** — As a cluster admin...
   - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
   - *Priority:* P2
 
