@@ -68,14 +68,14 @@ This feature enables VM owners to change the NetworkAttachmentDefinition referen
 
 **Out of Scope (Testing Scope Exclusions)**
 
-| Out-of-Scope Item                                       | Rationale (per VEP Non-Goals / design)                      | PM/ Lead Agreement |
-|:--------------------------------------------------------|:------------------------------------------------------------|:-------------------|
-| Migrating between CNI types                             | Explicit non-goal in VEP                                    | [ ]                |
-| Changing network binding/plugin                         | Explicit non-goal                                           | [ ]                |
-| Seamless network connectivity until action is completed | Not guaranteed by design                                    | [ ]                |
-| Changing NAD reference on non-migratable VMs            | Not supported                                               | [ ]                |
-| Changing guest network configuration    | Not in scope; guest may need separate reconfig              | [ ]                |
-| Limiting migration retries because of missing Network Attachment Definition        | Explicit non-goal in VEP                       | [ ]                |
+| Out-of-Scope Item                                       | Rationale (per VEP Non-Goals / design)                      | PM/ Lead Agreement       |
+|:--------------------------------------------------------|:------------------------------------------------------------|:-------------------------|
+| Migrating between CNI types                             | Explicit non-goal in VEP                                    | [X] Ronen Sde-Or 03/2026 |
+| Changing network binding/plugin                         | Explicit non-goal                                           | [X] Ronen Sde-Or 03/2026 |
+| Seamless network connectivity until action is completed | Not guaranteed by design                                    | [X] Ronen Sde-Or 03/2026 |
+| Changing NAD reference on non-migratable VMs            | Not supported                                               | [X] Ronen Sde-Or 03/2026 |
+| Changing guest network configuration    | Not in scope; guest may need separate reconfig              | [X] Ronen Sde-Or 03/2026 |
+| Limiting migration retries because of missing Network Attachment Definition        | Explicit non-goal in VEP                       | [X] Ronen Sde-Or 03/2026 |
 
 
 #### **2. Test Strategy**
