@@ -9,7 +9,7 @@
 - **Epic Tracking:** [CNV-67900](https://issues.redhat.com/browse/CNV-67900)
 - **QE Owner(s):** Harel Meir
 - **Owning SIG:** sig-iuo
-- **Participating SIGs:** sig-infra, sig-storage, sig-virt, sig-network
+- **Participating SIGs:** sig-infra, sig-storage, sig-virt, sig-network, sig-ui
 
 **Document Conventions (if applicable):**
 
@@ -17,14 +17,13 @@
 | Term                   | Definition                                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------------------ |
 | **MultiArch cluster**  | Heterogeneous cluster with 3 amd64 control-plane nodes, 2 amd64 worker nodes, and 2 arm64 worker nodes |
-| **HA cluster**         | Homogeneous cluster with 3 control-plane nodes and 3 amd64 worker nodes                                |
+| **Homogeneous cluster**| Cluster with 3 control-plane nodes and 3 amd64 worker nodes                                            |
 | **MultiArch FG**       | `enableMultiArchBootImageImport` feature gate in HCO CR                                                |
 | **Related resources**  | Golden image associated resources: `DataImportCron`, `DataSource`, `DataVolume`, `VolumeSnapshot`      |
-| **nodeInfo**           | HCO status field tracking cluster architectures (`status.nodeInfo`)                                    |
 | **DICT**               | DataImportCronTemplate - template for creating DataImportCron resources                                |
+| common DICT            | Pre-defined DICT provided by Redhat. supports amd64,arm64,s390x architectures                          |
+| custom DICT            | User-defined DICT. architecture support is the user responsibility                                     |
 | **DIC**                | DataImportCron - periodically imports images from a registry into a DataSource                         |
-| **arch-annotation**    | `ssp.kubevirt.io/dict.architectures` — DICT annotation listing supported CPU architectures             |
-| **arch-label**         | `template.kubevirt.io/architecture` — label indicating the target CPU architecture of a resource       |
 | **Pointer DataSource** | A DataSource that references another arch-specific DataSource via `spec.source.dataSource`             |
 
 
@@ -41,43 +40,42 @@ technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
-- **Review Requirements**
-  - Users can create, start, stop, and delete VMs on a Multiarch cluster using standard OpenShift Virtualization APIs.
-  - Platform must detect and report which CPU architectures are available in the cluster (worker and control-plane nodes)
-  - VMs must run only on nodes matching their target CPU architecture.
-  - VMs must migrate only between nodes of the same architecture.
-  - Automatically provision architecture-correct golden images and templates via Multiarch FG activation.
-  - Unified monitoring and logging across MultiArch VMs
-- **Understand Value and Customer Use Cases**
-  - *Describe the feature's value to customers:*
-    - Run ARM-based VMs alongside x86-based VMs on a single cluster, eliminating the need for separate infrastructure per architecture
-    - Automatically provision architecture-correct golden images and templates, so users don't need to manually manage per-arch resources
-  - *List the customer use cases identified:*
-    - **Developer validates ARM app**: A developer creates an ARM64 VM from an arch-specific template, deploys their app, and tests it alongside their existing x86 VM — on the same cluster, using the same storage and network
-    - **Admin enables MultiArch on existing cluster**: An admin adds ARM worker nodes to an existing cluster, enables the MultiArch FG, and the platform automatically creates ARM-specific golden images, DataSources, and templates without disrupting existing x86 workloads
-    - **QE migrates workloads to ARM**: QE team runs ARM VM test environments in the same OpenShift cluster used for x86-based CI/CD pipelines
-    - An admin upgrades MultiArch cluster -  existing ARM and x86 VMs survive the upgrade on their correct architecture nodes without manual intervention
-- **Testability**
-  - Upgrade to a version where FG is enabled by default until 4.23 timeframe (FG disabled by default in 4.22)
+- [x] **Review Requirements**
+  - Allow users to run ARM64 alongside AMD64 VMs within the same OpenShift Virtualization cluster
+  - Golden images should support multi-architectures enabling users to deploy VMs with the desired architecture.
+  - Legacy custom DICT shouldn't take affect allow VM creation as before to support existing tools and scripts.
 
-- **Acceptance Criteria**
-  - **Architecture detection**: HCO `nodeInfo` monitors and report all unique nodes architectures, and propogate it to SSP.
-  - **Feature gate toggle**: Enabling MultiArch FG triggers golden images support. HCO propagates the FG value to SSP via `spec.enableMultipleArchitectures`. Disabling it removes arch-specific resources while preserving existing VMs.
-  - **HCO DICT filtering**: when golden images support is enabled - only DICTs with `arch-annotation` are filtered to include only cluster-supported architectures.
-  - **Arch-specific resource creation**: For each supported architecture, a DICT named with arch-suffix is created, which produces related resources with arch-label.
-  - **Pointer DataSource**: SSP updates legacy DataSource with `spec.source.dataSource` pointing to the default arch DataSource.
-  - **Image import**: CDI pulls only the correct arch image — via `platform.architecture` field for `pullMethod==pod`, or via nodeAffinity scheduling for `pullMethod==node`.
-  - **VM scheduling**: A VM with `spec.architecture: arm64` runs only on arm64 nodes; a VM with `spec.architecture: amd64` runs only on amd64 nodes.
-  - **VM migration**: Live migration succeeds only between same-arch nodes.
-  - **Backward compatibility**: Custom DICTs without arch annotation continue working as before. VM can be created from pointer Datasoures.
-  - **NodePlacement alternative**: When nodePlacement restricts scheduling to supported architectures only, VMs created for those even if MultiArch FG is disabled.
-  - **Upgrade**: VMs survive upgrade on their correct architecture nodes. Arch-specific resources are preserved.
-  - **Regression**: T1 and T2 tests passing on multiarch cluster for each participating-sig.
-  - *gaps:*
+- [x] **Understand Value and Customer Use Cases**
+  - *Describe the feature's value to customers:*
+    - Eliminating the need for separate infrastructure per architecture
+    - Users don't need to manually manage per-arch resources
+  - *List the customer use cases identified:*
+    - **QE migrates workloads to ARM**: QE team runs ARM VM test environments in the same OpenShift cluster used for x86-based CI/CD pipelines
+    - **Developer validates ARM app**: A developer creates an ARM64 VM from an arch-specific template, deploys their app, and tests it alongside their existing AMD64 VMs.
+
+- [x] **Testability**
+  - *Note any requirements that are unclear or untestable:*
+    - Upgrade to a version where FG is enabled by default is not testable until 4.23 timeframe (FG disabled by default in 4.22)
+
+- [x] **Acceptance Criteria**
+  - Creating VM from instancetype should pick a node with the same image.
+  - ARM VM live-migrating successfully to another ARM node.
+  - AMD VM live-migrating successfully to another AMD node.
+  - Given MultiArch FG is enabled, templates and related resources are created only for DICT annotated with supported architectures.
+  - Given MultiArch FG is enabled, new arch images being pulled successfully only for DICT annotated with supported architectures using any pullMethod.
+  - Given MultiArch FG is enabled, VMs are created sucessfully from Pointer Datasources results in default architecture CPU.
+  - Given MultiArch FG is enabled, VMs are created sucessfully from arch-specific templates.
+  - Given MultiArch FG is disabled after being enabled,all arch-related resources are deleted, and golden image DataImportCron,Datasource and Templates are being restored to non-arch state.
+  - Given MultiArch FG is disabled, when nodePlacement restricts scheduling to specific architectures only, VMs created for those even if MultiArch FG is disabled
+  - **Regression**: 100% pass rate of all applicable T1 and T2 tests on MultiArch cluster for each participating SIG
+  - *Note any gaps or missing criteria:*
     - Upgrade to FG-enabled-by-default version testable only in 4.23
-- **Non-Functional Requirements (NFRs)**
-  - **Monitoring**: Platform must alert admins about MultiArch misconfigurations (unsupported arch, FG disabled on MultiArch cluster, missing annotations)
-  - **Doc**: Drop the Tech Preview note from docs
+
+- [x] **Non-Functional Requirements (NFRs)**
+  - *List applicable NFRs and their targets:*
+    - **Monitoring**: Platform must alert admins about MultiArch misconfigurations (unsupported arch, FG disabled on MultiArch cluster, missing annotations)
+    - **Upgrade**: VMs survive upgrade on their correct architecture nodes. Arch-specific resources are preserved
+    - **Doc**: Drop the Tech Preview note from docs
   - *Note any NFRs not covered and why:*
     - Performance/Scalability: Not applicable — feature does not introduce new scale-sensitive operations
     - Security: Not applicable — no new RBAC, auth, or privilege changes introduced
@@ -95,8 +93,6 @@ technology, and testability before formal test planning.
   - *Key takeaways and concerns:*
     - Met with Nahshon from HCO team
     - MultiArch FG is disabled by default in 4.22, and enabled not earlier than 4.23
-    - The design maintains the existing workflow (HCO -> DICT -> SSP -> DIC -> DataSource -> CDI) while adding architecture awareness at each layer
-    - Common DICTs receive `arch-annotation` annotation at HCO image build time; custom DICTs rely on user-supplied annotations
 
 - [x] **Technology Challenges**
   - *List identified challenges:*
@@ -134,8 +130,6 @@ technology, and testability before formal test planning.
   - *Describe topology requirements:*
     - Related resources should be created per supported worker node architecture (ARM64 and AMD64)
     - Control-plane assumed homogeneous (single architecture); used as default arch for Pointer DataSources
-    - Worker nodes identified by `node-role.kubernetes.io/worker` label
-    - Node architecture detected from `status.nodeInfo.architecture` field
   - *Impact on test design:*
     - Tests must verify resources are created per-architecture, not per-node
     - Tests must verify dynamic behavior when nodes are added/removed from cluster
@@ -185,7 +179,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 **Regression Goals**:
 
-All participating SIGs run regression on MultiArch cluster(without special-infra):
+All participating SIGs run regression on MultiArch cluster,
 
 - **[P0]** sig-iuo: Run Tier 1 and Tier 2 test suites on MultiArch clusters with both CPU architectures(iuo and observability).
 - **[P0]** sig-infra: Run Tier 1 and Tier 2 test suites on MultiArch clusters with both CPU architectures.
