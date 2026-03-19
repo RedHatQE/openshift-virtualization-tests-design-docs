@@ -65,21 +65,49 @@ technology, and testability before formal test planning.
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following topics will not be tested or supported.
 
-<!-- Document any known limitations, constraints, or trade-offs in the feature implementation or testing approach.
+<!-- **Difference from Risks:** Limitations are *known facts* — confirmed constraints that are accepted before testing begins.
+Risks are *uncertainties* — things that might happen and could impact testing.
+Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, won't change this release).
+"IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan).
+
+**Difference from Out of Scope:** Limitations describe what the product or test approach *cannot* do.
+Out of Scope describes what QE *chooses not to test* even though the product supports it.
+Example: "Feature only supports primary UDN network" is a **feature limitation** (product constraint).
+"Windows guest OS will not be tested" is **out of scope** (product supports it, QE chose not to test). -->
+
+##### **Feature Limitations**
+
+<!-- Document limitations in the feature itself — constraints, trade-offs, or unsupported scenarios in the product implementation.
 
 **Examples:**
-Feature related:
-- The feature is only supports YYY storage class
+- The feature only supports YYY storage class
 - Feature does not support IPv6 (only IPv4)
 - No support for ARM64 architecture in this release
 - The feature is incompatible with ZZZ feature
 
-Tests related:
-- CPU xxx will not be tested due to lack of hardware
-- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data-->
+If there are no feature limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no feature limitations apply for this release." -->
 
-- [Limitation 1]
-- [Limitation 2]
+- **[Feature Limitation 1]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+
+- **[Feature Limitation 2]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+
+##### **Test Limitations**
+
+<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
+
+**Examples:**
+- CPU xxx will not be tested due to lack of hardware
+- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
+
+If there are no test limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no test limitations apply for this release." -->
+
+- **[Test Limitation 1]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+
+- **[Test Limitation 2]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 #### **3. Technology and Design Review**
 
@@ -172,26 +200,22 @@ Each goal should tie back to requirements from Section I and be independently ve
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-<!-- Explicitly document what is **out of scope** for testing.
-This section define the test boundaries; for example: test coverage by other teams, edge cases, low priority, etc.
-**Critical:** All out-of-scope items require explicit stakeholder agreement to prevent "I assumed you were testing
-that" issues; each out-of-scope item must have PM/Lead sign-off.
+<!-- Items where the product supports the functionality, but QE will not test it in this cycle.
+These are the most critical items — they represent gaps between product capability and test coverage.
+Each item requires PM/Lead sign-off.
 
-- Items without stakeholder agreement are considered **risks** and must be escalated
-- Review the items during Developer Handoff/QE Kickoff meeting
+**Difference from Risks:** A risk is something that *might* prevent testing — you plan to test it but it could be blocked and you provide a mitigation plan.
+Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
+Example: "MultiArch cluster might not be available" is a **risk**. "We will not test on bare-metal MultiArch clusters" is **out of scope**.
 
-**Note:** Replace examples with your actual out-of-scope items. If there are no items; delete the checklist and add `None`-->
+**Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed with [Name/Date] that all supported product functionality will be tested this cycle." -->
 
-- [ ] **[e.g., Testing of deprecated features]**
-  - *Rationale:* [Why this is excluded]
+- **[e.g., Core OCP network functionality]**
+  - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
   - *PM/Lead Agreement:* [Name/Date]
 
-- [ ] **[e.g., Performance testing]**
-  - *Rationale:* [Why this is excluded]
-  - *PM/Lead Agreement:* [Name/Date]
-
-- [ ] **[e.g., Testing on XXX architecture]**
-  - *Rationale:* [Why this is excluded]
+- **[e.g., Special guest OS coverage (e.g., Windows)]**
+  - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
   - *PM/Lead Agreement:* [Name/Date]
 
 #### **2. Test Strategy**
@@ -321,44 +345,51 @@ justification in mitigation strategy. -->
 
 **Timeline/Schedule**
 
-- [ ] **Risk:** [Describe the specific scheduling or deadline risk that could delay testing]
+- **Risk:** [Describe the specific scheduling or deadline risk that could delay testing]
   - **Mitigation:** [Propose how to adjust scope, priorities, or resources to meet the timeline]
   - *Estimated impact on schedule:* [Add estimated delay or schedule impact]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Test Coverage**
 
-- [ ] **Risk:** [Describe gaps in test coverage and which areas remain unverified]
+- **Risk:** [Describe gaps in test coverage and which areas remain unverified]
   - **Mitigation:** [Propose alternative testing strategies or acceptance of reduced coverage]
   - *Areas with reduced coverage:* [List affected areas]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Test Environment**
 
-- [ ] **Risk:** [Describe hardware, software, or infrastructure constraints that limit testing]
+- **Risk:** [Describe hardware, software, or infrastructure constraints that limit testing]
   - **Mitigation:** [Propose how to secure required resources or adapt the test plan]
   - *Missing resources or infrastructure:* [List what is unavailable]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Untestable Aspects**
 
-- [ ] **Risk:** [Describe scenarios or conditions that cannot be reproduced in a test environment]
+- **Risk:** [Describe scenarios or conditions that cannot be reproduced in a test environment]
   - **Mitigation:** [Propose alternative validation methods such as smaller-scale tests or production monitoring]
   - *Alternative validation approach:* [Describe fallback validation method]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Resource Constraints**
 
-- [ ] **Risk:** [Describe staffing, skill, or capacity limitations affecting test execution]
+- **Risk:** [Describe staffing, skill, or capacity limitations affecting test execution]
   - **Mitigation:** [Propose how to prioritize work, cross-train, or coordinate with other teams]
   - *Current capacity gaps:* [Describe staffing or skill gaps]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Dependencies**
 
-- [ ] **Risk:** [Describe external team or component dependencies that could block testing]
+- **Risk:** [Describe external team or component dependencies that could block testing]
   - **Mitigation:** [Propose coordination plans, fallback strategies, or stub implementations]
   - *Dependent teams or components:* [List external dependencies]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Other**
 
-- [ ] **Risk:** [Describe any additional risks not covered by the categories above]
+- **Risk:** [Describe any additional risks not covered by the categories above]
   - **Mitigation:** [Propose a specific plan to reduce or eliminate this risk]
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
   <!-- If more context is needed for this item, add an entry with any relevant details-->
 
 ---
