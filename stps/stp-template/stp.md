@@ -63,7 +63,7 @@ technology, and testability before formal test planning.
 #### **2. Known Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
-The following topics will not be tested or supported.
+The following are confirmed product or test constraints accepted before testing begins.
 
 <!-- **Difference from Risks:** Limitations are *known facts* — confirmed constraints that are accepted before testing begins.
 Risks are *uncertainties* — things that might happen and could impact testing.
