@@ -42,6 +42,7 @@ The STP template includes the following main sections:
   - Monitoring (metrics/alerts)
   - Scalability
   - Portability
+- Document **known feature limitations** — confirmed product constraints (e.g., "feature does not support IPv6")
 
 **Critical Checkpoint:** Developer Handoff/QE Kickoff meeting where Dev/Arch walks QE through design and architecture.
 
@@ -63,7 +64,8 @@ Primary goals:
 QE perspective on testing priorities:
 - **User Stories:** Key scenarios driving test priorities
 - **Testing Goals:** Specific, measurable objectives (coverage targets, performance SLAs, etc.)
-- **Non-Goals:** Explicitly document what's **out of scope** with stakeholder sign-off
+- **Out of Scope:** Items the product supports but QE **chooses not to test** — requires PM/Lead sign-off
+- **Test Limitations:** Constraints **imposed on QE** that limit what can be tested (e.g., hardware unavailability, environment constraints)
 
 #### 4. Test Strategy
 **Types of Testing:**
@@ -110,17 +112,28 @@ Virtualization-specific requirements:
 - Acceptance criteria met
 
 #### 7. Risk Management
-Document risks and mitigation strategies:
+Document risks and mitigation strategies with sign-off:
 - Timeline/Schedule Risk
 - Insufficient test coverage
 - Unstable test environment
-- **Untestable aspects** (must be explicitly documented with stakeholder agreement)
+- Untestable aspects
 - Resource constraints
-- Integration concerns
+- Dependencies
 
-#### 8. Limitations
-- Known limitations or trade-offs
-- Constraints or edge cases are not covered
+**Note:** Risks are *uncertainties* — things that might happen. Each risk requires a mitigation plan and stakeholder sign-off.
+Do not confuse risks with:
+- **Feature Limitations** (Section I) — known product constraints, not uncertain
+- **Test Limitations** (Section II.3) — known constraints on QE's ability to test
+- **Out of Scope** (Section II.3) — deliberate decisions not to test
+
+#### 8. Constraints Summary
+
+The STP template uses four distinct categories for constraints. Refer to the template for detailed guidance:
+
+- **Feature Limitations** (Section I.2) — Product doesn't support it (e.g., "Feature only supports IPv4")
+- **Out of Scope** (Section II.1) — QE chose not to test it (e.g., "Windows guests won't be tested")
+- **Test Limitations** (Section II.1) — QE can't test it due to constraints (e.g., "No dual-stack cluster available")
+- **Risks** (Section II.5) — Uncertain, might impact testing (e.g., "Cluster may not be ready in time")
 
 ### III. Test Case Descriptions & Traceability
 

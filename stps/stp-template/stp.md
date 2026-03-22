@@ -209,9 +209,9 @@ Example: "No bare-metal MultiArch cluster available" is a **test limitation** (Q
 
 **Examples:**
 - CPU xxx will not be tested due to lack of hardware
-- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
+- Real integration with [Third-Party Service] cannot be tested; external calls will be mocked using static data due to access/licensing constraints
 - Performance testing limited to 100 VMs due to lab capacity
-- Bare-metal MultiArch clusters not available; testing performed on AWS only
+- IPv6 testing constrained to single-stack due to dual-stack cluster unavailability
 
 If there are no test limitations, remove the example items and state: "None — reviewed and confirmed that no test limitations apply for this release." -->
 
