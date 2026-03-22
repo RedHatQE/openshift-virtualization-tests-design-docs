@@ -63,19 +63,12 @@ technology, and testability before formal test planning.
 #### **2. Known Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
-The following are confirmed product or test constraints accepted before testing begins.
+The following are confirmed product constraints accepted before testing begins.
 
 <!-- **Difference from Risks:** Limitations are *known facts* — confirmed constraints that are accepted before testing begins.
 Risks are *uncertainties* — things that might happen and could impact testing.
 Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, won't change this release).
-"IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan).
-
-**Difference from Out of Scope:** Limitations describe what the product or test approach *cannot* do.
-Out of Scope describes what QE *chooses not to test* even though the product supports it.
-Example: "Feature only supports primary UDN network" is a **feature limitation** (product constraint).
-"Windows guest OS will not be tested" is **out of scope** (product supports it, QE chose not to test). -->
-
-##### **Feature Limitations**
+"IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan). -->
 
 <!-- Document limitations in the feature itself — constraints, trade-offs, or unsupported scenarios in the product implementation.
 
@@ -91,22 +84,6 @@ If there are no feature limitations, remove the example items and state: "None �
   - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 - **[Feature Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-##### **Test Limitations**
-
-<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
-
-**Examples:**
-- CPU xxx will not be tested due to lack of hardware
-- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
-
-If there are no test limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no test limitations apply for this release." -->
-
-- **[Test Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-- **[Test Limitation 2]**
   - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 #### **3. Technology and Design Review**
@@ -281,6 +258,30 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
   - *Details:* [ Add details ]
+
+#### **2.1. Test Limitations**
+
+<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
+These are distinct from feature limitations (Section I.2) which describe product constraints.
+
+**Difference from Out of Scope:** Test Limitations are constraints *imposed on QE* (e.g., no hardware, no cluster, no environment).
+Out of Scope are *decisions made by QE* (e.g., we choose not to test Windows guests).
+Example: "No bare-metal MultiArch cluster available" is a **test limitation** (QE can't test it even if they wanted to).
+"Windows guest OS will not be tested" is **out of scope** (QE chose not to test it).
+
+**Examples:**
+- CPU xxx will not be tested due to lack of hardware
+- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
+- Performance testing limited to 100 VMs due to lab capacity
+- Bare-metal MultiArch clusters not available; testing performed on AWS only
+
+If there are no test limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no test limitations apply for this release." -->
+
+- **[Test Limitation 1]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+
+- **[Test Limitation 2]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 #### **3. Test Environment**
 
