@@ -177,15 +177,17 @@ Each goal should tie back to requirements from Section I and be independently ve
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-<!-- Items where the product supports the functionality, but QE will not test it in this cycle.
-These are the most critical items — they represent gaps between product capability and test coverage.
+<!-- **What does Out of Scope mean?**
+Out of Scope items are areas where the product works, but QE has decided not to test them this cycle.
+This is the most critical section in the STP — it explicitly documents the gap between what the product can do and what QE will verify.
+Every item here is a conscious risk accepted by PM/Lead. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
 Each item requires PM/Lead sign-off.
 
 **Difference from Risks:** A risk is something that *might* prevent testing — you plan to test it but it could be blocked and you provide a mitigation plan.
 Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
 Example: "MultiArch cluster might not be available" is a **risk**. "We will not test on bare-metal MultiArch clusters" is **out of scope**.
 
-**Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed with [Name/Date] that all supported product functionality will be tested this cycle." -->
+**Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
 
 - **[e.g., Core OCP network functionality]**
   - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
@@ -194,6 +196,30 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
   - *PM/Lead Agreement:* [Name/Date]
+
+**Test Limitations**
+
+<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
+These are distinct from feature limitations (Section I.2) which describe product constraints.
+
+**Difference from Out of Scope:** Test Limitations are constraints *imposed on QE* (e.g., no hardware, no cluster, no environment).
+Out of Scope are *decisions made by QE* (e.g., we choose not to test Windows guests).
+Example: "No bare-metal MultiArch cluster available" is a **test limitation** (QE can't test it even if they wanted to).
+"Windows guest OS will not be tested" is **out of scope** (QE chose not to test it).
+
+**Examples:**
+- CPU xxx will not be tested due to lack of hardware
+- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
+- Performance testing limited to 100 VMs due to lab capacity
+- Bare-metal MultiArch clusters not available; testing performed on AWS only
+
+If there are no test limitations, remove the example items and state: "None — reviewed and confirmed that no test limitations apply for this release." -->
+
+- **[Test Limitation 1]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+
+- **[Test Limitation 2]**
+  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 #### **2. Test Strategy**
 
@@ -258,30 +284,6 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
   - *Details:* [ Add details ]
-
-#### **2.1. Test Limitations**
-
-<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
-These are distinct from feature limitations (Section I.2) which describe product constraints.
-
-**Difference from Out of Scope:** Test Limitations are constraints *imposed on QE* (e.g., no hardware, no cluster, no environment).
-Out of Scope are *decisions made by QE* (e.g., we choose not to test Windows guests).
-Example: "No bare-metal MultiArch cluster available" is a **test limitation** (QE can't test it even if they wanted to).
-"Windows guest OS will not be tested" is **out of scope** (QE chose not to test it).
-
-**Examples:**
-- CPU xxx will not be tested due to lack of hardware
-- Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data
-- Performance testing limited to 100 VMs due to lab capacity
-- Bare-metal MultiArch clusters not available; testing performed on AWS only
-
-If there are no test limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no test limitations apply for this release." -->
-
-- **[Test Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-- **[Test Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
 
 #### **3. Test Environment**
 
