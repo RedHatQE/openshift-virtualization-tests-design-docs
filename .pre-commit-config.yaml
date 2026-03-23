@@ -23,6 +23,6 @@ repos:
       - id: mixed-line-ending
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: "v8.30.1"
+    rev: "v8.30.0"
     hooks:
       - id: gitleaks
