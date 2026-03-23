@@ -42,7 +42,7 @@ The STP template includes the following main sections:
   - Monitoring (metrics/alerts)
   - Scalability
   - Portability
-- Document **known feature limitations** — confirmed product constraints (e.g., "feature does not support IPv6")
+- Document **known feature limitations** — confirmed product constraints; each limitation requires per-item sign-off (name/date)
 
 **Critical Checkpoint:** Developer Handoff/QE Kickoff meeting where Dev/Arch walks QE through design and architecture.
 
@@ -65,7 +65,7 @@ QE perspective on testing priorities:
 - **User Stories:** Key scenarios driving test priorities
 - **Testing Goals:** Specific, measurable objectives (coverage targets, performance SLAs, etc.)
 - **Out of Scope:** Items the product supports but QE **chooses not to test** — requires PM/Lead sign-off
-- **Test Limitations:** Constraints **imposed on QE** that limit what can be tested (e.g., hardware unavailability, environment constraints)
+- **Test Limitations:** Constraints **imposed on QE** that limit what can be tested (e.g., hardware unavailability); each limitation requires per-item sign-off (name/date)
 
 #### 4. Test Strategy
 **Types of Testing:**
@@ -123,8 +123,8 @@ Document risks and mitigation strategies with sign-off:
 **Note:** Risks are *uncertainties* — things that might happen. Each risk requires a mitigation plan and stakeholder sign-off.
 Do not confuse risks with:
 - **Feature Limitations** (Section I) — known product constraints, not uncertain
-- **Test Limitations** (Section II.3) — known constraints on QE's ability to test
-- **Out of Scope** (Section II.3) — deliberate decisions not to test
+- **Test Limitations** (Section II.1) — known constraints on QE's ability to test
+- **Out of Scope** (Section II.1) — deliberate decisions not to test
 
 #### 8. Constraints Summary
 
