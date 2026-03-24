@@ -7,8 +7,8 @@
 | Field                  | Details                                                                                                                                                  |
 |:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Enhancement(s)**     | [OCP](https://github.com/openshift/enhancements/pull/1793) and [OCP-V](https://docs.google.com/document/d/1M5YMM6w-Cimuqxd_hUdB-FcuBxrsmDSJNTjQJ-UcDDA/) |
-| **Feature in Jira**    | https://issues.redhat.com/browse/CNV-67524                                                                                                               |
-| **Jira Tracking**      | https://issues.redhat.com/browse/CNV-70089                                                                                                               |
+| **Feature in Jira**    | https://issues.redhat.com/browse/VIRTSTRAT-576                                                                                                              |
+| **Jira Tracking**      | https://issues.redhat.com/browse/CNV-67524                                                                                                               |
 | **QE Owner(s)**        | Yoss Segev (ysegev@redhat.com)                                                                                                                           |
 | **Owning SIG**         | sig-network                                                                                                                                              |
 | **Participating SIGs** | sig-network                                                                                                                                              |

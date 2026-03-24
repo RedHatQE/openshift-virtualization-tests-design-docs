@@ -7,8 +7,8 @@
 | Field                  | Details                                    |
 |:-----------------------|:-------------------------------------------|
 | **Enhancement(s)**     | -                                          |
-| **Feature in Jira**    | https://issues.redhat.com/browse/CNV-28924 |
-| **Jira Tracking**      | https://issues.redhat.com/browse/CNV-72402 |
+| **Feature in Jira**    | https://issues.redhat.com/browse/VIRTSTRAT-510 |
+| **Jira Tracking**      | https://issues.redhat.com/browse/CNV-28924 |
 | **QE Owner(s)**        | Asia Khromov (azhivovk@redhat.com)         |
 | **Owning SIG**         | sig-network                                |
 | **Participating SIGs** | sig-network                                |
