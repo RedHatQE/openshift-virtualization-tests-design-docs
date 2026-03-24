@@ -64,8 +64,8 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 - **[P0]** Verify CBT enable/disable and VM/VMI status.
 - **[P0]** Verify push-mode full backup completes and backup integrity can be validated.
 - **[P0]** Verify incremental backup with VirtualMachineBackupTracker (full then incremental).
-- **[P1]** Verify full and incremental backup with Windows VM.
 - **[P0]** Verify CBT on OCP 4.22 with HCO feature gate for CBT.
+- **[P1]** Verify full and incremental backup with Windows VM.
 - **[P1]** Verify ForceFullBackup when tracker has checkpoint.
 - **[P1]** Verify behavior when backup PVC is full or insufficient (error returned, no partial backup).
 - **[P1]** Verify backup on different StorageClasses with different capabilities (RWO/RWX, block/filesystem).
@@ -88,7 +88,7 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 
 | Item                           | Description                                                                                                                                                  | Applicable (Y/N or N/A) | Comments |
 |:-------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------|:---------|
-| Functional Testing             | Validates that the feature works according to specified requirements and user stories                                                                        | Y                       | Core scope: CBT enable/disable, full and incremental backup, push/pull, Windows VM, OCP 4.22. |
+| Functional Testing             | Validates that the feature works according to specified requirements and user stories                                                                        | Y                       | Core functional scope aligns with Testing Goals (Section II.1) and scenario traceability (Section III). |
 | Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          | Y                       | Test cases to be automated for CI and regression. |
 | Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       | N/A                     | No performance testing planned currently. May be in scope in the future. |
 | Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              | N                       | Not planned as part of scope of testing.                 |
@@ -150,29 +150,31 @@ The following conditions must be met before testing can begin:
 - Testing can start with current scope (e.g. upstream, P0/P1 focus). Not all tests are active yet: Tier 1 tests are quarantined downstream until failures are debugged.
 - Feature code and API are still under development. Testing will start on OCP 4.22 with HCO feature gate for CBT.
 - Libvirt/QEMU bug (regression) causes inconsistent (flaky) backups. Workaround: use a bit older libvirt/QEMU version.
-- Libvirt/QEMU issue: incremental backup after migration fails when backend storage is RWO (ReadWriteOnce). Use RWX or other storage access mode for that scenario until fixed.
-- Libvirt bug (fix pending): with RWO backend PVC, overlay migration does not migrate bitmaps as expected. See overlay-migration scenario (RWO/RWX) in Section III.
+- Libvirt/QEMU issue: incremental backup after migration fails when backend storage is RWO (ReadWriteOnce). Use RWX or other storage access mode for that scenario until fixed. See incremental backup after migration in Section III.
+- Libvirt bug (fix pending): with RWO backend PVC, overlay migration does not migrate bitmaps as expected. See overlay migration with RWO and RWX backend PVCs in Section III.
 
 ---
 
 ### **III. Test Scenarios & Traceability**
 
-Map requirement IDs from Jira (epic [CNV-61530](https://issues.redhat.com/browse/CNV-61530)) to test scenarios. Aligned with Testing Goals (Section II.1).
+Scenarios below trace to Jira epic [CNV-61530](https://issues.redhat.com/browse/CNV-61530). Per repo convention, the epic key appears once in **Requirement ID**; following rows leave that cell empty. Aligned with Testing Goals (Section II.1).
 
-| Requirement ID | Requirement Summary | Test Scenario(s) | Tier | Priority |
-|:----------------|:--------------------|:------------------|:-----|:---------|
-| TBD             | CBT enable/disable and VM/VMI status | Enable CBT on VM, verify VM/VMI status. Disable CBT, verify behavior and status. | T1 | P0 |
-| TBD             | Push-mode full backup and integrity | Run full backup in push mode to user PVC. Validate backup integrity (e.g. restore verification). | T1 | P0 |
-| TBD             | Incremental backup with VirtualMachineBackupTracker | Create backup tracker, run full backup then incremental backup. Verify only changed blocks. | T1 | P0 |
-| TBD             | Full and incremental backup with Windows VM | Run full then incremental backup for Windows VM. Validate backup and integrity. | T3 | P1 |
-| TBD             | CBT on OCP 4.22 with HCO feature gate | Verify CBT flows on OCP 4.22 with HCO feature gate for CBT enabled. | T2 | P0 |
-| TBD             | ForceFullBackup when tracker has checkpoint | With existing tracker/checkpoint, trigger ForceFullBackup. Verify full backup is produced. | T1 | P1 |
-| TBD             | Backup when PVC is full or insufficient | Use full or too-small backup PVC. Verify error returned and no partial backup. | T1 | P1 |
-| TBD             | Backup on different StorageClasses | Run backup with RWO/RWX and block/filesystem StorageClasses. Verify success and behavior. | T1 | P1 |
-| TBD             | Pull-mode backup | Run backup in pull mode (NBD export, scratch PVC). Verify backup completes and integrity. (Merged for 4.22.) | T2 | P1 |
-| TBD             | Checkpoint redefinition after VM restart, full backup fallback | After VM restart, verify checkpoint redefinition. After crash/corrupted bitmap, verify full backup fallback. Also checkpoint redefinition after migration with RWO backend storage, works only after libvirt bug fix is released (tested locally with patch). | T2 | P2 |
-| TBD             | Overlay migration with RWO and RWX backend PVCs | Run overlay migration with VM disk on RWO backend PVC, run with RWX. Verify bitmap behavior, document RWO limitation (libvirt bug). | T2 | P2 |
-| TBD             | Migration and backup mutually exclusive | Start backup, attempt migration (or vice versa). Verify they are mutually exclusive. | T1 | P2 |
+| Requirement ID   | Requirement Summary | Test Scenario(s) | Tier | Priority |
+|:-----------------|:--------------------|:------------------|:-----|:---------|
+| CNV-61530 (epic) | CBT enable/disable and VM/VMI status | Enable CBT on VM, verify VM/VMI status. Disable CBT, verify behavior and status. | T1 | P0 |
+|                  | Push-mode full backup and integrity | Run full backup in push mode to user PVC. Validate backup integrity (e.g. restore verification). | T1 | P0 |
+|                  | Incremental backup with VirtualMachineBackupTracker | Create backup tracker, run full backup then incremental backup. Verify only changed blocks. | T1 | P0 |
+|                  | Full and incremental backup with Windows VM | Run full then incremental backup for Windows VM. Validate backup and integrity. | T3 | P1 |
+|                  | CBT on OCP 4.22 with HCO feature gate | Verify CBT flows on OCP 4.22 with HCO feature gate for CBT enabled. | T2 | P0 |
+|                  | ForceFullBackup when tracker has checkpoint | With existing tracker/checkpoint, trigger ForceFullBackup. Verify full backup is produced. | T1 | P1 |
+|                  | Backup when PVC is full or insufficient | Use full or too-small backup PVC. Verify error returned and no partial backup. | T1 | P1 |
+|                  | Backup on different StorageClasses | Run backup with RWO/RWX and block/filesystem StorageClasses. Verify success and behavior. | T1 | P1 |
+|                  | Pull-mode backup | Run backup in pull mode (NBD export, scratch PVC). Verify backup completes and integrity. (Merged for 4.22.) | T2 | P1 |
+|                  | Checkpoint redefinition after VM restart, full backup fallback | After VM restart, verify checkpoint redefinition. After crash/corrupted bitmap, verify full backup fallback. Also checkpoint redefinition after migration with RWO backend storage, works only after libvirt bug fix is released (tested locally with patch). | T2 | P2 |
+|                  | Backup with hotplugged disks | Hotplug one or more disks to a running VM with CBT enabled. Run full then incremental backup. Verify hotplugged disks are included in backup scope and incremental behavior is correct. | T2 | P2 |
+|                  | Incremental backup after migration | Migrate the VM (live or cold per test design). After migration completes, run incremental backup against the prior checkpoint/tracker state. Verify incremental backup succeeds and captures post-migration changes. For RWO backend storage, align with Known Limitations (libvirt/QEMU fix, prefer RWX until fixed). | T2 | P2 |
+|                  | Overlay migration with RWO and RWX backend PVCs | Run overlay migration with VM disk on RWO backend PVC, run with RWX. Verify bitmap behavior, document RWO limitation (libvirt bug). | T2 | P2 |
+|                  | Migration and backup mutually exclusive | Start backup, attempt migration (or vice versa). Verify they are mutually exclusive. | T1 | P2 |
 
 ---
 
