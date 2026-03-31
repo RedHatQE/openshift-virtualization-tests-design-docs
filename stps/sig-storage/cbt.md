@@ -64,7 +64,7 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 - **[P0]** Verify CBT enable/disable and VM/VMI status.
 - **[P0]** Verify push-mode full backup completes and backup integrity can be validated.
 - **[P0]** Verify incremental backup with VirtualMachineBackupTracker (full then incremental).
-- **[P0]** Verify CBT on OCP 4.22 with HCO feature gate for CBT.
+- **[P0]** Verify CBT on OCP 4.22 with HCO feature gate for CBT enabled.
 - **[P1]** Verify full and incremental backup with Windows VM.
 - **[P1]** Verify ForceFullBackup when tracker has checkpoint.
 - **[P1]** Verify behavior when backup PVC is full or insufficient (error returned, no partial backup).
@@ -73,7 +73,7 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 - **[P2]** Verify checkpoint redefinition after VM restart. Full backup fallback after crash/corrupted bitmap.
 - **[P2]** Verify backup with hotplugged disks.
 - **[P2]** Verify incremental backup after migration.
-- **[P2]** Verify overlay migration with RWO and RWX backend PVCs (bitmap behavior, known libvirt RWO limitation).
+- **[P2]** Verify qcow2 overlay migration with RWO and RWX backend PVCs (bitmap behavior, known libvirt RWO limitation for overlay migration, not pull mode).
 - **[P2]** Verify migration and backup are mutually exclusive.
 
 **Out of Scope (Testing Scope Exclusions)**
@@ -93,11 +93,11 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 | Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       | N/A                     | No performance testing planned currently. May be in scope in the future. |
 | Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              | N                       | Not planned as part of scope of testing.                 |
 | Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements | N/A                     | No end-user UI, feature is API/CR driven (backup vendors, cluster admins). |
-| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               | Y                       | CBT is storage-agnostic. OCP 4.22 with HCO feature gate for CBT. Windows VM. |
+| Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               | Y                       | CBT is storage-agnostic. OCP 4.22 with HCO feature gate for CBT enabled. Windows VM. |
 | Regression Testing             | Verifies that new changes do not break existing functionality                                                                                               | Y                       | Ensure CBT/backup changes do not break existing backup and VM flows. |
 | Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               | N/A                     | Planned for follow-up, not in scope for initial CBT GA. |
 | Backward Compatibility Testing | Ensures feature maintains compatibility with previous API versions and configurations                                                                        | Y                       | Backup CR/API compatibility as applicable. |
-| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             | Y                       | OpenShift and CNV (OpenShift Virtualization). Libvirt (CBT/backup, overlay migration, see Known Limitations). OCP 4.22. HCO feature gate for CBT. Backup vendor integration out of scope. |
+| Dependencies                   | Dependent on deliverables from other components/products? Identify what is tested by which team.                                                             | Y                       | OpenShift and CNV (OpenShift Virtualization). Libvirt (CBT/backup, qcow2 overlay migration, see Known Limitations). OCP 4.22. HCO feature gate for CBT enabled. Backup vendor integration out of scope. |
 | Cross Integrations             | Does the feature affect other features/require testing by other components? Identify what is tested by which team.                                           | Y                       | Migration and backup mutually exclusive, VMSnapshot interaction per VEP. |
 | Monitoring                     | Does the feature require metrics and/or alerts?                                                                                                              | N/A                     | No specific metrics/alerts in scope for this STP. |
 | Cloud Testing                  | Does the feature require multi-cloud platform testing? Consider cloud-specific features.                                                                     | N/A                     | Standard OCP platforms, no cloud-specific CBT requirements in scope. |
@@ -107,7 +107,7 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 | Environment Component                         | Configuration | Specification Examples                                                                        |
 |:----------------------------------------------|:--------------|:----------------------------------------------------------------------------------------------|
 | **Cluster Topology**                          |               | Standard.                                                                                     |
-| **OCP & OpenShift Virtualization Version(s)** |               | OCP 4.22 with OpenShift Virtualization (CNV). HCO feature gate for CBT. Ensure libvirt RPMs delivered with 4.22 include relevant CBT features and bug fixes. |
+| **OCP & OpenShift Virtualization Version(s)** |               | OCP 4.22 with OpenShift Virtualization (CNV). HCO feature gate for CBT enabled. Ensure libvirt RPMs delivered with 4.22 include relevant CBT features and bug fixes. |
 | **CPU Virtualization**                        |               | Standard.                                                                                     |
 | **Compute Resources**                         |               | Standard.                                                                                     |
 | **Special Hardware**                          |               | Standard.                                                                                     |
@@ -115,7 +115,7 @@ CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs 
 | **Network**                                   |               | Standard.                                                                                     |
 | **Required Operators**                        |               | Standard. OpenShift Virtualization (CNV).                                                     |
 | **Platform**                                  |               | Standard.                                                                                     |
-| **Special Configurations**                    |               | HCO feature gate for CBT.                                                             |
+| **Special Configurations**                    |               | HCO feature gate for CBT enabled.                                                             |
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -131,7 +131,7 @@ The following conditions must be met before testing can begin:
 
 - [x] Requirements and design documents are **approved and merged**
 - [x] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-- [ ] HCO feature gate for CBT
+- [x] HCO feature gate for CBT enabled
 
 #### **5. Risks**
 
@@ -139,25 +139,24 @@ The following conditions must be met before testing can begin:
 |:---------------------|:---------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|:-------|
 | Timeline/Schedule    | Feature code still under development. Testing may be blocked or delayed until implementation stabilizes.       | Start with basic testing (push backup). Prioritize P0 goals. Align with dev milestones. Debug quarantined tests in parallel. | [x]    |
 | Test Coverage        | Tier 1 tests run upstream but are quarantined downstream (failing, need debug). Coverage gap until re-enabled. | Run and maintain tests upstream. Debug downstream failures. Re-enable when stable.             | [x]    |
-| Test Environment     | OCP 4.22. HCO feature gate for CBT.                                                                     | Standard CNV test environment. Enable for CBT once gate is available.                          | [x]    |
+| Test Environment     | OCP 4.22. HCO feature gate for CBT enabled.                                                                     | Standard CNV test environment.                          | [x]    |
 | Untestable Aspects   | None identified.                                                                                               | N/A                                                                                            | [x]    |
 | Resource Constraints | Limited QE capacity, feature spans multiple areas (CBT, backup).                                                | Focus on P0 and P1. Automate where possible.                                                   | [x]    |
-| Dependencies         | Feature code and API still in progress. HCO feature gate for CBT. Libvirt/QEMU bug requires fix for consistent backup and incremental backup after migration with RWO. | Track dev deliverables. OCP 4.22. Blocked on HCO feature gate and libvirt/QEMU fix for full backup and incremental-after-migration coverage. | [x]    |
-| Other                | T1 tests quarantined. Libvirt/QEMU regression causes flaky backups, incremental backups after migration fail with RWO backend storage.   | T1: debug and re-enable. Libvirt: use older version (W/A for backups), avoid RWO for incremental-after-migration (use RWX). Track upstream fix. | [x]    |
+| Dependencies         | Feature code and API still in progress. Libvirt/QEMU bug requires fix for consistent backup and for **qcow2 overlay migration** with **RWO** backend (bitmap behavior). This is **not** a pull-mode limitation. | Track dev deliverables. OCP 4.22. Blocked on libvirt/QEMU fix for incremental-after-overlay-migration coverage with RWO. Use RWX or defer scenario until fix. | [x]    |
+| Other                | T1 tests quarantined. Libvirt/QEMU regression causes flaky backups. Incremental backup after **qcow2 overlay migration** can fail with **RWO** backend (bitmap migration), not pull mode.   | T1: debug and re-enable. Libvirt: use older version (W/A for backups), avoid RWO for overlay migration / incremental-after-migration (use RWX). Track upstream fix. | [x]    |
 
 #### **6. Known Limitations**
 
 - Testing can start with current scope (e.g. upstream, P0/P1 focus). Not all tests are active yet: Tier 1 tests are quarantined downstream until failures are debugged.
-- Feature code and API are still under development. Testing will start on OCP 4.22 with HCO feature gate for CBT.
+- Feature code and API are still under development. Testing will start on OCP 4.22 with HCO feature gate for CBT enabled.
 - Libvirt/QEMU bug (regression) causes inconsistent (flaky) backups. Workaround: use a bit older libvirt/QEMU version.
-- Libvirt/QEMU issue: incremental backup after migration fails when backend storage is RWO (ReadWriteOnce). Use RWX or other storage access mode for that scenario until fixed. See incremental backup after migration in Section III.
-- Libvirt bug (fix pending): with RWO backend PVC, overlay migration does not migrate bitmaps as expected. See overlay migration with RWO and RWX backend PVCs in Section III.
+- Libvirt/QEMU / libvirt bug (fix pending): **qcow2 overlay migration** with **RWO** backend PVC does not migrate bitmaps as expected. That affects **incremental backup after migration** for that disk layout. It is **not** a pull-mode or pull+RWO limitation. Use RWX (or another supported access mode) for overlay migration until fixed. See incremental backup after migration and overlay migration with RWO and RWX backend PVCs in Section III.
 
 ---
 
 ### **III. Test Scenarios & Traceability**
 
-Scenarios below trace to Jira epic [CNV-61530](https://issues.redhat.com/browse/CNV-61530). Per repo convention, the epic key appears once in **Requirement ID**; following rows leave that cell empty. Aligned with Testing Goals (Section II.1).
+Scenarios below trace to Jira epic [CNV-61530](https://issues.redhat.com/browse/CNV-61530). Per repo convention, the epic key appears once in **Requirement ID**, and following rows leave that cell empty. Aligned with Testing Goals (Section II.1).
 
 | Requirement ID   | Requirement Summary | Test Scenario(s) | Tier | Priority |
 |:-----------------|:--------------------|:------------------|:-----|:---------|
@@ -170,10 +169,10 @@ Scenarios below trace to Jira epic [CNV-61530](https://issues.redhat.com/browse/
 |                  | Backup when PVC is full or insufficient | Use full or too-small backup PVC. Verify error returned and no partial backup. | T1 | P1 |
 |                  | Backup on different StorageClasses | Run backup with RWO/RWX and block/filesystem StorageClasses. Verify success and behavior. | T1 | P1 |
 |                  | Pull-mode backup | Run backup in pull mode (NBD export, scratch PVC). Verify backup completes and integrity. (Merged for 4.22.) | T2 | P1 |
-|                  | Checkpoint redefinition after VM restart, full backup fallback | After VM restart, verify checkpoint redefinition. After crash/corrupted bitmap, verify full backup fallback. Also checkpoint redefinition after migration with RWO backend storage, works only after libvirt bug fix is released (tested locally with patch). | T2 | P2 |
+|                  | Checkpoint redefinition after VM restart, full backup fallback | After VM restart, verify checkpoint redefinition. After crash/corrupted bitmap, verify full backup fallback. Checkpoint behavior after **qcow2 overlay migration** with **RWO** backend requires libvirt fix (tested locally with patch). | T2 | P2 |
 |                  | Backup with hotplugged disks | Hotplug one or more disks to a running VM with CBT enabled. Run full then incremental backup. Verify hotplugged disks are included in backup scope and incremental behavior is correct. | T2 | P2 |
-|                  | Incremental backup after migration | Migrate the VM (live or cold per test design). After migration completes, run incremental backup against the prior checkpoint/tracker state. Verify incremental backup succeeds and captures post-migration changes. For RWO backend storage, align with Known Limitations (libvirt/QEMU fix, prefer RWX until fixed). | T2 | P2 |
-|                  | Overlay migration with RWO and RWX backend PVCs | Run overlay migration with VM disk on RWO backend PVC, run with RWX. Verify bitmap behavior, document RWO limitation (libvirt bug). | T2 | P2 |
+|                  | Incremental backup after migration | Migrate the VM (live or cold per test design). After migration completes, run incremental backup against the prior checkpoint/tracker state. Verify incremental backup succeeds and captures post-migration changes. With **RWO** and **qcow2 overlay migration**, align with Known Limitations (bitmap migration bug, prefer RWX until fixed—not a pull-mode issue). | T2 | P2 |
+|                  | Overlay migration with RWO and RWX backend PVCs | Run **qcow2 overlay migration** with VM disk on RWO backend PVC, and with RWX. Verify bitmap behavior, and document RWO limitation (libvirt bug affecting overlay migration, not pull mode). | T2 | P2 |
 |                  | Migration and backup mutually exclusive | Start backup, attempt migration (or vice versa). Verify they are mutually exclusive. | T1 | P2 |
 
 ---
