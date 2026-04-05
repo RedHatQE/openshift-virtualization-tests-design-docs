@@ -89,7 +89,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Goals are SMART: Specific, Measurable, Achievable, Relevant, Verifiable
 - [ ] Distinguish between new functional tests and regression tests
 - [ ] If regression goals are included in Testing Goals, they identify which SIG test suites
-  run on the feature cluster (regression is also addressed in Test Strategy Section II.2)
+  run on the feature cluster. Regression testing is primarily documented in Test Strategy (II.2),
+  and regression tests are NOT included in the Test Scenarios table (III).
 - [ ] Negative and edge-case scenarios are considered (e.g., "what happens if migration fails?",
   "what if the VM starts during the operation?", "what about error handling?")
 - [ ] Goals are ordered by priority (P0 first, then P1, then P2)
@@ -98,8 +99,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Each item has Rationale and PM/Lead Agreement with name and date
 - [ ] Items are decisions QE made (not constraints imposed on QE — those are Test Limitations)
 - [ ] Format per template: `- **Item** / *Rationale:* / *PM/Lead Agreement:*`
-- [ ] Items are genuinely out of scope — NOT items already covered by other teams or existing tests
-  ("already covered in 4.21" is NOT out of scope — it's existing coverage)
+- [ ] Items are genuinely out of scope — if already tested elsewhere,
+  document as existing coverage, not out of scope
 
 **Test Limitations:**
 - [ ] Each limitation has sign-off: `*Sign-off:* [Name/Date]`
@@ -123,7 +124,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] If UI team owns UI testing, uncheck Usability and note in details
 - [ ] Monitoring: explicitly state whether alerts/metrics are required
 - [ ] Upgrade Testing: even if N/A, confirm the upgrade path was evaluated
-- [ ] Performance/Scale: even if deferred, document the consideration and future plans
+- [ ] Performance/Scale: even if deferred, document the consideration and plans
 - [ ] UI: if the feature has UI work, document who tests it (QE or UI team) with Jira link
 
 **Common rejection reasons:**
@@ -134,7 +135,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 ### II.3 — Test Environment
 
 - [ ] All fields filled or marked N/A (no empty fields)
-- [ ] OCP and OpenShift Virtualization versions are exact (not "4.x")
+- [ ] OCP and OpenShift Virtualization versions are explicit (exact versions
+  preferred; qualified ranges like "4.22 and later" are acceptable)
 - [ ] Storage class specified (not generic)
 - [ ] Platform specified (Bare metal, AWS, etc.)
 - [ ] Special Configurations documented if non-standard
@@ -169,7 +171,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 ### III — Test Scenarios & Traceability
 
 - [ ] Every scenario has a Jira Requirement ID (not "[TBD]").
-  Continuation rows sharing the same epic may leave the ID blank.
+  In the scenarios table, multiple test scenarios mapped to the same requirement
+  may leave the Requirement ID cell blank in continuation rows.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
 - [ ] Each scenario has Tier (1 or 2) and Priority (P0/P1/P2)
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
@@ -215,7 +218,8 @@ When an STP spans multiple SIGs:
 - Provide rationale for every out-of-scope item
 - Link every test scenario to a Jira requirement
 - Clearly separate: Feature Limitations | Test Limitations | Out of Scope | Risks
-- Use the current template format (checklists for Section I, checklists for Test Strategy)
+- Use the current template format for STPs being added or modified in the PR
+  (do not retroactively enforce on already-merged STPs)
 - Remove all template HTML comments and example text before submitting
 - Consider negative and edge-case test scenarios (error handling, partial failures, concurrent operations)
 - Document what is NOT tested with explicit sign-off — anything untested must be visible
