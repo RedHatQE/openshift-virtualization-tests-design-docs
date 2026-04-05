@@ -174,7 +174,7 @@ The STP template uses four distinct categories for constraints. Refer to the tem
 - Update traceability matrix
 
 ### 5. Sign-off
-- Verify acceptance criteria were met and automation is merged
+- Verify acceptance criteria were met
 - Automation merged and running in CI
 - QE formally signs off the feature
 
