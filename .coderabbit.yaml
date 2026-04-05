@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit AI Review Configuration for openshift-virtualization-tests-design-docs
+# This is a documentation-only repo containing Software Test Plans (STPs)
+
+language: en-US
+
+tone_instructions: >
+  Review STPs for content quality and template compliance.
+  Be direct. Explain WHY. Use severity: CRITICAL (blocks approval),
+  HIGH (must fix), MEDIUM (should fix), LOW (suggestion).
+  See AGENTS.md for detailed rules.
+
+early_access: true
+enable_free_tier: true
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  auto_title_placeholder: "@coderabbitai"
+  review_status: true
+  commit_status: true
+  poem: false
+  collapse_walkthrough: true
+  sequence_diagrams: false
+  changed_files_summary: true
+  abort_on_close: true
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    ignore_title_keywords:
+      - "WIP"
+      - "Draft"
+    base_branches:
+      - main
+
+  tools:
+    markdownlint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"
+      - "AGENTS.md"
+
+  learnings:
+    scope: auto
+
+  issues:
+    scope: auto
+
+  pull_requests:
+    scope: auto
