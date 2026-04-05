@@ -15,7 +15,7 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 
 ### Process Alignment
 - Aligns QE activities with the OpenShift Virtualization release cycle
-- Ensures **automation is merged for GA** (mandatory exit criteria)
+- Ensures **automation is merged for GA**
 - Creates a shared understanding between Dev, QE, and Product Management
 
 ### Risk Management
@@ -96,20 +96,12 @@ Virtualization-specific requirements:
 - Platform (bare metal, AWS, Azure, GCP, etc.)
 - Special configurations (disconnected, proxy, FIPS)
 
-#### 6. Entry and Exit Criteria
+#### 6. Entry Criteria
 
 **Entry Criteria:**
 - Requirements and design documents approved and stable
 - Test environment set up and configured
 - Test cases reviewed and approved
-
-**Exit Criteria:**
-- All high-priority defects are resolved and verified
-- Test coverage goals achieved
-- **Test automation merged** (required for GA sign-off)
-- All planned test cycles are completed
-- Test summary report approved
-- Acceptance criteria met
 
 #### 7. Risk Management
 Document risks and mitigation strategies with sign-off:
@@ -178,11 +170,11 @@ The STP template uses four distinct categories for constraints. Refer to the tem
 
 ### 4. Test Execution
 - Implement test cases based on STP
-- Track progress against entry/exit criteria
+- Track progress against testing goals
 - Update traceability matrix
 
 ### 5. Sign-off
-- Verify all exit criteria met
+- Verify acceptance criteria were met and automation is merged
 - Automation merged and running in CI
 - QE formally signs off the feature
 
