@@ -16,6 +16,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 2. **Every claim needs evidence** — sign-offs, Jira links, dates. No empty placeholders in approved STPs.
 3. **Distinguish constraint categories** — Feature Limitations, Test Limitations, Out of Scope, and Risks
    are four distinct concepts. Never mix them.
+   See `docs/stp-guide.md` Section II.8 (Constraints Summary) for definitions.
 4. **Traceability is mandatory** — every test scenario must map to a Jira requirement ID with tier and priority.
 5. **Concise and actionable** — no walls of text, no template boilerplate left in, no vague statements.
 
@@ -32,13 +33,12 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
   (VM, PVC, CDI, etc. are known to all reviewers — do not define them)
-- [ ] Reviewer should follow Enhancement, Feature Tracking, and Epic Jira links
-  and verify:
-  - Requirements and user stories in the STP align with Jira
-  - Acceptance criteria cover the Jira-defined scope
-  - No child epics or stories are missed
-- [ ] If GitHub links (VEPs, design docs) are referenced, verify the STP
-  content is consistent with those sources
+- [ ] Reviewer should follow the linked feature request and tracking epic
+  to verify:
+  - Requirements in the STP align with the feature request definition
+  - Acceptance criteria cover the scope defined in the feature epic
+- [ ] VEP and design doc links are present and the STP content
+  is consistent with those sources
 
 ### Feature Overview
 
