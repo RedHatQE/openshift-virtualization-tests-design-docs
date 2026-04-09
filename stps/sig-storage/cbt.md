@@ -20,7 +20,7 @@
 |:------------|:-----------|
 | **CBT**     | Changed Block Tracking |
 | **Push mode** | Backup mode where the hypervisor writes backup data to a user-provided PVC. |
-| **Pull mode** | Backup mode where the hypervisor exposes an NBD export and the client pulls backup data. Scratch space on a PVC is used during the backup. In KubeVirt, access is exposed through the **VMExport API**, which adds an HTTP shim layer over the underlying export path. |
+| **Pull mode** | Backup mode where the hypervisor exposes an NBD export and the client pulls backup data. Scratch space on a PVC is used during the backup. |
 
 ### **Feature Overview**
 
