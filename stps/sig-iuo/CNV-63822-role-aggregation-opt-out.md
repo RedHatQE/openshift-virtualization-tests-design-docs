@@ -20,25 +20,25 @@
 
 #### **1. Requirement & User Story Review Checklist**
 
-| Check                                  | Done | Details/Notes                                                                   | Comments                                              |
-|:---------------------------------------|:-----|:--------------------------------------------------------------------------------|:------------------------------------------------------|
-| **Review Requirements**                | [x]  | As a cluster-admin I want to decide which users will have access to the virtualization in the cluster. Not all project-admins should have this access but only the eligible ones            | Per CNV-50792 feature request |
-| **Understand Value**                   | [x]  | A cluster-admin wants to control which users has access to view/create/edit openshift virtualization resources on a given namespace | Per CNV-50792 feature request |
-| **Customer Use Cases**                 | [x]  | * multi-tenant clusters|different namespaces are used to allow different workloads and prevent unallowed usage of workload that the tenant is not eligible to us|
-|                                        |      | * Resources usage control|cluster admin wants to get a request to allow a specific user to create VMs and Storage|
-| **Testability**                        | [ ]  | Blocked until HCO API modification is available; need to confirm field name and API     | Cannot implement tests without actual implementation  |
-| **Acceptance Criteria**                | [x]  | (1) Config disables aggregation, (2) Users blocked without RoleBinding, (3) RoleBinding grants access | Defined in CNV-63822 epic |
-| **Non-Functional Requirements (NFRs)** | [x]  | Security (RBAC hardening), Backward Compatibility (default unchanged)            | Upgrade and docs coverage required                    |
+| Check                                  | Done | Details/Notes                                                                                                                                                                    | Comments                                              |
+|:---------------------------------------|:-----|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------|
+| **Review Requirements**                | [x]  | As a cluster-admin I want to decide which users will have access to the virtualization in the cluster. Not all project-admins should have this access but only the eligible ones | Per CNV-50792 feature request |
+| **Understand Value**                   | [x]  | A cluster-admin wants to control which users has access to view/create/edit openshift virtualization resources on a given namespace                                              | Per CNV-50792 feature request |
+| **Customer Use Cases**                 | [x]  | * multi-tenant clusters                                                                                                                                                          |different namespaces are used to allow different workloads and prevent unallowed usage of workload that the tenant is not eligible to us|
+|                                        |      | * Resources usage control                                                                                                                                                        |cluster admin wants to get a request to allow a specific user to create VMs and Storage|
+| **Testability**                        | [x]  | HCO API modification is available with feature gate OptOutRoleAggregation and field roleAggregationStrategy                                                                      | Ready to implement tests  |
+| **Acceptance Criteria**                | [x]  | (1) Config disables aggregation, (2) Users blocked without RoleBinding, (3) RoleBinding grants access                                                                            | Defined in CNV-63822 epic |
+| **Non-Functional Requirements (NFRs)** | [x]  | Security (RBAC hardening), Backward Compatibility (default unchanged)                                                                                                            | Upgrade and docs coverage required                    |
 
 #### **2. Technology and Design Review**
 
-| Check                            | Done | Details/Notes                                                                   | Comments                                              |
-|:---------------------------------|:-----|:--------------------------------------------------------------------------------|:------------------------------------------------------|
-| **Developer Handoff/QE Kickoff** | [x]  |||
-| **Technology Challenges**        | [x]  | N/A ||
-| **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing      | No special hardware required                          |
-| **API Extensions**               | [ ]  | hco spec field TBD;                                                             | Cannot finalize until feature is completely implemented    |
-| **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent             | Works on all topologies (standard, SNO, compact)      |
+| Check                            | Done | Details/Notes                                                               | Comments                                         |
+|:---------------------------------|:-----|:----------------------------------------------------------------------------|:-------------------------------------------------|
+| **Developer Handoff/QE Kickoff** | [x]  |                                                                             |                                                  |
+| **Technology Challenges**        | [x]  | N/A                                                                         |                                                  |
+| **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing  | No special hardware required                     |
+| **API Extensions**               | [x]  | HCO spec field roleAggregationStrategy;                                     | Feature is implemented                           |
+| **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent         | Works on all topologies (standard, SNO, compact) |
 
 
 
@@ -113,18 +113,18 @@
 #### **4. Entry Criteria**
 
 - [X] KubeVirt PR #16350 **merged**
-- [ ] HCO downstream implementation **complete** (field integrated into HCO CR)
+- [X] HCO downstream implementation **complete** (field integrated into HCO CR)
 - [ ] Requirements and design documents approved
 - [ ] Developer Handoff/QE Kickoff meeting completed
 
 #### **5. Risks**
 
-| Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy                                     | Status     |
-|:---------------------|:--------------------------------------------------------|:--------------------------------------------------------|:-----------|
-| IU adaptations    | The feature description mentions IU changes that are still pending to concrete | Discussion started and will be tracked with IU team | [x] Active |
-| Test Coverage        | Cannot exhaustively test all RBAC role combinations     | Test critical paths (all 4 roles); focus on acceptance criteria | [ ]        |
-| Dependencies         | HCO downstream implementation | Track  progress and coordinate with HCO team       | [x] Active |
-| Untestable Aspects   | Limited to HTPasswd; cannot test LDAP/AD/OAuth         | RBAC logic is IdP-agnostic; HTPasswd validation sufficient | [ ]        |
+| Risk Category      | Specific Risk for This Feature                                                 | Mitigation Strategy                                             | Status     |
+|:-------------------|:-------------------------------------------------------------------------------|:----------------------------------------------------------------|:-----------|
+| UI adaptations     | The feature description mentions UI changes that are still pending to concrete | Discussion started and will be tracked with UI team             | [x] Active |
+| Test Coverage      | Cannot exhaustively test all RBAC role combinations                            | Test critical paths (all 3 roles); focus on acceptance criteria | [ ]        |
+| Dependencies       | HCO downstream implementation                                                  | Track  progress and coordinate with HCO team                    | [ ]        |
+| Untestable Aspects | Limited to HTPasswd; cannot test LDAP/AD/OAuth                                 | RBAC logic is IdP-agnostic; HTPasswd validation sufficient      | [ ]        |
 
 
 #### **8. Known Limitations**
