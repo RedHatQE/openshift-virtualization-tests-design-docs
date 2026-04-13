@@ -214,4 +214,4 @@ Only scenarios **not covered by the parent STP** are included. Each scenario cov
   - QE Members (sig-iuo): @hmeir
   - QE Members (sig-network): @yossisegev
 - **Approvers:**
-  - QE Architect: @rnetser 
+  - QE Architect: @rnetser
