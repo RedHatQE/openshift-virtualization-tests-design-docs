@@ -7,13 +7,12 @@
 | Field                  | Details                                                 |
 |:-----------------------|:--------------------------------------------------------|
 | **Enhancement(s)**     | [Kubevirt VEP](https://github.com/kubevirt/enhancements/issues/160) |
-|                        |KubeVirt PR #16350 (pending merge)                      |
 | **Feature in Jira**    | [CNV-50792](https://issues.redhat.com/browse/CNV-50792) |
 | **Jira Tracking**      | [CNV-63822](https://issues.redhat.com/browse/CNV-63822) |
 | **QE Owner(s)**        | Ramon Lobillo (@rlobillo), Alex Barker (@albarker-rh)   |
 | **Owning SIG**         | sig-iuo (Install, Upgrade, Operators)                   |
 | **Participating SIGs** | sig-ui                                                  |
-| **Current Status**     | Draft - Waiting for upstream merge                      |
+| **Current Status**     | Draft                                                   |
 
 ---
 
@@ -27,7 +26,7 @@
 | **Understand Value**                   | [x]  | A cluster-admin wants to control which users has access to view/create/edit openshift virtualization resources on a given namespace | Per CNV-50792 feature request |
 | **Customer Use Cases**                 | [x]  | * multi-tenant clusters|different namespaces are used to allow different workloads and prevent unallowed usage of workload that the tenant is not eligible to us|
 |                                        |      | * Resources usage control|cluster admin wants to get a request to allow a specific user to create VMs and Storage|
-| **Testability**                        | [ ]  | Blocked until KubeVirt PR #16350 merges; need to confirm field name and API     | Cannot implement tests without actual implementation  |
+| **Testability**                        | [ ]  | Blocked until HCO API modification is available; need to confirm field name and API     | Cannot implement tests without actual implementation  |
 | **Acceptance Criteria**                | [x]  | (1) Config disables aggregation, (2) Users blocked without RoleBinding, (3) RoleBinding grants access | Defined in CNV-63822 epic |
 | **Non-Functional Requirements (NFRs)** | [x]  | Security (RBAC hardening), Backward Compatibility (default unchanged)            | Upgrade and docs coverage required                    |
 
@@ -35,10 +34,10 @@
 
 | Check                            | Done | Details/Notes                                                                   | Comments                                              |
 |:---------------------------------|:-----|:--------------------------------------------------------------------------------|:------------------------------------------------------|
-| **Developer Handoff/QE Kickoff** | [ ]  | Pending KubeVirt PR #16350 merge; will schedule once API is confirmed           | Need exact config field name and allowed values       |
+| **Developer Handoff/QE Kickoff** | [x]  |||
 | **Technology Challenges**        | [x]  | N/A ||
 | **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing      | No special hardware required                          |
-| **API Extensions**               | [ ]  | KubeVirt spec field TBD; likely under spec.configuration per PR #16350          | Cannot finalize until upstream merged                 |
+| **API Extensions**               | [ ]  | hco spec field TBD;                                                             | Cannot finalize until feature is completely implemented    |
 | **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent             | Works on all topologies (standard, SNO, compact)      |
 
 
@@ -50,7 +49,6 @@
 **Testing Goals**
 - [P0] Verify opt-out role aggregation can be enabled via hyperconvergeds.hco.kubevirt.io config
 - [P0] Unprivileged users cannot access kubevirt resources without explicit RoleBinding when feature is enabled
-- [P0] Unprivileged users cannot access Virtualization view in UI without explicit RoleBinding when feature is enabled
 - [P0] Explicit RoleBindings (admin, edit, view) grant access correctly
 - [P0] Verify opt-out role aggregation can be disabled via hyperconvergeds.hco.kubevirt.io config
 
@@ -78,7 +76,7 @@
 | Automation Testing             | Ensures test cases are automated for continuous integration and regression coverage                                                                          | Y                       |          |
 | Performance Testing            | Validates feature performance meets requirements (latency, throughput, resource usage)                                                                       | N/A                     |          |
 | Security Testing               | Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning                                                              | Y                       | Feature is a security enhancement |
-| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements | Y                       | unprivileged user should not see Virtualization view on UI with feature Enabled |
+| Usability Testing              | Validates user experience, UI/UX consistency, and accessibility requirements. Does the feature require UI? If so, ensure the UI aligns with the requirements | Y                       | [CNV-80935](https://issues.redhat.com/browse/CNV-80935) |
 | Compatibility Testing          | Ensures feature works across supported platforms, versions, and configurations                                                                               | Y                       | default behaviour will not change |
 | Regression Testing             | Verifies that new changes do not break existing functionality                                                                                                | Y                       |          |
 | Upgrade Testing                | Validates upgrade paths from previous versions, data migration, and configuration preservation                                                               | Y                       |          |
@@ -114,7 +112,7 @@
 
 #### **4. Entry Criteria**
 
-- [ ] KubeVirt PR #16350 **merged** (upstream blocking dependency)
+- [X] KubeVirt PR #16350 **merged**
 - [ ] HCO downstream implementation **complete** (field integrated into HCO CR)
 - [ ] Requirements and design documents approved
 - [ ] Developer Handoff/QE Kickoff meeting completed
@@ -123,18 +121,15 @@
 
 | Risk Category        | Specific Risk for This Feature                          | Mitigation Strategy                                     | Status     |
 |:---------------------|:--------------------------------------------------------|:--------------------------------------------------------|:-----------|
-| Timeline/Schedule    | KubeVirt PR #16350 not yet merged; blocks test implementation | Monitor PR status weekly; prepare test infrastructure in parallel | [x] Active |
+| IU adaptations    | The feature description mentions IU changes that are still pending to concrete | Discussion started and will be tracked with IU team | [x] Active |
 | Test Coverage        | Cannot exhaustively test all RBAC role combinations     | Test critical paths (all 4 roles); focus on acceptance criteria | [ ]        |
-| Dependencies         | Blocking: PR #16350 merge. Soft: HCO downstream implementation | Track upstream progress; coordinate with HCO team       | [x] Active |
+| Dependencies         | HCO downstream implementation | Track  progress and coordinate with HCO team       | [x] Active |
 | Untestable Aspects   | Limited to HTPasswd; cannot test LDAP/AD/OAuth         | RBAC logic is IdP-agnostic; HTPasswd validation sufficient | [ ]        |
 
 
 #### **8. Known Limitations**
 
-- Feature implementation pending KubeVirt PR #16350 merge (no implementation to test yet)
-- Testing scope limited to HTPasswd identity provider
-- Upgrade testing from CNV <4.21 only tests "feature not available" → "feature available" scenario
-- Cannot test production-scale multi-tenant environments (functional correctness sufficient at smaller scale)
+No limitations.
 
 ---
 
@@ -146,14 +141,13 @@
 | KubeVirt PR #16350       | `RoleAggregationStrategy configuration should keep aggregate labels when RoleAggregationStrategy is AggregateToDefault`        | | tier1 automation | P0       |
 | KubeVirt PR #16350       | `RoleAggregationStrategy configuration should create ClusterRole without aggregate labels when RoleAggregationStrategy is Manual` | |  tier1 auto   | P0       |
 | KubeVirt PR #16350       | `RoleAggregationStrategy configuration should remove aggregate labels from existing ClusterRole when strategy changes to Manual`  | |  tier1 auto   | P0       |
-| CNV-63822                | As an admin I can enable the feature via config in hyperconverged CR  | Verify config persists once enabled  | tier2 automation | P0       |
-|                          | As an unprivileged user with admin role on a namespace, I cannot navigate into the virtualization view on openshift UI  | Verify unprivileged user cannot see the view | tier2 automation | P0       |
-|                          | As an unprivileged user with admin role on a namespace, I cannot perform kubevirt.io:admin actions with feature enabled | Verify ForbiddenError is returned | tier2 automation | P0       |
-|                          | As an unprivileged user with edit role on a namespace, I cannot perform kubevirt.io:edit actions with feature enabled | Verify ForbiddenError is returned | tier2 automation | P0       |
-|                          | As an unprivileged user with view role on a namespace, I cannot perform kubevirt.io:view actions with feature enabled| Verify ForbiddenError is returned | tier2 automation | P0       |
-|                          | As an admin, I can add roleBinding kubevirt.io:admin to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:admin action | tier2 automation | P0       |
-|                          | As an admin, I can add roleBinding kubevirt.io:edit to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:edit action | tier2 automation | P0       |
-|                          | As an admin, I can add roleBinding kubevirt.io:view to unprevileged user in a namespace with feature enabled| Verify unprivileged user can perform kubevirt.io:view action | tier2 automation | P0       |
+| CNV-63822                | As an admin, I can enable the feature via config in hyperconverged CR  | Verify config persists once enabled  | tier2 automation | P0       |
+|                          | As an admin, I can enable the feature so an unprivileged user with admin role on a namespace cannot perform kubevirt.io:admin actions | Verify user gets ForbiddenError | tier2 automation | P0       |
+|                          | As an admin, I can enable the feature so an unprivileged user with edit role on a namespace cannot perform kubevirt.io:edit actions  | Verify user gets ForbiddenError | tier2 automation | P0       |
+|                          | As an admin, I can enable the feature so an unprivileged user with view role on a namespace cannot perform kubevirt.io:view actions | Verify user getse ForbiddenError | tier2 automation | P0       |
+|                          | As an admin, I can specifically add kubevirt.io:admin permissions to an unprivileged user in a namespace when feature is enabled| Verify user can perform action | tier2 automation | P0       |
+|                          | As an admin, I can specifically add kubevirt.io:edit permissions to an unprivileged user in a namespace when feature is enabled| Verify user can perform action | tier2 automation | P0       |
+|                          | As an admin, I can specifically add kubevirt.io:view permissions to an unprivileged user in a namespace when feature is enabled| Verify user can perform action | tier2 automation | P0       |
 |                          | As an admin, I can disable the feature via config in hyperconverged CR | Verify config persists once disabled and unprivileged user with admin role in a namespace can perform kubevirt:admin action | tier2 automation | P0       |
 
 ---
@@ -174,6 +168,6 @@ This Software Test Plan requires approval from the following stakeholders:
 **Review Status:**
 - [X] Draft complete
 - [ ] QE team reviewed
-- [ ] Dev/Arch reviewed (pending KubeVirt PR #16350 merge)
+- [ ] Dev/Arch reviewed
 - [ ] PM approved
 - [ ] Ready for implementation
