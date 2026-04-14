@@ -5,14 +5,14 @@
 ### **Metadata & Tracking**
 
 - **Enhancement(s):** [VEP: Heterogeneous Cluster Support](https://github.com/kubevirt/enhancements/tree/main/veps/sig-storage/dic-on-heterogeneous-cluster)
-- **Feature Tracking:** [VIRTSTRAT-494 - Multiarch Support enablement for ARM](https://issues.redhat.com/browse/VIRTSTRAT-494)
+- **Feature Tracking:** [VIRTSTRAT-494 - Golden images support enablement for ARM](https://redhat.atlassian.net/browse/VIRTSTRAT-494)
 - **Epic Tracking:**
-  - [CNV-67900](https://issues.redhat.com/browse/CNV-67900) — HCO Multi-arch support
-  - [CNV-26818](https://issues.redhat.com/browse/CNV-26818) — Virt Multi-arch worker node support
-  - [CNV-76714](https://issues.redhat.com/browse/CNV-76714) — Infra Multi-arch support
-  - [CNV-76732](https://issues.redhat.com/browse/CNV-76732) — Storage Multi-arch support
-  - [CNV-76741](https://issues.redhat.com/browse/CNV-76741) — Network Multi-arch support
-  - [CNV-61832](https://issues.redhat.com/browse/CNV-61832) — UI Multi-arch support
+  - [CNV-67900](https://redhat.atlassian.net/browse/CNV-67900) — HCO Multi-arch support
+  - [CNV-26818](https://redhat.atlassian.net/browse/CNV-26818) — Virt Multi-arch worker node support
+  - [CNV-76714](https://redhat.atlassian.net/browse/CNV-76714) — Infra Multi-arch support
+  - [CNV-76732](https://redhat.atlassian.net/browse/CNV-76732) — Storage Multi-arch support
+  - [CNV-76741](https://redhat.atlassian.net/browse/CNV-76741) — Network Multi-arch support
+  - [CNV-61832](https://redhat.atlassian.net/browse/CNV-61832) — UI Multi-arch support
 - **QE Owner(s):** Harel Meir (@hmeir)
 - **Owning SIG:** sig-iuo
 - **Participating SIGs:** sig-virt, sig-infra, sig-storage, sig-network
@@ -20,13 +20,8 @@
 **Document Conventions (if applicable):**
 
 - **Multi-Arch:** Multi-Architecture, heterogeneous clusters with mixed CPU architectures (AMD64 + ARM64).
-- **Multiarch support** - Golden images support achieved by activating a feature gate.
-- **golden image**: pre-configured VM image that is automatically imported into a boot source
-- **boot sources**: available for VM creation from golden images.
-- **common golden images** - provided by Red Hat. Supports amd64, arm64, s390x architectures.
-- **custom golden images** - User-defined images. Architecture support is the user's responsibility.
-- **supported architectures** - The cluster scheduled worker node unique architectures.
-- **legacy boot sources/templates** - boot sources that are not architecture-specific (e.g. `rhel9` vs `rhel9-arm64`)
+- **Golden image**: pre-configured VM image that is automatically imported into a boot source
+- **Golden images support** - Golden images multiarch support allows to deploy architecture-specific Vms from dedicated boot sources. controlled by a featureGate.
 
 
 ### **Feature Overview**
@@ -62,13 +57,13 @@ technology, and testability before formal test planning.
   - *List the acceptance criteria:*
     - VMs must be scheduled only on nodes matching their CPU architecture.
     - VM migration succeeds only between nodes of the same CPU architecture.
-    - When multiarch support is enabled, architecture-specific boot sources and templates are available per supported architecture (ARM + AMD) for common golden images.
-    - When multiarch support is enabled, architecture-specific boot sources and templates are available ONLY for custom golden images annotated with supported architectures.
-    - When multiarch support is enabled, VMs can be created from legacy boot sources, scheduled on node with the default CPU architecture.
-    - When multiarch support is enabled, adding a node with a new supported architecture results in architecture-specific boot sources and templates available for this architecture.
-    - When multiarch support is enabled, removing all nodes of a supported architecture from a multi-arch cluster cleans up the corresponding architecture-specific boot sources.
-    - When multiarch support is disabled and nodePlacement restricts scheduling to a specific supported architecture, VMs are scheduled only on nodes with this CPU architecture.
-    - When multiarch support is enabled, new arch images can be pulled successfully only for golden images annotated with supported architectures using any pullMethod.
+    - ARM VM and AMD VM can communiate each other.
+    - When golden images support is enabled, VMs can be created on matching CPU node from all avalible common boot sources.
+    - When golden images support is enabled, VMs can be created from custom golden images targeting specific architectures.
+    - When golden images support is enabled, VMs can be created on node with the default CPU architecture from legacy boot sources.
+    - When golden images support is enabled, adding a ARM node results in ARM64 boot sources.
+    - When golden images support is enabled, removing all ARM nodes cleans up the corresponding ARM64 boot sources.
+    - When golden images support is disabled, and nodePlacement restricts scheduling to a specific supported architecture, VMs are scheduled only on nodes with this CPU architecture.
 - **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
     - **Monitoring**: Platform must alert users about MultiArch misconfigurations, workload metrics across both architectures on multiarch cluster.
@@ -102,31 +97,17 @@ The following topics will not be tested or supported.
     - Tests are limited to AWS platform
 - **API Extensions**
   - *List new or modified APIs:*
-    - **HCO**:
-      - `spec.featureGates.enableMultiArchBootImageImport` (bool) - enables/disables golden images support
-      - `status.nodeInfo.controlPlaneArchitectures` ([]string) - lists control-plane node architectures
-      - `status.nodeInfo.workloadsArchitectures` ([]string) - lists worker node architectures
-      - `status.dataImportCronTemplates[].status.originalSupportedArchitectures` (string) - preserves original annotation values
-      - `status.dataImportCronTemplates[].status.conditions` - deployment conditions including `UnsupportedArchitectures` reason
-    - **SSP**:
-      - `spec.enableMultipleArchitectures` (bool) - feature activation flag
-      - `spec.cluster.workloadArchitectures` ([]string) - worker arch list from HCO
-      - `spec.cluster.controlPlaneArchitectures` ([]string) - control-plane arch list from HCO
-    - **CDI**:
-      - `DataVolumeSourceRegistry.platform.architecture` (string) - specifies target CPU architecture for import
-      - `DataSourceSource.dataSource.namespace` (string) - Pointer DataSource namespace
-      - `DataSourceSource.dataSource.name` (string) - Pointer DataSource name
-    - **KubeVirt**:
-      - `vm.spec.template.spec.architecture` (string) - targets VM to specific CPU architecture
+    - `vm.spec.template.spec.architecture` (string) — targets VM to specific CPU architecture
+    - Multi-arch support enabled/disabled through HCO feature gate configuration
   - *Testing impact:*
     - VM creation with explicit architecture targeting must be tested.
-    - Multiarch support enable/disable behavior must be tested.
+    - Golden images support enable/disable behavior must be tested.
 - **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 - **Topology Considerations**
   - *Describe topology requirements:* Feature targets MultiArch clusters only (3 amd64 control-plane, 2 amd64 workers, 2 arm64 workers)
   - *Impact on test design:* Live migration and upgrade tests require at least 2 nodes of the same architecture.
-  - *Topologies not tested:* Multiarch support is auto-disabled on Single Node OpenShift (SNO) clusters, even if the feature gate is enabled.
+  - *Topologies not tested:* Golden images support is auto-disabled on Single Node OpenShift (SNO) clusters, even if the feature gate is enabled.
 
 ### **II. Software Test Plan (STP)**
 
@@ -138,25 +119,27 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 New functional flows specific to heterogeneous multi-arch clusters:
 
-- **[P0]** Enable multi-arch support and verify architecture-specific ARM64 and AMD64 boot sources become available for common golden images, named and labeled with their supported arch.
-- **[P0]** Enable multi-arch support and verify architecture-specific boot sources become available for custom golden images only when annotated with supported architectures.
-- **[P0]** Enable multi-arch support and verify alert fires when a custom golden image is annotated only with unsupported architectures, and arch-specific boot sources aren't created for it.
-- **[P0]** Enable multi-arch support and verify alert fires when a custom golden image is missing an architecture annotation, and arch-specific boot sources aren't created for it.
-- **[P1]** Verify alert cleaned up when MultiArch FG is disabled but nodePlacement restricts to single architecture, and arch-specific boot sources available only for this architecture.
-- **[P1]** Verify upgrade preserves multi-arch configuration and VMs on both architectures
-- **[P2]** Disable multi-arch support and verify architecture-specific boot sources and templates are removed
-- **[P0]** Enable multi-arch support and verify architecture-specific ARM64 and AMD64 boot sources become available for common golden images, and VMs can be created from those.
-- **[P0]** Enable multi-arch support and verify VMs created from legacy templates and boot sources are running on node with default CPU architecture.
-- **[P0]** Enable multi-arch support and verify that adding ARM node results in template and boot sources creation
-- **[P2]** Enable multi-arch support and verify that removing all ARM nodes results in template and boot sources cleanup
-- **[P0]** Verify new arch-specific golden image can be pulled.
-- **[P1]** Verify cross-architecture VM cloning is blocked with a clear, user-facing error message.
-- **[P0]** Verify VMs are scheduled only on nodes matching their CPU architecture.
-- **[P0]** Verify VM live migration succeeds between two same-architecture nodes.
-- **[P0]** Verify cross-architecture migration is blocked with a clear, user-facing error message
-- **[P0]** Verify VMs can be created from instancetypes.
-- **[P0]** Verify VMs migrate to same-architecture nodes during upgrade and placement is preserved.
+*Golden images support enabled:*
+
+- **[P0]** Verify VMs can be created from architecture-specific ARM and AMD boot sources.
+- **[P0]** Verify architecture-specific ARM64 and AMD64 boot sources become available for common golden images, named and labeled with their supported arch.
+- **[P0]** Verify alert fires when a golden image is annotated only with unsupported architectures.
+- **[P0]** Verify alert fires when a golden image is missing an architecture annotation.
+- **[P0]** Verify that adding an ARM node results in ARM boot sources creation.
 - **[P0]** Verify network connectivity between VMs running on different architectures (ARM64 VM <-> AMD64 VM)
+- **[P0]** Verify VMs migrate to same-architecture nodes during upgrade and multiarch configurations are preserved.
+- **[P1]** Verify cross-architecture VM cloning is blocked with a clear, user-facing error message.
+- **[P1]** Verify cross-architecture migration is blocked with a clear, user-facing error message
+- **[P1]** Verify upgrade preserves multi-arch configuration and VMs on both architectures
+- **[P2]** verify that removing all ARM nodes results in template and boot sources cleanup
+
+
+*Golden images support disabled:*
+
+- **[P0]** Verify that given workload nodePlacement restricts to ARM architecture, VMs created on ARM node from existing boot sources.
+- **[P1]** Verify alert not fired given workload nodePlacement restricts to single architecture.
+- **[P1]** Verify alert fires when Golden images support is enabled on Multiarch cluster.
+- **[P2]** Disable multi-arch support and verify architecture-specific boot sources and templates are removed
 
 **Regression Goals**
 
@@ -174,7 +157,7 @@ Existing test suites to run on the heterogeneous cluster to verify no degradatio
 > **NOTE:** Each SIG is responsible for ensuring their Tier 1 and Tier 2 executed regression suites cover all scenarios
 > that may be affected by the multi-arch feature on heterogeneous clusters.
 
-- **sig-iuo (owning SIG):** Multiarch support configuration, golden image provisioning lifecycle, alerts. Owns overall coordination.
+- **sig-iuo (owning SIG):** Golden images support configuration, golden image provisioning lifecycle, alerts. Owns overall coordination.
   - *Regression:* Tier 1 and Tier 2 (iuo and observability)
 - **sig-virt:** VM deployment on ARM64 and AMD64 nodes, same-arch live migration, cross-arch blocking, scheduling, CPU model per architecture.
   - *Regression:* Tier 1 and Tier 2
@@ -306,7 +289,7 @@ The following conditions must be met before testing can begin:
 
 **Untestable Aspects**
 
-- **Risk:** Special infrastructure cannot be validated on AWS platform
+- **Risk:** SR-IOV, Multi-NIC, and GPU passthrough cannot be validated on AWS platform
   - **Mitigation:** Validated on x86 nodes only; ARM coverage deferred until bare-metal ARM test environment is available
 - **Risk:** Upgrade path from FG-disabled to FG-enabled-by-default is not testable in 4.22 (FG will be enabled by default not earlier than 4.23)
   - **Mitigation:** Full upgrade path testing deferred to 4.23
@@ -319,8 +302,8 @@ The following conditions must be met before testing can begin:
 
 **Others**
 - **Risk:** Known non-blocker bugs may impact test results:
-  1. [[UI] architecture is incorrect for fedora arm and inconsistent on UI for other os](https://issues.redhat.com/browse/CNV-68981)
-  2. [[Storage] Arch-specific DataSources (arm64) persist after removing arm64 nodes](https://issues.redhat.com/browse/CNV-68996)
+  1. [[UI] architecture is incorrect for fedora arm and inconsistent on UI for other os](https://redhat.atlassian.net/browse/CNV-68981)
+  2. [[Storage] Arch-specific DataSources (arm64) persist after removing arm64 nodes](https://redhat.atlassian.net/browse/CNV-68996)
   - **Mitigation:** Make sure they are fixed & verified before GA
 
 ---
@@ -344,7 +327,7 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
   - *Test Scenario:* [Tier 2] Create custom golden image without architecture annotation, verify alert is being fired, and boot sources aren't created.
   - *Priority:* P0
 - **[CNV-67900](https://redhat.atlassian.net/browse/CNV-67900)** — As a cluster Admin, I want no alert when limiting workload nodePlacement to a specific architecture.
-  - *Test Scenario:* [Tier 2] Disable multiarch support, set nodePlacement to ARM architecture, and verify alert is cleaned up and boot sources available only for this architecture.
+  - *Test Scenario:* [Tier 2] Disable Golden images support, set nodePlacement to ARM architecture, and verify alert is cleaned up and boot sources available only for this architecture.
   - *Priority:* P1
 - **[CNV-67900](https://redhat.atlassian.net/browse/CNV-67900)** — As a cluster Admin, I want multi-arch support preserved after upgrade
   - *Test Scenario:* [Tier 2] Verify upgrade preserves multi-arch configuration and VMs on both architectures
@@ -362,7 +345,7 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
   - *Test Scenario:* [Tier 2] Deploy and verify a running VM from all legacy boot sources and templates on the default CPU architecture.
   - *Priority:* P0
 - **[CNV-76714](https://redhat.atlassian.net/browse/CNV-76714)** — As a cluster Admin, I want boot sources and templates created when a node with a new supported architecture is added
-  - *Test Scenario:* [Tier 2] Add an ARM64 node to a single-arch cluster with multiarch support enabled and verify architecture-specific boot sources and templates are created for the new architecture
+  - *Test Scenario:* [Tier 2] Add an ARM64 node to a single-arch cluster with Golden images support enabled and verify architecture-specific boot sources and templates are created for the new architecture
   - *Priority:* P0
 - **[CNV-76714](https://redhat.atlassian.net/browse/CNV-76714)** — As a cluster Admin, I want architecture-specific boot sources and templates cleaned up when all nodes of that architecture are removed
   - *Test Scenario:* [Tier 2] Remove all ARM64 nodes from a multi-arch cluster and verify architecture-specific boot sources and templates for ARM64 are cleaned up
@@ -377,19 +360,10 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
   - *Test Scenario:* [Tier 2] Attempt to clone a VM to a node of a different architecture and verify the operation is blocked with a clear, user-facing error message
   - *Priority:* P1
 
-**sig-virt — Functional Tests**
+**sig-virt — New Functional Tests**
 
-- **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a VM admin, I want to run VMs from all available boot sources on each supported architecture
-  - *Test Scenario:* [Tier 2] Deploy and verify a running VM from each available boot source on AMD64 and ARM64 nodes
-  - *Priority:* P0
-- **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want live migration to succeed between two nodes of the same architecture
-  - *Test Scenario:* [Tier 2] Deploy ARM VM and migrate it only to other ARM node.
-  - *Priority:* P0
 - **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want cross-architecture migration to be blocked
   - *Test Scenario:* [Tier 2] Verify cross-arch migration fails with clear, user-facing error
-  - *Priority:* P0
-- **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a VM admin, I want to create VMs from instancetypes on a multi-architecture cluster
-  - *Test Scenario:* [Tier 2] Verify VMs can be created from instancetypes on both AMD64 and ARM64
   - *Priority:* P0
 - **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want VMs to migrate to same-arch nodes during upgrade
   - *Test Scenario:* [Tier 2] Verify arm64 and amd64 VMs are migrated to same-architecture nodes during upgrades and placement preserved
