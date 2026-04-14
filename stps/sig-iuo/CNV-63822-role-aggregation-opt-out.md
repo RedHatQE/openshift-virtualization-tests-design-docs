@@ -50,13 +50,13 @@ this release.
 
 #### **3. Technology and Design Review**
 
-| Check                            | Done | Details/Notes                                                                                                                        | Comments                                         |
-|:---------------------------------|:-----|:-------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------|
-| **Developer Handoff/QE Kickoff** | [x]  | The feature is behind a KubeVirt feature-gate. When the feature is enabled in Openshift, HCO will automatically add the feature-gate |                                                  |
-| **Technology Challenges**        | [x]  | N/A                                                                                                                                  |                                                  |
-| **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing                                                           | No special hardware required                     |
+| Check                            | Done | Details/Notes                                                                                                                        | Comments                                                       |
+|:---------------------------------|:-----|:-------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------|
+| **Developer Handoff/QE Kickoff** | [x]  | The feature is behind a KubeVirt feature-gate. When the feature is enabled in Openshift, HCO will automatically add the feature-gate | Implementation details discussed, ready for testing            |
+| **Technology Challenges**        | [x]  | N/A                                                                                                                                  | N/A                                                            |
+| **Test Environment Needs**       | [x]  | Standard OCP + CNV cluster with HTPasswd IdP for unprivileged user testing                                                           | No special hardware required                                   |
 | **API Extensions**               | [x]  | New cluster-level configuration field to control role aggregation behavior (default: enabled, opt-out: manual)                       | Tests must validate config changes and downstream RBAC effects |
-| **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent                                                                  | Works on all topologies (standard, SNO, compact) |
+| **Topology Considerations**      | [x]  | Feature is cluster-scoped (KubeVirt CR level), topology-independent                                                                  | Works on all topologies (standard, SNO, compact)               |
 
 
 
@@ -127,7 +127,7 @@ None — reviewed and confirmed that no test limitations apply for this release.
 | **Storage**                                   | Any RWX storage class          | ocs-storagecluster-ceph-rbd-virtualization                         |
 | **Network**                                   | Default (OVN-Kubernetes)       | No special network requirements                                    |
 | **Required Operators**                        | OpenShift Virtualization       | Standard CNV installation                                          |
-| **Platform**                                  | Any supported platform         |                                                                    |
+| **Platform**                                  | Any supported platform         | Bare metal, AWS, Azure, GCP — no platform-specific behavior        |
 | **Special Configurations**                    | HTPasswd identity provider     | REQUIRED: Must have HTPasswd IdP with unprivileged user            |
 
 #### **3.1. Testing Tools & Frameworks**
