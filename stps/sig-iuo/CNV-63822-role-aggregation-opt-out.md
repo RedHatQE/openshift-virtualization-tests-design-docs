@@ -43,10 +43,11 @@ technology, and testability before formal test planning.
     has access to view/create/edit openshift virtualization resources on a given namespace.
     Per CNV-50792 feature request.
   - *List the customer use cases identified:*
-    - Multi-tenant clusters — different namespaces are used to allow different workloads and
-      prevent unallowed usage of workload that the tenant is not eligible to use
-    - Resources usage control — cluster admin wants to get a request to allow a specific user
-      to create VMs and Storage
+    - As a cluster administrator managing a multi-tenant cluster, I want to prevent tenants
+      from accessing virtualization workloads they are not eligible to use, so that different
+      namespaces can enforce different workload entitlements
+    - As a cluster administrator, I want to require users to request approval before creating
+      VMs and consuming storage, so that I can control resource usage across namespaces
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* All requirements are testable
