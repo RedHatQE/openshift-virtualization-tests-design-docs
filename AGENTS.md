@@ -54,13 +54,31 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Customer use cases are in user story format ("As a [role], I want to [action]")
 - [ ] Acceptance criteria are individual list items — each is a specific, verifiable pass/fail condition
 - [ ] Acceptance criteria describe observable user outcomes, not internal system behavior
+- [ ] For features claiming seamless or non-disruptive behavior, acceptance criteria must include
+  at least one condition that can *only* pass if disruption never occurred. A criterion that checks
+  end-state alone (e.g., "X is present after the operation") is insufficient — it would also pass
+  after a disruptive stop-and-restart cycle. The criterion must be one that *would fail* if a
+  disrupt-then-restore sequence happened instead of the claimed seamless path.
 - [ ] NFRs explicitly address: Monitoring, Observability, UI, Documentation, Performance, Security, Scalability
 - [ ] NFRs not covered have justification
+- [ ] Scalability NFR: if the feature relies on a platform mechanism (e.g., live migration) that
+  has existing scale constraints (e.g., cluster-level parallelism limits), those constraints must
+  be acknowledged — even if the feature itself introduces no new scale requirements. Saying "no new
+  scale requirements" is not sufficient when the underlying mechanism imposes limits.
+- [ ] UI NFR: "no UI changes introduced" does not justify dismissing UI testing. The question is
+  whether UI testing adds value from a customer perspective. That determination belongs to PM or UX,
+  not QE. If the answer is "not needed," it must be reasoned from customer value, not from the
+  absence of code changes.
 
 **Common rejection reasons:**
 - Acceptance criteria say "feature works" instead of specifying HOW we know it works
+- Acceptance criteria for seamless/non-disruptive features only verify end-state — a disrupt-then-restore
+  sequence would produce the same passing result
 - Requirements repeat the feature overview instead of listing actual D/S Jira requirements
 - NFRs section says "N/A" without explaining why each NFR category doesn't apply
+- Scalability NFR dismissed as "no new requirements" when the feature depends on a mechanism with
+  existing cluster-level scale limits
+- UI NFR dismissed with "no UI changes" without PM/UX input on whether testing adds customer value
 
 ### I.2 — Known Limitations
 
@@ -101,6 +119,14 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Negative and edge-case scenarios are considered (e.g., "what happens if migration fails?",
   "what if the VM starts during the operation?", "what about error handling?")
 - [ ] Goals are ordered by priority (P0 first, then P1, then P2)
+- [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
+  the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
+  only one dimension leaves test authors to guess the rest.
+- [ ] Test scenarios that validate behavior *after* a feature operation has completed and the system
+  has reached a stable state (e.g., "verify behavior after upgrade", "verify VM is migratable after
+  feature completes") require explicit justification. Once stable, the system typically cannot
+  distinguish how it arrived there. Such scenarios must name a concrete mechanism by which the
+  feature's prior execution would produce a different outcome than a baseline reaching the same state.
 
 **Out of Scope:**
 - [ ] Each item has Rationale and PM/Lead Agreement with name and date
@@ -119,6 +145,10 @@ Assisted-by: Claude <noreply@anthropic.com>
 - Out of Scope items have `[Name/Date]` placeholder instead of actual sign-offs
 - Regression tests mixed with new functional tests in Testing Goals
 - Missing priority levels on goals
+- Testing goal names only one configuration dimension (e.g., binding type) when others are required
+  (e.g., CNI) to make the goal implementable
+- Test scenario added for post-stable-state behavior without justifying why the feature's
+  execution history would produce a different outcome than baseline
 
 ### II.2 — Test Strategy
 
