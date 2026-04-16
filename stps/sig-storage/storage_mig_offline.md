@@ -375,6 +375,8 @@ justification in mitigation strategy. -->
   - **Mitigation:** No additional risks identified
   <!-- If more context is needed for this item, add an entry with any relevant details-->
 
+> **Risks Review Sign-off:** All risk categories reviewed and confirmed N/A or addressed above — Yan Du, Apr 7,2026
+
 ---
 
 ### **III. Test Scenarios & Traceability**
@@ -394,7 +396,7 @@ justification in mitigation strategy. -->
 **Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
 - **[CNV-73500]** — As a VM owner, I want to migrate storage for offline VMs between ODF and HPP
-  - *Test Scenario:* [Tier 2] Verify storage migration completes for offline VMs between ODF and HPP, and the VM boots sucessfully after migration
+  - *Test Scenario:* [Tier 2] Verify storage migration completes for offline VMs between ODF and HPP, and the VM boots successfully after migration
   - *Priority:* P0
 
 - **[CNV-73500]** — As a VM owner, I want to migrate storage with mixed VM states (online and offline)
