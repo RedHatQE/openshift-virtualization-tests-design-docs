@@ -37,28 +37,28 @@ technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
-- [x] **Review Requirements**
+- **Review Requirements**
   - *List the key D/S requirements reviewed:*
     - Architecture-aware VM scheduling; users can select a VM's target architecture.
     - All VM-related operations (lifecycle, migration, networking, storage) are supported on both architectures.
     - Workload observability across architectures.
     - Existing VMs and workloads continue to be fully functional without regression.
-- [x] **Understand Value and Customer Use Cases**
+- **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:*
     - Customers can run ARM64 and AMD64 VMs in a single cluster, reducing operational overhead and enabling gradual ARM adoption.
   - *List the customer use cases identified:*
     - As a VM admin, I want to deploy VMs on ARM64 nodes from available boot sources after ARM64 nodes are added to the cluster.
-- [x] **Testability**
+- **Testability**
   - *Note any requirements that are unclear or untestable:*
     - All requirements are testable on a heterogeneous AWS cluster.
-- [x] **Acceptance Criteria**
+- **Acceptance Criteria**
   - *List the acceptance criteria:*
     - VM lifecycle operations are consistent with single-architecture cluster behavior on their matching CPU architecture.
     - VMs communicate regardless of the CPU architecture of their host nodes.
     - Architecture-specific golden images are provisioned for each supported architecture, and VMs can be created on matching nodes.
     - VM scheduling respects nodePlacement constraints, allowing users to target a specific supported architecture.
   - *Note any gaps or missing criteria:* None
-- [x] **Non-Functional Requirements (NFRs)**
+- **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
     - **Monitoring**: Platform must alert users about MultiArch misconfigurations, workload metrics across both architectures on multiarch cluster.
     - **Upgrade**: VMs survive upgrade on their correct architecture nodes. Arch-specific resources are preserved.
@@ -74,32 +74,37 @@ The limitations are documented to ensure alignment between development, QA, and 
 The following are confirmed product constraints accepted before testing begins.
 
 - Cross-architecture live migration is not supported (AMD64 <-> ARM64).
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - Multi-arch support is opt-in in 4.22 (default-enabled in 4.23+).
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - Existing VMs are not updated: VMs that are already running will not automatically use new architecture-specific resources.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - Custom golden images require manual architecture configuration; the platform does not validate architecture annotation values.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - The default architecture for golden image boot sources is not user-configurable. The system automatically selects the default by control-plane node architecture.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 
 #### **3. Technology and Design Review**
 
-- [x] **Developer Handoff/QE Kickoff**
+- **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:*
     - Cross-SIG kickoff conducted with all 5 participating SIGs
     - Each SIG confirmed ownership of their multi-arch test scope
-- [x] **Technology Challenges**
+- **Technology Challenges**
   - *List identified challenges:*
     - Heterogeneous cluster provisioning requires AWS with Graviton instances
     - CPU model configuration per architecture needs validation
   - *Impact on testing approach:*
     - Tests are limited to AWS platform
-- [x] **API Extensions**
+- **API Extensions**
   - *List new or modified APIs:*
     - `vm.spec.template.spec.architecture` (string) — targets VM to specific CPU architecture
     - Golden images support enable/disable
   - *Testing impact:*
     - Golden images support must be tested.
-- [x] **Test Environment Needs**
+- **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
-- [x] **Topology Considerations**
+- **Topology Considerations**
   - *Describe topology requirements:* Feature targets MultiArch clusters only (3 amd64 control-plane, 2 amd64 workers, 2 arm64 workers)
   - *Impact on test design:* Live migration and upgrade tests require at least 2 nodes of the same architecture.
   - *Topologies not tested:* Golden images support is auto-disabled on Single Node OpenShift (SNO) clusters, even if the feature gate is enabled.
@@ -113,8 +118,8 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 **Testing Goals**
 
 New functional flows specific to heterogeneous multi-arch clusters:
+
 - **[P0]** Verify that VMs can be created on ARM and AMD node from every available boot source.
-- **[P0]** Verify cross-architecture migration is blocked with a clear, user-facing error message.
 - **[P0]** Verify cross-architecture VM cloning is blocked with a clear, user-facing error message.
 - **[P0]** Verify network connectivity between VMs running on different architectures.
 - **[P0]** Verify golden image import pulls the correct architecture-specific image.
@@ -129,7 +134,7 @@ New functional flows specific to heterogeneous multi-arch clusters:
 
 > **NOTE:** Each SIG is responsible for ensuring their Tier 1 and Tier 2 executed regression suites cover all scenarios
 > that may be affected by the multi-arch feature on heterogeneous clusters.
-Existing test suites to run on the heterogeneous cluster to verify no degradation, with both ARM64 and AMD architectures:
+> Existing test suites to run on the heterogeneous cluster to verify no degradation, with both ARM64 and AMD architectures:
 
 - **[P0]** sig-virt Tier 1 and Tier 2
 - **[P0]** sig-iuo hco + observability Tier 1 and Tier 2
@@ -144,56 +149,60 @@ No verification activities will be performed for these items, and any related is
 
 - **s390x architecture**
   - *Rationale:* s390x architecture is not in the scope of this feature.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Martin Tessun (@mtessun) / 2026-04-15
 - **Architecture-specific resource cleanup after node removal**
   - *Rationale:* Removing all nodes of a given architecture and verifying automatic cleanup of related boot sources and templates is time-consuming to test, and customers can perform manual cleanup if needed.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Martin Tessun (@mtessun) / 2026-04-15
 
 **Test Limitations**
 
 - The tests are limited to AWS; no tests are done on bare metal clusters.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - No Windows guest tested on ARM64 nodes.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - IPv6 single-stack and dual-stack not available on AWS — multi-arch testing is IPv4 only.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 - SR-IOV, Multi-NIC, and GPU passthrough cannot be validated on AWS.
+  - *Sign-off:* Martin Tessun (@mtessun) / 2026-04-15
 
 #### **2. Test Strategy**
 
 **Functional**
 
-- [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
+- **Functional Testing** — Validates that the feature works according to specified requirements and user stories
   - *Details:* Validate heterogeneous cluster-specific functionality.
-- [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage
+- **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage
   - *Details:* All test cases automated in openshift-virtualization-tests repo.
-- [x] **Regression Testing** — Verifies that new changes do not break existing functionality
+- **Regression Testing** — Verifies that new changes do not break existing functionality
   - *Details:* Run existing Tier 1 and Tier 2 test suites on heterogeneous cluster for both architectures. See Section II.1 for per-SIG testing responsibilities.
 
 **Non-Functional**
 
-- [ ] **Performance Testing** — Validates feature performance meets requirements
+- **Performance Testing** — Validates feature performance meets requirements
   - *Details:* Out of scope for initial release. Planned for the future. [CNV-63088](https://redhat.atlassian.net/browse/CNV-63088)
-- [ ] **Scale Testing** — Validates feature behavior under increased load
+- **Scale Testing** — Validates feature behavior under increased load
   - *Details:* Out of scope.
-- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization
+- **Security Testing** — Verifies security requirements, RBAC, authentication, authorization
   - *Details:* N/A — No security-specific requirements for this feature.
-- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+- **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* UI work was completed under [CNV-61832](https://redhat.atlassian.net/browse/CNV-61832). UI testing is owned by the UI team.
-- [x] **Monitoring** — Does the feature require metrics and/or alerts?
+- **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* Alerts and metrics for multiarch misconfigurations.
 
 **Integration & Compatibility**
 
-- [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+- **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* Tests will be executed on AWS only.
-- [x] **Upgrade Testing** — Validates upgrade paths from previous versions
+- **Upgrade Testing** — Validates upgrade paths from previous versions
   - *Details:* Verify existing VMs and boot sources are preserved. Verify multi-arch support is preserved across upgrades.
-- [x] **Dependencies** — Blocked by deliverables from other components/products
+- **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* Each participating SIG owns their test automation.
-- [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
+- **Cross Integrations** — Does the feature affect other features or require testing by other teams?
   - *Details:* This STP coordinates testing across 5 SIGs. Each SIG is responsible for running their regression suites on the heterogeneous cluster.
 
 **Infrastructure**
 
-- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing?
+- **Cloud Testing** — Does the feature require multi-cloud platform testing?
   - *Details:* No; tests are executed on AWS only.
 
 #### **3. Test Environment**
@@ -219,10 +228,9 @@ No verification activities will be performed for these items, and any related is
 
 The following conditions must be met before testing can begin:
 
-- [ ] Requirements and design documents are **approved and merged**
-- [X] Test environment (MultiArch cluster) can be **set up and configured**
-- [X] Multi-CPU architecture support enabled in openshift-virtualization-tests repo
-
+- Requirements and design documents are **approved and merged**
+- Test environment (MultiArch cluster) can be **set up and configured**
+- Multi-CPU architecture support enabled in openshift-virtualization-tests repo
 
 #### **5. Risks**
 
@@ -235,16 +243,16 @@ The following conditions must be met before testing can begin:
 **Test Coverage**
 
 - **Risk:** OS coverage on ARM64 is narrower than AMD64; sig-network and sig-storage teams must identify ARM-relevant tests and mark them for heterogeneous cluster execution.
-  - **Mitigation:** sig-storage, sig-network teams must detect ARM-related D/S tests and mark them accordingly.
+  - **Mitigation:**
+    - **sig-storage:** Please specify which storage tests are ARM-relevant, how they will be marked for heterogeneous cluster execution, and the expected timeline for completion.
+    - **sig-network:** Please specify which network tests are ARM-relevant, how they will be marked for heterogeneous cluster execution, and the expected timeline for completion.
   - *Areas with reduced coverage:* sig-network, sig-storage
 
 **Test Environment**
 
 - **Risk:** 12-hour ARM64 cluster availability window limits test execution time.
-  - **Mitigation:** Prioritize test execution. Verify if the timeout can be longer.
+  - **Mitigation:** DEVOPS adding option to extend cluster lifetime [CNV-83491](https://redhat.atlassian.net/browse/CNV-83491).
   - *Missing resources or infrastructure:* Longer cluster availability for full regression runs.
-- **Risk:** Adding or removing worker nodes to change cluster architecture mix is slow and costly.
-  - **Mitigation:** Use workload placement configuration to simulate an architecture being present or absent (pick/unpick one architecture) instead of relying on physical node add/remove.
 
 **Untestable Aspects**
 
@@ -260,6 +268,7 @@ The following conditions must be met before testing can begin:
   - *Dependent teams or components:* sig-virt, sig-infra, sig-storage, sig-network
 
 **Others**
+
 - **Risk:** Known non-blocker bugs may impact test results:
   1. [[UI] architecture is incorrect for fedora arm and inconsistent on UI for other os](https://redhat.atlassian.net/browse/CNV-68981)
   2. [[Storage] Arch-specific DataSources (arm64) persist after removing arm64 nodes](https://redhat.atlassian.net/browse/CNV-68996)
@@ -273,7 +282,7 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
 
 #### sig-iuo — New Functional Tests
 
-- **[CNV-67900](https://redhat.atlassian.net/browse/CNV-67900)** — As a cluster Admin, I want to create VM with specific architecture.
+- **[CNV-67900](https://redhat.atlassian.net/browse/CNV-67900)** — As a cluster Admin, I want to provide architecture-specific golden images to VM creators
   - *Test Scenario:* [Tier 2] Given multi-arch support enabled, Verify common architecture-specific boot sources become available with correct naming and labels
   - *Priority:* P0
 - **[CNV-67900](https://redhat.atlassian.net/browse/CNV-67900)** — As a cluster Admin, I want alerting when golden image is annotated with unsupported architectures.
@@ -291,7 +300,7 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
 
 #### sig-infra — New Functional Tests
 
-- **[CNV-76714](https://redhat.atlassian.net/browse/CNV-67900)** — As a VM creator, I want to deploy vms from all golden images with multiarch support.
+- **[CNV-76714](https://redhat.atlassian.net/browse/CNV-76714)** — As a VM creator, I want to deploy vms from all golden images with multiarch support.
   - *Test Scenario:* [Tier 2] Create VMs from all available boot sources on their target node.
   - *Priority:* P0
 - **[CNV-76714](https://redhat.atlassian.net/browse/CNV-76714)** — As a VM creator I want to deploy VMs on a specific architecture when golden images support is disabled
@@ -309,12 +318,6 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
 
 #### sig-virt — New Functional Tests
 
-- **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want cross-architecture migration to be blocked
-  - *Test Scenario:* [Tier 2] Verify cross-arch migration fails with clear, user-facing error
-  - *Priority:* P0
-- **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want VMs to migrate to same-arch nodes during upgrade
-  - *Test Scenario:* [Tier 2] Verify arm64 and amd64 VMs are migrated to same-architecture nodes during upgrades and placement preserved
-  - *Priority:* P0
 - **[CNV-26818](https://redhat.atlassian.net/browse/CNV-26818)** — As a cluster admin, I want VMs to survive upgrade on their correct architecture nodes
   - *Test Scenario:* [Tier 2] Verify VMs on both architectures survive upgrade and arch-specific resources are preserved
   - *Priority:* P0
@@ -343,3 +346,4 @@ This section centralizes test scenarios for all participating SIGs. Each SIG's s
 - **Approvers:**
   - QE Architect: [Ruth Netser](@rnetser)
   - Principal Developer (sig-iuo): @nunnatsa
+  - Product Manager: [Martin Tessun] @mtessun
