@@ -61,7 +61,7 @@ technology, and testability before formal test planning.
 
 - [x] **Non-Functional Requirements (NFRs)**
   <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
-  - *List applicable NFRs and their targets:* Documentation updates to reflect offline VM storage migration support and UI support for offline VM migrations. 
+  - *List applicable NFRs and their targets:* Documentation updates to reflect offline VM storage migration support and UI support for offline VM migrations.
   - *Note any NFRs not covered and why:* Performance, Monitoring, Observability, Security and Scalability testing are not included in this test plan
 
 #### **2. Known Limitations**
