@@ -7,7 +7,7 @@
 - **Enhancement(s):** https://github.com/kubevirt/kubevirt-migration-controller/pull/32
 - **Feature Tracking:** [CNV-73509](https://redhat.atlassian.net/browse/CNV-73509)
 - **Epic Tracking:** [CNV-73500](https://redhat.atlassian.net/browse/CNV-73500)
-- **QE Owner(s):** Yan Du
+- **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 
@@ -39,7 +39,7 @@ technology, and testability before formal test planning.
 - [x] **Understand Value and Customer Use Cases**
   <!-- Understand why the feature matters to customers from a D/S perspective and what the real-world use cases are.
   Example: "Customers need to migrate VMs without network downtime to maintain SLA compliance during node maintenance." -->
-  - *Describe the feature's value to customers:* Enables customers to perform storage migration for offline VMs without requiring them to be running, providing flexibility in storage management operations.
+  - *Describe the feature's value to customers:* Customers need to perform storage migration for offline VMs without requiring them to be running, providing flexibility in storage management operations.
   - *List the customer use cases identified:* Storage migration for mixed offline VMs and running VMs in one migration plan, allowing batch migration operations regardless of VM state.
 
 - [x] **Testability**
@@ -61,8 +61,8 @@ technology, and testability before formal test planning.
 
 - [x] **Non-Functional Requirements (NFRs)**
   <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
-  - *List applicable NFRs and their targets:* Documentation updates to reflect offline VM storage migration support
-  - *Note any NFRs not covered and why:* Performance and scale testing are not included in this test plan
+  - *List applicable NFRs and their targets:* Documentation updates to reflect offline VM storage migration support and UI support for offline VM migrations. 
+  - *Note any NFRs not covered and why:* Performance, Monitoring, Observability, Security and Scalability testing are not included in this test plan
 
 #### **2. Known Limitations**
 
@@ -82,7 +82,7 @@ Tests related:
 - CPU xxx will not be tested due to lack of hardware
 - Integration with [Third-Party Service] is excluded; all external calls will be mocked using static data-->
 
-None identified at this time.
+None - reviewed and confirmed with Yan Du on Apr 7,2026.
 
 #### **3. Technology and Design Review**
 
@@ -168,8 +168,8 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 - **[P0]** Verify offline VM storage migration completes between ODF and HPP storage classes, and the VM boots successfully after migration
 - **[P0]** Verify storage migration completes for a migration plan containing both offline and running VMs
-- **[P1]** Verify offline VM storage migration completes when the VM has hotplug disks attached
 - **[P0]** Verify source volumes are retained or deleted according to retentionPolicy configuration when offline VM storage migration completes
+- **[P1]** Verify offline VM storage migration completes when the VM has hotplug disks attached
 - **[P2]** Verify offline VM continues pointing to the original volume when storage migration fails
 - **[P2]** Verify storage migration completes when a stopped VM is started during the migration process
 
