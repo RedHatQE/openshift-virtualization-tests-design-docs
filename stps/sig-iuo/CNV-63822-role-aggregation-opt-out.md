@@ -100,8 +100,7 @@ this release.
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
 - [x] **Topology Considerations**
-  - *Describe topology requirements:* Feature is cluster-scoped (KubeVirt CR level),
-    topology-independent.
+  - *Describe topology requirements:* Feature is cluster-scoped and topology-independent.
   - *Impact on test design:* Works on all topologies (standard, SNO, compact).
 
 ### **II. Software Test Plan (STP)**
@@ -120,9 +119,13 @@ and schedule.
 - **[P0]** Verify that a cluster administrator can explicitly grant virtualization admin, edit, and view permissions to a user when opt-out is enabled, and the user can perform the corresponding actions
 - **[P0]** Verify a cluster administrator can disable role aggregation opt-out and default automatic access is restored
 - **[P0]** Verify default behavior (role aggregation enabled) remains unchanged when the feature is not configured
-- **[P0]** Verify default behavior is preserved across OpenShift Virtualization z-stream upgrades
 - **[P1]** Verify that toggling opt-out off after it was enabled restores automatic access for users who previously lost it
 - **[P1]** Verify that removing an explicit role binding while opt-out is enabled immediately revokes the user's virtualization access
+
+**Regression Goals**
+
+- **[P0]** Verify default behavior is preserved across OpenShift Virtualization z-stream upgrades — sig-iuo upgrade regression suites run on the feature cluster
+- **[P0]** Verify existing RBAC and migration functionality is not broken by the new feature — sig-iuo regression suites (including RBAC hardening and migration rights tests) run on the feature cluster
 
 **Out of Scope (Testing Scope Exclusions)**
 
