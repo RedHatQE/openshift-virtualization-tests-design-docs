@@ -92,12 +92,12 @@ graph TD
 4. **Test Implementation**
    - Develop test cases per STP
    - Implement automation
-   - Track against exit criteria
+   - Track against testing goals
 
 5. **Code Freeze (CF)**
    - **Test automation must be merged for GA**
    - All high-priority defects resolved
-   - Exit criteria met
+   - Automation merged and acceptance criteria verified
 
 6. **QE Sign-off**
    - Feature meets all acceptance criteria
