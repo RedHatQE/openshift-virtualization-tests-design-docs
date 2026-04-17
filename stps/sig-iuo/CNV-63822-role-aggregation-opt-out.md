@@ -15,14 +15,10 @@
 
 ### **Feature Overview**
 
-Role Aggregation Opt-Out gives cluster administrators the ability to control which users can
-access OpenShift Virtualization resources on a per-namespace basis. By default, OpenShift
-Virtualization grants all project administrators, editors, and viewers automatic access to
-virtualization resources through role aggregation. When opt-out is enabled, this automatic
-access is removed, and administrators must explicitly grant virtualization permissions to
-individual users through role bindings. This feature supports multi-tenant environments where
-not all users should have access to virtualization workloads, and enables fine-grained control
-over resource usage across namespaces.
+By default, all project administrators, editors, and viewers automatically receive access to
+OpenShift Virtualization resources. Role Aggregation Opt-Out allows cluster administrators to
+disable this automatic access and instead grant virtualization permissions explicitly per user
+and namespace, enabling fine-grained control in multi-tenant environments.
 
 ---
 
