@@ -4,9 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):**
-  - [CDI Enhancement](https://github.com/kubevirt/containerized-data-importer)
-  - [HCO PR #4104](https://github.com/kubevirt/hyperconverged-cluster-operator/pull/4104)
+- **Enhancement(s):** https://github.com/kubevirt/containerized-data-importer/pull/4054
 - **Feature Tracking:** https://issues.redhat.com/browse/CNV-72238
 - **Epic Tracking:** https://issues.redhat.com/browse/CNV-79031
 - **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
@@ -21,7 +19,7 @@
 
 ### **Feature Overview**
 
-This feature changes the default scratch space storage class selection logic in CDI. The new behavior uses the same storage class as the target PVC for scratch space allocation instead of falling back to virt-default or default storage classes. This aligns with customer expectations that all provisioning for a particular disk should use the same storage class. The scratchSpaceStorageClass HCO configuration option continues to override this behavior when explicitly set.
+Some VM disk provisioning operations require temporary scratch space. This feature changes the default storage class selection for scratch space: it now uses the same storage class as the target disk, instead of falling back to the cluster default. Administrators can configure a specific storage class for scratch space to override this behavior.
 
 ---
 
@@ -36,26 +34,24 @@ technology, and testability before formal test planning.
 1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - add an explanation why in the `details` section
 2. Complete the relevant, needed details for the checklist item -->
 
-- [ ] **Review Requirements**
+- [x] **Review Requirements**
   <!-- Review the D/S (Downstream) requirements as defined in Jira. Understand the difference between Upstream (U/S) and D/S requirements.
   Example: "VMs must migrate without network downtime exceeding the defined threshold during node maintenance." -->
   - *List the key D/S requirements reviewed:*
-    - CDI default behavior changed: scratch space now uses same storage class as target PVC
-    - New logic: scratchSpaceStorageClass config -> same-as-target SC
-    - Previous logic: scratchSpaceStorageClass config -> virt-default SC -> default SC
-    - scratchSpaceStorageClass HCO config continues to take priority when explicitly configured
-    - Customer-visible behavior change for users not using scratchSpaceStorageClass config
+    - When no scratch space storage class is configured, scratch space must use the same storage class as the target disk
+    - When a scratch space storage class is explicitly configured by the administrator, it must override the default same-as-target behavior
+    - Existing administrator configurations for scratch space storage class must continue to work unchanged
 
-- [ ] **Understand Value and Customer Use Cases**
+- [x] **Understand Value and Customer Use Cases**
   <!-- Understand why the feature matters to customers from a D/S perspective and what the real-world use cases are.
   Example: "Customers need to migrate VMs without network downtime to maintain SLA compliance during node maintenance." -->
   - *Describe the feature's value to customers:*
-    - VM owners want consistent storage class usage for all disk provisioning operations, including scratch space
-    - When provisioning a disk, customers expect scratch space to use that same storage class as target
+    - Ensures consistent storage provisioning behavior, reducing confusion and configuration errors
+    - Aligns temporary resource allocation with production storage requirements
   - *List the customer use cases identified:*
-    - When provisioning a disk, scratch space should use the same storage class as that disk
+    - As a VM owner, I want scratch space to use the same storage class as my disk so that provisioning is consistent
 
-- [ ] **Testability**
+- [x] **Testability**
   <!-- Confirmed requirements are **testable and unambiguous**. -->
   - *Note any requirements that are unclear or untestable:* None - all requirements are testable through CDI operations (clone, import, upload) with various storage class configurations
 
@@ -63,10 +59,9 @@ technology, and testability before formal test planning.
   <!-- Acceptance criteria are the specific, verifiable conditions that must be met for the feature to be considered complete — they define *how we know it works*.
   Example: "VM migrates without network downtime exceeding 500ms", "VM deletion is blocked for non-admin users." -->
   - *List the acceptance criteria:*
-    - scratch space uses same storage class as target PVC if scratchSpaceStorageClass is not set in HCO config
-    - scratchSpaceStorageClass HCO config takes priority when explicitly set
-    - New selection order: scratchSpaceStorageClass config -> same-as-target SC
-    - CDI functional tests verify new behavior and scratchSpaceStorageClass config override
+    - When no explicit scratch space storage class is configured, scratch space uses the same storage class as the target PVC
+    - When an explicit scratch space storage class is configured, scratch space uses that configured storage class
+    - Automated tests verify both default (same-as-target) and explicitly configured scratch space storage class behaviors
   - *Note any gaps or missing criteria:* None
 
 - [ ] **Non-Functional Requirements (NFRs)**
@@ -173,9 +168,9 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **P1**: High priority - required for full feature coverage
 - **P2**: Nice-to-have - can be deferred if timeline constraints exist -->
 
-- **[P0]** Verify scratch space uses same-as-target storage class by default (new behavior)
-- **[P0]** Validate scratchSpaceStorageClass HCO config takes priority over same-as-target logic when explicitly set
-- **[P0]** Confirm all CDI operations requiring scratch space (clone, import, upload) use new selection logic
+- **[P0]** Verify that disk provisioning operations automatically allocate scratch space using the same storage class as the target disk when no cluster-level override is configured
+- **[P0]** Validate that cluster administrator configuration for scratch space storage class takes priority over the default behavior
+- **[P0]** Confirm consistent scratch space storage class selection across all disk provisioning workflows (clone, import, upload)
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -311,7 +306,7 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 - **Required Operators:** N/A
   <!-- Add if needed, e.g., NMState Operator -->
 
-- **Platform:** PSIm, Bare metal
+- **Platform:** PSI, Bare metal
   <!-- Change if needed, e.g., AWS, Azure, GCP -->
 
 - **Special Configurations:** N/A
