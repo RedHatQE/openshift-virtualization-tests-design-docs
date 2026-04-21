@@ -30,20 +30,17 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 - [x] **Review Requirements**
-  - *List the key D/S requirements reviewed:* As a cluster-admin I want to decide which users
-    will have access to the virtualization in the cluster. Not all project-admins should have
-    this access but only the eligible ones. Per CNV-50792 feature request.
+  - *List the key D/S requirements reviewed:* Cluster admins can limit the access to virtualization components
 
 - [x] **Understand Value and Customer Use Cases**
-  - *Describe the feature's value to customers:* A cluster-admin wants to control which users
-    has access to view/create/edit openshift virtualization resources on a given namespace.
-    Per CNV-50792 feature request.
+  - *Describe the feature's value to customers:* Organizations running multi-tenant clusters
+    need to enforce access policies that prevent unauthorized users from consuming
+    virtualization resources. Without this feature, any project administrator automatically
+    gains full virtualization access, which violates tenant isolation requirements.
   - *List the customer use cases identified:*
     - As a cluster administrator managing a multi-tenant cluster, I want to prevent tenants
-      from accessing virtualization workloads they are not eligible to use, so that different
+      from accessing virtualization workloads they are not eligible to use so that different
       namespaces can enforce different workload entitlements
-    - As a cluster administrator, I want to require users to request approval before creating
-      VMs and consuming storage, so that I can control resource usage across namespaces
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* All requirements are testable
@@ -51,13 +48,11 @@ technology, and testability before formal test planning.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - When opt-out is enabled, a project admin in a namespace receives Forbidden when
-      attempting virtualization actions
-    - When opt-out is enabled, explicit role bindings for admin/edit/view grant the
-      corresponding virtualization access
-    - When opt-out is disabled (default), all users with project roles retain automatic
-      access — no change from previous releases
-    - Configuration changes persist without cluster restart
+    - When opt-out is enabled, a project admin in a namespace is forbidden from attempting virtualization actions
+    - When opt-out is enabled, a cluster administrator can grant a user an explicit
+      role binding (admin, edit, or view) so that user can create, modify, or view
+      virtual machines and related resources in that namespace
+    - Configuration changes take effect without cluster restart
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -83,9 +78,10 @@ this release.
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* The feature is behind a KubeVirt feature-gate. When the
-    feature is enabled in Openshift, HCO will automatically add the feature-gate.
-    Implementation details discussed, ready for testing.
+  - *Key takeaways and concerns:* Testing strategy agreed: tier 1 tests validate configuration behavior, with
+    reconciliation coverage needed once downstream integration lands. Concern raised that
+    tier 1 tests are not part of gating jobs — further review needed on test prioritization
+    for tier 2.
 
 - [x] **Technology Challenges**
   - *List identified challenges:* N/A
@@ -117,10 +113,7 @@ and schedule.
 - **[P0]** Verify that when opt-out is enabled, an unprivileged user with an edit role cannot perform virtualization edit actions (receives Forbidden error)
 - **[P0]** Verify that when opt-out is enabled, an unprivileged user with a view role cannot perform virtualization view actions (receives Forbidden error)
 - **[P0]** Verify that a cluster administrator can explicitly grant virtualization admin, edit, and view permissions to a user when opt-out is enabled, and the user can perform the corresponding actions
-- **[P0]** Verify a cluster administrator can disable role aggregation opt-out and default automatic access is restored
-- **[P0]** Verify default behavior (role aggregation enabled) remains unchanged when the feature is not configured
-- **[P1]** Verify that toggling opt-out off after it was enabled restores automatic access for users who previously lost it
-- **[P1]** Verify that removing an explicit role binding while opt-out is enabled immediately revokes the user's virtualization access
+- **[P0]** Verify that disabling opt-out after it was enabled restores automatic access for users who were previously blocked
 
 **Regression Goals**
 
@@ -298,9 +291,6 @@ The following conditions must be met before testing can begin:
 ### **III. Test Scenarios & Traceability**
 
 - **[CNV-63822]** — As a cluster admin, I want to control the role aggregation strategy for virtualization resources
-  - *Test Scenario:* [Tier 1] Verify default behavior is preserved when role aggregation opt-out is not configured — all users retain automatic access
-  - *Priority:* P0
-
   - *Test Scenario:* [Tier 1] Verify default behavior is preserved when aggregation strategy is explicitly set to the default mode
   - *Priority:* P0
 
@@ -334,15 +324,8 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-63822]** — As a cluster admin, I want to disable opt-out to restore default behavior
-  - *Test Scenario:* [Tier 2] Verify opt-out can be disabled and default automatic access is restored for users
+  - *Test Scenario:* [Tier 2] Verify that disabling opt-out after it was enabled restores automatic access for users who were previously blocked
   - *Priority:* P0
-
-  - *Test Scenario:* [Tier 2] Verify that toggling opt-out off after it was enabled restores automatic access for users who previously lost it
-  - *Priority:* P1
-
-- **[CNV-63822]** — As a cluster admin, I want revoking a role binding to immediately remove virtualization access
-  - *Test Scenario:* [Tier 2] Verify that removing an explicit role binding while opt-out is enabled immediately revokes the user's access
-  - *Priority:* P1
 
 ---
 
