@@ -8,6 +8,17 @@
 - **Feature Tracking:** [Link to the relevant feature in Jira]
 - **Epic Tracking:** [Link to the tracking Jira Epic]
   <!-- Tasks must be created to block the feature -->
+- **Feature Maturity:** [Current phase and roadmap]
+  <!-- Specify the feature's current maturity phase and planned lifecycle:
+  - Current phase: Dev Preview, Tech Preview, or GA
+  - Target version for current phase (e.g., "Tech Preview in 4.22")
+  - Planned progression (e.g., "GA targeted for 4.23")
+  - Support termination plans, if known (e.g., "RHCOS 9 support ends in 4.25")
+
+  Examples:
+  - "4.21 - DP, 4.22 - TP, 5.0 - GA"
+  - "GA in 4.22. No planned deprecation."
+  - "GA in 4.20. RHCOS 9 support planned for removal in 4.25." -->
 - **QE Owner(s):** [Name(s)]
 - **Owning SIG:** [sig-xyz]
 - **Participating SIGs:** [List of participating SIGs]
@@ -24,8 +35,10 @@
 
 ### **Feature Overview**
 
-<!-- Provide a brief (2-4 sentences) description of the feature being tested.
-Include: what it does, why it matters to customers, and key technical components. -->
+<!-- Provide a brief (2-8 sentences) description of the feature being tested.
+Include: what it does, why it matters to customers, and key technical components.
+If the feature spans multiple releases (e.g., Tech Preview → GA), state the current phase
+and how the test scope for this STP relates to that phase. -->
 
 [Brief description of the feature and its purpose]
 
