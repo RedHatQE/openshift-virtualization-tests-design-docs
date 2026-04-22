@@ -7,14 +7,14 @@
 - **Enhancement(s):** https://github.com/kubevirt/kubevirt-migration-controller/pull/28
 - **Feature Tracking:** [CNV-77497](https://redhat.atlassian.net/browse/CNV-77497)
 - **Epic Tracking:** [CNV-73509](https://redhat.atlassian.net/browse/CNV-73509)
-- **QE Owner(s):** Jose Manuel Castano
+- **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 
 **Document Conventions:**
-- **VirtualMachineStorageMigrationPlan**: used to migrate the disks of a single Virtual Machine within a specific namespace
-- **MultiNamespaceVirtualMachineStorageMigrationPlan**: allowed user to perform storage migrations across multiple namespaces simultaneously
-- **retentionPolicy**: API field that controls whether source volumes are retained (keepSource) or deleted (deleteSource) after successful migration
+- **Single-namespace migration**: Migration plan for moving a VM's disks within a single namespace
+- **Multi-namespace migration**: Migration plan that can migrate VMs across multiple namespaces simultaneously
+- **Source volume cleanup**: Policy option to either keep or delete the original storage volumes after migration completes successfully
 
 ### **Feature Overview**
 
@@ -34,7 +34,7 @@ technology, and testability before formal test planning.
 
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* Confirmed clear user stories and understood the difference between U/S and D/S requirements. The value for RH customers is automated cleanup of source storage resources after successful migration, reducing manual cleanup effort and storage costs.
-  - *List the customer use cases identified:* User can optionally choose to keep (keepSource) or delete (deleteSource) source DataVolumes/PVCs after a successful VM storage migration.
+  - *List the customer use cases identified:* As a cluster administrator, I want to choose whether to keep or automatically delete the original storage volumes after a successful VM migration, so that I can reduce storage costs and manual cleanup effort while maintaining flexibility for rollback scenarios.
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* None — all requirements are testable with standard test infrastructure
@@ -42,22 +42,29 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - Source volumes are retained after successful migration (default behavior)
-    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (namespace level)
-    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (spec level)
-    - Source volumes are deleted/retained when setting combination of namespace level and spec level retentionPolicy
+    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (namespace-level)
+    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (spec-level)
+    - Source volumes are deleted/retained when setting combination of namespace-level and spec-level retentionPolicy
     - RetentionPolicy will not clean up the volume when migration failed
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
-  - *List applicable NFRs and their targets:* Documentation: User guide updates for retentionPolicy in migration plan
-  - *Note any NFRs not covered and why:* None
+  - *List applicable NFRs and their targets:*
+    - **Documentation:** User guide updates for cleanup policy configuration in migration plans
+    - **UI:** UI updates for cleanup policy selection (covered by UI team in CNV-77404)
+  - *Note any NFRs not covered and why:*
+    - **Monitoring:** Not applicable - feature uses existing migration monitoring, no new metrics required
+    - **Observability:** Not applicable - cleanup actions are logged through standard migration events
+    - **Performance:** Not applicable - cleanup is post-migration operation with no performance impact on migration itself
+    - **Security:** Not applicable - feature uses existing RBAC for migration plans, no new security requirements
+    - **Scalability:** Not applicable - cleanup scales with existing migration controller capabilities
 
 #### **2. Known Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following topics will not be tested or supported.
 
-None — reviewed and confirmed that no feature limitations apply for this release.
+None — reviewed and confirmed with Jose Manuel Castano/2026-04-22
 
 #### **3. Technology and Design Review**
 
@@ -88,9 +95,9 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 **Testing Goals**
 
 - **[P0]** Verify source volumes are deleted/retained per the retentionPolicy after successful VM storage migration (online, offline, and online+offline)
-  - namespace level retentionPolicy
-  - spec level retentionPolicy
-  - combination of namespace level and spec level retentionPolicy
+  - namespace-level retentionPolicy
+  - spec-level retentionPolicy
+  - combination of namespace-level and spec-level retentionPolicy
 
 - **[P1]** Verify source volumes will be retained when retentionPolicy is not set, default behavior is keepSource
 
@@ -101,13 +108,16 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-None — reviewed and confirmed that all supported product functionality will be tested this cycle.
+None — all supported product functionality will be tested this cycle.
+  - *Rationale:* Feature scope is well-defined with clear boundaries; all user-facing functionality is testable
+  - *PM/Lead Agreement:* TBD
 
 **Test Limitations**
 
 The following limitations constrain the test approach for this feature.
 
-None — reviewed and confirmed that no test limitations apply for this release.
+None — no test limitations apply for this release
+  - *Sign-off:* Jose Manuel Castano/2026-04-22
 
 #### **2. Test Strategy**
 
@@ -133,8 +143,8 @@ None — reviewed and confirmed that no test limitations apply for this release.
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* Not security relevant
 
-- [x] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* Will be covered by UI team in https://redhat.atlassian.net/browse/CNV-77404
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* Not applicable to QE - usability testing is owned by UI team in https://redhat.atlassian.net/browse/CNV-77404
 
 - [x] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* No Monitoring testing currently
@@ -146,7 +156,7 @@ None — reviewed and confirmed that no test limitations apply for this release.
   - *Details:* No compatibility testing currently
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Not Upgrade relevant
+  - *Details:* Upgrade path evaluated - not applicable. Feature is additive with optional cleanup policy; existing migrations continue to work with default behavior (retain source volumes)
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
   - *Details:* No Dependencies
@@ -250,28 +260,28 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
-- **[CNV-73509]** — Spec level retentionPolicy: keepSource/deleteSource in VirtualMachineStorageMigrationPlan
-  - *Test Scenario:* [Tier 2] Verify source DV/PVC will be retained/cleaned up after migration completed in VirtualMachineStorageMigrationPlan
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the migration spec level for single-namespace migrations, so that I can control whether source volumes are retained or deleted after successful migration
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per spec-level cleanup policy in single-namespace migrations
   - *Priority:* P0
 
-- **[CNV-73509]** — Namespace level retentionPolicy: keepSource/deleteSource in MultiNamespaceVirtualMachineStorageMigrationPlan
-  - *Test Scenario:* [Tier 2] Verify source DV/PVC will be retained/cleaned up after migration completed in MultiNamespaceVirtualMachineStorageMigrationPlan
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the namespace level for multi-namespace migrations, so that I can apply consistent cleanup behavior across all migrations in those namespaces
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per namespace-level cleanup policy in multi-namespace migrations
   - *Priority:* P0
 
-- **[CNV-73509]** — Spec level retentionPolicy: keepSource/deleteSource in MultiNamespaceVirtualMachineStorageMigrationPlan
-  - *Test Scenario:* [Tier 2] Verify source DV/PVC will be retained/cleaned up after migration completed in MultiNamespaceVirtualMachineStorageMigrationPlan
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the spec level for multi-namespace migrations, so that I can override namespace-level settings for specific migrations
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per spec-level cleanup policy in multi-namespace migrations
   - *Priority:* P0
 
-- **[CNV-73509]** — Combination of namespace level and spec level retentionPolicy: keepSource/deleteSource in MultiNamespaceVirtualMachineStorageMigrationPlan
-  - *Test Scenario:* [Tier 2] Verify source DV/PVC will be retained/cleaned up after migration completed in MultiNamespaceVirtualMachineStorageMigrationPlan
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at both namespace and spec levels, so that I can have default behavior with per-migration overrides
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up correctly when both namespace-level and spec-level cleanup policies are configured
   - *Priority:* P0
 
-- **[CNV-73509]** — retentionPolicy: None
-  - *Test Scenario:* [Tier 2] Verify default behavior when retentionPolicy is not set
+- **[CNV-73509]** — As a cluster administrator, I want the system to use default cleanup behavior when no policy is specified, so that existing migrations continue to work without configuration changes
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained by default when no cleanup policy is configured
   - *Priority:* P1
 
-- **[CNV-73509]** — Migration failed with retentionPolicy keepSource/deleteSource
-  - *Test Scenario:* [Tier 2] Verify source DV/PVC will not be cleaned up when migration failed
+- **[CNV-73509]** — As a cluster administrator, I want source volumes to be preserved when migration fails, so that I don't lose data even if cleanup was configured
+  - *Test Scenario:* [Tier 2] Verify source volumes are not cleaned up when migration fails, regardless of cleanup policy configuration
   - *Priority:* P2
 
 
@@ -283,7 +293,8 @@ This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
   - QE Architect (OCP-V): Ruth Netser (@rnetser)
-  - QE Members (OCP-V): Jenia Peimer (jpeimer@), Kate Shvaika (kshvaika@), Jose Manuel Castano(joscasta@)
+  - QE Members (OCP-V): Jenia Peimer (@jpeimer), Kate Shvaika (@kshvaika), Jose Manuel Castano (@joscasta)
 * **Approvers:**
-  - QE Architect (OCP-V): Ruth Netser (@rnetser)
-  - Principal Developer: Alexander Wels (awels@redhat.com)
+  - QE Lead: Ruth Netser (@rnetser)
+  - Dev Lead: Alexander Wels (@awels)
+  - PM: TBD
