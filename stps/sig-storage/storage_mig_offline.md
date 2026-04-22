@@ -97,7 +97,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 **Storage Class Coverage**
 
 The following storage class migration combinations will be tested:
-- **ODF** (ocs-storagecluster-ceph-rbd-virtualization) ↔ **HPP** (hostpath-provisioner)
+- **ODF** (ocs-storagecluster-ceph-rbd-virtualization) ↔ **HPP** (hostpath-csi-pvc-block)
 - **ODF ↔ ODF** — Same storage class migration
 - **HPP ↔ HPP** — Same storage class migration
 
@@ -176,7 +176,7 @@ None
 
 - **Special Hardware:** N/A
 
-- **Storage:** ocs-storagecluster-ceph-rbd-virtualization, hostpath-provisioner
+- **Storage:** ocs-storagecluster-ceph-rbd-virtualization, hostpath-csi-pvc-block
 
 - **Network:** OVN-Kubernetes, IPv4
 
