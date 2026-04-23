@@ -203,9 +203,16 @@ Assisted-by: Claude <noreply@anthropic.com>
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
   Resource Constraints, Dependencies
 - [ ] "Other" category is included only if risks exist that don't fit the 6 standard categories above
-- [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off
-- [ ] When no risk exists: only Mitigation is required, with a brief justification of why there
-  is no risk (not just "N/A"); no Sign-off or other category-specific fields are needed
+- [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
+  and the category-specific supplemental field:
+  *Estimated impact on schedule* (Timeline/Schedule),
+  *Areas with reduced coverage* (Test Coverage),
+  *Missing or unavailable environments* (Test Environment),
+  *Missing resources or infrastructure* (Resource Constraints),
+  *Third-party services or blockers* (Dependencies),
+  *Reason untestable and mitigation approach* (Untestable Aspects)
+- [ ] When no risk exists: only a short justification in the Mitigation field is needed
+  (not just "N/A"); no Sign-off or category-specific supplemental fields are required
 - [ ] Mitigations are specific and actionable (not "we will address this")
 
 **Common rejection reasons:**
