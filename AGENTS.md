@@ -29,6 +29,11 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Enhancement(s) links to a VEP, design doc, or HLD (not "N/A" without justification)
 - [ ] Feature Tracking links to the feature-level Jira
 - [ ] Epic Tracking links to the feature tracking epic (not the QE Jira)
+- [ ] Feature Maturity lists each phase with its target version using the structured format:
+  `DP: [version or N/A]`, `TP: [version or N/A]`, `GA: [version]`.
+  Standard maturity phases: **Dev Preview (DP)**, **Tech Preview (TP)**, **General Availability (GA)**.
+  A typical progression is DP → TP → GA across releases (e.g., DP in 4.22, TP in 4.23, GA in 5.0).
+  For multi-phase features, the STP scope must clearly state which phase it covers.
 - [ ] QE Owner(s) listed with name and contact
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
@@ -46,6 +51,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Describes what the feature does from the user's perspective
 - [ ] Explains why it matters to customers
 - [ ] No implementation details (no API names, no internal component names)
+- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
+  phase and which phase this STP covers
 
 ### I.1 — Requirement & User Story Review
 
