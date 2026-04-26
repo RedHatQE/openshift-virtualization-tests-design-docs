@@ -8,16 +8,39 @@
 - **Feature Tracking:** [Link to the relevant feature in Jira]
 - **Epic Tracking:** [Link to the tracking Jira Epic]
   <!-- Tasks must be created to block the feature -->
+- **Feature Maturity:**
+  <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
+  Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
+  For features already GA with no prior phases, only list GA.
+
+  Example:
+  - DP: N/A
+  - TP: 4.22
+  - GA: 5.0 -->
+
+  - DP: [version or N/A]
+  - TP: [version or N/A]
+  - GA: [version]
 - **QE Owner(s):** [Name(s)]
 - **Owning SIG:** [sig-xyz]
 - **Participating SIGs:** [List of participating SIGs]
+- **Child STPs:** [List child STPs with links, or remove this field for single-SIG features]
+  <!-- For parent STPs in multi-SIG features only: list all child STPs in the feature directory.
+  Remove this field for single-SIG features and child STPs.
+
+  Example:
+  - [sig-network](./network.md)
+  - [sig-storage](./storage.md)
+  - [sig-virt](./virt.md) -->
 
 **Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
 
 ### **Feature Overview**
 
-<!-- Provide a brief (2-4 sentences) description of the feature being tested.
-Include: what it does, why it matters to customers, and key technical components. -->
+<!-- Provide a brief (2-8 sentences) description of the feature being tested.
+Include: what it does, why it matters to customers, and the user-visible lifecycle context.
+If the feature spans multiple releases (e.g., Tech Preview → GA), state the current phase
+and how the test scope for this STP relates to that phase. -->
 
 [Brief description of the feature and its purpose]
 

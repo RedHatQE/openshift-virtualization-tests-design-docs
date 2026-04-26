@@ -29,6 +29,11 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Enhancement(s) links to a VEP, design doc, or HLD (not "N/A" without justification)
 - [ ] Feature Tracking links to the feature-level Jira
 - [ ] Epic Tracking links to the feature tracking epic (not the QE Jira)
+- [ ] Feature Maturity lists each phase with its target version using the structured format:
+  `DP: [version or N/A]`, `TP: [version or N/A]`, `GA: [version]`.
+  Standard maturity phases: **Dev Preview (DP)**, **Tech Preview (TP)**, **General Availability (GA)**.
+  A typical progression is DP → TP → GA across releases (e.g., DP in 4.22, TP in 4.23, GA in 5.0).
+  For multi-phase features, the STP scope must clearly state which phase it covers.
 - [ ] QE Owner(s) listed with name and contact
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
@@ -46,6 +51,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Describes what the feature does from the user's perspective
 - [ ] Explains why it matters to customers
 - [ ] No implementation details (no API names, no internal component names)
+- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
+  phase and which phase this STP covers
 
 ### I.1 — Requirement & User Story Review
 
@@ -192,16 +199,26 @@ Assisted-by: Claude <noreply@anthropic.com>
 
 ### II.5 — Risks
 
-- [ ] ALL 7 risk categories are addressed (even if N/A with justification):
+- [ ] ALL 6 standard risk categories are addressed (even if no risk, include Mitigation with brief justification):
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
-  Resource Constraints, Dependencies, Other
-- [ ] Each risk has: Risk description, Mitigation strategy, Sign-off
-- [ ] N/A risks have brief justification (not just "N/A")
+  Resource Constraints, Dependencies
+- [ ] "Other" category is included only if risks exist that don't fit the 6 standard categories above
+- [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
+  and the category-specific supplemental field:
+  *Estimated impact on schedule* (Timeline/Schedule),
+  *Areas with reduced coverage* (Test Coverage),
+  *Missing or unavailable environments* (Test Environment),
+  *Missing resources or infrastructure* (Resource Constraints),
+  *Third-party services or blockers* (Dependencies),
+  *Reason untestable and mitigation approach* (Untestable Aspects)
+- [ ] When no risk exists: only a short justification in the Mitigation field is needed
+  (not just "N/A"); no Sign-off or category-specific supplemental fields are required
 - [ ] Mitigations are specific and actionable (not "we will address this")
 
 **Common rejection reasons:**
 - All risks marked N/A (unrealistic — every feature has some risk)
-- Missing sign-off fields on risk entries
+- Missing sign-off on risk entries where a real risk is described
+- Mitigation says "N/A" without explaining why no mitigation is needed
 - Vague mitigations without specific actions
 - Missing risk categories entirely
 
@@ -244,6 +261,48 @@ When an STP spans multiple SIGs:
 - Child STPs (per-SIG) should NOT duplicate the parent STP — they extend it
 - Each SIG's regression responsibility must be explicitly documented
 - Cross-SIG test scenarios (e.g., cross-architecture VM connectivity) must have a clear owner
+
+### Directory Structure
+
+Multi-SIG features use a **feature directory** under the owning SIG:
+
+```text
+stps/<owning-sig>/<feature-name>/
+├── stp.md              ← parent STP (owned by the feature's primary SIG)
+├── <sig-name>.md       ← child STP per participating SIG
+└── ...
+```
+
+Example — multi-arch feature owned by sig-iuo with 4 participating SIGs:
+
+```text
+stps/sig-iuo/multiarch/
+├── stp.md
+├── network.md
+├── storage.md
+├── virt.md
+└── infra.md
+```
+
+**Rules:**
+
+- The parent STP (`stp.md`) defines the overall scope, requirements, and acceptance criteria
+- Each child STP covers only the participating SIG's test scope — goals, scenarios, and risks
+  specific to that SIG
+- Child STPs reference the parent for shared context (Feature Overview, requirements, acceptance
+  criteria) — they do NOT repeat it
+- The feature directory may include an `OWNERS` file listing reviewers from all participating SIGs
+- Single-SIG features do NOT use a feature directory — place the STP directly under `stps/<sig>/`
+
+### Child STP Review Checklist
+
+- [ ] Parent STP lists all child STPs in the feature directory with links
+- [ ] Child STP does NOT duplicate Feature Overview, requirements, or acceptance criteria from parent
+- [ ] Child STP defines only the participating SIG's test scope, scenarios, and risks
+- [ ] When a child STP is added to a feature directory that already has a parent STP,
+  verify the parent is updated to include the new child
+- [ ] When a parent STP is added to a feature directory that already contains child STPs,
+  verify the parent lists all existing children
 
 ---
 
