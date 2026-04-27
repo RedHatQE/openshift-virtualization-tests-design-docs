@@ -29,6 +29,11 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Enhancement(s) links to a VEP, design doc, or HLD (not "N/A" without justification)
 - [ ] Feature Tracking links to the feature-level Jira
 - [ ] Epic Tracking links to the feature tracking epic (not the QE Jira)
+- [ ] Feature Maturity lists each phase with its target version using the structured format:
+  `DP: [version or N/A]`, `TP: [version or N/A]`, `GA: [version]`.
+  Standard maturity phases: **Dev Preview (DP)**, **Tech Preview (TP)**, **General Availability (GA)**.
+  A typical progression is DP → TP → GA across releases (e.g., DP in 4.22, TP in 4.23, GA in 5.0).
+  For multi-phase features, the STP scope must clearly state which phase it covers.
 - [ ] QE Owner(s) listed with name and contact
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
@@ -46,6 +51,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Describes what the feature does from the user's perspective
 - [ ] Explains why it matters to customers
 - [ ] No implementation details (no API names, no internal component names)
+- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
+  phase and which phase this STP covers
 
 ### I.1 — Requirement & User Story Review
 
@@ -54,13 +61,31 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Customer use cases are in user story format ("As a [role], I want to [action]")
 - [ ] Acceptance criteria are individual list items — each is a specific, verifiable pass/fail condition
 - [ ] Acceptance criteria describe observable user outcomes, not internal system behavior
+- [ ] For features claiming seamless or non-disruptive behavior, acceptance criteria must include
+  at least one condition that can *only* pass if disruption never occurred. A criterion that checks
+  end-state alone (e.g., "X is present after the operation") is insufficient — it would also pass
+  after a disruptive stop-and-restart cycle. The criterion must be one that *would fail* if a
+  disrupt-then-restore sequence happened instead of the claimed seamless path.
 - [ ] NFRs explicitly address: Monitoring, Observability, UI, Documentation, Performance, Security, Scalability
 - [ ] NFRs not covered have justification
+- [ ] Scalability NFR: if the feature relies on a platform mechanism (e.g., live migration) that
+  has existing scale constraints (e.g., cluster-level parallelism limits), those constraints must
+  be acknowledged — even if the feature itself introduces no new scale requirements. Saying "no new
+  scale requirements" is not sufficient when the underlying mechanism imposes limits.
+- [ ] UI NFR: "no UI changes introduced" does not justify dismissing UI testing. The question is
+  whether UI testing adds value from a customer perspective. That determination belongs to PM or UX,
+  not QE. If the answer is "not needed," it must be reasoned from customer value, not from the
+  absence of code changes.
 
 **Common rejection reasons:**
 - Acceptance criteria say "feature works" instead of specifying HOW we know it works
+- Acceptance criteria for seamless/non-disruptive features only verify end-state — a disrupt-then-restore
+  sequence would produce the same passing result
 - Requirements repeat the feature overview instead of listing actual D/S Jira requirements
 - NFRs section says "N/A" without explaining why each NFR category doesn't apply
+- Scalability NFR dismissed as "no new requirements" when the feature depends on a mechanism with
+  existing cluster-level scale limits
+- UI NFR dismissed with "no UI changes" without PM/UX input on whether testing adds customer value
 
 ### I.2 — Known Limitations
 
@@ -101,6 +126,14 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Negative and edge-case scenarios are considered (e.g., "what happens if migration fails?",
   "what if the VM starts during the operation?", "what about error handling?")
 - [ ] Goals are ordered by priority (P0 first, then P1, then P2)
+- [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
+  the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
+  only one dimension leaves test authors to guess the rest.
+- [ ] Test scenarios that validate behavior *after* a feature operation has completed and the system
+  has reached a stable state (e.g., "verify behavior after upgrade", "verify VM is migratable after
+  feature completes") require explicit justification. Once stable, the system typically cannot
+  distinguish how it arrived there. Such scenarios must name a concrete mechanism by which the
+  feature's prior execution would produce a different outcome than a baseline reaching the same state.
 
 **Out of Scope:**
 - [ ] Each item has Rationale and PM/Lead Agreement with name and date
@@ -119,6 +152,10 @@ Assisted-by: Claude <noreply@anthropic.com>
 - Out of Scope items have `[Name/Date]` placeholder instead of actual sign-offs
 - Regression tests mixed with new functional tests in Testing Goals
 - Missing priority levels on goals
+- Testing goal names only one configuration dimension (e.g., binding type) when others are required
+  (e.g., CNI) to make the goal implementable
+- Test scenario added for post-stable-state behavior without justifying why the feature's
+  execution history would produce a different outcome than baseline
 
 ### II.2 — Test Strategy
 
@@ -162,16 +199,26 @@ Assisted-by: Claude <noreply@anthropic.com>
 
 ### II.5 — Risks
 
-- [ ] ALL 7 risk categories are addressed (even if N/A with justification):
+- [ ] ALL 6 standard risk categories are addressed (even if no risk, include Mitigation with brief justification):
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
-  Resource Constraints, Dependencies, Other
-- [ ] Each risk has: Risk description, Mitigation strategy, Sign-off
-- [ ] N/A risks have brief justification (not just "N/A")
+  Resource Constraints, Dependencies
+- [ ] "Other" category is included only if risks exist that don't fit the 6 standard categories above
+- [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
+  and the category-specific supplemental field:
+  *Estimated impact on schedule* (Timeline/Schedule),
+  *Areas with reduced coverage* (Test Coverage),
+  *Missing or unavailable environments* (Test Environment),
+  *Missing resources or infrastructure* (Resource Constraints),
+  *Third-party services or blockers* (Dependencies),
+  *Reason untestable and mitigation approach* (Untestable Aspects)
+- [ ] When no risk exists: only a short justification in the Mitigation field is needed
+  (not just "N/A"); no Sign-off or category-specific supplemental fields are required
 - [ ] Mitigations are specific and actionable (not "we will address this")
 
 **Common rejection reasons:**
 - All risks marked N/A (unrealistic — every feature has some risk)
-- Missing sign-off fields on risk entries
+- Missing sign-off on risk entries where a real risk is described
+- Mitigation says "N/A" without explaining why no mitigation is needed
 - Vague mitigations without specific actions
 - Missing risk categories entirely
 
@@ -214,6 +261,48 @@ When an STP spans multiple SIGs:
 - Child STPs (per-SIG) should NOT duplicate the parent STP — they extend it
 - Each SIG's regression responsibility must be explicitly documented
 - Cross-SIG test scenarios (e.g., cross-architecture VM connectivity) must have a clear owner
+
+### Directory Structure
+
+Multi-SIG features use a **feature directory** under the owning SIG:
+
+```text
+stps/<owning-sig>/<feature-name>/
+├── stp.md              ← parent STP (owned by the feature's primary SIG)
+├── <sig-name>.md       ← child STP per participating SIG
+└── ...
+```
+
+Example — multi-arch feature owned by sig-iuo with 4 participating SIGs:
+
+```text
+stps/sig-iuo/multiarch/
+├── stp.md
+├── network.md
+├── storage.md
+├── virt.md
+└── infra.md
+```
+
+**Rules:**
+
+- The parent STP (`stp.md`) defines the overall scope, requirements, and acceptance criteria
+- Each child STP covers only the participating SIG's test scope — goals, scenarios, and risks
+  specific to that SIG
+- Child STPs reference the parent for shared context (Feature Overview, requirements, acceptance
+  criteria) — they do NOT repeat it
+- The feature directory may include an `OWNERS` file listing reviewers from all participating SIGs
+- Single-SIG features do NOT use a feature directory — place the STP directly under `stps/<sig>/`
+
+### Child STP Review Checklist
+
+- [ ] Parent STP lists all child STPs in the feature directory with links
+- [ ] Child STP does NOT duplicate Feature Overview, requirements, or acceptance criteria from parent
+- [ ] Child STP defines only the participating SIG's test scope, scenarios, and risks
+- [ ] When a child STP is added to a feature directory that already has a parent STP,
+  verify the parent is updated to include the new child
+- [ ] When a parent STP is added to a feature directory that already contains child STPs,
+  verify the parent lists all existing children
 
 ---
 

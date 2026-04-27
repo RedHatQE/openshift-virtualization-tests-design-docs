@@ -27,6 +27,25 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 
 The STP template includes the following main sections:
 
+### Multi-SIG Features and Child STPs
+
+When a feature spans multiple SIGs, use a **feature directory** under the owning SIG.
+The parent STP defines the overall scope, and each participating SIG contributes a child STP
+that covers their specific test scope.
+
+```text
+stps/<owning-sig>/<feature-name>/
+├── stp.md              ← parent STP
+├── <sig-name>.md       ← child STP per participating SIG
+└── ...
+```
+
+**Parent STP** — defines Feature Overview, requirements, acceptance criteria, and overall coordination.
+**Child STPs** — define SIG-specific testing goals, scenarios, strategy, and risks. They reference
+the parent for shared context and do NOT duplicate it.
+
+Single-SIG features place the STP directly under `stps/<sig>/` without a feature directory.
+
 ### I. Motivation and Requirements Review
 
 **Purpose:** Ensure QE understands the feature value and testability before planning begins.
