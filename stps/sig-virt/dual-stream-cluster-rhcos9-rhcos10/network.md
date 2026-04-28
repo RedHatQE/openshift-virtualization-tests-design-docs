@@ -12,9 +12,9 @@
 - **Participating SIGs:** sig-virt, sig-network
 
 - **Target Release(s):**
-    DP: N/A
-    TP: v4.22
-    GA: v5.0
+  - DP: N/A
+  - TP: v4.22
+  - GA: v5.0
 
 **Document Conventions:**
 - RHCOS = Red Hat CoreOS, the immutable container-optimized OS used for OpenShift worker nodes.
