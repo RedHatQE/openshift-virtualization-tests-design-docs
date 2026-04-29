@@ -4,12 +4,15 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** https://github.com/kubevirt/kubevirt-migration-controller/pull/28
+- **Enhancement(s):** [CNV-73509](https://issues.redhat.com/browse/CNV-73509)
 - **Feature Tracking:** [CNV-77497](https://redhat.atlassian.net/browse/CNV-77497)
 - **Epic Tracking:** [CNV-73509](https://redhat.atlassian.net/browse/CNV-73509)
 - **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
+- **Feature Maturity:**
+  - TP: v4.22
+  - GA: v5.0
 
 **Document Conventions:**
 - **Single-namespace migration**: Migration plan for moving a VM's disks within a single namespace
@@ -30,7 +33,14 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 - [x] **Review Requirements**
-  - *List the key D/S requirements reviewed:* Reviewed the relevant requirements for retentionPolicy field in storage migration plans
+  - *List the key D/S requirements reviewed:*
+    - Migration Plan option to select whether to clean up or retain the PVCs
+    - Plans will always be retained (cleanup applies to PVCs only)
+    - Add cleanup policy option to Migration Plan API/spec
+    - Implement garbage collection for successful migration plans
+    - Clean up old PVCs after successful migration based on policy
+    - Configurable option to retain or automatically delete source volumes
+    - Default behavior is to retain source volumes
 
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* Confirmed clear user stories and understood the difference between U/S and D/S requirements. The value for RH customers is automated cleanup of source storage resources after successful migration, reducing manual cleanup effort and storage costs.
@@ -42,10 +52,10 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - Source volumes are retained after successful migration (default behavior)
-    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (namespace-level)
-    - Source volumes are deleted after successful migration when RetentionPolicy=deleteSource (spec-level)
-    - Source volumes are deleted/retained when setting combination of namespace-level and spec-level retentionPolicy
-    - RetentionPolicy will not clean up the volume when migration failed
+    - Source volumes are automatically deleted after successful migration when cleanup policy is set to delete at the namespace level
+    - Source volumes are automatically deleted after successful migration when cleanup policy is set to delete at the migration plan level
+    - Source volumes are deleted or retained correctly when cleanup policies are configured at both namespace and migration plan levels
+    - Source volumes are not cleaned up when migration fails, regardless of cleanup policy
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -69,15 +79,15 @@ None — reviewed and confirmed with Jose Manuel Castano/2026-04-22
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* Reviewed retentionPolicy implementation with development team. Feature adds optional cleanup of source PVCs/DataVolumes after successful migration. No untestable aspects identified.
+  - *Key takeaways and concerns:* Reviewed cleanup policy implementation with development team. Feature adds optional cleanup of source PVCs/DataVolumes after successful migration. No untestable aspects identified.
 
 - [x] **Technology Challenges**
   - *List identified challenges:* None — standard storage migration testing approach applies
   - *Impact on testing approach:* No impact
 
 - [x] **API Extensions**
-  - *List new or modified APIs:* Introduces a retentionPolicy field allowing users to keep (keepSource) or delete (deleteSource) source volumes after successful migration.
-  - *Testing impact:* Requires validation of both namespace-level and spec-level retentionPolicy settings
+  - *List new or modified APIs:* Introduces a cleanup policy field allowing users to retain or automatically delete source volumes after successful migration.
+  - *Testing impact:* Requires validation of cleanup policy settings at both namespace level and migration plan level
 
 - [x] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
@@ -94,12 +104,12 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 **Testing Goals**
 
-- **[P0]** Verify source volumes are deleted/retained per the retentionPolicy after successful VM storage migration (online, offline, and online+offline)
-  - namespace-level retentionPolicy
-  - spec-level retentionPolicy
-  - combination of namespace-level and spec-level retentionPolicy
+- **[P0]** Verify source volumes are deleted or retained per the cleanup policy after successful VM storage migration (online, offline, and online+offline)
+  - namespace-level cleanup policy
+  - migration plan-level cleanup policy
+  - combination of namespace-level and migration plan-level cleanup policies
 
-- **[P1]** Verify source volumes will be retained when retentionPolicy is not set, default behavior is keepSource
+- **[P1]** Verify source volumes are retained when cleanup policy is not configured (default behavior)
 
 - **[P2]** Verify the source DataVolume/PVC behavior when migration fails
 
@@ -124,7 +134,7 @@ None — no test limitations apply for this release
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Functional testing with retentionPolicy field defined in spec
+  - *Details:* Functional testing with cleanup policy configured in migration plan
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* Ensures test cases are automated, might be added to the existing storage class migration tests
@@ -210,51 +220,51 @@ The following conditions must be met before testing can begin:
 
 **Timeline/Schedule**
 
-- **Risk:** N/A
-  - **Mitigation:** No timeline risks identified
+- **Risk:** No scheduling or deadline risks identified
+  - **Mitigation:** Standard test timeline is sufficient for planned test scenarios
   - *Estimated impact on schedule:* None
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Test Coverage**
 
-- **Risk:** N/A
-  - **Mitigation:** No test coverage gaps identified
+- **Risk:** No gaps in test coverage identified
+  - **Mitigation:** All acceptance criteria are covered by planned test scenarios
   - *Areas with reduced coverage:* None
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Test Environment**
 
-- **Risk:** N/A
-  - **Mitigation:** All required test environments are available
+- **Risk:** No hardware, software, or infrastructure constraints identified
+  - **Mitigation:** Standard test environment is sufficient for testing this feature
   - *Missing resources or infrastructure:* None
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Untestable Aspects**
 
-- **Risk:** N/A
-  - **Mitigation:** All aspects of the feature are testable
+- **Risk:** No untestable scenarios identified
+  - **Mitigation:** All scenarios can be reproduced in test environment
   - *Alternative validation approach:* N/A
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Resource Constraints**
 
-- **Risk:** N/A
-  - **Mitigation:** No resource constraints identified
+- **Risk:** No staffing, skill, or capacity limitations identified
+  - **Mitigation:** Current QE team capacity is sufficient for planned test execution
   - *Current capacity gaps:* None
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Dependencies**
 
-- **Risk:** N/A
-  - **Mitigation:** No external dependencies identified
-  - *Dependent teams or components:* None
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+- **Risk:** No blocking external dependencies identified
+  - **Mitigation:** UI team updates (CNV-77404) are non-blocking; API testing can proceed independently
+  - *Dependent teams or components:* UI team for UI updates (non-blocking)
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 **Other**
 
-- **Risk:** N/A
-  - **Mitigation:** No other risks identified
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+- **Risk:** No additional risks identified
+  - **Mitigation:** No additional mitigation required
+  - *Sign-off:* Jose Manuel Castano, Apr 22, 2026
 
 ---
 
@@ -297,4 +307,4 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Approvers:**
   - QE Lead: Ruth Netser (@rnetser)
   - Dev Lead: Alexander Wels (@awels)
-  - PM: TBD
+  - PM: Peter Lauterbach (pelauter@redhat.com)
