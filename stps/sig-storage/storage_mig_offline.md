@@ -11,6 +11,7 @@
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 - **Feature Maturity:**
+  - DP: N/A
   - TP: v4.22
   - GA: v5.0
 
@@ -162,10 +163,10 @@ No verification activities will be performed for these items, and any related is
   - *Details:* Performance testing for bulk offline migrations is tracked separately in CNV-82430 and will be covered by a separate test plan
 
 - [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
-  - *Details:* Not applicable
+  - *Details:* N/A. Scalability characteristics inherit from existing migration infrastructure; no new scalability requirements introduced by adding offline VM support.
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Not applicable
+  - *Details:* N/A. Feature does not introduce new security boundaries or authentication/authorization requirements; leverages existing migration RBAC model.
 
 - [x] **Usability Testing** — Validates user experience and accessibility requirements
   - Does the feature require a UI? If so, ensure the UI aligns with the requirements (UI/UX consistency, accessibility)
@@ -174,7 +175,7 @@ No verification activities will be performed for these items, and any related is
   - *Details:* UI testing will be covered in https://redhat.atlassian.net/browse/CNV-77503
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* Not applicable
+  - *Details:* N/A. No new metrics or alerts are required. Feature does not introduce new metrics or alerts; existing migration monitoring applies to both online and offline VM migrations.
 
 **Integration & Compatibility**
 
@@ -183,7 +184,7 @@ No verification activities will be performed for these items, and any related is
   - *Details:* Feature maintains backward compatibility with existing migration API. Existing online VM migrations continue to work unchanged.
 
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Not applicable
+  - *Details:* Upgrade path was evaluated. No dedicated upgrade testing is required because this is a new additive feature (offline VM storage migration support) that does not modify existing migration behavior or introduce configuration changes requiring migration. Existing online VM migration functionality remains unchanged and backward compatible (see Compatibility Testing). Users upgrading to v4.22+ will gain offline migration capability without requiring any configuration updates or data migration.
 
 - [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
   - *Details:* No blocking dependencies
@@ -194,7 +195,7 @@ No verification activities will be performed for these items, and any related is
 **Infrastructure**
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
-  - *Details:* Not applicable
+  - *Details:* N/A. Cloud provider-specific storage classes (AWS EBS, Azure Disk, GCP PD) are explicitly out of scope for initial release (see Section II.1 - Out of Scope). Testing focuses on Bare Metal with ODF and HPP storage classes.
 
 #### **3. Test Environment**
 
