@@ -198,7 +198,7 @@ No verification activities will be performed for these items, and any related is
 
 #### **3. Test Environment**
 
-- **Cluster Topology:** 3-master/3-worker bare-metal
+- **Cluster Topology:** 3-master/3-worker Bare-Metal
 
 - **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with OpenShift Virtualization 4.22
 
@@ -214,7 +214,7 @@ No verification activities will be performed for these items, and any related is
 
 - **Required Operators:** N/A
 
-- **Platform:** PSI
+- **Platform:** Bare Metal
 
 - **Special Configurations:** N/A
 
