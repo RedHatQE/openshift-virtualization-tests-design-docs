@@ -4,12 +4,15 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** https://github.com/kubevirt/kubevirt-migration-controller/pull/32
+- **Enhancement(s):** [CNV-77501](https://redhat.atlassian.net/browse/CNV-77501) - no VEP exists for this feature
 - **Feature Tracking:** [CNV-73509](https://redhat.atlassian.net/browse/CNV-73509)
 - **Epic Tracking:** [CNV-73500](https://redhat.atlassian.net/browse/CNV-73500)
 - **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
+- **Feature Maturity:**
+  - TP: v4.22
+  - GA: v5.0
 
 **Document Conventions:**
 None
@@ -28,36 +31,66 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 - [x] **Review Requirements**
-  - *List the key D/S requirements reviewed:* Reviewed the user cases for offline VM storage migration from CNV-82430 and CNV-73500
+  - *List the key D/S requirements reviewed:*
+    - Support storage migration for offline (stopped) VMs between different storage classes
+    - Support mixed migration plans containing both offline and running VMs
+    - Support offline VM storage migration with hotplug disks attached
+    - Support retentionPolicy configuration for source volume cleanup after offline VM migration
+    - Ensure offline VMs remain pointing to original volumes when migration fails
+    - Support VM start operations during ongoing storage migration without conflicts
+    - Reviewed user cases for offline VM storage migration from CNV-82430 and CNV-73500
 
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* Customers need to perform storage migration for offline VMs without requiring them to be running, providing flexibility in storage management operations.
-  - *List the customer use cases identified:* Storage migration for mixed offline VMs and running VMs in one migration plan, allowing batch migration operations regardless of VM state.
+  - *List the customer use cases identified:*
+    - As a VM owner, I want to migrate storage for offline VMs, so that I can perform storage management operations without having to start the VMs
+    - As a VM owner, I want to migrate storage with mixed VM states (online and offline) in one migration plan, so that I can perform batch migration operations regardless of VM state
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* Requirements are testable. Downstream build with the feature code is available for testing.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - Storage migration completes successfully for offline VMs between ODF and HPP storage classes
-    - Storage migration completes successfully for mixed offline VMs and running VMs
-    - Storage migration completes successfully for offline VMs with hotplug disk
-    - Source volume could be retained/cleaned up for an offline VM migration completed with retentionPolicy defined
-    - Offline VM points to the origin volume when migration failed
-    - Migration succeeded when starting a stopped VM during migration
+    - As a VM owner, I want to migrate storage for offline VMs between ODF and HPP storage classes, so that:
+      - Migration plan status reports "Succeeded"
+      - Offline VM disk references point to the new target storage class
+      - VM boots successfully after migration using the migrated storage
+    - As a VM owner, I want to migrate storage with mixed offline VMs and running VMs in one migration plan, so that:
+      - Migration plan status reports "Succeeded"
+      - All offline VMs point to target storage class
+      - All running VMs point to target storage class and remain running
+    - As a VM owner, I want to migrate storage for offline VMs with hotplug disk, so that:
+      - Migration plan status reports "Succeeded"
+      - All disks including hotplug disks are migrated to target storage class
+      - VM boots successfully with all disks accessible
+    - As a VM owner, I want to retain or delete the source volume for an offline VM, so that:
+      - When retentionPolicy=retain: source volumes exist after migration completes
+      - When retentionPolicy=delete: source volumes are deleted after migration completes
+    - As a VM owner, I want an offline VM to point to the original volume when migration fails, so that:
+      - Migration plan status reports "Failed"
+      - VM disk references remain unchanged and point to original storage
+    - As a VM owner, I want migration to succeed when starting a stopped VM during migration, so that:
+      - Migration plan status reports "Succeeded"
+      - VM starts successfully during the migration process
+      - VM points to target storage after migration completes
 
   - *Note any gaps or missing criteria:* N/A
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:* Documentation updates to reflect offline VM storage migration support and UI support for offline VM migrations.
-  - *Note any NFRs not covered and why:* Performance, Monitoring, Observability, Security and Scalability testing are not included in this test plan
+  - *Note any NFRs not covered and why:*
+    - **Performance:** Not covered - Performance testing for bulk offline migrations is tracked separately and will be addressed by a dedicated test plan
+    - **Monitoring:** Not applicable - Feature does not introduce new metrics or alerts; existing migration monitoring applies
+    - **Observability:** Not applicable - Feature reuses existing migration observability patterns without new requirements
+    - **Security:** Not applicable - Feature does not introduce new security boundaries or authentication/authorization requirements; leverages existing migration RBAC
+    - **Scalability:** Not applicable - Scalability characteristics inherit from existing migration infrastructure; no new scalability requirements introduced
 
 #### **2. Known Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following topics will not be tested or supported.
 
-None - reviewed and confirmed with Yan Du on Apr 7,2026.
+None - reviewed and confirmed with Jose Manuel Castano on Apr 28,2026.
 
 #### **3. Technology and Design Review**
 
@@ -101,15 +134,14 @@ The following storage class migration combinations will be tested:
 - **ODF ↔ ODF** — Same storage class migration
 - **HPP ↔ HPP** — Same storage class migration
 
-Storage classes **not covered** in this test plan:
-- Cloud provider-specific storage classes (AWS EBS, Azure Disk, GCP PD) — Out of scope for initial release
-
 **Out of Scope (Testing Scope Exclusions)**
 
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-None
+- **Storage Classes:** Cloud provider-specific storage classes (AWS EBS, Azure Disk, GCP PD) are out of scope for initial release
+
+> **PM Sign-off:** [Name], [Date]
 
 #### **2. Test Strategy**
 
@@ -201,59 +233,55 @@ The following conditions must be met before testing can begin:
 - [x] Requirements and design documents are **approved and merged**
 - [x] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
 
-#### **5. Exit Criteria**
-
-- [ ] All high-priority defects are resolved and verified
-- [ ] Test coverage goals achieved
-- [ ] Test automation merged (required for GA sign-off)
-- [ ] All planned test cycles completed
-- [ ] Test summary report approved
-- [ ] Acceptance criteria met
-
-#### **6. Risks**
+#### **5. Risks**
 
 **Timeline/Schedule**
 
-- **Risk:** N/A
-  - **Mitigation:** N/A
+- **Risk:** No scheduling or deadline risks identified
+  - **Mitigation:** Standard test timeline is sufficient for planned test scenarios
   - *Estimated impact on schedule:* None
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Test Coverage**
 
-- **Risk:** N/A
+- **Risk:** No gaps in test coverage identified
   - **Mitigation:** All acceptance criteria are covered by planned test scenarios
   - *Areas with reduced coverage:* None
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Test Environment**
 
-- **Risk:** N/A
+- **Risk:** No hardware, software, or infrastructure constraints identified
   - **Mitigation:** Standard test environment is sufficient for testing this feature
   - *Missing resources or infrastructure:* None
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Untestable Aspects**
 
-- **Risk:** N/A
-  - **Mitigation:** N/A
+- **Risk:** No untestable scenarios identified
+  - **Mitigation:** All scenarios can be reproduced in test environment
   - *Alternative validation approach:* N/A
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Resource Constraints**
 
-- **Risk:** N/A
-  - **Mitigation:** N/A
+- **Risk:** No staffing, skill, or capacity limitations identified
+  - **Mitigation:** Current QE team capacity is sufficient for planned test execution
   - *Current capacity gaps:* None
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Dependencies**
 
-- **Risk:** N/A
-  - **Mitigation:** No external dependencies
+- **Risk:** No blocking external dependencies identified
+  - **Mitigation:** UI team updates for offline VM selection are non-blocking; API testing can proceed independently
   - *Dependent teams or components:* UI team for UI updates (non-blocking)
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 **Other**
 
-- **Risk:** N/A
-  - **Mitigation:** No additional risks identified
-
-> **Risks Review Sign-off:** All risk categories reviewed and confirmed N/A or addressed above — Yan Du, Apr 7,2026
+- **Risk:** No additional risks identified
+  - **Mitigation:** No additional mitigation required
+  - *Sign-off:* Jose Manuel Castano, Apr 28, 2026
 
 ---
 
