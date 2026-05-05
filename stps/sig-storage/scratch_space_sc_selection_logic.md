@@ -7,6 +7,19 @@
 - **Enhancement(s):** https://github.com/kubevirt/containerized-data-importer/pull/4054
 - **Feature Tracking:** https://issues.redhat.com/browse/CNV-72238
 - **Epic Tracking:** https://issues.redhat.com/browse/CNV-79031
+- **Feature Maturity:**
+  <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
+  Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
+  For features already GA with no prior phases, only list GA.
+
+  Example:
+  - DP: N/A
+  - TP: 4.22
+  - GA: 5.0 -->
+
+  - DP: [version or N/A]
+  - TP: [version or N/A]
+  - GA: [version]
 - **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
