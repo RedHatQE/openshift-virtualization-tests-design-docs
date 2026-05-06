@@ -38,7 +38,6 @@ technology, and testability before formal test planning.
     - Support offline VM storage migration with hotplug disks attached
     - Support retentionPolicy configuration for source volume cleanup after offline VM migration
     - Ensure offline VMs remain pointing to original volumes when migration fails
-    - Support VM start operations during ongoing storage migration where the VM waits for migration completion before starting (volumes are switched to new target volumes in pending state once migration begins)
     - Support all volume mode combinations (File-to-Block, Block-to-File, File-to-File, Block-to-Block) given that CDI copy clone performs the underlying storage transfer
     - Reviewed user cases for offline VM storage migration from CNV-82430 and CNV-73500
 
