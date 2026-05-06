@@ -38,7 +38,8 @@ technology, and testability before formal test planning.
     - Support offline VM storage migration with hotplug disks attached
     - Support retentionPolicy configuration for source volume cleanup after offline VM migration
     - Ensure offline VMs remain pointing to original volumes when migration fails
-    - Support VM start operations during ongoing storage migration without conflicts
+    - Support VM start operations during ongoing storage migration where the VM waits for migration completion before starting (volumes are switched to new target volumes in pending state once migration begins)
+    - Support all volume mode combinations (File-to-Block, Block-to-File, File-to-File, Block-to-Block) given that CDI copy clone performs the underlying storage transfer
     - Reviewed user cases for offline VM storage migration from CNV-82430 and CNV-73500
 
 - [x] **Understand Value and Customer Use Cases**
@@ -72,8 +73,8 @@ technology, and testability before formal test planning.
       - VM disk references remain unchanged and point to original storage
     - As a VM owner, I want migration to succeed when starting a stopped VM during migration, so that:
       - Migration plan status reports "Succeeded"
-      - VM starts successfully during the migration process
-      - VM points to target storage after migration completes
+      - VM start operation waits for migration to complete before the VM becomes ready (volumes are switched to target storage in pending state)
+      - VM points to target storage and starts successfully after migration completes
 
   - *Note any gaps or missing criteria:* N/A
 
@@ -126,21 +127,35 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 - **[P0]** Verify source volumes are retained or deleted according to retentionPolicy configuration when offline VM storage migration completes
 - **[P1]** Verify offline VM storage migration completes when the VM has hotplug disks attached
 - **[P2]** Verify offline VM continues pointing to the original volume when storage migration fails
-- **[P2]** Verify storage migration completes when a stopped VM is started during the migration process
+- **[P2]** Verify storage migration completes when a stopped VM is started during the migration process and the VM waits for migration completion before becoming ready
 
 **Storage Class Coverage**
 
-The following storage class migration combinations will be tested:
-- **ODF** (ocs-storagecluster-ceph-rbd-virtualization) ↔ **HPP** (hostpath-csi-pvc-block)
-- **ODF ↔ ODF** — Same storage class migration
-- **HPP ↔ HPP** — Same storage class migration
+The following storage classes are supported for migration testing:
+- **ODF** (ocs-storagecluster-ceph-rbd-virtualization)
+- **HPP** (hostpath-csi-pvc-block)
+- **AWS EBS** (gp3-csi)
+- **Azure Disk** (managed-csi)
+- **GCP PD** (pd-ssd-csi)
+
+Migration combinations will be tested including:
+- Cross-storage class migrations (e.g., ODF ↔ HPP, ODF ↔ AWS EBS)
+- Same-storage class migrations (e.g., ODF ↔ ODF, HPP ↔ HPP)
+
+**Volume Mode Coverage**
+
+All volume mode combinations are supported and will be tested:
+- **Block ↔ Block** — Block to Block migration
+- **File ↔ File** — Filesystem to Filesystem migration
+- **Block ↔ File** — Block to Filesystem migration
+- **File ↔ Block** — Filesystem to Block migration
 
 **Out of Scope (Testing Scope Exclusions)**
 
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-- **Storage Classes:** Cloud provider-specific storage classes (AWS EBS, Azure Disk, GCP PD) are out of scope for initial release
+None
 
 > **PM Sign-off:** [Name], [Date]
 
@@ -194,12 +209,12 @@ No verification activities will be performed for these items, and any related is
 
 **Infrastructure**
 
-- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
-  - *Details:* N/A. Cloud provider-specific storage classes (AWS EBS, Azure Disk, GCP PD) are explicitly out of scope for initial release (see Section II.1 - Out of Scope). Testing focuses on Bare Metal with ODF and HPP storage classes.
+- [x] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
+  - *Details:* Multi-cloud platform testing is required to validate storage migration across cloud provider storage classes (AWS EBS, Azure Disk, GCP PD). Since CDI copy clone performs the underlying storage transfer, the feature works across all platforms.
 
 #### **3. Test Environment**
 
-- **Cluster Topology:** 3-master/3-worker Bare-Metal
+- **Cluster Topology:** 3-master/3-worker
 
 - **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with OpenShift Virtualization 4.22
 
@@ -209,13 +224,17 @@ No verification activities will be performed for these items, and any related is
 
 - **Special Hardware:** N/A
 
-- **Storage:** ocs-storagecluster-ceph-rbd-virtualization, hostpath-csi-pvc-block
+- **Storage:** 
+  - Bare Metal: ocs-storagecluster-ceph-rbd-virtualization, hostpath-csi-pvc-block
+  - AWS: gp3-csi
+  - Azure: managed-csi
+  - GCP: pd-ssd-csi
 
 - **Network:** OVN-Kubernetes, IPv4
 
 - **Required Operators:** N/A
 
-- **Platform:** Bare Metal
+- **Platform:** Bare Metal, AWS, Azure, GCP
 
 - **Special Configurations:** N/A
 
@@ -309,7 +328,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-73500]** — As a VM owner, I want the migration to succeed when starting a stopped VM during migration
-  - *Test Scenario:* [Tier 2] Verify migration succeeds when starting a stopped VM during the migration process
+  - *Test Scenario:* [Tier 2] Verify migration succeeds when starting a stopped VM during the migration process and the VM waits for migration completion before becoming ready
   - *Priority:* P2
 
 ---
