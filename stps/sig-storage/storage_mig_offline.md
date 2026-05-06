@@ -38,6 +38,7 @@ technology, and testability before formal test planning.
     - Support offline VM storage migration with hotplug disks attached
     - Support retentionPolicy configuration for source volume cleanup after offline VM migration
     - Ensure offline VMs remain pointing to original volumes when migration fails
+    - Support VM start operations during ongoing storage migration, the VM must start after migration completion (volumes are switched to new target volumes in pending state once migration begins)
     - Support all volume mode combinations (File-to-Block, Block-to-File, File-to-File, Block-to-Block) given that CDI copy clone performs the underlying storage transfer
     - Reviewed user cases for offline VM storage migration from CNV-82430 and CNV-73500
 
@@ -327,7 +328,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-73500]** — As a VM owner, I want the migration to succeed when starting a stopped VM during migration
-  - *Test Scenario:* [Tier 2] Verify migration succeeds when starting a stopped VM during the migration process and the VM waits for migration completion before becoming ready
+  - *Test Scenario:* [Tier 2] Verify migration succeeds when starting a VM during the migration process and the VM waits for migration completion before becoming ready
   - *Priority:* P2
 
 ---
