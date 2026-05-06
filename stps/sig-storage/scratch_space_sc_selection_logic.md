@@ -24,11 +24,8 @@
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 
-**Document Conventions (if applicable):**
-- **SC** - Storage Class
-- **HCO** - HyperConverged Cluster Operator
-- **CDI** - Containerized Data Importer
-- **PVC** - Persistent Volume Claim
+**Document Conventions (if applicable):** N/A
+
 
 ### **Feature Overview**
 
@@ -77,13 +74,18 @@ technology, and testability before formal test planning.
     - Automated tests verify both default (same-as-target) and explicitly configured scratch space storage class behaviors
   - *Note any gaps or missing criteria:* None
 
-- [ ] **Non-Functional Requirements (NFRs)**
+- [x] **Non-Functional Requirements (NFRs)**
   <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
   - *List applicable NFRs and their targets:*
-    - Existing CDI metrics should reflect scratch space creation
-    - Documentation update is required to explain new default behavior
+    - **Documentation:** Documentation update is required to explain new default behavior
   - *Note any NFRs not covered and why:*
-    Performance and scale testing are not included in this test plan
+    - **UI:** Not applicable. backend storage class selection logic only, no UI changes.
+    - **Monitoring:** Not applicable. Existing metrics reflect scratch space creation, no new metrics required
+    - **Observability:** Not applicable. Scratch space allocation is logged through existing CDI events
+    - **Performance:** Not applicable. No impact on provisioning performance
+    - **Security:** Not applicable. Uses existing CDI RBAC for storage operations, no new security requirements.
+    - **Scalability:** Not applicable. Selection logic scales with existing CDI controller capabilities
+
 
 #### **2. Known Limitations**
 
@@ -96,22 +98,9 @@ Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, 
 "IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan). -->
 
 <!-- Document limitations in the feature itself — constraints, trade-offs, or unsupported scenarios in the product implementation.
-
-**Examples:**
-- The feature only supports YYY storage class
-- Feature does not support IPv6 (only IPv4)
-- No support for ARM64 architecture in this release
-- The feature is incompatible with ZZZ feature
-
 If there are no feature limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no feature limitations apply for this release." -->
 
-- **[Feature Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-- **[Feature Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-Need to be updated: None identified at this time.
+None — reviewed and confirmed with Kate Shvaika, Danny Sanatar / 2026-05-05 that no feature limitations apply for this release.
 
 
 #### **3. Technology and Design Review**
@@ -120,9 +109,9 @@ Need to be updated: None identified at this time.
 1. **Checkbox**: Mark [x] if done
 2. Complete the relevant, needed details for the checklist item -->
 
-- [ ] **Developer Handoff/QE Kickoff**
+- [x] **Developer Handoff/QE Kickoff**
   <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**-->
-  - *Key takeaways and concerns:* [Summarize key points and concerns]
+  - *Key takeaways and concerns:* Reviewed changes in Scratch Space Storage Class Selection Logic with the developer. Untestable aspects were not identified.
 
 - [x] **Technology Challenges**
   <!-- Identified potential testing challenges related to the underlying technology.-->
@@ -202,7 +191,19 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 
 **Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
 
-None
+- **[e.g., Core OCP network functionality]**
+  - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
+  - *PM/Lead Agreement:* [Name/Date]
+
+- **[e.g., Special guest OS coverage (e.g., Windows)]**
+  - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
+  - *PM/Lead Agreement:* [Name/Date]
+  - 
+None — reviewed and confirmed that all supported product functionality will be tested this cycle.
+  - *Rationale:* Feature changes default storage class selection logic for scratch space only. Scope is narrow and well-defined with clear testable behaviors (default same-as-target vs configured override). All
+   user-facing functionality can be verified through standard disk provisioning operations.
+  - *PM/Lead Agreement:* [Name/Date]
+
 
 **Test Limitations**
 
@@ -222,7 +223,7 @@ Example: "No bare-metal MultiArch cluster available" is a **test limitation** (Q
 
 If there are no test limitations, remove the example items and state: "None — reviewed and confirmed that no test limitations apply for this release." -->
 
-None — reviewed and confirmed that no test limitations apply for this release.
+None — reviewed and confirmed with Kate Shvaika/2026-05-05 that no test limitations apply for this release.
 
 #### **2. Test Strategy**
 
@@ -253,49 +254,47 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 **Non-Functional**
 
-- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:*
-    - Test concurrent scratch space allocations
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Details:* no impact on provisioning performance
 
 - [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
-  - *Details:* N/A - inherits existing CDI scratch space scalability characteristics
+  - *Details:* N/A - Selection logic scales with existing CDI controller capabilities
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* N/A - no new RBAC or security requirements; uses existing CDI permissions
+  - *Details:* no new security requirements 
 
-- [x] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:*
-    - CDI events/logs should indicate which storage class was selected for scratch space
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* N/A - Backend storage class selection logic only
 
-- [x] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:*
-    - Use existing CDI metrics for scratch space PVC creation
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* no new metrics required 
+
 
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:*
-    - Test with different storage providers
+  - Does the feature maintain backward compatibility with previous API versions and configurations?
+  - *Details:*  Test with different storage class types (OCS, HPP)
 
-- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Not applicable
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* Verify existing scratchSpaceStorageClass configurations are preserved during upgrade. Verify new default behavior (same-as-target) applies to operations started after upgrade.
 
-- [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
-  - *Details:* Not applicable
+- [x] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
+  - *Details:* Not applicable. No Dependencies.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
-  - *Details:*
-    - Impacts CDI data import/clone/upload workflows
+  - *Details:* Not applicable. Changes do not affect other features.
+
 
 **Infrastructure**
 
-- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
+- [x] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
   - *Details:* Not applicable
 
 #### **3. Test Environment**
 <!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
 
-- **Cluster Topology:** 3-master/3-worker bare-metal
+- **Cluster Topology:** standard 3-master/3-worker
   <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
 
 - **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with OpenShift Virtualization 4.22
@@ -350,53 +349,53 @@ The following conditions must be met before testing can begin:
 <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
 justification in mitigation strategy. -->
 
-**Timeline/Schedule**
-
-- **Risk:** N/A
-  - **Mitigation:** N/A
-  - *Estimated impact on schedule:* N/A
-  - *Sign-off:* TBD
-
-**Test Coverage**
-
-- **Risk:** N/A
-  - **Mitigation:** N/A
-  - *Areas with reduced coverage:* N/A
-  - *Sign-off:* TBD
-
-**Test Environment**
-
-- **Risk:** N/A
-  - **Mitigation:** Standard test environment is sufficient for testing this feature
-  - *Missing resources or infrastructure:* N/A
-  - *Sign-off:* TBD
-
-**Untestable Aspects**
-
-- **Risk:** Customer production storage configurations may differ from test environments
-  - **Mitigation:** Focus on logic correctness rather than specific storage class types
-  - *Alternative validation approach:* N/A
-  - *Sign-off:* TBD
-
-**Resource Constraints**
-
-- **Risk:** N/A
-  - **Mitigation:** N/A
-  - *Current capacity gaps:* N/A
-  - *Sign-off:* TBD
-
-**Dependencies**
-
-- **Risk:** N/A
-  - **Mitigation:** N/A
-  - *Dependent teams or components:* N/A
-  - *Sign-off:* TBD
-
-**Other**
-
-- **Risk:** N/A
-  - **Mitigation:** No external dependencies
-  - *Sign-off:* TBD
+  **Timeline/Schedule**                       
+                                              
+  - **Risk:** N/A
+    - **Mitigation:** Standard test timeline is sufficient for planned test scenarios. Feature scope is narrow with straightforward test cases.                                                                      
+    - *Estimated impact on schedule:* None                                                                                                                                                                          
+    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                                 
+                                                                                                                                                                                                                    
+  **Test Coverage**                                                                                                                                                                                                 
+   
+  - **Risk:** N/A                                                                                                                                                                   
+    - **Mitigation:** All acceptance criteria are covered by planned test scenarios.
+    - *Areas with reduced coverage:* None                                                                                                                                                                           
+    - *Sign-off:* Kate Shvaika/2026-05-05                         
+                                              
+  **Test Environment**                                                                                                                                                                                              
+   
+  - **Risk:** N/A                                                                                                                                      
+    - **Mitigation:** Standard test environment with multiple storage classes is sufficient for testing this feature
+    - *Missing resources or infrastructure:* None                                                                                                                                                                   
+    - *Sign-off:* Kate Shvaika/2026-05-05                         
+                                              
+  **Untestable Aspects**                                                                                                                                                                                            
+   
+  - **Risk:** N/A                                                                                                            
+    - **Mitigation:** All scenarios can be reproduced in test environment
+    - *Alternative validation approach:* None                                     
+    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                                
+                                          
+  **Resource Constraints**                                                                                                                                                                                          
+                                                                                                                                                                                                                    
+  - **Risk:** N/A                                                                                                                                               
+    - **Mitigation:** Current QE team capacity is sufficient for planned test execution                                                                                                                             
+    - *Current capacity gaps:* None                         
+    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                               
+   
+  **Dependencies**                                                                                                                                                                                                  
+                                                            
+  - **Risk:** N/A
+    - **Mitigation:** No external dependencies.                                                                                       
+    - *Dependent teams or components:* Documentation team for behavior change documentation (non-blocking)
+    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                               
+                                                            
+  **Other**                                                                                                                                                                                                         
+   
+  - **Risk:** N/A                                                                                                                                                                      
+    - **Mitigation:** No additional mitigation required     
+    - *Sign-off:* Kate Shvaika/2026-05-05
 
 ---
 
@@ -430,7 +429,9 @@ justification in mitigation strategy. -->
 
 This Software Test Plan requires approval from the following stakeholders:
 
-* **Reviewers:**
-  - TBD
-* **Approvers:**
-  - TBD
+ * **Reviewers:**
+  - Jenia Peimer (@jpeimer)
+  - Jose Manuel Castano (@joscasta)
+  - Danny Sanatar (@dsanatar)
+ * **Approvers:**
+  - Ruth Netser (@rnetser)
