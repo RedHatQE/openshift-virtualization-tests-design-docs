@@ -224,7 +224,7 @@ None
 
 - **Special Hardware:** N/A
 
-- **Storage:** 
+- **Storage:**
   - Bare Metal: ocs-storagecluster-ceph-rbd-virtualization, hostpath-csi-pvc-block
   - AWS: gp3-csi
   - Azure: managed-csi
