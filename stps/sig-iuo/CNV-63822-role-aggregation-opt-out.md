@@ -50,7 +50,6 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from attempting virtualization actions
-    - Configuration changes take effect without cluster restart
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -76,10 +75,7 @@ this release.
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* Testing strategy agreed: tier 1 tests validate configuration behavior, with
-    reconciliation coverage needed once downstream integration lands. Concern raised that
-    tier 1 tests are not part of gating jobs — further review needed on test prioritization
-    for tier 2.
+  - *Key takeaways and concerns:* We agreed on the testing strategy and configuration requirements.
 
 - [x] **Technology Challenges**
   - *List identified challenges:* N/A
@@ -116,7 +112,7 @@ and schedule.
 
 **Regression Goals**
 
-- **[P0]** Verify existing RBAC and migration functionality is not broken by the new feature — tier 2 regression suites run on the feature cluster, including [migration rights tests](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)
+- **[P0]** Verify existing RBAC and migration functionality is not broken by the new feature — tier 2 regression suites run on the feature cluster, including migration rights tests
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -156,7 +152,7 @@ None — reviewed and confirmed that no test limitations apply for this release.
   - *Details:* All tier 1 and tier 2 tests automated; tier 1 validates configuration, tier 2 validates end-to-end user workflows.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Existing RBAC/migration tests provide regression coverage; standard sig-iuo suites run on feature cluster. Migrate role aggregation is already covered by existing tier 2 regression tests ([test_migration_rights.py](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/virt/cluster/migration_and_maintenance/rbac_hardening/test_migration_rights.py)). Verification that virtualization admin, edit, and view roles grant correct permissions is covered by existing upstream tests in KubeVirt ([access_test.go](https://github.com/kubevirt/kubevirt/blob/main/tests/access_test.go)).
+  - *Details:* Migrate role aggregation is already covered by existing tier 2 regression tests.
 
 **Non-Functional**
 
@@ -320,9 +316,11 @@ This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
   - QE Lead / @rnester
-  - sig-iuo representative / @orenc1 @hmeir @OhadRevah @albarker-rh
+  - sig-iuo representative / @orenc1 @hmeir @OhadRevah @rlobillo
   - sig-ui representative / @gouyang
 
 * **Approvers:**
+  - QE Lead / @rnester
+  - sig-iuo representative / @hmeir
   - QE Manager / @kmajcher-rh @fabiand
   - Product Manager / Ronen Sde-Or
