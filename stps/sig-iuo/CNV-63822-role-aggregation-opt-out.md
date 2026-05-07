@@ -41,7 +41,7 @@ technology, and testability before formal test planning.
   explicit virtualization access grants instead of automatic role aggregation.
   - *List the customer use cases identified:*
     - As a cluster administrator, I want to disable automatic virtualization access
-      so that only explicitly authorized users can consume virtualization resources
+      so that only explicitly authorized users can use and interact with virtualization resources
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* All requirements are testable
@@ -49,7 +49,7 @@ technology, and testability before formal test planning.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from attempting virtualization actions
+    - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from performing actions on virtualization resources
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
 - [x] **Non-Functional Requirements (NFRs)**
