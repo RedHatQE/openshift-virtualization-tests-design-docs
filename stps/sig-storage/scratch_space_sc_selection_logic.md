@@ -11,15 +11,7 @@
   <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
   Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
   For features already GA with no prior phases, only list GA.
-
-  Example:
-  - DP: N/A
-  - TP: 4.22
-  - GA: 5.0 -->
-
-  - DP: [version or N/A]
-  - TP: [version or N/A]
-  - GA: [version]
+  - GA: 4.22
 - **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
@@ -198,7 +190,7 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
   - *PM/Lead Agreement:* [Name/Date]
-  - 
+  -
 None — reviewed and confirmed that all supported product functionality will be tested this cycle.
   - *Rationale:* Feature changes default storage class selection logic for scratch space only. Scope is narrow and well-defined with clear testable behaviors (default same-as-target vs configured override). All
    user-facing functionality can be verified through standard disk provisioning operations.
@@ -261,13 +253,13 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
   - *Details:* N/A - Selection logic scales with existing CDI controller capabilities
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* no new security requirements 
+  - *Details:* no new security requirements
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* N/A - Backend storage class selection logic only
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* no new metrics required 
+  - *Details:* no new metrics required
 
 
 **Integration & Compatibility**
@@ -349,52 +341,52 @@ The following conditions must be met before testing can begin:
 <!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
 justification in mitigation strategy. -->
 
-  **Timeline/Schedule**                       
-                                              
+  **Timeline/Schedule**
+
   - **Risk:** N/A
-    - **Mitigation:** Standard test timeline is sufficient for planned test scenarios. Feature scope is narrow with straightforward test cases.                                                                      
-    - *Estimated impact on schedule:* None                                                                                                                                                                          
-    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                                 
-                                                                                                                                                                                                                    
-  **Test Coverage**                                                                                                                                                                                                 
-   
-  - **Risk:** N/A                                                                                                                                                                   
+    - **Mitigation:** Standard test timeline is sufficient for planned test scenarios. Feature scope is narrow with straightforward test cases.
+    - *Estimated impact on schedule:* None
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Test Coverage**
+
+  - **Risk:** N/A
     - **Mitigation:** All acceptance criteria are covered by planned test scenarios.
-    - *Areas with reduced coverage:* None                                                                                                                                                                           
-    - *Sign-off:* Kate Shvaika/2026-05-05                         
-                                              
-  **Test Environment**                                                                                                                                                                                              
-   
-  - **Risk:** N/A                                                                                                                                      
-    - **Mitigation:** Standard test environment with multiple storage classes is sufficient for testing this feature
-    - *Missing resources or infrastructure:* None                                                                                                                                                                   
-    - *Sign-off:* Kate Shvaika/2026-05-05                         
-                                              
-  **Untestable Aspects**                                                                                                                                                                                            
-   
-  - **Risk:** N/A                                                                                                            
-    - **Mitigation:** All scenarios can be reproduced in test environment
-    - *Alternative validation approach:* None                                     
-    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                                
-                                          
-  **Resource Constraints**                                                                                                                                                                                          
-                                                                                                                                                                                                                    
-  - **Risk:** N/A                                                                                                                                               
-    - **Mitigation:** Current QE team capacity is sufficient for planned test execution                                                                                                                             
-    - *Current capacity gaps:* None                         
-    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                               
-   
-  **Dependencies**                                                                                                                                                                                                  
-                                                            
+    - *Areas with reduced coverage:* None
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Test Environment**
+
   - **Risk:** N/A
-    - **Mitigation:** No external dependencies.                                                                                       
+    - **Mitigation:** Standard test environment with multiple storage classes is sufficient for testing this feature
+    - *Missing resources or infrastructure:* None
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Untestable Aspects**
+
+  - **Risk:** N/A
+    - **Mitigation:** All scenarios can be reproduced in test environment
+    - *Alternative validation approach:* None
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Resource Constraints**
+
+  - **Risk:** N/A
+    - **Mitigation:** Current QE team capacity is sufficient for planned test execution
+    - *Current capacity gaps:* None
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Dependencies**
+
+  - **Risk:** N/A
+    - **Mitigation:** No external dependencies.
     - *Dependent teams or components:* Documentation team for behavior change documentation (non-blocking)
-    - *Sign-off:* Kate Shvaika/2026-05-05                                                                                                                                                                               
-                                                            
-  **Other**                                                                                                                                                                                                         
-   
-  - **Risk:** N/A                                                                                                                                                                      
-    - **Mitigation:** No additional mitigation required     
+    - *Sign-off:* Kate Shvaika/2026-05-05
+
+  **Other**
+
+  - **Risk:** N/A
+    - **Mitigation:** No additional mitigation required
     - *Sign-off:* Kate Shvaika/2026-05-05
 
 ---
