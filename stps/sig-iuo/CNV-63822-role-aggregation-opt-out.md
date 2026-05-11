@@ -309,10 +309,10 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Reviewers:**
   - QE Lead / @rnester
   - sig-iuo representative / @orenc1 @hmeir @OhadRevah @rlobillo
-  - sig-ui representative / @gouyang
+  - sig-ui representative / @upalatucci
 
 * **Approvers:**
-  - QE Lead / @rnester
+  - QE Lead / @rnetser
   - sig-iuo representative / @hmeir
-  - QE Manager / @kmajcher-rh @fabiand
-  - Product Manager / Ronen Sde-Or
+  - QE Manager / @kmajcher-rh
+  - Product Manager / Ronen Sde-Or @ronensdeor
