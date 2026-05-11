@@ -22,7 +22,8 @@
 By default, all project administrators, editors, and viewers automatically receive access to
 OpenShift Virtualization resources. Role Aggregation Opt-Out allows cluster administrators to
 disable this automatic access and instead grant virtualization permissions explicitly per user
-and namespace, enabling fine-grained control in multi-tenant environments.
+and namespace, enabling fine-grained control in multi-tenant environments. 
+This STP covers testing for the Tech Preview phase (4.23/5.0).
 
 ---
 
@@ -49,7 +50,9 @@ technology, and testability before formal test planning.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
+    - A cluster administrator can control the role aggregation strategy and any change to the setting takes effect on the virtualization deployment
     - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from performing actions on virtualization resources
+    - When opt-out is disabled after being enabled, automatic access is restored for users who were previously blocked
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -234,10 +237,8 @@ The following conditions must be met before testing can begin:
 
 **Timeline/Schedule**
 
-- **Risk:** N/A — feature implementation is complete (upstream and downstream).
-  - **Mitigation:** N/A
-  - *Estimated impact on schedule:* None
-  - *Sign-off:* [Name/Date — TBD]
+- **Risk:** N/A
+  - **Mitigation:** Feature implementation is complete upstream and downstream; no schedule risk.
 
 **Test Coverage**
 
@@ -248,10 +249,8 @@ The following conditions must be met before testing can begin:
 
 **Test Environment**
 
-- **Risk:** N/A — standard OCP cluster with HTPasswd IdP is sufficient; no special hardware required.
-  - **Mitigation:** N/A
-  - *Missing resources or infrastructure:* None
-  - *Sign-off:* [Name/Date — TBD]
+- **Risk:** N/A
+  - **Mitigation:** Standard OCP cluster with HTPasswd IdP is sufficient; no special hardware or infrastructure required.
 
 **Untestable Aspects**
 
@@ -262,10 +261,8 @@ The following conditions must be met before testing can begin:
 
 **Resource Constraints**
 
-- **Risk:** N/A — no staffing or capacity constraints; feature testing scope is manageable with assigned QE resources.
-  - **Mitigation:** N/A
-  - *Current capacity gaps:* None
-  - *Sign-off:* [Name/Date — TBD]
+- **Risk:** N/A
+  - **Mitigation:** Feature testing scope is manageable with assigned QE resources; no staffing or capacity constraints.
 
 **Dependencies**
 
@@ -274,11 +271,6 @@ The following conditions must be met before testing can begin:
   - *Dependent teams or components:* sig-ui — console configuration interface for opt-out
   - *Sign-off:* [Name/Date — TBD]
 
-**Other**
-
-- **Risk:** N/A — no additional risks identified.
-  - **Mitigation:** N/A
-  - *Sign-off:* [Name/Date — TBD]
 
 ---
 
