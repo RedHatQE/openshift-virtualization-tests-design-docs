@@ -22,7 +22,7 @@
 By default, all project administrators, editors, and viewers automatically receive access to
 OpenShift Virtualization resources. Role Aggregation Opt-Out allows cluster administrators to
 disable this automatic access and instead grant virtualization permissions explicitly per user
-and namespace, enabling fine-grained control in multi-tenant environments. 
+and namespace, enabling fine-grained control in multi-tenant environments.
 This STP covers testing for the Tech Preview phase (4.23/5.0).
 
 ---
