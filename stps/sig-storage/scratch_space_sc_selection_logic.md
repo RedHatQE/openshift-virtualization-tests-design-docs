@@ -7,7 +7,10 @@
 - **Enhancement(s):** https://github.com/kubevirt/containerized-data-importer/pull/4054
 - **Feature Tracking:** https://issues.redhat.com/browse/CNV-72238
 - **Epic Tracking:** https://issues.redhat.com/browse/CNV-79031
-- **Feature Maturity:** GA: 4.22
+- **Feature Maturity:**
+  - DP: N/A
+  - TP: N/A
+  - GA: 4.22
 - **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
@@ -48,7 +51,6 @@ technology, and testability before formal test planning.
   - *List the acceptance criteria:*
     - When no explicit scratch space storage class is configured, scratch space uses the same storage class as the target PVC
     - When an explicit scratch space storage class is configured, scratch space uses that configured storage class
-    - Automated tests verify both default (same-as-target) and explicitly configured scratch space storage class behaviors
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -140,19 +142,19 @@ None — reviewed and confirmed with Kate Shvaika/2026-05-05 that no test limita
 
 **Non-Functional**
 
-- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
   - *Details:* N/A - no impact on provisioning performance
 
-- [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
+- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
   - *Details:* N/A - Selection logic scales with existing CDI controller capabilities
 
-- [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* N/A - no new security requirements
 
-- [x] **Usability Testing** — Validates user experience and accessibility requirements
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* N/A - Backend storage class selection logic only
 
-- [x] **Monitoring** — Does the feature require metrics and/or alerts?
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* N/A - no new metrics required
 
 
