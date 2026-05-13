@@ -7,11 +7,7 @@
 - **Enhancement(s):** https://github.com/kubevirt/containerized-data-importer/pull/4054
 - **Feature Tracking:** https://issues.redhat.com/browse/CNV-72238
 - **Epic Tracking:** https://issues.redhat.com/browse/CNV-79031
-- **Feature Maturity:**
-  <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
-  Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
-  For features already GA with no prior phases, only list GA.
-  - GA: 4.22
+- **Feature Maturity:** GA: 4.22
 - **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
@@ -32,21 +28,13 @@ technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
-<!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - add an explanation why in the `details` section
-2. Complete the relevant, needed details for the checklist item -->
-
 - [x] **Review Requirements**
-  <!-- Review the D/S (Downstream) requirements as defined in Jira. Understand the difference between Upstream (U/S) and D/S requirements.
-  Example: "VMs must migrate without network downtime exceeding the defined threshold during node maintenance." -->
   - *List the key D/S requirements reviewed:*
     - When no scratch space storage class is configured, scratch space must use the same storage class as the target disk
     - When a scratch space storage class is explicitly configured by the administrator, it must override the default same-as-target behavior
     - Existing administrator configurations for scratch space storage class must continue to work unchanged
 
 - [x] **Understand Value and Customer Use Cases**
-  <!-- Understand why the feature matters to customers from a D/S perspective and what the real-world use cases are.
-  Example: "Customers need to migrate VMs without network downtime to maintain SLA compliance during node maintenance." -->
   - *Describe the feature's value to customers:*
     - Ensures consistent storage provisioning behavior, reducing confusion and configuration errors
     - Aligns temporary resource allocation with production storage requirements
@@ -54,12 +42,9 @@ technology, and testability before formal test planning.
     - As a VM owner, I want scratch space to use the same storage class as my disk so that provisioning is consistent
 
 - [x] **Testability**
-  <!-- Confirmed requirements are **testable and unambiguous**. -->
   - *Note any requirements that are unclear or untestable:* None - all requirements are testable through CDI operations (clone, import, upload) with various storage class configurations
 
 - [x] **Acceptance Criteria**
-  <!-- Acceptance criteria are the specific, verifiable conditions that must be met for the feature to be considered complete — they define *how we know it works*.
-  Example: "VM migrates without network downtime exceeding 500ms", "VM deletion is blocked for non-admin users." -->
   - *List the acceptance criteria:*
     - When no explicit scratch space storage class is configured, scratch space uses the same storage class as the target PVC
     - When an explicit scratch space storage class is configured, scratch space uses that configured storage class
@@ -67,7 +52,6 @@ technology, and testability before formal test planning.
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
-  <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
   - *List applicable NFRs and their targets:*
     - **Documentation:** Documentation update is required to explain new default behavior
   - *Note any NFRs not covered and why:*
@@ -81,54 +65,33 @@ technology, and testability before formal test planning.
 
 #### **2. Known Limitations**
 
-The limitations are documented to ensure alignment between development, QA, and product teams.
-The following are confirmed product constraints accepted before testing begins.
-
-<!-- **Difference from Risks:** Limitations are *known facts* — confirmed constraints that are accepted before testing begins.
-Risks are *uncertainties* — things that might happen and could impact testing.
-Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, won't change this release).
-"IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan). -->
-
-<!-- Document limitations in the feature itself — constraints, trade-offs, or unsupported scenarios in the product implementation.
-If there are no feature limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no feature limitations apply for this release." -->
-
 None — reviewed and confirmed with Kate Shvaika, Danny Sanatar / 2026-05-05 that no feature limitations apply for this release.
 
 
 #### **3. Technology and Design Review**
 
-<!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if done
-2. Complete the relevant, needed details for the checklist item -->
-
 - [x] **Developer Handoff/QE Kickoff**
-  <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**-->
   - *Key takeaways and concerns:* Reviewed changes in Scratch Space Storage Class Selection Logic with the developer. Untestable aspects were not identified.
 
 - [x] **Technology Challenges**
-  <!-- Identified potential testing challenges related to the underlying technology.-->
   - *List identified challenges:*
-    - Multiple CDI operations can trigger scratch space allocation (clone, import, upload)
+    - Multiple disk provisioning operations can trigger scratch space allocation (clone, import, upload)
   - *Impact on testing approach:*
-    - Tests must cover all CDI operations that use scratch space
+    - Tests must cover all disk provisioning operations that use scratch space
 
 - [x] **API Extensions**
-  <!-- Review new or modified APIs and their impact on testing. Covers both new tests for new APIs and updates to existing tests for modified APIs.
-  Example: "New VirtualMachineSnapshot API v1beta2 — 3 new endpoints, 1 modified endpoint. Existing snapshot tests need updating." -->
   - *List new or modified APIs:*
-    - No API changes - internal CDI logic change only
-    - scratchSpaceStorageClass HCO config option unchanged
+    - No API changes - internal logic change only
+    - Cluster configuration option for scratch space storage class unchanged
   - *Testing impact:*
     - No API testing updates required
     - Functional tests update required
 
 - [x] **Test Environment Needs**
-  <!-- Identified whether special environment setups are needed beyond standard infrastructure.-->
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
     - Ability to modify HCO configuration (for scratchSpaceStorageClass override testing)
 
 - [x] **Topology Considerations**
-  <!-- Evaluated multi-cluster, network topology, and architectural impacts.-->
   - *Describe topology requirements:* Standard cluster topology sufficient
   - *Impact on test design:* No special topology requirements
 
@@ -138,29 +101,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 #### **1. Scope of Testing**
 
-<!-- Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**.
-Must ensure user stories are included and aligned to downstream user stories from Section I. -->
-
 **Testing Goals**
-
-<!-- Testing goals are specific, measurable objectives — they say *what* must be verified and *how* success is measured.
-
-Define specific, measurable testing objectives for this feature using **SMART criteria**
-(Specific, Measurable, Achievable, Relevant, Time-bound).
-Each goal should tie back to requirements from Section I and be independently verifiable.
-
-**How to Define Good Testing Goals:**
-- **Specific**: Clearly state what will be tested (not "test the feature" but "validate VM live migration
-  with SR-IOV networks")
-- **Measurable**: Define quantifiable success criteria (e.g., "95% of VM migrations complete within xxx seconds")
-- **Achievable**: Realistic given resources and timeline
-- **Relevant**: Directly supports feature acceptance criteria and user stories
-- **Verifiable**: Can be objectively confirmed as complete
-
-**Priority Levels:**
-- **P0**: Blocking GA - must be complete before release
-- **P1**: High priority - required for full feature coverage
-- **P2**: Nice-to-have - can be deferred if timeline constraints exist -->
 
 - **[P0]** Verify that disk provisioning operations automatically allocate scratch space using the same storage class as the target disk when no cluster-level override is configured
 - **[P0]** Validate that cluster administrator configuration for scratch space storage class takes priority over the default behavior
@@ -168,63 +109,16 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 **Out of Scope (Testing Scope Exclusions)**
 
-The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
-No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
-
-<!-- **What does Out of Scope mean?**
-Out of Scope items are areas where the product works, but QE has decided not to test them this cycle.
-This is the most critical section in the STP — it explicitly documents the gap between what the product can do and what QE will verify.
-Every item here is a conscious risk accepted by PM/Lead. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
-Each item requires PM/Lead sign-off.
-
-**Difference from Risks:** A risk is something that *might* prevent testing — you plan to test it but it could be blocked and you provide a mitigation plan.
-Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
-Example: "MultiArch cluster might not be available" is a **risk**. "We will not test on bare-metal MultiArch clusters" is **out of scope**.
-
-**Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
-
-- **[e.g., Core OCP network functionality]**
-  - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
-  - *PM/Lead Agreement:* [Name/Date]
-
-- **[e.g., Special guest OS coverage (e.g., Windows)]**
-  - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
-  - *PM/Lead Agreement:* [Name/Date]
-  -
 None — reviewed and confirmed that all supported product functionality will be tested this cycle.
-  - *Rationale:* Feature changes default storage class selection logic for scratch space only. Scope is narrow and well-defined with clear testable behaviors (default same-as-target vs configured override). All
-   user-facing functionality can be verified through standard disk provisioning operations.
-  - *PM/Lead Agreement:* [Name/Date]
+- *Rationale:* Feature changes default storage class selection logic for scratch space only. Scope is narrow and well-defined with clear testable behaviors (default same-as-target vs configured override). All user-facing functionality can be verified through standard disk provisioning operations.
+- *PM/Lead Agreement:* [Name/Date]
 
 
 **Test Limitations**
 
-<!-- Document limitations in the test approach — things that constrain how or what we can test, not the feature itself.
-These are distinct from feature limitations (Section I.2) which describe product constraints.
-
-**Difference from Out of Scope:** Test Limitations are constraints *imposed on QE* (e.g., no hardware, no cluster, no environment).
-Out of Scope are *decisions made by QE* (e.g., we choose not to test Windows guests).
-Example: "No bare-metal MultiArch cluster available" is a **test limitation** (QE can't test it even if they wanted to).
-"Windows guest OS will not be tested" is **out of scope** (QE chose not to test it).
-
-**Examples:**
-- CPU xxx will not be tested due to lack of hardware
-- Real integration with [Third-Party Service] cannot be tested; external calls will be mocked using static data due to access/licensing constraints
-- Performance testing limited to 100 VMs due to lab capacity
-- IPv6 testing constrained to single-stack due to dual-stack cluster unavailability
-
-If there are no test limitations, remove the example items and state: "None — reviewed and confirmed that no test limitations apply for this release." -->
-
 None — reviewed and confirmed with Kate Shvaika/2026-05-05 that no test limitations apply for this release.
 
 #### **2. Test Strategy**
-
-<!-- The following test strategy considerations must be reviewed and addressed. Mark [x] if applicable,
-leave unchecked if not applicable (with justification in Details). Unchecked items without details
-indicate incomplete review.
-
-Note: Strategy defines *which types of testing* apply and the high-level approach. Goals (Section II.1) define the specific, measurable objectives.
-Example: Strategy says "Performance testing is applicable — we will measure migration stuntime." Goals say "[P0] Verify VM stuntime during live migration is below 500ms." -->
 
 **Functional**
 
@@ -246,20 +140,20 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 **Non-Functional**
 
-- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:* no impact on provisioning performance
+- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Details:* N/A - no impact on provisioning performance
 
-- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
+- [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
   - *Details:* N/A - Selection logic scales with existing CDI controller capabilities
 
-- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* no new security requirements
+- [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Details:* N/A - no new security requirements
 
-- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+- [x] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* N/A - Backend storage class selection logic only
 
-- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* no new metrics required
+- [x] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* N/A - no new metrics required
 
 
 **Integration & Compatibility**
@@ -284,42 +178,28 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
   - *Details:* Not applicable
 
 #### **3. Test Environment**
-<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
 
 - **Cluster Topology:** standard 3-master/3-worker
-  <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
 
 - **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with OpenShift Virtualization 4.22
-  <!-- Specify exact versions to allow version traceability -->
 
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
-  <!-- Change only if specific CPU requirements exist -->
 
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
-  <!-- Adjust based on feature requirements -->
 
 - **Special Hardware:** N/A
-  <!-- Fill if needed, e.g., SR-IOV NICs, GPUs -->
 
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization, hostpath-provisioner, custom SC
-  <!-- Change if specific StorageClass(es) required -->
 
 - **Network:** OVN-Kubernetes, IPv4
-  <!-- Change if needed, e.g., Secondary Networks, IPv6, dual-stack -->
 
 - **Required Operators:** N/A
-  <!-- Add if needed, e.g., NMState Operator -->
 
 - **Platform:** PSI, Bare metal
-  <!-- Change if needed, e.g., AWS, Azure, GCP -->
 
 - **Special Configurations:** N/A
-  <!-- Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode -->
 
 #### **3.1. Testing Tools & Frameworks**
-
-<!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
-for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure. -->
 
 - **Test Framework:** Standard
 
@@ -338,62 +218,57 @@ The following conditions must be met before testing can begin:
 
 #### **5. Risks**
 
-<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
-justification in mitigation strategy. -->
+**Timeline/Schedule**
 
-  **Timeline/Schedule**
+- **Risk:** N/A
+  - **Mitigation:** Standard test timeline is sufficient for planned test scenarios. Feature scope is narrow with straightforward test cases.
+  - *Estimated impact on schedule:* None
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** Standard test timeline is sufficient for planned test scenarios. Feature scope is narrow with straightforward test cases.
-    - *Estimated impact on schedule:* None
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Test Coverage**
 
-  **Test Coverage**
+- **Risk:** N/A
+  - **Mitigation:** All acceptance criteria are covered by planned test scenarios.
+  - *Areas with reduced coverage:* None
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** All acceptance criteria are covered by planned test scenarios.
-    - *Areas with reduced coverage:* None
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Test Environment**
 
-  **Test Environment**
+- **Risk:** N/A
+  - **Mitigation:** Standard test environment with multiple storage classes is sufficient for testing this feature
+  - *Missing resources or infrastructure:* None
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** Standard test environment with multiple storage classes is sufficient for testing this feature
-    - *Missing resources or infrastructure:* None
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Untestable Aspects**
 
-  **Untestable Aspects**
+- **Risk:** N/A
+  - **Mitigation:** All scenarios can be reproduced in test environment
+  - *Alternative validation approach:* None
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** All scenarios can be reproduced in test environment
-    - *Alternative validation approach:* None
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Resource Constraints**
 
-  **Resource Constraints**
+- **Risk:** N/A
+  - **Mitigation:** Current QE team capacity is sufficient for planned test execution
+  - *Current capacity gaps:* None
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** Current QE team capacity is sufficient for planned test execution
-    - *Current capacity gaps:* None
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Dependencies**
 
-  **Dependencies**
+- **Risk:** N/A
+  - **Mitigation:** No external dependencies.
+  - *Dependent teams or components:* Documentation team for behavior change documentation (non-blocking)
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
-  - **Risk:** N/A
-    - **Mitigation:** No external dependencies.
-    - *Dependent teams or components:* Documentation team for behavior change documentation (non-blocking)
-    - *Sign-off:* Kate Shvaika/2026-05-05
+**Other**
 
-  **Other**
-
-  - **Risk:** N/A
-    - **Mitigation:** No additional mitigation required
-    - *Sign-off:* Kate Shvaika/2026-05-05
+- **Risk:** N/A
+  - **Mitigation:** No additional mitigation required
+  - *Sign-off:* Kate Shvaika/2026-05-05
 
 ---
 
 ### **III. Test Scenarios & Traceability**
-
-<!-- This section links D/S requirements to test coverage, enabling reviewers to verify all requirements are tested. -->
 
 - **[CNV-72238]** — As a user, I want import operations to use the same storage class for scratch space as my target DataVolume
   - *Test Scenario:* [Tier 2] Verify import requiring conversion allocates scratch space using target DataVolume storage class
@@ -421,9 +296,9 @@ justification in mitigation strategy. -->
 
 This Software Test Plan requires approval from the following stakeholders:
 
- * **Reviewers:**
+* **Reviewers:**
   - Jenia Peimer (@jpeimer)
   - Jose Manuel Castano (@joscasta)
   - Danny Sanatar (@dsanatar)
- * **Approvers:**
+* **Approvers:**
   - Ruth Netser (@rnetser)
