@@ -51,8 +51,8 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - A cluster administrator can control the role aggregation strategy and any change to the setting takes effect on the virtualization deployment
-    - When opt-out is enabled, users with project admin, edit, or view roles in a namespace are forbidden from performing actions on virtualization resources
-    - When opt-out is disabled after being enabled, automatic access is restored for users who were previously blocked
+    - When role aggregation is disabled, users with project admin, edit, or view roles in a namespace are forbidden from performing actions on virtualization resources
+    - When role aggregation is enabled after being disabled, automatic access is restored for users who were previously blocked
   - *Note any gaps or missing criteria:* None. Defined in CNV-63822 epic.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -72,7 +72,7 @@ technology, and testability before formal test planning.
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following are confirmed product constraints accepted before testing begins.
 
-None — reviewed and confirmed with [Name/Date — TBD] that no feature limitations apply for
+None — reviewed and confirmed with Ronen Sde-Or (2026-05-13) that no feature limitations apply for
 this release.
 
 #### **3. Technology and Design Review**
@@ -105,13 +105,13 @@ and schedule.
 
 **Testing Goals**
 
-- **[P0]** Verify a cluster administrator can enable role aggregation opt-out and the setting is applied to the virtualization deployment
+- **[P0]** Verify a cluster administrator can disable role aggregation and the setting is applied to the virtualization deployment
 - **[P0]** Verify a cluster administrator can switch the aggregation mode and the change propagates to the virtualization deployment
 - **[P0]** Verify that removing the aggregation configuration resets the virtualization deployment to its original unconfigured state
-- **[P0]** Verify that when opt-out is enabled, an unprivileged user with a project admin role cannot perform virtualization admin actions (receives Forbidden error)
-- **[P0]** Verify that when opt-out is enabled, an unprivileged user with an edit role cannot perform virtualization edit actions (receives Forbidden error)
-- **[P0]** Verify that when opt-out is enabled, an unprivileged user with a view role cannot perform virtualization view actions (receives Forbidden error)
-- **[P0]** Verify that disabling opt-out after it was enabled restores automatic access for users who were previously blocked
+- **[P0]** Verify that when role aggregation is disabled, an unprivileged user with a project admin role cannot perform virtualization admin actions (receives Forbidden error)
+- **[P0]** Verify that when role aggregation is disabled, an unprivileged user with an edit role cannot perform virtualization edit actions (receives Forbidden error)
+- **[P0]** Verify that when role aggregation is disabled, an unprivileged user with a view role cannot perform virtualization view actions (receives Forbidden error)
+- **[P0]** Verify that enabling role aggregation after it was disabled restores automatic access for users who were previously blocked
 
 **Regression Goals**
 
@@ -125,31 +125,31 @@ found will not be classified as defects for this release.
 
 - **Testing OpenShift RBAC infrastructure itself**
   - *Rationale:* Core RBAC evaluation is the responsibility of the OCP platform team; no duplication of their test effort
-  - *PM/Lead Agreement:* [Name/Date — TBD]
+  - *PM/Lead Agreement:* Ronen Sde-Or / 2026-05-13
 
 - **Testing all individual permission rules within virtualization roles**
   - *Rationale:* Individual role rules are not affected by this feature; this feature controls whether roles are aggregated, not the content of the roles themselves
-  - *PM/Lead Agreement:* [Name/Date — TBD]
+  - *PM/Lead Agreement:* Ronen Sde-Or / 2026-05-13
 
 - **External IdP compatibility (LDAP, Active Directory)**
   - *Rationale:* RBAC logic is IdP-agnostic; HTPasswd testing validates the core permission logic
-  - *PM/Lead Agreement:* [Name/Date — TBD]
+  - *PM/Lead Agreement:* Ronen Sde-Or / 2026-05-13
 
 - **Multi-tenant cluster scale testing (100+ users)**
   - *Rationale:* RBAC evaluation overhead is negligible; functional correctness at smaller scale is sufficient
-  - *PM/Lead Agreement:* [Name/Date — TBD]
+  - *PM/Lead Agreement:* Ronen Sde-Or / 2026-05-13
 
 **Test Limitations**
 
 None — reviewed and confirmed that no test limitations apply for this release.
-*Sign-off:* [Name/Date — TBD]
+*Sign-off:* Ronen Sde-Or / 2026-05-13
 
 #### **2. Test Strategy**
 
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Core focus: verify opt-out configuration, RBAC enforcement, and default behavior preservation.
+  - *Details:* Core focus: verify role aggregation configuration, RBAC enforcement, and default behavior preservation.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* All tier 1 and tier 2 tests automated; tier 1 validates configuration, tier 2 validates end-to-end user workflows.
@@ -166,10 +166,10 @@ None — reviewed and confirmed that no test limitations apply for this release.
   - *Details:* N/A — Kubernetes RBAC scales natively; feature does not introduce new scalability concerns.
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Feature is a security enhancement; tests verify users are correctly blocked when opt-out is enabled for all 3 role levels.
+  - *Details:* Feature is a security enhancement; tests verify users are correctly blocked when role aggregation is disabled for all 3 role levels.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* UI changes tracked under [CNV-80935](https://issues.redhat.com/browse/CNV-80935); UI team (sig-ui) owns console testing for opt-out configuration.
+  - *Details:* UI changes tracked under [CNV-80935](https://issues.redhat.com/browse/CNV-80935); UI team (sig-ui) owns console testing for role aggregation configuration.
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* No new metrics or alerts required; feature uses standard Kubernetes RBAC.
@@ -180,13 +180,13 @@ None — reviewed and confirmed that no test limitations apply for this release.
   - *Details:* Default behavior unchanged; backward compatibility with previous API versions maintained.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Verify default behavior preserved across z-stream upgrades; verify opt-out config persists after upgrade.
+  - *Details:* Verify default behavior preserved across z-stream upgrades; verify role aggregation configuration persists after upgrade.
 
 - [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
   - *Details:* No blocking dependencies; upstream and downstream implementations are complete.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
-  - *Details:* UI team (sig-ui) needs to implement and test console changes ([CNV-80935](https://issues.redhat.com/browse/CNV-80935)).
+  - *Details:* UI team (sig-ui) has implemented and tested console changes ([CNV-80935](https://issues.redhat.com/browse/CNV-80935) — done).
 
 **Infrastructure**
 
@@ -227,8 +227,8 @@ None — reviewed and confirmed that no test limitations apply for this release.
 
 The following conditions must be met before testing can begin:
 
-- [ ] Requirements and design documents are **approved and merged**
-- [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
+- [x] Requirements and design documents are **approved and merged**
+- [x] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
 - [x] Upstream implementation **merged** (role aggregation opt-out support)
 - [x] Downstream implementation **complete** (configuration field available in cluster settings)
 - [x] Developer Handoff/QE Kickoff meeting completed
@@ -245,7 +245,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Cannot exhaustively test all RBAC role combinations and permission permutations.
   - **Mitigation:** Focus on the 3 critical role levels (admin, edit, view) covering acceptance criteria; individual permission rules within roles are unaffected by this feature.
   - *Areas with reduced coverage:* Individual permission rules within each virtualization role; only role-level access is validated.
-  - *Sign-off:* [Name/Date — TBD]
+  - *Sign-off:* Ronen Sde-Or / 2026-05-13
 
 **Test Environment**
 
@@ -257,7 +257,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Cannot test with production identity providers (LDAP, Active Directory, OAuth) in the lab.
   - **Mitigation:** RBAC logic is IdP-agnostic; HTPasswd validation covers the enforcement path regardless of IdP.
   - *Alternative validation approach:* Functional validation with HTPasswd covers the RBAC enforcement path regardless of IdP.
-  - *Sign-off:* [Name/Date — TBD]
+  - *Sign-off:* Ronen Sde-Or / 2026-05-13
 
 **Resource Constraints**
 
@@ -266,10 +266,8 @@ The following conditions must be met before testing can begin:
 
 **Dependencies**
 
-- **Risk:** UI changes ([CNV-80935](https://issues.redhat.com/browse/CNV-80935)) are pending; console configuration interface may not be ready for testing.
-  - **Mitigation:** Track progress with UI team (sig-ui); API-level testing can proceed independently of UI.
-  - *Dependent teams or components:* sig-ui — console configuration interface for opt-out
-  - *Sign-off:* [Name/Date — TBD]
+- **Risk:** N/A
+  - **Mitigation:** UI changes ([CNV-80935](https://issues.redhat.com/browse/CNV-80935)) are complete; no remaining external dependencies.
 
 
 ---
@@ -277,7 +275,7 @@ The following conditions must be met before testing can begin:
 ### **III. Test Scenarios & Traceability**
 
 - **[CNV-63822]** — As a cluster admin, I want to control the role aggregation strategy for virtualization resources
-  - *Test Scenario:* [Tier 1] Verify that enabling opt-out mode applies the setting to the virtualization deployment
+  - *Test Scenario:* [Tier 1] Verify that disabling role aggregation applies the setting to the virtualization deployment
   - *Priority:* P0
 
   - *Test Scenario:* [Tier 1] Verify that changing the aggregation mode propagates the updated setting to the virtualization deployment
@@ -286,18 +284,18 @@ The following conditions must be met before testing can begin:
   - *Test Scenario:* [Tier 1] Verify that removing the aggregation configuration resets the virtualization deployment to its original state
   - *Priority:* P0
 
-- **[CNV-63822]** — As a cluster admin, I want to enable opt-out so unprivileged users cannot access virtualization resources
-  - *Test Scenario:* [Tier 2] Verify an unprivileged user with project admin role cannot perform virtualization admin actions when opt-out is enabled (receives Forbidden error)
+- **[CNV-63822]** — As a cluster admin, I want to disable role aggregation so unprivileged users cannot access virtualization resources
+  - *Test Scenario:* [Tier 2] Verify an unprivileged user with project admin role cannot perform virtualization admin actions when role aggregation is disabled (receives Forbidden error)
   - *Priority:* P0
 
-  - *Test Scenario:* [Tier 2] Verify an unprivileged user with edit role cannot perform virtualization edit actions when opt-out is enabled (receives Forbidden error)
+  - *Test Scenario:* [Tier 2] Verify an unprivileged user with edit role cannot perform virtualization edit actions when role aggregation is disabled (receives Forbidden error)
   - *Priority:* P0
 
-  - *Test Scenario:* [Tier 2] Verify an unprivileged user with view role cannot perform virtualization view actions when opt-out is enabled (receives Forbidden error)
+  - *Test Scenario:* [Tier 2] Verify an unprivileged user with view role cannot perform virtualization view actions when role aggregation is disabled (receives Forbidden error)
   - *Priority:* P0
 
-- **[CNV-63822]** — As a cluster admin, I want to disable opt-out to restore default behavior
-  - *Test Scenario:* [Tier 2] Verify that disabling opt-out restores automatic access for previously blocked users
+- **[CNV-63822]** — As a cluster admin, I want to re-enable role aggregation to restore default behavior
+  - *Test Scenario:* [Tier 2] Verify that re-enabling role aggregation restores automatic access for previously blocked users
   - *Priority:* P0
 
 ---
