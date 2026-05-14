@@ -2,7 +2,6 @@ root-approvers: False
 approvers:
   - jpeimer
 reviewers:
-  - duyanyan
   - jpeimer
   - josemacassan
   - kgoldbla
