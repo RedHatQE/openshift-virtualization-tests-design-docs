@@ -104,14 +104,14 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 **Testing Goals**
 
-- **[P0]** Verify source volumes are deleted or retained per the cleanup policy after successful VM storage migration (online, offline, and online+offline)
+- **[P0]** Source volumes are deleted or retained according to the cleanup policy after successful VM storage migration (online, offline, and online+offline)
   - namespace-level cleanup policy
   - migration plan-level cleanup policy
   - combination of namespace-level and migration plan-level cleanup policies
 
-- **[P1]** Verify source volumes are retained when cleanup policy is not configured (default behavior)
+- **[P1]** Source volumes are retained by default when no cleanup policy is configured
 
-- **[P2]** Verify the source DataVolume/PVC behavior when migration fails
+- **[P2]** Source volumes remain available when migration fails
 
 **Out of Scope (Testing Scope Exclusions)**
 
