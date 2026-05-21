@@ -119,15 +119,17 @@ The following items are explicitly Out of Scope for this test cycle and represen
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
 None — all supported product functionality will be tested this cycle.
-  - *Rationale:* Feature scope is well-defined with clear boundaries; all user-facing functionality is testable
-  - *PM/Lead Agreement:* TBD
+
+- *Rationale:* Feature scope is well-defined with clear boundaries; all user-facing functionality is testable
+- *PM/Lead Agreement:* Peter Lauterbach/2026-05-20
 
 **Test Limitations**
 
 The following limitations constrain the test approach for this feature.
 
 None — no test limitations apply for this release
-  - *Sign-off:* Jose Manuel Castano/2026-04-22
+
+- *Sign-off:* Jose Manuel Castano/2026-04-22
 
 #### **2. Test Strategy**
 
