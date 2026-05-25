@@ -20,7 +20,7 @@
 
 ### **Feature Overview**
 
-Some VM disk provisioning operations require temporary scratch space. This feature changes the default storage class selection for scratch space: it now uses the same storage class as the target disk, instead of falling back to the cluster default. Administrators can configure a specific storage class for scratch space to override this behavior.
+Some volume provisioning operations (such as registry imports, image uploads, or certain http imports) require an additional temporary PVC known as a scratch space PVC to act as an intermediary step in processing the data prior to writing it to the target PVC. This feature changes the default storage class selection for scratch space PVCs: it now uses the same storage class as the target volume, instead of falling back to the cluster default. Administrators can still configure a specific scratch space storage class to override this behavior by using the CDI config field `scratchSpaceStorageClass`
 
 ---
 
@@ -33,7 +33,7 @@ technology, and testability before formal test planning.
 
 - [x] **Review Requirements**
   - *List the key D/S requirements reviewed:*
-    - When no scratch space storage class is configured, scratch space must use the same storage class as the target disk
+    - When no scratch space storage class is configured, scratch space must use the same storage class as the target volume
     - When a scratch space storage class is explicitly configured by the administrator, it must override the default same-as-target behavior
     - Existing administrator configurations for scratch space storage class must continue to work unchanged
 
@@ -42,10 +42,10 @@ technology, and testability before formal test planning.
     - Ensures consistent storage provisioning behavior, reducing confusion and configuration errors
     - Aligns temporary resource allocation with production storage requirements
   - *List the customer use cases identified:*
-    - As a VM owner, I want scratch space to use the same storage class as my disk so that provisioning is consistent
+    - As a VM owner, I want scratch space to use the same storage class as my volume so that provisioning is consistent
 
 - [x] **Testability**
-  - *Note any requirements that are unclear or untestable:* None - all requirements are testable through CDI operations (clone, import, upload) with various storage class configurations
+  - *Note any requirements that are unclear or untestable:* None - all requirements are testable through volume provisioning operations (import, upload) with various storage class configurations
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
@@ -77,9 +77,9 @@ None — reviewed and confirmed with Kate Shvaika, Danny Sanatar / 2026-05-05 th
 
 - [x] **Technology Challenges**
   - *List identified challenges:*
-    - Multiple disk provisioning operations can trigger scratch space allocation (clone, import, upload)
+    - Multiple volume provisioning operations can trigger scratch space allocation (import, upload)
   - *Impact on testing approach:*
-    - Tests must cover all disk provisioning operations that use scratch space
+    - Tests must cover all volume provisioning operations that use scratch space
 
 - [x] **API Extensions**
   - *List new or modified APIs:*
@@ -105,15 +105,15 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 
 **Testing Goals**
 
-- **[P0]** Verify that disk provisioning operations automatically allocate scratch space using the same storage class as the target disk when no cluster-level override is configured
+- **[P0]** Verify that volume provisioning operations automatically allocate scratch space using the same storage class as the target volume when no cluster-level override is configured
 - **[P0]** Validate that cluster administrator configuration for scratch space storage class takes priority over the default behavior
-- **[P0]** Confirm consistent scratch space storage class selection across all disk provisioning workflows (clone, import, upload)
+- **[P0]** Confirm consistent scratch space storage class selection across all volume provisioning workflows (import, upload)
 
 **Out of Scope (Testing Scope Exclusions)**
 
 None — reviewed and confirmed that all supported product functionality will be tested this cycle.
 - *Rationale:* Feature changes default storage class selection logic for scratch space only. Scope is narrow and well-defined with clear testable behaviors (default same-as-target vs configured override). All user-facing functionality can be verified through standard disk provisioning operations.
-- *PM/Lead Agreement:* [Name/Date]
+- *PM/Lead Agreement:* Adam Litke, May 26 2026
 
 
 **Test Limitations**
@@ -280,10 +280,6 @@ The following conditions must be met before testing can begin:
   - *Test Scenario:* [Tier 2] Verify upload operation allocates scratch space using target DataVolume storage class
   - *Priority:* P0
 
-- **[CNV-72238]** — As a user, I want clone operations to use the same storage class for scratch space as my source PVC
-  - *Test Scenario:* [Tier 2] Verify PVC clone allocates scratch space using source PVC storage class
-  - *Priority:* P0
-
 - **[CNV-72238]** — As a cluster admin, I want scratchSpaceStorageClass configuration to propagate from HCO to CDI
   - *Test Scenario:* [Tier 2] Verify scratchSpaceStorageClass set in HCO CR propagates to CDI CR configuration
   - *Priority:* P0
@@ -299,8 +295,9 @@ The following conditions must be met before testing can begin:
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - Jenia Peimer (@jpeimer)
-  - Jose Manuel Castano (@joscasta)
-  - Danny Sanatar (@dsanatar)
+  - QE Architect: Ruth Netser (@rnetser)
+  - QE Members (OCP-V): Jenia Peimer (@jpeimer), Jose Manuel Castano (@joscasta)
+  - Developer: Danny Sanatar (@dsanatar)
 * **Approvers:**
-  - Ruth Netser (@rnetser)
+  - QE Architect: Ruth Netser (@rnetser)
+  - QE Lead: Jenia Peimer (@jpeimer)
