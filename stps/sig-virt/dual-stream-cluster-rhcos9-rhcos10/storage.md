@@ -26,7 +26,7 @@ Starting with OCP 4.22, OpenShift Virtualization supports dual-stream clusters r
 
 **Note:** this STP is specific to the OCP 4.22 release cycle and should be reviewed when RHCOS9 or RHCOS10 support changes.
 
-Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually without service disruption. VM live migration with hotplugged volume must work correctly across node types without data loss or corruption.
+Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually. VM live migration with hotplugged volume must work correctly across node types without data loss or corruption.
 
 This STP covers the storage-specific aspects of the feature: validating storage hotplug operations and live migration with attached volumes across RHCOS9 and RHCOS10 nodes.
 
@@ -39,17 +39,11 @@ technology, and testability before formal test planning.
 
 #### **1. Requirement & User Story Review Checklist**
 
-<!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - add an explanation why in the `details` section
-2. Complete the relevant, needed details for the checklist item -->
-
 - [x] **Review Requirements**
-  <!-- Review the D/S (Downstream) requirements as defined in Jira. Understand the difference between Upstream (U/S) and D/S requirements.
-  Example: "VMs must migrate without network downtime exceeding the defined threshold during node maintenance." -->
   - *List the key D/S requirements reviewed:* See Acceptance Criteria and Testing Goals (Sections I.1 and II.1).
 
 - [x] **Understand Value and Customer Use Cases**
-  - *Describe the feature's value to customers:* Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually without service disruption, maintaining VM storage availability and live migration capability with attached volumes throughout the transition.
+  - *Describe the feature's value to customers:* Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually, maintaining VM storage availability and live migration capability with attached volumes throughout the transition.
   - *List the customer use cases identified:*
     - As a cluster admin performing a gradual cluster upgrade, I want to migrate VMs with hotplugged storage between RHCOS9 and RHCOS10 nodes to rebalance workloads without data loss or corruption.
 
@@ -72,34 +66,11 @@ technology, and testability before formal test planning.
 
 #### **2. Known Limitations**
 
-The limitations are documented to ensure alignment between development, QA, and product teams.
-The following are confirmed product constraints accepted before testing begins.
-
-<!-- **Difference from Risks:** Limitations are *known facts* — confirmed constraints that are accepted before testing begins.
-Risks are *uncertainties* — things that might happen and could impact testing.
-Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, won't change this release).
-"IPv6 cluster might not be available for testing" is a **risk** (uncertain, needs a mitigation plan). -->
-
-<!-- Document limitations in the feature itself — constraints, trade-offs, or unsupported scenarios in the product implementation.
-
-**Examples:**
-- The feature only supports YYY storage class
-- Feature does not support IPv6 (only IPv4)
-- No support for ARM64 architecture in this release
-- The feature is incompatible with ZZZ feature
-
-If there are no feature limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no feature limitations apply for this release." -->
-
 None — reviewed and confirmed with Kate Shvaika May 20, 2026 that no feature limitations apply for this release.
 
 #### **3. Technology and Design Review**
 
-<!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if done
-2. Complete the relevant, needed details for the checklist item -->
-
 - [x] **Developer Handoff/QE Kickoff**
-  <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**-->
   - *Key takeaways and concerns:* See Testing Goals (Section II.1) and Test Strategy (Section II.2).
 
 - [x] **Technology Challenges**
@@ -122,9 +93,6 @@ None — reviewed and confirmed with Kate Shvaika May 20, 2026 that no feature l
 This STP serves as the **overall roadmap for testing**, detailing the scope, approach, resources, and schedule.
 
 #### **1. Scope of Testing**
-
-<!-- Briefly describe what will be tested. The scope must **cover functional and non-functional requirements**.
-Must ensure user stories are included and aligned to downstream user stories from Section I. -->
 
 **Testing Goals**
 
