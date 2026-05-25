@@ -11,6 +11,7 @@
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 - **Feature Maturity:**
+  - DP: N/A
   - TP: v4.22
   - GA: v5.0
 
@@ -21,7 +22,7 @@
 
 ### **Feature Overview**
 
-The storage migration cleanup feature allows users to optionally decommission migration plans and legacy PVCs upon successful completion
+The storage migration cleanup feature allows cluster administrators to automatically delete source storage volumes after successfully migrating VMs to new storage classes. Administrators can configure cleanup policies at the namespace level or per-migration plan, choosing to either retain volumes for rollback scenarios or delete them to reduce storage costs. Failed migrations always preserve source volumes to prevent data loss.
 
 ---
 
@@ -118,18 +119,16 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
-None — all supported product functionality will be tested this cycle.
-
-- *Rationale:* Feature scope is well-defined with clear boundaries; all user-facing functionality is testable
-- *PM/Lead Agreement:* Peter Lauterbach/2026-05-20
+- **None** — all supported product functionality will be tested this cycle.
+  - *Rationale:* Feature scope is well-defined with clear boundaries; all user-facing functionality is testable
+  - *PM/Lead Agreement:* Peter Lauterbach/2026-05-20
 
 **Test Limitations**
 
 The following limitations constrain the test approach for this feature.
 
-None — no test limitations apply for this release
-
-- *Sign-off:* Jose Manuel Castano/2026-04-22
+- **None** — no test limitations apply for this release
+  - *Sign-off:* Jose Manuel Castano/2026-04-22
 
 #### **2. Test Strategy**
 
@@ -146,26 +145,26 @@ None — no test limitations apply for this release
 
 **Non-Functional**
 
-- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:* No performance testing currently
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Details:* Not applicable — cleanup is a post-migration operation with no performance impact on migration itself; existing migration performance testing covers the critical path
 
-- [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
-  - *Details:* Not applicable
+- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
+  - *Details:* Not applicable — cleanup scales with existing migration controller capabilities; no new scale requirements introduced
 
-- [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Not security relevant
+- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Details:* Not applicable — feature uses existing RBAC for migration plans; no new security requirements or attack surface introduced
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* Not applicable to QE - usability testing is owned by UI team in https://redhat.atlassian.net/browse/CNV-77404
 
-- [x] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* No Monitoring testing currently
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* Not applicable — cleanup actions are logged through existing migration events; no new metrics or alerts required
 
 **Integration & Compatibility**
 
-- [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+- [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - Does the feature maintain backward compatibility with previous API versions and configurations?
-  - *Details:* No compatibility testing currently
+  - *Details:* Not applicable — feature is additive with optional cleanup policy; existing migrations continue to work with default behavior (retain source volumes); backward compatibility is inherent in the design
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
   - *Details:* Upgrade path evaluated - not applicable. Feature is additive with optional cleanup policy; existing migrations continue to work with default behavior (retain source volumes)
