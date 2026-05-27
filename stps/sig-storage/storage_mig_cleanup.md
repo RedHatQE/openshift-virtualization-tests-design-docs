@@ -80,7 +80,7 @@ None — reviewed and confirmed with Jose Manuel Castano/2026-04-22
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* Reviewed cleanup policy implementation with development team. Feature adds optional cleanup of source PVCs/DataVolumes after successful migration. No untestable aspects identified.
+  - *Key takeaways and concerns:* Reviewed cleanup policy implementation with development team. Feature adds optional cleanup of source storage volumes after successful migration. No untestable aspects identified.
 
 - [x] **Technology Challenges**
   - *List identified challenges:* None — standard storage migration testing approach applies
@@ -177,7 +177,7 @@ The following limitations constrain the test approach for this feature.
 
 **Infrastructure**
 
-- [x] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
+- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
   - *Details:* Not multi-cloud platform testing relevant
 
 #### **3. Test Environment**
@@ -308,4 +308,4 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Approvers:**
   - QE Lead: Ruth Netser (@rnetser)
   - Dev Lead: Alexander Wels (@awels)
-  - PM: Peter Lauterbach (pelauter@redhat.com)
+  - PM: Peter Lauterbach (@pelauter)
