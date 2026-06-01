@@ -35,9 +35,9 @@ technology, and testability before formal test planning.
 
 - [x] **Review Requirements**
   - *List the key D/S requirements reviewed:*
-    - Add cleanup policy option to Migration Plan API/spec to configure whether to retain or delete source DataVolumes/PVCs
+    - Add cleanup policy option to Migration Plan API/spec to configure whether to retain or delete source DV/PVC
     - Implement DV/PVC garbage collection that removes source volumes after successful migrations based on the policy
-    - Plans will always be retained (cleanup applies to DataVolumes/PVCs only, not the Migration Plan object)
+    - Plans will always be retained (cleanup applies to DV/PVC only, not the Migration Plan object)
     - Default behavior is to retain source volumes
 
 - [x] **Understand Value and Customer Use Cases**
@@ -268,22 +268,10 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
-- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the migration spec level for single-namespace migrations, so that I can control whether source volumes are retained or deleted after successful migration
-  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per spec-level cleanup policy in single-namespace migrations
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the namespace level, so that I can apply consistent cleanup behavior across all migrations in those namespaces
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per namespace-level cleanup policy in migrations
   - *Priority:* P0
-
-- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the namespace level for multi-namespace migrations, so that I can apply consistent cleanup behavior across all migrations in those namespaces
-  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per namespace-level cleanup policy in multi-namespace migrations
-  - *Priority:* P0
-
-- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the spec level for multi-namespace migrations, so that I can override namespace-level settings for specific migrations
-  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per spec-level cleanup policy in multi-namespace migrations
-  - *Priority:* P0
-
-- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at both namespace and spec levels, so that I can have default behavior with per-migration overrides
-  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up correctly when both namespace-level and spec-level cleanup policies are configured
-  - *Priority:* P0
-
+  
 - **[CNV-73509]** — As a cluster administrator, I want the system to use default cleanup behavior when no policy is specified, so that existing migrations continue to work without configuration changes
   - *Test Scenario:* [Tier 2] Verify source volumes are retained by default when no cleanup policy is configured
   - *Priority:* P1
