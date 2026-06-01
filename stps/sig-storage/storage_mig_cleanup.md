@@ -35,12 +35,9 @@ technology, and testability before formal test planning.
 
 - [x] **Review Requirements**
   - *List the key D/S requirements reviewed:*
-    - Migration Plan option to select whether to clean up or retain the PVCs
-    - Plans will always be retained (cleanup applies to PVCs only)
-    - Add cleanup policy option to Migration Plan API/spec
-    - Implement garbage collection for successful migration plans
-    - Clean up old PVCs after successful migration based on policy
-    - Configurable option to retain or automatically delete source volumes
+    - Add cleanup policy option to Migration Plan API/spec to configure whether to retain or delete source DataVolumes/PVCs
+    - Implement DV/PVC garbage collection that removes source volumes after successful migrations based on the policy
+    - Plans will always be retained (cleanup applies to DataVolumes/PVCs only, not the Migration Plan object)
     - Default behavior is to retain source volumes
 
 - [x] **Understand Value and Customer Use Cases**
@@ -192,7 +189,7 @@ The following limitations constrain the test approach for this feature.
 
 - **Special Hardware:** N/A
 
-- **Storage:** ODF (ocs-storagecluster-ceph-rbd) and HPP (hostpath-provisioner)
+- **Storage:** ODF (ocs-storagecluster-ceph-rbd-virtualization) and HPP (hostpath-csi-basic)
 
 - **Network:** Default network
 
