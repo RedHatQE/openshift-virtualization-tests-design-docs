@@ -268,8 +268,8 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
-- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the namespace level, so that I can apply consistent cleanup behavior across all migrations in those namespaces
-  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up per namespace-level cleanup policy in migrations
+- **[CNV-73509]** — As a cluster administrator, I want to configure source volume cleanup policy at the plan level and namespace level, so that I can control cleanup behavior with namespace-level policy overriding plan-level policy
+  - *Test Scenario:* [Tier 2] Verify source volumes are retained/cleaned up correctly per plan-level and namespace-level cleanup policies, with namespace-level overriding plan-level when both are configured
   - *Priority:* P0
 
 - **[CNV-73509]** — As a cluster administrator, I want the system to use default cleanup behavior when no policy is specified, so that existing migrations continue to work without configuration changes
