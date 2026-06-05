@@ -110,6 +110,10 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
   - *Rationale:* The opt-out annotation controls whether backup hooks are injected, independent of the guest operating system. The behavior is identical for Linux and Windows VMs. Windows backup/restore is already covered by existing OADP tests.
   - *PM/Lead Agreement:* [Name/Date]
 
+- **UI testing for hook opt-out configuration**
+  - *Rationale:* The feature is annotation-driven via CLI/API with no UI components. Pending PM/UX confirmation that no UI coverage is needed based on customer value assessment.
+  - *PM/Lead Agreement:* [Name/Date]
+
 **Test Limitations**
 
 - **Guest agent unavailability scenario**
@@ -175,7 +179,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - **Storage:** Default storage class with RWX support for VM disk provisioning
 - **Network:** Standard
 - **Required Operators:** OADP Operator
-- **Platform:** Bare metal or cloud (platform-independent feature)
+- **Platform:** PSI
 - **Special Configurations:** Serial test execution required for KubeVirt CR annotation tests to avoid cluster-wide side effects
 
 #### **3.1. Testing Tools & Frameworks**
