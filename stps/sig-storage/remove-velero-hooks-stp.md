@@ -23,7 +23,7 @@
 | Opt-out annotation | A VM or KubeVirt CR annotation that disables Velero hook injection, preventing freeze/unfreeze operations during backups |
 | Cluster-wide opt-out | Setting the opt-out annotation on the KubeVirt CR to disable hooks for all VMs that do not explicitly override it |
 | Per-VM opt-out | Setting the opt-out annotation on a specific VM to override the cluster-wide setting |
-| Guest agent | The QEMU guest agent running inside the VM, used by Velero hooks to freeze/unfreeze the filesystem |
+| Guest agent | The guest agent running inside the VM, used by Velero hooks to freeze/unfreeze the filesystem |
 | OADP | OpenShift API for Data Protection — the operator that provides Velero integration on OpenShift |
 
 
@@ -165,7 +165,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* OCP 4.22 with OpenShift Virtualization 4.22. The feature is also backported to earlier releases (1.6, 1.7, 1.8); testing targets 4.22 only.
+  - *Details:* OCP 4.22 with OpenShift Virtualization 4.22. The feature is also backported to earlier releases (Kubevirt 1.6, 1.7, 1.8); testing targets 4.22 only.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions
   - *Details:* Annotation-based feature with no persistent state to migrate. Upgrade path evaluation: VMs with the annotation set before upgrade will retain it after upgrade; no data migration needed.
@@ -253,7 +253,7 @@ Scenarios trace to epic [CNV-79727](https://redhat.atlassian.net/browse/CNV-7972
   - *Priority:* P0
 
 - **[CNV-79727]** — As a cluster administrator, I want to perform a full backup and restore with hooks disabled
-  - *Test Scenario:* [Tier 2] Deploy a VM configured to opt out of backup hooks. Write test data to the VM. Run a Velero backup. Delete the VM and its namespace. Restore from backup. Confirm the VM is running and test data is intact.
+  - *Test Scenario:* [Tier 2] Deploy a running VM with a per-VM opt-out annotation disabling backup hooks. Write test data to the VM. Run a Velero backup. Delete the VM and its namespace. Restore from backup. Confirm the VM is running and test data is intact.
   - *Priority:* P0
 
 - **[CNV-79727]** — As a cluster administrator, I want to confirm that Velero backups of paused VMs attempt freeze/unfreeze hooks by default
@@ -272,3 +272,4 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Approvers:**
   - QE Architect (OCP-V): [Ruth Netser](@rnetser)
   - QE Member (OCP-V): [Jenia Peimer](@jpeimer)
+  - PM: [Peter Lauterbach](@peterclauterbach)
