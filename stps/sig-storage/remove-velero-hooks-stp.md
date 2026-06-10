@@ -15,6 +15,18 @@
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 
+**Document Conventions:**
+
+| Term | Definition |
+| :--- | :--------- |
+| Velero hooks | Pre- and post-backup annotations on virt-launcher pods that trigger filesystem freeze/unfreeze operations during Velero backups |
+| Opt-out annotation | A VM or KubeVirt CR annotation that disables Velero hook injection, preventing freeze/unfreeze operations during backups |
+| Cluster-wide opt-out | Setting the opt-out annotation on the KubeVirt CR to disable hooks for all VMs that do not explicitly override it |
+| Per-VM opt-out | Setting the opt-out annotation on a specific VM to override the cluster-wide setting |
+| Guest agent | The QEMU guest agent running inside the VM, used by Velero hooks to freeze/unfreeze the filesystem |
+| OADP | OpenShift API for Data Protection — the operator that provides Velero integration on OpenShift |
+
+
 ### **Feature Overview**
 
 Cluster administrators can now control or disable the automatic Velero pre- and post-backup hooks that freeze and unfreeze VM filesystems during backups. Previously, these hooks ran automatically on every Velero backup, executing freeze and unfreeze operations regardless of VM state or guest agent health. This caused backup failures for paused VMs and environments where the guest agent was unavailable or misconfigured. With this feature, administrators can opt out of hook execution per VM or cluster-wide via a simple annotation, giving them granular control over backup behavior without requiring VM restarts. This reduces failed backups, avoids unnecessary guest-agent operations, and improves overall backup reliability for OpenShift Virtualization workloads.
@@ -45,8 +57,9 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
     - **AC1:** When the opt-out annotation is set on a VM, Velero backup operations proceed without attempting filesystem freeze/unfreeze.
     - **AC2:** When no opt-out annotation is set, Velero backup operations attempt filesystem freeze/unfreeze as before.
     - **AC3:** Setting the annotation cluster-wide disables hooks for all VMs that do not explicitly override it.
-    - **AC4:** Adding or removing the annotation takes effect on running VMs without requiring a restart (validated by upstream tests).
+    - **AC4:** Adding or removing the annotation takes effect on running VMs without requiring a restart.
     - **AC5:** Velero backups of paused VMs complete without executing freeze/unfreeze hooks when hooks are disabled.
+    - **AC6:** When no opt-out annotation is set, Velero backups of paused VMs attempt freeze/unfreeze hooks.
   - *Note any gaps or missing criteria:* UC1 (guest agent unavailability) is not directly testable — see Test Limitations in Section II.1. The opt-out behavior is validated through the paused VM and default behavior scenarios, which exercise the same code path.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -144,7 +157,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
   - *Details:* N/A. No new RBAC, auth, or authorization changes. Uses existing VM/KubeVirt CR permissions.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* N/A. No UI changes. Feature is annotation-driven via CLI/API.
+  - *Details:* N/A. No UI changes. Feature is annotation-driven via CLI/API and UI testing doesn't add any customer value. Pending PM/UX confirmation. See "Out of Scope (Testing Scope Exclusions) - UI testing for hook opt-out configuration"
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* N/A. No new metrics or alerts introduced.
@@ -154,11 +167,11 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* OCP 4.22 with OpenShift Virtualization 4.22. The feature is also backported to earlier releases (1.6, 1.7, 1.8); testing targets 4.22 only.
 
-- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions
-  - *Details:* N/A. Annotation-based feature with no persistent state to migrate. Upgrade path evaluation: VMs with the annotation set before upgrade will retain it after upgrade; no data migration needed.
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions
+  - *Details:* Annotation-based feature with no persistent state to migrate. Upgrade path evaluation: VMs with the annotation set before upgrade will retain it after upgrade; no data migration needed.
 
-- [ ] **Dependencies** — Blocked by deliverables from other components/products
-  - *Details:* N/A. No pending team deliveries. OADP operator is pre-existing infrastructure (see Test Environment II.3 and Entry Criteria II.4).
+- [x] **Dependencies** — Blocked by deliverables from other components/products
+  - *Details:* OADP operator required; available in existing test infrastructure (see Test Environment II.3 and Entry Criteria II.4).
 
 - [ ] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
   - *Details:* N/A. The backup hook opt-out only affects Velero hook annotations; no other storage settings share this code path. Existing backup workflows are unchanged when the opt-out is not set.
@@ -175,7 +188,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - **CPU Virtualization:** Standard
 - **Compute Resources:** Standard
 - **Special Hardware:** N/A
-- **Storage:** Default storage class with RWX support for VM disk provisioning
+- **Storage:** `ocs-storagecluster-ceph-rbd-virtualization`
 - **Network:** Standard
 - **Required Operators:** OADP Operator
 - **Platform:** PSI
@@ -197,7 +210,7 @@ The following conditions must be met before testing can begin:
 
 #### **5. Risks**
 
-- [ ] **Timeline/Schedule**
+- [x] **Timeline/Schedule**
   - Mitigation: No risk. Feature is already merged upstream and backported.
 
 - [x] **Test Coverage**
@@ -206,13 +219,13 @@ The following conditions must be met before testing can begin:
   - *Areas with reduced coverage:* Guest agent unavailability scenario.
   - *Sign-off:* Emanuele Prella/28-05-2026
 
-- [ ] **Test Environment**
+- [x] **Test Environment**
   - Mitigation: No risk. Standard cluster with OADP operator, already available in existing test infrastructure.
 
-- [ ] **Untestable Aspects**
+- [x] **Untestable Aspects**
   - Mitigation: No additional untestable aspects beyond the guest agent unavailability scenario documented under Test Coverage above.
 
-- [ ] **Resource Constraints**
+- [x] **Resource Constraints**
   - Mitigation: No risk. Feature scope is small and test count is manageable.
 
 - [x] **Dependencies**
