@@ -23,8 +23,6 @@
 | Opt-out annotation | A VM or KubeVirt CR annotation that disables Velero hook injection, preventing freeze/unfreeze operations during backups |
 | Cluster-wide opt-out | Setting the opt-out annotation on the KubeVirt CR to disable hooks for all VMs that do not explicitly override it |
 | Per-VM opt-out | Setting the opt-out annotation on a specific VM to override the cluster-wide setting |
-| Guest agent | The guest agent running inside the VM, used by Velero hooks to freeze/unfreeze the filesystem |
-| OADP | OpenShift API for Data Protection — the operator that provides Velero integration on OpenShift |
 
 
 ### **Feature Overview**
