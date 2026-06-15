@@ -251,7 +251,7 @@ Scenarios trace to epic [CNV-79727](https://redhat.atlassian.net/browse/CNV-7972
   - *Priority:* P0
 
 - **[CNV-79727]** — As a cluster administrator, I want to perform a full backup and restore with hooks disabled
-  - *Test Scenario:* [Tier 2] Deploy a running VM with a per-VM opt-out annotation disabling backup hooks. Write test data to the VM. Run a Velero backup. Delete the VM and its namespace. Restore from backup. Confirm the VM is running and test data is intact.
+  - *Test Scenario:* [Tier 2] Deploy a running VM with a per-VM opt-out annotation disabling backup hooks. Run a Velero backup. Delete the VM and its namespace. Restore from backup. Confirm the VM is running. Data integrity is not verified because freeze hooks are skipped.
   - *Priority:* P0
 
 - **[CNV-79727]** — As a cluster administrator, I want to confirm that Velero backups of paused VMs attempt freeze/unfreeze hooks by default
