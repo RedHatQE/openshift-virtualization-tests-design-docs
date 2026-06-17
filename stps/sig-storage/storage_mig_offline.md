@@ -157,7 +157,7 @@ No verification activities will be performed for these items, and any related is
 
 None
 
-> **PM Sign-off:** [Name], [Date]
+> **PM Sign-off:** Peter Lauterbach/2026-06-17
 
 #### **2. Test Strategy**
 
@@ -343,3 +343,4 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Approvers:**
   - QE Architect (OCP-V): Ruth Netser (`@rnetser`)
   - Principal Developer: Alexander Wels (`@awels`)
+  - PM: Peter Lauterbach (`@pelauter`)
