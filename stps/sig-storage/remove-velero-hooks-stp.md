@@ -61,8 +61,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
     - **Monitoring:** No new metrics or alerts — the feature is a simple annotation toggle.
-    - **UI:** No UI changes. Feature is annotation-driven via CLI/API and UI testing doesn't add any customer value. See "Out of Scope (Testing Scope Exclusions) - UI testing for hook opt-out configuration"
-    PM LGTM: Peter Lauterbach/16-06-2026
+    - **UI:** No UI changes. Feature is annotation-driven via CLI/API and UI testing doesn't add any customer value. See "Out of Scope (Testing Scope Exclusions) - UI testing for hook opt-out configuration". *PM LGTM:* Peter Lauterbach/16-06-2026
     - **Security:** No RBAC changes — uses existing VM/KubeVirt CR edit permissions.
     - **Performance:** No performance impact.
     - **Scalability:** Cluster-wide toggle propagates to all VMs via standard KubeVirt reconciliation. No documented scale limits.
@@ -99,6 +98,9 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 
 ### **II. Software Test Plan (STP)**
 
+This STP serves as the overall roadmap for testing, detailing the scope, approach, resources, and schedule.
+
+
 #### **1. Scope of Testing**
 
 **Testing Goals**
@@ -107,6 +109,7 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - **[P0]** As a cluster administrator, I want to verify that a per-VM opt-out setting takes precedence over the cluster-wide setting.
 - **[P0]** As a cluster administrator, I want to verify that the opt-out annotation is honored for a paused VM, confirming hooks are not injected regardless of VM state.
 - **[P0]** As a cluster administrator, I want to verify that a full Velero backup and restore workflow completes successfully with hooks disabled.
+
 **Out of Scope (Testing Scope Exclusions)**
 
 - **Backup of a VM in provisioning state (no running pod)**
@@ -235,7 +238,7 @@ The following conditions must be met before testing can begin:
 
 Scenarios trace to epic [CNV-79727](https://redhat.atlassian.net/browse/CNV-79727).
 
-- **[CNV-79727]** — As a cluster administrator, I want to verify that backup hooks are present by default and that the cluster-wide opt-out dynamically adds and removes them on running VMs
+- **[CNV-79727]** — As a cluster administrator, I want to verify that backup hooks are present by default and that the cluster-wide opt-out dynamically adds and removes them on running VMs without requiring a restart
   - *Test Scenario:* [Tier 1] Deploy a VM without opt-out and confirm backup hooks are active. Add the opt-out annotation to the cluster configuration. Confirm backup hooks are removed from the running VM without a restart. Remove the annotation. Confirm backup hooks are restored. (Upstream — kubevirt functional tests)
   - *Priority:* P0
 
