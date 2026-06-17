@@ -189,8 +189,8 @@ None
   - Does the feature trigger backend operations that should be reported to the admin? If so, validate that the user receives clear feedback about the operation and its outcome (e.g., status conditions, events, or notifications indicating success or failure)
   - *Details:* UI testing will be covered in https://redhat.atlassian.net/browse/CNV-77503
 
-- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
-  - *Details:* N/A. No new metrics or alerts are required. Feature does not introduce new metrics or alerts; existing migration monitoring applies to both online and offline VM migrations.
+- [x] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* No new metrics or alerts are required. Existing migration monitoring (including progress field) applies to both online and offline VM migrations. Progress reporting for offline migrations must be verified to ensure it functions correctly.
 
 **Integration & Compatibility**
 
