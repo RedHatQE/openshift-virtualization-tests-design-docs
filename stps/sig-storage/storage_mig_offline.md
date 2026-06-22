@@ -134,12 +134,9 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 The following storage classes are supported for migration testing:
 - **ODF** (ocs-storagecluster-ceph-rbd-virtualization)
 - **HPP** (hostpath-csi-pvc-block)
-- **AWS EBS** (gp3-csi)
-- **Azure Disk** (managed-csi)
-- **GCP PD** (pd-ssd-csi)
 
 Migration combinations will be tested including:
-- Cross-storage class migrations (e.g., ODF ↔ HPP, ODF ↔ AWS EBS)
+- Cross-storage class migrations (e.g., ODF ↔ HPP)
 - Same-storage class migrations (e.g., ODF ↔ ODF, HPP ↔ HPP)
 
 **Volume Mode Coverage**
@@ -226,9 +223,6 @@ None
 
 - **Storage:**
   - Bare Metal: ocs-storagecluster-ceph-rbd-virtualization, hostpath-csi-pvc-block
-  - AWS: gp3-csi
-  - Azure: managed-csi
-  - GCP: pd-ssd-csi
 
 - **Network:** OVN-Kubernetes, IPv4
 
