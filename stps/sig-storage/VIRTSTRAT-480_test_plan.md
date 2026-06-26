@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** [VEP #170: File-Level Restore](https://github.com/kubevirt/enhancements/pull/170)
+- **Enhancement(s):** [VEP #169: File-Level Restore](https://github.com/kubevirt/enhancements/pull/170)
 - **Feature Tracking:** [VIRTSTRAT-480](https://issues.redhat.com/browse/VIRTSTRAT-480) - support single file restore for data protection partners
 - **Epic Tracking:**
   - [CNV-67673](https://issues.redhat.com/browse/CNV-67673) - R&D: Guest-Assisted File-Level Restore
@@ -82,11 +82,11 @@ technology, and testability before formal test planning.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
-    - Security: Dedicated `filerestore` user with SSH command-restriction via `authorized_keys`, sudoers configuration, Kubernetes RBAC roles (admin/editor/viewer)
-    - Security: SSH key pair lifecycle management (generation, rotation, secret storage)
-    - Security: Command injection prevention in guest helper scripts
-    - Usability: Clear error reporting through CR status conditions and events
-    - Monitoring: Operator exposes standard controller-runtime reconciliation metrics. No custom alerts or feature-specific metrics defined for Dev Preview.
+    - Security: Restore operations use authenticated, restricted guest access with dedicated user and RBAC roles (admin/editor/viewer)
+    - Security: Credentials used for guest access are generated per-operation and cleaned up after completion
+    - Security: Guest helper scripts prevent command injection
+    - Usability: Clear error reporting through restore status and events
+    - Monitoring: Operator exposes standard reconciliation metrics via secure endpoint. No custom alerts or feature-specific metrics defined for Dev Preview.
   - *Note any NFRs not covered and why:*
     - Performance: No latency/throughput targets defined for Dev Preview
     - Scale: No concurrent restore limits defined beyond "parallel restores of same VM not supported"
@@ -100,9 +100,6 @@ technology, and testability before formal test planning.
   - *Sign-off:* [TBD]
 
 - **Remote storage (S3) source is not supported in Dev Preview; only PVC and VolumeSnapshot sources**
-  - *Sign-off:* [TBD]
-
-- **VSOCK-based guest communication was explored but not implemented; SSH over network is used instead**
   - *Sign-off:* [TBD]
 
 - **The `DeclarativeHotplugVolumes` feature gate must be enabled in KubeVirt for the operator to function**
@@ -134,10 +131,8 @@ technology, and testability before formal test planning.
 
 - [x] **API Extensions**
   - *List new or modified APIs:*
-    - New CRD: `VirtualMachineFileRestore` (API group: `filerestore.kubevirt.io/v1alpha1`)
-    - Spec fields: `target` (VM reference), `source` (PVC/VolumeSnapshot/Remote), `sourcePath`, `targetPath`, `sourcePartition`
-    - Status: `phase` (RestorePhase enum), `conditions` (Completed, Progressing), `startTimestamp`, `completionTimestamp`
-  - *Testing impact:* All CRUD operations on the CRD must be tested. State machine phase transitions must be validated. Status conditions must be verified for both success and failure paths.
+    - New file restore API — users create restore requests specifying a target VM, backup source (PVC or VolumeSnapshot), and file paths. Status provides phase tracking and completion information.
+  - *Testing impact:* All create, read, update, and delete operations on the file restore API must be tested. Restore phase transitions must be validated. Status must be verified for both success and failure paths.
 
 - [x] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
@@ -169,7 +164,7 @@ to a future release under CNV-89229.
 - [P0] Verify temporary resources created during restore are cleaned up after the operation completes
 - [P0] Verify guest connection during restore is authenticated and secure
 - [P0] Verify the system rejects invalid restore requests with clear validation errors
-- [P0] Verify end-to-end restore workflow from CR creation to file verification using the VirtualMachineFileRestore API
+- [P0] Verify end-to-end restore workflow from restore request creation to file verification using the file restore API
 - [P1] Verify file restore on Linux VM with ext4 and XFS filesystems preserves file content and handles filesystem-specific constraints
 - [P1] Verify file restore on Windows VM completes with NTFS metadata preserved
 - [P1] Verify the system reports a clear, actionable error when the restore helper is not available in the VM
@@ -180,15 +175,14 @@ to a future release under CNV-89229.
 - [P1] Verify hotplugged backup volumes are attached read-only so backup data cannot be accidentally modified
 - [P1] Verify files are restored from root disk backup to their original location in a running Linux VM
 - [P1] Verify sequential restore operations from the same snapshot complete with proper cleanup between each
-- [P1] Verify the restore CR status reflects each phase of the operation so that progress can be monitored
+- [P1] Verify the restore status reflects each phase of the operation so that progress can be monitored
 - [P1] Verify temporary resources are cleaned up even when a restore operation fails at any stage
 - [P1] Verify the file restore operator deploys and operates correctly as an HCO-managed component
 - [P2] Verify cross-namespace restore from a volume in a different namespace completes with proper resource management
 - [P2] Verify restore succeeds when the source volume's storage mode differs from the cluster default
 - [P2] Verify restore from an LVM-based snapshot handles volume identifier collisions correctly
 - [P2] Verify concurrent restore prevention rejects a second simultaneous restore to the same VM
-- [P2] Verify the file restore feature deploys as a managed component with proper security configuration
-- [P2] Verify paths with formatting variations are normalized correctly before restore execution
+- [P2] Verify paths with formatting variations (trailing slashes, double slashes) are handled correctly during restore
 - [P2] Verify the system handles guest connection loss during file transfer gracefully with partial completion status
 - [P2] Verify operator upgrade preserves existing restore resources and their status
 - [P2] Verify manual file browsing mode works on a Windows VM with NTFS backup volumes
@@ -229,49 +223,49 @@ No verification activities will be performed for these items, and any related is
 
 **Functional**
 
-- [x] **Functional Testing** -- Validates that the feature works according to specified requirements and user stories
+- [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
   - *Details:* Comprehensive functional testing covering both automatic and manual restore modes, Linux and Windows guest support, PVC and VolumeSnapshot sources, error scenarios, and resource cleanup. Each restore phase transition is validated.
 
-- [x] **Automation Testing** -- Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
+- [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* All Tier 1 functional tests automated in Go/Ginkgo and integrated into CI. Tier 2 end-to-end tests automated in Python/pytest for cross-component workflow validation. Tier 3 specialized tests (Windows guest, resource-intensive multi-VM concurrency) planned for automation when infrastructure is available. Upstream e2e tests already exist in the vm-file-restore-operator repository.
 
-- [x] **Regression Testing** -- Verifies that new changes do not break existing functionality
+- [x] **Regression Testing** — Verifies that new changes do not break existing functionality
   - *Details:* Regression impact analysis identified 3 critical dependency areas: (1) volume hotplug operations, (2) volume lifecycle state management, (3) storage controller allocation. Existing hotplug, provisioning, and volume management test suites provide regression coverage for these integration points.
 
 **Non-Functional**
 
-- [ ] **Performance Testing** -- Validates feature performance meets requirements (latency, throughput, resource usage)
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
   - *Details:* N/A for Dev Preview. No performance targets defined. Will be addressed in TP/GA phases.
 
-- [ ] **Scale Testing** -- Validates feature behavior under increased load and at production-like scale
+- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
   - *Details:* N/A for Dev Preview. Concurrent restore prevention is tested as a functional requirement.
 
-- [x] **Security Testing** -- Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Validate RBAC roles (admin/editor/viewer) for VirtualMachineFileRestore operations. Verify SSH command restriction via authorized_keys.
+- [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Details:* Validate RBAC roles (admin/editor/viewer) for file restore operations. Verify guest access is restricted to authorized restore commands only.
 
-- [x] **Usability Testing** -- Validates user experience and accessibility requirements
-  - *Details:* No UI required per feature specification. Validate that VirtualMachineFileRestore CR status conditions provide clear feedback about operation progress and outcome. Verify error messages are informative when guest helper is missing or SSH connection fails.
+- [x] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* No UI required per feature specification. Validate that restore status provides clear feedback about operation progress and outcome. Verify error messages are informative when guest helper is missing or guest connection fails.
 
-- [x] **Monitoring** -- Does the feature require metrics and/or alerts?
-  - *Details:* Operator exposes standard controller-runtime reconciliation metrics via TLS-protected endpoint. No custom alerts or feature-specific metrics defined for Dev Preview. Metrics endpoint accessibility will be validated.
+- [x] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* Operator exposes standard reconciliation metrics via secure endpoint. No custom alerts or feature-specific metrics defined for Dev Preview. Metrics endpoint accessibility will be validated.
 
 **Integration & Compatibility**
 
-- [x] **Compatibility Testing** -- Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* Validate compatibility with KubeVirt DeclarativeHotplugVolumes feature gate. Verify CRD backward compatibility for v1alpha1 API.
+- [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+  - *Details:* Validate compatibility with KubeVirt DeclarativeHotplugVolumes feature gate. Verify file restore API backward compatibility.
 
-- [x] **Upgrade Testing** -- Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Verify operator upgrade preserves existing VirtualMachineFileRestore CRs and their status. First release; no prior version to upgrade from, but HCO integration upgrade path must be validated.
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* Verify operator upgrade preserves existing file restore resources and their status. First release; no prior version to upgrade from, but HCO integration upgrade path must be validated.
 
-- [x] **Dependencies** -- Blocked by deliverables from other components/products
-  - *Details:* Depends on HCO team to add vm-file-restore-operator as an HCO-managed component for downstream delivery (CNV-89642). HCO integration includes CSV generation, certificate rotation configuration, and operator-sdk bundle generation.
+- [x] **Dependencies** — Blocked by deliverables from other components/products
+  - *Details:* Depends on HCO team to add file restore operator as an HCO-managed component for downstream delivery (CNV-89642). HCO integration includes operator lifecycle management and certificate rotation.
 
-- [x] **Cross Integrations** -- Does the feature affect other features or require testing by other teams?
-  - *Details:* File restore uses KubeVirt hotplug API; changes to hotplug admission or lifecycle may affect restore. CDI DataVolume pipeline changes (especially VolumeMode handling) may affect snapshot-based restore. Backup/DR Vendors will need to validate their integration with the new CRD.
+- [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
+  - *Details:* File restore uses volume hotplug; changes to hotplug admission or lifecycle may affect restore. CDI storage pipeline changes (especially volume mode handling) may affect snapshot-based restore. Backup/DR Vendors will need to validate their integration with the file restore API.
 
 **Infrastructure**
 
-- [ ] **Cloud Testing** -- Does the feature require multi-cloud platform testing?
+- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing?
   - *Details:* N/A for Dev Preview. Cloud-specific storage considerations will be evaluated for TP/GA.
 
 #### **3. Test Environment**
@@ -404,15 +398,15 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-88322]** — As a VM user, I want the guest connection during restore to be authenticated and secure
-  - *Test Scenario:* [Tier 1] Verify the guest connection during restore uses authenticated credentials with proper lifecycle management (generation, storage, cleanup)
+  - *Test Scenario:* [Tier 1] Verify the guest connection during restore is authenticated and credentials are cleaned up after completion
   - *Priority:* P0
 
 - **[CNV-88322]** — As a VM user, I want the system to reject invalid restore requests with clear validation errors
-  - *Test Scenario:* [Tier 1] Verify the system rejects restore requests with missing required fields, invalid source types, or malformed parameters with clear error messages
+  - *Test Scenario:* [Tier 1] Verify the system rejects invalid restore requests with clear error messages
   - *Priority:* P0
 
-- **[VIRTSTRAT-480]** — As a backup vendor, I want a declarative KubeVirt API for file-level restore so that I can integrate it into my backup product
-  - *Test Scenario:* [Tier 2] Verify end-to-end restore workflow from CR creation to file verification using the VirtualMachineFileRestore API
+- **[VIRTSTRAT-480]** — As a backup vendor, I want a declarative API for file-level restore so that I can integrate it into my backup product
+  - *Test Scenario:* [Tier 2] Verify end-to-end restore workflow from restore request creation to file verification using the file restore API
   - *Priority:* P0
 
 - **[CNV-88323]** — As a Linux VM user, I want to restore files on ext4 and XFS filesystems with file integrity
@@ -459,12 +453,12 @@ The following conditions must be met before testing can begin:
   - *Test Scenario:* [Tier 2] Verify sequential restore operations from the same snapshot complete with proper cleanup between each
   - *Priority:* P1
 
-- **[CNV-73895]** — As a VM admin, I want the restore CR status to clearly reflect each phase of the operation so that I can monitor progress
-  - *Test Scenario:* [Tier 1] Verify CR status progresses through expected phases during a successful restore operation
+- **[CNV-73895]** — As a VM admin, I want the restore status to clearly reflect each phase of the operation so that I can monitor progress
+  - *Test Scenario:* [Tier 1] Verify restore status progresses through expected phases during a successful restore operation
   - *Priority:* P1
 
 - **[CNV-73895]** — As a VM admin, I want temporary volumes to be cleaned up even when a restore fails so that resources are not leaked
-  - *Test Scenario:* [Tier 1] Verify cleanup occurs and CR transitions to Failed status when restore encounters an error mid-operation
+  - *Test Scenario:* [Tier 1] Verify cleanup occurs and restore transitions to Failed status when restore encounters an error mid-operation
   - *Priority:* P1
 
 - **[CNV-88321]** — As a cluster admin, I want the file restore operator to be managed by HCO so that it follows the standard operator lifecycle
@@ -492,7 +486,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-88322]** — As a VM user, I want paths with formatting variations to be normalized correctly before restore
-  - *Test Scenario:* [Tier 1] Verify source and target paths with trailing slashes, double slashes, or relative components are normalized to canonical form before restore execution
+  - *Test Scenario:* [Tier 1] Verify restore handles source and target paths with trailing slashes, double slashes, or relative components correctly
   - *Priority:* P2
 
 - **[CNV-88322]** — As a VM user, I want the system to handle guest connection loss during file transfer gracefully
@@ -504,7 +498,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-84209]** — As a VM user, I want to restore files from an LVM-based volume snapshot of the root disk so that I can recover data even when UUID collisions exist
-  - *Test Scenario:* [Tier 1] Verify restore succeeds from root disk snapshot with XFS filesystem
+  - *Test Scenario:* [Tier 2] Verify restore succeeds from root disk snapshot with XFS filesystem
   - *Priority:* P2
 
 - **[CNV-73895]** — As a VM admin, I want the operator to handle rate limiting when polling for volume attachment and SSH connectivity so that the API server is not overloaded
