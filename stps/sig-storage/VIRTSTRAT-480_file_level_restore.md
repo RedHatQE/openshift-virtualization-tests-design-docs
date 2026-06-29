@@ -144,6 +144,8 @@ technology, and testability before formal test planning.
   - *Describe topology requirements:* Multi-node cluster required for hotplug volume attachment. Cross-namespace PVC restore requires namespace-level RBAC verification.
   - *Impact on test design:* Tests must run on multi-node clusters with VolumeSnapshot support enabled. Cross-namespace tests require additional namespace setup and RBAC configuration.
 
+---
+
 ### **II. Software Test Plan (STP)**
 
 This STP serves as the **overall roadmap for testing**, detailing the scope, approach, resources, and schedule.
@@ -181,13 +183,14 @@ to a future release under CNV-89229.
 - [P1] Verify the restore status reflects each phase of the operation so that progress can be monitored
 - [P1] Verify temporary resources are cleaned up even when a restore operation fails at any stage
 - [P1] Verify the file restore operator deploys and operates correctly as an HCO-managed component
-- [P2] Verify cross-namespace restore from a volume in a different namespace completes with proper resource management
+- [P2] Verify cross-namespace restore from a volume in a different namespace completes with temporary resources cleaned up after completion
 - [P2] Verify restore succeeds when the source volume's storage mode differs from the cluster default
-- [P2] Verify restore from an LVM-based snapshot handles volume identifier collisions correctly
+- [P2] Verify restore from an LVM-based snapshot handles volume identifier collisions without mount failures
 - [P2] Verify concurrent restore prevention rejects a second simultaneous restore to the same VM
-- [P2] Verify paths with formatting variations (trailing slashes, double slashes) are handled correctly during restore on Linux (ext4, XFS) and Windows (NTFS) guests
+- [P2] Verify paths with formatting variations (trailing slashes, double slashes) are normalized and restore succeeds on Linux (ext4, XFS) and Windows (NTFS) guests
 - [P2] Verify the system handles guest connection loss during file transfer gracefully with partial completion status
 - [P2] Verify operator upgrade preserves existing restore resources and their status
+- [P2] Verify restore operations handle edge cases including large files, root disk snapshots, cross-filesystem constraints, concurrent multi-VM operations, and API server rate-limiting resilience
 - [P2] Verify manual file browsing mode works on a Windows VM with NTFS backup volumes
 
 **Out of Scope (Testing Scope Exclusions)**
@@ -208,7 +211,7 @@ No verification activities will be performed for these items, and any related is
   - *PM/Lead Agreement:* [TBD]
 
 - **VSOCK-based guest communication**
-  - *Rationale:* Design explored but dropped in favor of SSH over network
+  - *Rationale:* Design explored but dropped in favor of SSH over network for Dev Preview
   - *PM/Lead Agreement:* [TBD]
 
 **Test Limitations**
@@ -237,7 +240,7 @@ No verification activities will be performed for these items, and any related is
 
 **Non-Functional**
 
-- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+- [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
   - *Details:* N/A for Dev Preview. No performance targets defined. Will be addressed in TP/GA phases.
 
 - [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
@@ -275,7 +278,7 @@ No verification activities will be performed for these items, and any related is
 
 - **Cluster Topology:** Multi-node (minimum 2 worker nodes)
 
-- **OCP & CNV Version(s):** OCP 4.23+ / CNV 5.0+
+- **OCP & CNV Version(s):** OCP 5.0+ / CNV 5.0+
 
 - **CPU Virtualization:** Standard (no specific CPU requirements)
 
@@ -372,7 +375,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-73895]** — As a VM admin, I want to restore specific files and directories from a volume snapshot into a running VM without disrupting it
-  - *Test Scenario:* [Tier 1] Verify files and directories are restored from a volume snapshot without interrupting VM availability (validated via continuous guest accessibility during restore)
+  - *Test Scenario:* [Tier 1] Verify files and directories are restored from a volume snapshot without interrupting VM availability
   - *Priority:* P0
 
 - **[CNV-88322]** — As a VM admin, I want to use manual restore mode to browse and selectively copy files from backup
@@ -400,7 +403,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-88322]** — As a VM user, I want the guest connection during restore to be authenticated and secure
-  - *Test Scenario:* [Tier 1] Verify the guest connection during restore is authenticated and credentials are cleaned up after completion
+  - *Test Scenario:* [Tier 1] Verify the guest connection during restore is authenticated
   - *Priority:* P0
 
 - **[CNV-88322]** — As a VM user, I want the system to reject invalid restore requests with clear validation errors
@@ -468,14 +471,14 @@ The following conditions must be met before testing can begin:
   - *Priority:* P1
 
 - **[CNV-73895]** — As a VM admin, I want to restore files from a backup volume in a different namespace
-  - *Test Scenario:* [Tier 2] Verify restore from a volume in a different namespace completes successfully with proper resource management and cleanup
+  - *Test Scenario:* [Tier 2] Verify restore from a volume in a different namespace completes successfully with temporary resources cleaned up after completion
   - *Priority:* P2
 
 - **[CNV-90086]** — As a VM user, I want restore to succeed when the source volume's storage mode differs from the cluster default
   - *Test Scenario:* [Tier 2] Verify restore from a volume snapshot completes successfully when the source volume's storage mode differs from the cluster default
   - *Priority:* P2
 
-- **[CNV-84209]** — As a VM user, I want restore from LVM-based snapshots to handle volume identifier collisions correctly
+- **[CNV-84209]** — As a VM user, I want restore from LVM-based snapshots to handle volume identifier collisions without mount failures
   - *Test Scenario:* [Tier 2] Verify restore from LVM-based snapshot mounts successfully despite identifier collision with the original volume
   - *Priority:* P2
 
@@ -488,7 +491,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-88322]** — As a VM user, I want paths with formatting variations to be normalized correctly before restore
-  - *Test Scenario:* [Tier 1] Verify restore handles source and target paths with trailing slashes, double slashes, or relative components correctly
+  - *Test Scenario:* [Tier 1] Verify restore normalizes source and target paths with trailing slashes, double slashes, or relative components and completes successfully
   - *Priority:* P2
 
 - **[CNV-88322]** — As a VM user, I want the system to handle guest connection loss during file transfer gracefully
@@ -508,7 +511,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P2
 
 - **[CNV-73895]** — As a VM user, I want to manually browse files from a root disk backup so that I can inspect and selectively restore specific files
-  - *Test Scenario:* [Tier 2] Verify manual file browsing from root disk backup (VolumeSnapshot and PVC) in VolumeReady mode
+  - *Test Scenario:* [Tier 2] Verify manual file browsing from root disk backup (VolumeSnapshot and PVC) when the backup volume is ready for browsing
   - *Priority:* P2
 
 - **[CNV-73895]** — As a VM user, I want to restore a large file (1GB) from a data disk snapshot so that I can verify the operator handles big transfers reliably
