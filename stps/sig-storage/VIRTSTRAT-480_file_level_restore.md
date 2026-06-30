@@ -86,7 +86,7 @@ technology, and testability before formal test planning.
     - Security: Credentials used for guest access are generated per-operation and cleaned up after completion
     - Security: Guest helper scripts prevent command injection
     - Usability: Clear error reporting through restore status and events
-    - UI: No UI changes introduced; feature is API-only. Confirmed with PM that no console integration is planned for Dev Preview.
+    - UI: No UI changes introduced; feature is API-only. Confirmed with PM that no console integration is planned for Dev Preview. See Section "II - Out of Scope".
     - Monitoring/Observability: Operator exposes standard reconciliation metrics via secure endpoint. No custom alerts or feature-specific metrics defined for Dev Preview.
     - Docs: User-facing documentation for the file restore API and guest helper setup will be validated as part of Dev Preview delivery.
   - *Note any NFRs not covered and why:*
@@ -97,22 +97,22 @@ technology, and testability before formal test planning.
 #### **2. Known Limitations**
 
 - **Backup file browsing is not supported; users must know the path of files to restore**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 - **Parallel file restores of the same VM are not supported**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 - **Remote storage (S3) source is not supported in Dev Preview; only PVC and VolumeSnapshot sources**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 - **The `DeclarativeHotplugVolumes` feature gate must be enabled in KubeVirt for the operator to function**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 - **Guest helper script must be pre-installed in the VM; the operator does not install it automatically**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 - **SSH access must be configured on the VM with the `filerestore` user; the operator does not configure guest SSH automatically**
-  - *Sign-off:* [TBD]
+  - *PM Sign-off:* [TBD]
 
 #### **3. Technology and Design Review**
 
@@ -199,7 +199,7 @@ The following items are explicitly Out of Scope for this test cycle and represen
 No verification activities will be performed for these items, and any related issues found will not be classified as defects for this release.
 
 - **Performance/scale testing**
-  - *Rationale:* No performance targets defined for Dev Preview; will be addressed in TP/GA phases
+  - *Rationale:* No performance targets defined for Dev Preview;
   - *PM/Lead Agreement:* [TBD]
 
 - **Disk encryption (LUKS/BitLocker)**
@@ -214,16 +214,20 @@ No verification activities will be performed for these items, and any related is
   - *Rationale:* Design explored but dropped in favor of SSH over network for Dev Preview
   - *PM/Lead Agreement:* [TBD]
 
+- **UI testing**
+  - *Rationale:* The feature is API-only with no UI components. PM/Lead confirmed no UI coverage is needed based on customer value assessment.
+  - *PM/Lead Agreement:* [TBD]
+
 **Test Limitations**
 
 - Windows VM testing requires a Windows guest image with SSH support configured; image availability may be limited
-  - *Sign-off:* [TBD]
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 - LVM-based snapshot testing requires LVM-backed storage provisioner in the test cluster
-  - *Sign-off:* [TBD]
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 - Guest helper script installation is a manual prerequisite; automated provisioning is not available from the operator, but instrumentation scripts will be provided to assist with installation.
-  - *Sign-off:* [TBD]
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 #### **2. Test Strategy**
 
@@ -324,47 +328,45 @@ The following conditions must be met before testing can begin:
 - **Risk:** Dev Preview implementation stories (CNV-88322, CNV-88323, CNV-88324) are still in progress; test automation (CNV-90681) has not started
   - **Mitigation:** Align test development with implementation milestones. Start test framework setup and stub generation in parallel with ongoing development.
   - *Estimated impact on schedule:* Possible delay if implementation stories extend
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Test Coverage**
 
 - **Risk:** Windows guest testing may have limited coverage due to image availability and configuration complexity
   - **Mitigation:** Prioritize Linux guest testing for Dev Preview. Establish Windows test VM image with SSH pre-configured.
   - *Areas with reduced coverage:* Windows guest restore
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Test Environment**
 
 - **Risk:** LVM-backed storage for UUID collision testing may not be available in standard CI environments
   - **Mitigation:** Use dedicated test environment with LVM provisioner or mock the UUID collision scenario at the operator level.
-  - *Missing resources or infrastructure:* LVM storage provisioner in CI
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Untestable Aspects**
 
 - **Risk:** Direct integration with third-party Backup/DR Vendors cannot be tested in CI; vendor-specific restore workflows rely on proprietary backup formats
   - **Mitigation:** Test the CRD API surface that vendors integrate with. Validate PVC-based restore path which is the vendor integration point.
-  - *Alternative validation approach:* API-level testing with synthetic backup PVCs simulating vendor workflow
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Resource Constraints**
 
 - **Risk:** New standalone operator requires QE ramp-up on vm-file-restore-operator codebase, CRD design, and guest helper scripts
   - **Mitigation:** QE spike (CNV-86827) already completed. Leverage upstream e2e tests as reference for downstream test development.
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Dependencies**
 
 - **Risk:** Feature depends on KubeVirt DeclarativeHotplugVolumes feature gate and CDI DataVolume pipeline; changes in either could break file restore
-  - **Mitigation:** Monitor KubeVirt and CDI upstream for breaking changes. Regression analysis identified 67 non-test references across 3 dependency chains. Include integration regression tests in CI.
+  - **Mitigation:** Monitor KubeVirt and CDI upstream for breaking changes. Include integration regression tests in CI.
   - *Dependent teams or components:* KubeVirt core (hotplug), CDI (DataVolume), HCO (operator lifecycle)
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 **Other**
 
 - **Risk:** VEP review feedback from a Backup/DR Vendor indicated PVC-based restore adds an "unnecessary extra hop" compared to direct guest file API similar to a Virtualization Infrastructure Vendor Guest Operations API. This may lead to API redesign in future phases.
   - **Mitigation:** Dev Preview scope is limited to PVC/VolumeSnapshot sources. Monitor vendor feedback for TP/GA scope adjustments.
-  - *Sign-off:* TBD
+  - *Sign-off:* [Emanuele Prella](@ema-aka-young)/30-06-2026
 
 ---
 
