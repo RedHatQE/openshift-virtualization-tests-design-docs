@@ -32,7 +32,7 @@ Centralize QE documentation and test planning to ensure:
 | Guide                                          | Description                                                                        |
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
 | [STP Guide](./docs/stp-guide.md)               | Complete guide to Software Test Plans: structure, lifecycle, and best practices    |
-| [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), and Tier 2 (End-to-End) tests |
+| [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
 
 ### Templates
 
@@ -50,13 +50,14 @@ Centralize QE documentation and test planning to ensure:
 | **NFR**    | Non-Functional Requirements (performance, security, monitoring, etc.) |
 | **Tier 1** | Functional tests covering individual features                         |
 | **Tier 2** | End-to-end tests covering complete workflows                          |
+| **Tier 3** | Extended validation tests with higher execution cost                   |
 
 ### Testing Tiers
 
 ```text
-Unit Tests → Tier 1 (Functional) → Tier 2 (End-to-End)
-  Many          Moderate              Few
-Isolated       Feature-level      Full Integration
+Unit Tests → Tier 1 (Functional) → Tier 2 (End-to-End) → Tier 3 (Extended)
+  Many          Moderate              Few                    Fewest
+Isolated       Feature-level      Full Integration      Dedicated Cycles
 ```
 
 See [Testing Tiers Guide](./docs/testing-tiers.md) for details.
@@ -82,7 +83,7 @@ graph TD
 
 2. **STP Creation**
    - Document scope, strategy, environment, risks
-   - Define Tier 1 and Tier 2 test coverage
+   - Define Tier 1 and Tier 2 test coverage (Tier 3 where applicable)
    - List untestable aspects with stakeholder agreement
 
 3. **Enhancement Freeze (EF)**

@@ -190,7 +190,7 @@ Regression tests are documented in Test Strategy (II.2), not in this table. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
   - *Test Scenario:* [Description]
-  - *Tier:* [1 or 2]
+  - *Tier:* [1, 2, or 3]
   - *Priority:* [P0/P1/P2]
 
 ---
