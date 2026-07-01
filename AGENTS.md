@@ -228,7 +228,7 @@ Assisted-by: Claude <noreply@anthropic.com>
   In the scenarios table, multiple test scenarios mapped to the same requirement
   may leave the Requirement ID cell blank in continuation rows.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
-- [ ] Each scenario has Tier (1 or 2) and Priority (P0/P1/P2)
+- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2)
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
 - [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items
@@ -237,6 +237,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 **Tier classification:**
 - **Tier 1**: Single feature, isolated — API validation, basic CRUD, single operation
 - **Tier 2**: End-to-end user workflows, multi-feature integration, upgrade paths
+- **Tier 3**: Extended validation — tests with higher execution cost (longer runtime, heavier resource usage, or complex setup) that typically run in dedicated test cycles rather than standard CI lanes
 
 **Common rejection reasons:**
 - All requirement IDs are "[TBD]" — blocks approval

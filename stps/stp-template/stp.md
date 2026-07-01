@@ -452,6 +452,10 @@ justification in mitigation strategy. -->
   - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
   - *Priority:* P2
 
+- **[Jira-127]** — As a Windows VM user...
+  - *Test Scenario:* [Tier 3] Verify feature X works on Windows guest with NTFS filesystem
+  - *Priority:* P1
+
 ---
 
 ### **IV. Sign-off and Approval**
