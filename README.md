@@ -83,7 +83,7 @@ graph TD
 
 2. **STP Creation**
    - Document scope, strategy, environment, risks
-   - Define Tier 1, Tier 2, and Tier 3 test coverage
+   - Define Tier 1 and Tier 2 test coverage (Tier 3 where applicable)
    - List untestable aspects with stakeholder agreement
 
 3. **Enhancement Freeze (EF)**
