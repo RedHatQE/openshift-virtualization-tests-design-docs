@@ -117,6 +117,9 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 - [ ] **Regression Testing**
   - *Details:* [Which existing SIG test suites run on the feature cluster]
 
+- [ ] **Self-Validation Testing** — Tests to include in the self-validation package
+  - *Details:* [SIG-specific, or "Covered by parent STP"]
+
 **Non-Functional**
 
 - [ ] **Performance Testing**

@@ -99,6 +99,7 @@ QE perspective on testing priorities:
 - Usability Testing
 - Compatibility Testing
 - Regression Testing
+- Self-Validation Testing
 - Upgrade Testing
 - Backward Compatibility Testing
 

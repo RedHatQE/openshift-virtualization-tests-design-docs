@@ -160,10 +160,12 @@ Assisted-by: Claude <noreply@anthropic.com>
 ### II.2 — Test Strategy
 
 - [ ] All testing types are addressed (checked or unchecked with justification)
-- [ ] All 13 testing types from the template are present (Functional, Automation, Regression,
+- [ ] All 14 testing types from the template are present (Functional, Automation, Regression, Self-Validation,
   Performance, Scale, Security, Usability, Monitoring, Compatibility, Upgrade, Dependencies,
   Cross Integrations, Cloud Testing)
 - [ ] Unchecked items without details = incomplete review — flag this
+- [ ] Self-Validation: if the feature introduces core operational scenarios, confirm whether
+  any new tests should be included in the self-validation test package
 - [ ] Usability Testing: if checked, must describe what QE tests (not "UI team owns it")
 - [ ] If UI team owns UI testing, uncheck Usability and note in details
 - [ ] Monitoring: explicitly state whether alerts/metrics are required
