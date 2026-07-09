@@ -5,7 +5,7 @@
 ### **Metadata & Tracking**
 
 - **Feature Tracking:** [VIRTSTRAT-83](https://redhat.atlassian.net/browse/VIRTSTRAT-83)
-- **Epic Tracking:** [CNV-49964](https://redhat.atlassian.net/browse/CNV-49964)
+- **Epic Tracking:** [CNV-85268](https://redhat.atlassian.net/browse/CNV-85268)
 - **IUO Story:** [CNV-85504](https://redhat.atlassian.net/browse/CNV-85504)
 - **Parent STP:** [stp.md](stp.md)
 - **QE Owner(s):** Ohad Revah (@OhadRevah)
@@ -14,7 +14,7 @@
 **Document Conventions (if applicable):**
 
 - **RHCOS9.8:** Red Hat CoreOS 9.8 worker nodes (GA, default for OCP 4.22).
-- **RHCOS10.2:** Red Hat CoreOS 10.2 worker nodes (Tech Preview in 4.22, GA in 5.0).
+- **RHCOS10.2:** Red Hat CoreOS 10.2 worker nodes (GA in OCP 5.0).
 - **Dual-stream cluster:** An OCP cluster running both RHCOS9.8 and RHCOS10.2 worker nodes simultaneously.
 - **Golden images:** Pre-configured VM boot sources that provide ready-to-use operating system images for creating VMs.
 
@@ -25,7 +25,7 @@ OpenShift Virtualization deploys and functions correctly on RHCOS 10.2, golden i
 node placement policies are honored in mixed-version clusters, observability metrics work
 as expected, and migration metrics are accurately reported during cross-version live migration.
 
-This STP covers testing for the Tech Preview phase. Automation is required only at GA.
+This STP covers testing for OCP 5.0. Automation is required for migration metrics validation on dual-stream clusters.
 
 ---
 
@@ -116,9 +116,8 @@ None — reviewed and confirmed that no IUO-specific feature limitations apply f
 
 **Out of Scope (Testing Scope Exclusions)**
 
-- **Upgrade testing (4.22 to 5.0)**
-  - *Rationale:* Upgrade testing will be covered in the 5.0 STP per parent STP decision.
-    Not planned as part of 4.22 testing.
+- **Upgrade testing**
+  - *Rationale:* Upgrade testing is covered by the parent STP.
   - *PM/Lead Agreement:* Martin Tessun / 2026-05-13
 
 - **Operator installation on RHCOS 10.2 from scratch**
@@ -128,10 +127,6 @@ None — reviewed and confirmed that no IUO-specific feature limitations apply f
   - *PM/Lead Agreement:* [Name/Date]
 
 **Test Limitations**
-
-- **No automation requirement for Tech Preview.** Testing is manual/ad-hoc for the TP phase (4.22).
-  Automation will be implemented for GA (5.0).
-  - *Sign-off:* [Name/Date]
 
 - **Dual-stream cluster provisioning depends on QE DevOps tooling.** Same limitation as the parent
   STP — if tooling is unavailable or unstable, dual-stream scenarios cannot be executed.
@@ -145,13 +140,17 @@ None — reviewed and confirmed that no IUO-specific feature limitations apply f
   - *Details:* Run existing IUO Tier 1 and Tier 2 suites on RHCOS 10.2-only cluster. For
     dual-stream: targeted manual testing of migration metrics, node placement, and must-gather.
 
-- [ ] **Automation Testing** — No new automation for TP phase
-  - *Details:* Existing IUO Tier 1/2 suites run as-is on RHCOS 10.2 cluster. New dual-stream
-    test automation planned for GA (5.0).
+- [x] **Automation Testing** — Migration metrics validation on dual-stream clusters
+  - *Details:* Existing IUO Tier 1/2 suites run as-is on RHCOS 10.2 cluster. New automation
+    for migration metrics validation during cross-version live migration (RHCOS 9.8 ↔ RHCOS 10.2).
 
 - [x] **Regression Testing** — IUO regression on RHCOS 10.2
   - *Details:* Existing IUO Tier 1 and Tier 2 regression suites run on RHCOS 10.2-only cluster.
     Failures triaged and bugs filed with RHCOS-version attribution.
+
+- [ ] **Self-Validation Testing**
+  - *Details:* N/A — migration metrics tests are Tier 2 scenarios requiring dual-stream clusters;
+    not suitable for the self-validation health check package.
 
 **Non-Functional**
 
@@ -177,7 +176,7 @@ None — reviewed and confirmed that no IUO-specific feature limitations apply f
   - *Details:* Not applicable for this STP.
 
 - [ ] **Upgrade Testing**
-  - *Details:* Out of scope for 4.22; covered in 5.0 STP per parent STP decision.
+  - *Details:* Out of scope for this STP; covered by parent STP.
 
 - [x] **Dependencies** — Blocked on dual-stream cluster provisioning
   - *Details:* Same as parent STP. QE DevOps team must provide dual-stream cluster
@@ -200,7 +199,7 @@ Covered by the parent STP. IUO-specific requirements:
   - Dual-stream cluster (RHCOS 9.8 + RHCOS 10.2 workers): for migration metrics,
     node placement, and must-gather dual-node scenarios
 
-- **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with CNV 4.22
+- **OCP & OpenShift Virtualization Version(s):** OCP 5.0 with CNV 5.0
 
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization
 
@@ -215,7 +214,6 @@ Covered by the parent STP. IUO-specific requirements:
   for node placement and migration validation.
 
 - **CI/CD:** Existing IUO Tier 1/2 CI lanes run on RHCOS 10.2-only cluster.
-  Dual-stream scenarios are manual/ad-hoc for TP.
 
 - **Other Tools:** N/A
 
@@ -235,10 +233,17 @@ No IUO-specific risks identified. Feature-wide risks are covered by the parent S
 
 ### **III. Test Scenarios & Traceability**
 
-No new IUO-specific test scenarios required. The same operator code and observability stack
-run on both RHCOS 9.8 and RHCOS 10.2. IUO coverage for dual-stream RHCOS is provided through
-regression testing (existing Tier 1/2 suites on RHCOS 10.2 clusters), documented in
-Test Strategy (Section II.2).
+IUO coverage for dual-stream RHCOS is primarily provided through regression testing
+(existing Tier 1/2 suites on RHCOS 10.2 clusters). The following new test scenarios
+are required for migration metrics validation on dual-stream clusters:
+
+- **[CNV-85504]** — As a VM operator, I want migration metrics to be reported accurately when migrating from an RHCOS 9.8 node to an RHCOS 10.2 node.
+  - *Test Scenario:* [Tier 2] Live migrate a VM from an RHCOS 9.8 node to an RHCOS 10.2 node and verify that migration metrics (duration, data processed, bandwidth) are reported correctly.
+  - *Priority:* P1
+
+- **[CNV-85504]** — As a VM operator, I want migration metrics to be reported accurately when migrating from an RHCOS 10.2 node to an RHCOS 9.8 node.
+  - *Test Scenario:* [Tier 2] Live migrate a VM from an RHCOS 10.2 node to an RHCOS 9.8 node and verify that migration metrics (duration, data processed, bandwidth) are reported correctly.
+  - *Priority:* P1
 
 ---
 
