@@ -117,6 +117,9 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 - [ ] **Regression Testing**
   - *Details:* [Which existing SIG test suites run on the feature cluster]
 
+- [ ] **Self-Validation Testing** — Tests to include in the self-validation package
+  - *Details:* [SIG-specific, or "Covered by parent STP"]
+
 **Non-Functional**
 
 - [ ] **Performance Testing**
@@ -190,7 +193,7 @@ Regression tests are documented in Test Strategy (II.2), not in this table. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
   - *Test Scenario:* [Description]
-  - *Tier:* [1 or 2]
+  - *Tier:* [1, 2, or 3]
   - *Priority:* [P0/P1/P2]
 
 ---

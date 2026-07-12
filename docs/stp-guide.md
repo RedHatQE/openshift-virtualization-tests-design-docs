@@ -99,6 +99,7 @@ QE perspective on testing priorities:
 - Usability Testing
 - Compatibility Testing
 - Regression Testing
+- Self-Validation Testing
 - Upgrade Testing
 - Backward Compatibility Testing
 
@@ -163,7 +164,7 @@ The STP template uses four distinct categories for constraints. Refer to the tem
 ### IV. Sign-off and Approval
 
 **Final Sign-off Checklist:**
-- Tier 1 / Tier 2 tests defined
+- Tier 1 / Tier 2 tests defined (Tier 3 where applicable)
 - **Automation merged** (mandatory for GA)
 - Tests running in release checklist jobs
 - Documentation reviewed

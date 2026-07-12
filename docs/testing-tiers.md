@@ -2,20 +2,23 @@
 
 ## Overview
 
-OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive coverage while optimizing test execution time and resource usage. Understanding the differences between **Unit Tests**, **Tier 1 (Functional Tests)**, and **Tier 2 (End-to-End Tests)** is critical for effective test planning and implementation.
+OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive coverage while optimizing test execution time and resource usage. Understanding the differences between **Unit Tests**, **Tier 1 (Functional Tests)**, **Tier 2 (End-to-End Tests)**, and **Tier 3 (Extended Validation Tests)** is critical for effective test planning and implementation.
 
 ## Testing Pyramid
 
 ```text
-        /\
-       /  \      Tier 2 (E2E)
-      /____\     - Fewest tests, full system
-     /      \
-    / Tier 1 \   Tier 1 (Functional)
-   /__________\  - More tests, feature integration
-  /            \
- /  Unit Tests  \ Unit Tests
-/________________\ - Most tests, isolated components
+          /\
+         /  \      Tier 3 (Extended)
+        /____\     - Fewest tests, dedicated cycles
+       /      \
+      / Tier 2 \   Tier 2 (E2E)
+     /__________\  - Full system workflows
+    /            \
+   /    Tier 1    \   Tier 1 (Functional)
+  /________________\  - More tests, feature integration
+ /                  \
+/     Unit Tests     \  Unit Tests
+/____________________\  - Most tests, isolated components
 ```
 
 ## Unit Tests
@@ -155,13 +158,49 @@ OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive 
 - System metrics that users don't directly interact with
 - Internal error messages or stack traces are not shown to users
 
+## Tier 3 - Extended Validation Tests
+
+### What Are Tier 3 Tests?
+
+**Tier 3 tests** validate feature functionality with higher execution cost — longer runtime, heavier resource usage, or complex setup requirements. These tests typically run in dedicated test cycles rather than standard CI lanes.
+
+**Important:** The distinguishing factor for Tier 3 is **execution cost**, not test complexity or scope. A Tier 3 test may verify a single feature (like Tier 1) or a complete workflow (like Tier 2) — what makes it Tier 3 is that it takes longer, needs more resources, or requires complex setup.
+
+### Characteristics
+
+- **Scope:** Any feature scenario with higher execution cost
+- **Dependencies:** May require specific guest OS images, non-default storage backends, large clusters, or extended runtime
+- **Environment:** Dedicated test cycles, not standard CI gating
+
+### Purpose
+
+- Validate feature behavior in configurations that are too costly for standard CI
+- Test scenarios requiring extended runtime or heavy resource usage
+- Verify behavior with non-default guest operating systems or storage backends
+- Validate resource-intensive concurrent operations
+
+### Test Scope for Tier 3
+
+**Extended Validation Scenarios — Examples:**
+
+- Windows guest VM operations (longer setup and execution time)
+- Large-scale concurrent operations (multiple VMs restoring/migrating in parallel)
+- Tests requiring non-default storage backends (LVM, specific CSI drivers)
+- Long-running stability or soak tests
+- Scenarios requiring large cluster configurations
+
+**What's NOT in Tier 3:**
+
+- Tests that run within standard CI time and resource budgets (use Tier 1 or Tier 2)
+- Performance benchmarking (covered under Performance Testing in Test Strategy)
+
 ## Comparison Matrix
 
-| Aspect                  | Unit Tests             | Tier 1 (Functional)                  | Tier 2 (E2E)                  |
-|:------------------------|:-----------------------|:-------------------------------------|:------------------------------|
-| **Scope**               | Single function/method | Single feature                       | Complete workflows            |
-| **Dependencies**        | None (mocked)          | OpenShift + OpenShift Virtualization | Full production-like setup    |
-| **Isolation**           | Complete               | Feature-level                        | System-level integration      |
+| Aspect                  | Unit Tests             | Tier 1 (Functional)                  | Tier 2 (E2E)                  | Tier 3 (Extended)                     |
+|:------------------------|:-----------------------|:-------------------------------------|:------------------------------|:--------------------------------------|
+| **Scope**               | Single function/method | Single feature                       | Complete workflows            | Any scope, higher execution cost      |
+| **Dependencies**        | None (mocked)          | OpenShift + OpenShift Virtualization | Full production-like setup    | Extended runtime / resources / setup  |
+| **Isolation**           | Complete               | Feature-level                        | System-level integration      | Dedicated test cycles                 |
 
 ## Resources
 
