@@ -233,8 +233,8 @@ The following conditions must be met before testing can begin:
   - *Test Scenario:* [Tier 1] Validate the server-side template processing flow that renders user parameters into a runnable VM definition.
   - *Priority:* P0
 
-- **[CNV-73392]** — As a VM owner, I want to create a VM directly from a template in one step where the product supports it
-  - *Test Scenario:* [Tier 1] Validate the supported single-step create-from-template flow, including expected namespace placement and access behavior.
+- **[CNV-73392]** — As a template author and VM owner, I want to save a well-formed template and then create a VM from it in one step
+  - *Test Scenario:* [Tier 1] Create a template specifying the `u1.small` instance type and `fedora` preference; confirm the template appears in the template list; provision a VM from it and verify the resulting VM references `u1.small` and `fedora` and is placed in the expected namespace.
   - *Priority:* P0
 
 - **[CNV-73392]** — As a cluster admin, I want to restrict users to create VMs only from approved templates
@@ -268,10 +268,6 @@ The following conditions must be met before testing can begin:
 - **[CNV-73392]** — As a cluster admin, I want templates and vm template requests to survive cluster upgrades
   - *Test Scenario:* [Tier 2] Validate upgrade continuity for existing templates and vm template requests, including post-upgrade template usability.
   - *Priority:* P1
-
-- **[CNV-73392]** — As a template author, I want the cluster to reject templates that would always produce an invalid VM when defaults fill required parameters (OpenShift Virtualization 4.22)
-  - *Test Scenario:* [Tier 2] Validate admission behavior for invalid-by-default templates and acceptance behavior for valid templates under defaulted parameters.
-  - *Priority:* P2
 
 - **[CNV-73392]** — As a cluster admin, I want template workflows unavailable when the Template capability is disabled
   - *Test Scenario:* [Tier 2] Validate capability-disable behavior that blocks new template workflows while preserving expected handling of existing objects.
