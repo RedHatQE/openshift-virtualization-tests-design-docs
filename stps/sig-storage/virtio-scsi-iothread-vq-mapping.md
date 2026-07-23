@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** [VEP #342: IOThread Virtqueue Mapping for virtio-scsi](https://github.com/kubevirt/enhancements/pull/343)
+- **Enhancement(s):** [VEP #343: IOThread Virtqueue Mapping for virtio-scsi](https://github.com/kubevirt/enhancements/pull/343)
 - **Feature Tracking:** [CNV-86526](https://redhat.atlassian.net/browse/CNV-86526)
 - **Epic Tracking:** [CNV-86526](https://redhat.atlassian.net/browse/CNV-86526)
 - **Feature Maturity:**
