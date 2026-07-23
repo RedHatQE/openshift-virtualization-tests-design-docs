@@ -38,6 +38,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
   (VM, PVC, CDI, etc. are known to all reviewers — do not define them)
+- [ ] Document Conventions uses a bulleted list with one term per line, not inline comma-separated text
 - [ ] Reviewer should follow the linked feature request and tracking epic
   to verify:
   - Requirements in the STP align with the feature request definition
