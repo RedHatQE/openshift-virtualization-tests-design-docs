@@ -470,8 +470,10 @@ justification in mitigation strategy. -->
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - [Name / @github-username]
-  - [Name / @github-username]
+  - QE: [Name / @github-handle]
+  - Development: [Name / @github-handle]
+  - [Additional reviewers as needed]
 * **Approvers:**
-  - [Name / @github-username]
-  - [Name / @github-username]
+  - QE Lead: [Name / @github-handle]
+  - Dev Lead: [Name / @github-handle]
+  - Product Manager: [Name / @github-handle]
