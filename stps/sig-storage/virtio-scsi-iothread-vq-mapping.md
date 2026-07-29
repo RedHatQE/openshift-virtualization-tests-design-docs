@@ -9,9 +9,9 @@
 - **Epic Tracking:** [CNV-86526](https://redhat.atlassian.net/browse/CNV-86526)
 - **Feature Maturity:**
 
-  - DP: [TBD]
-  - TP: [TBD]
-  - GA: [TBD]
+  - DP: v1.10
+  - TP: N/A
+  - GA: N/A
 - **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
@@ -26,7 +26,7 @@
 
 ### **Feature Overview**
 
-VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a CPU bottleneck because the SCSI controller currently uses at most a single I/O thread shared by all virtio-scsi devices. This feature extends the existing IOThreadsPolicy settings (shared, auto, supplementalPool) to also apply to the virtio-scsi controller, allowing multiple dedicated I/O threads to process the controller's virtqueues in parallel. The feature is opt-in and protected by a feature gate. When enabled, users can expect improved I/O throughput for VMs with multiple virtio-scsi disks performing concurrent I/O operations.
+VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a CPU bottleneck because the SCSI controller currently uses at most a single I/O thread shared by all virtio-scsi devices. This feature enables multiple dedicated I/O threads to process the virtio-scsi controller's virtqueues in parallel by leveraging the existing IOThreadsPolicy API (shared, auto, supplementalPool). The feature is opt-in and protected by a feature gate. When enabled, users can expect improved I/O throughput for VMs with multiple virtio-scsi disks performing concurrent I/O operations.
 
 ---
 
@@ -36,7 +36,7 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
 
 - [x] **Review Requirements**
   - *List the key D/S requirements reviewed:*
-    - IOThreadsPolicy (shared, auto, supplementalPool) must be extended to allocate I/O threads to the virtio-scsi controller
+    - The existing IOThreadsPolicy API (shared, auto, supplementalPool) must be used to allocate additional I/O threads to the virtio-scsi controller without changes to the API itself
     - Feature must be gated behind a feature gate; disabled by default
     - Existing virtio-blk IOThread behavior must remain unchanged
     - Thread count allocated to the SCSI controller must not exceed the number of virtqueues (equal to vCPU count)
