@@ -26,7 +26,13 @@
 
 ### **Feature Overview**
 
-VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a CPU bottleneck because the SCSI controller currently uses at most a single I/O thread shared by all virtio-scsi devices. This feature enables multiple dedicated I/O threads to process the virtio-scsi controller's virtqueues in parallel by leveraging the existing IOThreadsPolicy API (shared, auto, supplementalPool). The feature is opt-in and protected by a feature gate. When enabled, users can expect improved I/O throughput for VMs with multiple virtio-scsi disks performing concurrent I/O operations.
+This STP covers the **Dev Preview (v1.10)** phase of IOThread virtqueue mapping for virtio-scsi.
+
+Virtual machines that use multiple virtio-scsi disks can experience reduced I/O throughput under heavy workloads because the SCSI controller processes all disk I/O on a single thread. This feature allows the SCSI controller to distribute I/O processing across multiple dedicated threads, enabling parallel disk operations and reducing CPU contention on the host.
+
+Users opt in by setting an I/O thread policy on the VM specification and enabling the corresponding feature gate on the cluster. Three policies are available: a shared mode where all disks use one thread, an automatic mode that scales threads with the number of virtual CPUs, and a supplemental pool mode suited for workloads that frequently hotplug disks. When the feature gate is disabled, VMs continue to use the existing single-thread behavior with no disruption.
+
+The primary benefit is improved I/O throughput for storage-intensive workloads such as databases or analytics pipelines running on VMs with multiple virtio-scsi disks.
 
 ---
 
@@ -52,18 +58,21 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - When the feature gate is enabled and IOThreadsPolicy is set, the virtio-scsi controller uses multiple I/O threads according to the selected policy
-    - When the feature gate is disabled, the virtio-scsi controller uses the existing single-thread behavior regardless of IOThreadsPolicy
-    - With the shared policy, the SCSI controller shares the same single I/O thread assigned to all disks
+    - When the feature gate is enabled and IOThreadsPolicy is set, the virtio-scsi controller allocates I/O threads according to the selected policy
+    - When the feature gate is disabled, running VMs retain their current I/O thread allocation until the next restart; after restart, the virtio-scsi controller uses the existing single-thread behavior regardless of IOThreadsPolicy
+    - With the shared policy, the SCSI controller uses the same single I/O thread assigned to all disks
     - With the auto policy, the SCSI controller receives all non-dedicated I/O threads, and thread count does not exceed the number of virtqueues (vCPUs)
-    - With the supplementalPool policy, the entire supplemental thread pool is shared with the SCSI controller
-    - Hotplugging virtio-scsi disks into a running VM with IOThreadsPolicy set uses the thread pool established at VM startup
+    - With the supplementalPool policy, the SCSI controller receives additional I/O threads from a supplemental pool that is separate from threads assigned to individual disks
+    - Hotplugging virtio-scsi disks into a running VM with IOThreadsPolicy set uses the thread pool established at VM startup; I/O to existing disks must remain continuous throughout the hotplug operation
+    - Live migration of a VM with IOThreadsPolicy set must preserve the policy behavior on the destination node; I/O to all disks must remain continuous throughout the migration
+    - If I/O to existing disks is temporarily interrupted during hotplug or live migration, it must resume automatically without manual intervention
     - VMs with mixed virtio-blk and virtio-scsi disks allocate I/O threads correctly to both device types
+    - On environments with libvirt < 11.2.0 or QEMU < 10.0, creating a VM with IOThreadsPolicy and the feature gate enabled must be rejected with a validation error indicating the unsupported version
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
-    - Performance: measurable I/O throughput improvement with multiple virtio-scsi disks under concurrent I/O load compared to single-thread baseline
+    - Performance: with 4 virtio-scsi disks under concurrent fio random-read workloads, aggregate IOPS with IOThreadsPolicy auto must be at least 20% higher than the single-thread baseline (feature gate disabled, same VM configuration). The baseline and target runs must each complete 3 iterations on the same hardware; the result passes only if the mean improvement meets the threshold and no individual iteration falls below 10%
     - Monitoring: no new metrics or alerts are introduced for IOThread allocation; existing VM metrics remain sufficient for observability
     - Documentation: user-facing documentation must describe the feature gate and policy behavior for virtio-scsi
   - *Note any NFRs not covered and why:*
@@ -84,22 +93,22 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
 #### **3. Technology and Design Review**
 
 - [ ] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* [TBD — schedule meeting with dev team]
+  - *Key takeaways and concerns:* Pending — kickoff meeting with dev team to be scheduled before test execution begins. Must be completed before STP approval.
 
-- [ ] **Technology Challenges**
+- [x] **Technology Challenges**
   - *List identified challenges:*
     - Requires libvirt 11.2.0+ and QEMU 10.0+ for virtio-scsi IOThread virtqueue mapping support
     - Verifying correct thread-to-virtqueue mapping requires inspecting domain XML or guest-visible I/O distribution
-  - *Impact on testing approach:* Tests must validate on environments with the required libvirt/QEMU versions; older versions must gracefully degrade or reject the configuration
+  - *Impact on testing approach:* Tests must validate on environments with the required libvirt/QEMU versions. On environments that do not meet the minimum versions (libvirt < 11.2.0 or QEMU < 10.0), the VM must be rejected at creation with a clear validation error indicating the unsupported version; silent degradation to single-thread behavior is not acceptable. The target OCP release ships libvirt 11.2.0+ and QEMU 10.0+; this rejection path applies only to clusters running older or mixed-version infrastructure
 
-- [ ] **API Extensions**
+- [x] **API Extensions**
   - *List new or modified APIs:* No new user-facing APIs; the existing IOThreadsPolicy field in the VM spec is reused to control I/O thread allocation for virtio-scsi disks.
   - *Testing impact:* Tests must verify that existing IOThreadsPolicy values (shared, auto, supplementalPool) produce correct behavior for virtio-scsi disks in addition to existing virtio-blk behavior
 
-- [ ] **Test Environment Needs**
+- [x] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
-- [ ] **Topology Considerations**
+- [x] **Topology Considerations**
   - *Describe topology requirements:* Standard cluster topology; no multi-cluster or special network topology requirements
   - *Impact on test design:* Live migration tests require at least two schedulable worker nodes
 
@@ -109,17 +118,18 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
 
 **Testing Goals**
 
-- **[P0]** Verify that a VM with virtio-scsi disks and the feature gate enabled delivers improved I/O performance consistent with the selected IOThreadsPolicy
+- **[P0]** Verify that a VM with virtio-scsi disks and the feature gate enabled allocates I/O threads to the SCSI controller consistent with the selected IOThreadsPolicy
 - **[P0]** Verify that a VM with virtio-scsi disks behaves identically to pre-feature behavior when the feature gate is disabled, regardless of IOThreadsPolicy setting
 - **[P0]** Verify that the shared policy produces consistent I/O behavior across all virtio-scsi disks on the VM
 - **[P0]** Verify that the auto policy scales I/O parallelism with the number of vCPUs assigned to the VM
-- **[P0]** Verify that the supplementalPool policy provides a dedicated thread pool for virtio-scsi I/O, suitable for hotplug-heavy workloads
+- **[P0]** Verify that the supplementalPool policy assigns additional I/O threads from a supplemental pool to the SCSI controller, suitable for hotplug-heavy workloads
 - **[P0]** Verify that a VM with mixed virtio-blk and virtio-scsi disks delivers expected I/O behavior for both device types under each policy
-- **[P1]** Verify that hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy set maintains I/O performance without disruption to existing disks
+- **[P1]** Verify that hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy set uses the existing thread pool and that I/O to existing disks remains continuous throughout the operation
 - **[P1]** Verify that I/O parallelism does not exceed the VM's vCPU count, even when the policy would otherwise allocate more threads
-- **[P1]** Verify that live migration of a VM with IOThreadsPolicy preserves I/O performance and policy behavior on the destination node
-- **[P1]** Verify that disabling the feature gate on a running cluster does not disrupt existing VMs or their I/O workloads
-- **[P2]** Verify measurable I/O throughput improvement under concurrent workloads across multiple virtio-scsi disks compared to single-thread baseline
+- **[P1]** Verify that live migration of a VM with IOThreadsPolicy preserves the policy behavior on the destination node and that I/O to all disks remains continuous throughout the migration
+- **[P1]** Verify that if I/O is temporarily interrupted during hotplug or live migration, it resumes automatically without manual intervention
+- **[P1]** Verify that disabling the feature gate on a running cluster does not disrupt existing VMs or their I/O workloads, and that restarted VMs revert to single-thread SCSI controller behavior
+- **[P2]** Verify that aggregate IOPS with 4 virtio-scsi disks under concurrent fio random-read workloads improves by at least 20% (mean of 3 iterations) compared to the single-thread baseline, with no individual iteration below 10%
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -155,7 +165,7 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
 **Non-Functional**
 
 - [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:* Measure I/O throughput (IOPS, bandwidth) with multiple virtio-scsi disks under concurrent fio workloads; compare multi-thread vs. single-thread baseline
+  - *Details:* Measure aggregate IOPS with 4 virtio-scsi disks under concurrent fio random-read workloads using IOThreadsPolicy auto; compare against single-thread baseline (feature gate disabled, same VM). Target: at least 20% mean IOPS improvement across 3 iterations, with no individual iteration below 10%. Baseline and target runs execute on the same hardware
 
 - [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
   - *Details:* Not applicable; thread allocation is per-VM and bounded by vCPU count. No cluster-level scaling behavior is introduced.
@@ -175,7 +185,7 @@ VMs running multiple virtio-scsi disks with heavy I/O workloads can experience a
   - *Details:* Verify backward compatibility: VMs created without IOThreadsPolicy must behave identically to pre-feature behavior
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Verify that enabling the feature gate after upgrade allows existing VMs to use multi-threaded SCSI controller on next restart; verify disabling the feature gate reverts to single-thread behavior
+  - *Details:* Verify that enabling the feature gate after upgrade allows existing VMs to use the IOThreadsPolicy-based SCSI controller allocation on next restart; verify that disabling the feature gate does not disrupt running VMs and that restarted VMs revert to single-thread behavior
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* Requires libvirt 11.2.0+ and QEMU 10.0+ in the OpenShift Virtualization stack; blocked until these versions are available in the target OCP release
@@ -272,7 +282,7 @@ The following conditions must be met before testing can begin:
 ### **III. Test Scenarios & Traceability**
 
 - **[CNV-86526]** — As a user, I want to dedicate multiple I/O threads for my virtio-scsi disks so that I can gain a performance increase during heavy I/O operations
-  - *Test Scenario:* [Tier 1] Verify VM with IOThreadsPolicy and virtio-scsi disks uses multiple I/O threads on the SCSI controller when feature gate is enabled
+  - *Test Scenario:* [Tier 1] Verify VM with IOThreadsPolicy and virtio-scsi disks allocates I/O threads to the SCSI controller according to the selected policy when feature gate is enabled
   - *Priority:* P0
 
 - **[CNV-86526]**
@@ -288,7 +298,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-86526]**
-  - *Test Scenario:* [Tier 1] Verify supplementalPool IOThreadsPolicy shares the supplemental thread pool with the SCSI controller
+  - *Test Scenario:* [Tier 1] Verify supplementalPool IOThreadsPolicy assigns additional I/O threads from the supplemental pool to the SCSI controller
   - *Priority:* P0
 
 - **[CNV-86526]**
@@ -296,7 +306,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-86526]**
-  - *Test Scenario:* [Tier 2] Verify hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy uses the existing thread pool
+  - *Test Scenario:* [Tier 2] Verify hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy uses the existing thread pool and I/O to existing disks remains continuous
   - *Priority:* P1
 
 - **[CNV-86526]**
@@ -304,16 +314,44 @@ The following conditions must be met before testing can begin:
   - *Priority:* P1
 
 - **[CNV-86526]**
-  - *Test Scenario:* [Tier 2] Verify live migration preserves I/O thread allocation on the SCSI controller
+  - *Test Scenario:* [Tier 2] Verify live migration preserves I/O thread allocation on the SCSI controller and I/O to all disks remains continuous throughout the migration
   - *Priority:* P1
 
 - **[CNV-86526]**
-  - *Test Scenario:* [Tier 2] Verify disabling the feature gate does not disrupt existing running VMs
+  - *Test Scenario:* [Tier 2] Verify that I/O interrupted during hotplug or live migration resumes automatically without manual intervention
   - *Priority:* P1
 
 - **[CNV-86526]**
-  - *Test Scenario:* [Tier 2] Verify measurable I/O throughput improvement with multiple virtio-scsi disks under concurrent I/O load vs single-thread baseline
+  - *Test Scenario:* [Tier 2] Verify disabling the feature gate does not disrupt I/O on running VMs that have IOThreadsPolicy set
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that a VM restarted after the feature gate is disabled reverts to single-thread SCSI controller behavior
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify at least 20% aggregate IOPS improvement (mean of 3 iterations, no iteration below 10%) with 4 virtio-scsi disks under concurrent fio random-read workloads using IOThreadsPolicy auto vs single-thread baseline
   - *Priority:* P2
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that creating a VM with IOThreadsPolicy and the feature gate enabled is rejected with a validation error on environments with libvirt < 11.2.0 or QEMU < 10.0
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that enabling the feature gate after an upgrade allows an existing VM with IOThreadsPolicy to use the policy-based SCSI controller allocation on next restart
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that disabling the feature gate after an upgrade does not disrupt running VMs and that restarted VMs revert to single-thread SCSI controller behavior
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that snapshot operations on a VM with IOThreadsPolicy set complete successfully and the restored VM retains the correct I/O thread allocation
+  - *Priority:* P1
+
+- **[CNV-86526]**
+  - *Test Scenario:* [Tier 2] Verify that backup and restore operations on a VM with IOThreadsPolicy set complete successfully and the restored VM retains the correct I/O thread allocation
+  - *Priority:* P1
 
 ---
 
