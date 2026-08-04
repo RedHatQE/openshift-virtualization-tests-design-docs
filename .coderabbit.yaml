@@ -21,11 +21,76 @@ reviews:
   auto_title_placeholder: "@coderabbitai"
   review_status: true
   commit_status: true
+  review_details: true
   poem: false
   collapse_walkthrough: true
   sequence_diagrams: false
   changed_files_summary: true
   abort_on_close: true
+
+  path_instructions:
+    - path: "stps/**"
+      instructions: |
+        ## Test implementation cross-reference (STP → tests)
+
+        Skip this check entirely for files under `stps/stp-template/` — those are
+        templates, not feature STPs.
+
+        When a feature STP file under `stps/` is modified, determine whether the change
+        is **meaningful** (affects test implementation) or **cosmetic** (no test impact).
+
+        **Meaningful changes** (flag for test update):
+        - Test scenarios added, removed, or modified in Section III (table rows changed)
+        - Testing goals added, removed, or reprioritized in Section II.1
+        - Requirements added, removed, or modified in Section I.1
+        - Acceptance criteria added, removed, or changed in Section I.1
+        - Tier or priority changes on existing scenarios
+        - Scope changes in Section II.1 (Out of Scope items added or removed)
+        - Test Limitations changes in Section II.1 that alter what QE can validate
+        - Test strategy changes in Section II.2 that affect what is tested
+        - Test environment changes in Section II.3 that affect how tests run
+
+        **Cosmetic changes** (skip cross-ref check):
+        - Typo fixes, grammar corrections, punctuation changes
+        - Formatting or whitespace adjustments
+        - Rewording that preserves the same test intent and pass/fail criteria
+        - Sign-off updates, reviewer list changes
+        - Metadata-only changes (dates, version bumps, document conventions)
+        - Risk section updates that do not change test scope
+
+        **When meaningful changes are detected:**
+
+        First, use the linked repository (`RedHatQE/openshift-virtualization-tests`) to check
+        whether existing tests reference this STP via `STP:` or `STP Reference:` URLs
+        in docstrings (both conventions are used in the tests repo).
+
+        **If no tests reference this STP** (greenfield STP with no test coverage yet),
+        skip the cross-reference notice entirely. The tests repo enforces STP-to-test
+        alignment when tests land.
+
+        **If tests reference this STP**, post a non-blocking MEDIUM severity advisory listing:
+        1. Which sections changed meaningfully (scenarios, goals, criteria, scope)
+        2. A summary of what changed (e.g., "2 scenarios added, 1 scenario priority
+           changed from P2 to P0, 1 acceptance criterion removed")
+        3. A cross-reference notice:
+
+           > **⚠️ Test implementation may need updating.**
+           > This STP is linked to tests in
+           > [`RedHatQE/openshift-virtualization-tests`](https://github.com/RedHatQE/openshift-virtualization-tests).
+           > The following changes may require corresponding test updates:
+           > - [list of meaningful changes]
+           >
+           > Please verify that test coverage in the tests repo reflects these STP changes.
+           > If new scenarios were added, new tests or STDs (Software Test Descriptions) may be needed.
+           > If scenarios were removed or modified, existing tests may need updating or removal.
+
+        This cross-reference notice is advisory — it should NOT trigger request changes.
+        STPs are the source of truth; tests are updated afterward in a follow-up PR to
+        the tests repo. If suspected misalignments with existing tests are found, note
+        them as questions in the advisory, not as blocking defects.
+
+        **When only cosmetic changes are detected:**
+        Do not post the cross-reference notice. Review normally per AGENTS.md.
 
   auto_review:
     enabled: true
@@ -51,6 +116,19 @@ chat:
 
 knowledge_base:
   opt_out: false
+
+  linked_repositories:
+    - repository: "RedHatQE/openshift-virtualization-tests"
+      instructions: |
+        Contains the test implementation (Python/pytest) for features defined
+        by STPs in this repository. Tests live under tests/<sig-area>/ and
+        reference STPs via STP: URLs in module/class/test docstrings.
+
+        Use this linked repo to:
+        - Check whether modified STP scenarios already have test coverage
+        - Identify which test files reference a changed STP (search for both
+          `STP:` and `STP Reference:` followed by a design-docs GitHub URL)
+        - Assess the impact of STP scenario changes on existing tests
 
   code_guidelines:
     enabled: true
