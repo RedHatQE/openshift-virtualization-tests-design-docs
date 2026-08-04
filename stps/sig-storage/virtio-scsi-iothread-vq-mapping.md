@@ -15,6 +15,7 @@
 - **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
+- **Status:** Draft — QE kickoff pending; do not approve until kickoff is recorded
 
 **Document Conventions (if applicable):**
 
@@ -30,7 +31,7 @@ This STP covers the **Dev Preview (v1.10)** phase of IOThread virtqueue mapping 
 
 Virtual machines that use multiple virtio-scsi disks can experience reduced I/O throughput under heavy workloads because the SCSI controller processes all disk I/O on a single thread. This feature allows the SCSI controller to distribute I/O processing across multiple dedicated threads, enabling parallel disk operations and reducing CPU contention on the host.
 
-Users opt in by setting an I/O thread policy on the VM specification and enabling the corresponding feature gate on the cluster. Three policies are available: a shared mode where all disks use one thread, an automatic mode that scales threads with the number of virtual CPUs, and a supplemental pool mode suited for workloads that frequently hotplug disks. When the feature gate is disabled, VMs continue to use the existing single-thread behavior with no disruption.
+Users opt in by setting an I/O thread policy on the VM specification and enabling the corresponding feature gate on the cluster. Three policies are available: a shared mode where all disks use one thread, an automatic mode that scales threads with the number of virtual CPUs, and a supplemental pool mode suited for workloads that frequently hotplug disks. When the feature gate is disabled, running VMs remain unchanged until restart, and new or restarted VMs use the existing single-thread behavior.
 
 The primary benefit is improved I/O throughput for storage-intensive workloads such as databases or analytics pipelines running on VMs with multiple virtio-scsi disks.
 
@@ -60,9 +61,9 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
   - *List the acceptance criteria:*
     - When the feature gate is enabled and IOThreadsPolicy is set, the virtio-scsi controller allocates I/O threads according to the selected policy
     - When the feature gate is disabled, running VMs retain their current I/O thread allocation until the next restart; after restart, the virtio-scsi controller uses the existing single-thread behavior regardless of IOThreadsPolicy
-    - With the shared policy, the SCSI controller uses the same single I/O thread assigned to all disks
-    - With the auto policy, the SCSI controller receives all non-dedicated I/O threads, and thread count does not exceed the number of virtqueues (vCPUs)
-    - With the supplementalPool policy, the SCSI controller receives additional I/O threads from a supplemental pool that is separate from threads assigned to individual disks
+    - With the shared policy, the SCSI controller maps all its virtqueues to a single shared I/O thread
+    - With the auto policy, the SCSI controller maps its virtqueues across all non-dedicated I/O threads, up to a maximum of one thread per virtqueue (one virtqueue per vCPU)
+    - With the supplementalPool policy, the SCSI controller maps its virtqueues to I/O threads drawn from a supplemental pool, separate from the threads used for per-disk virtio-blk mappings
     - Hotplugging virtio-scsi disks into a running VM with IOThreadsPolicy set uses the thread pool established at VM startup; I/O to existing disks must remain continuous throughout the hotplug operation
     - Live migration of a VM with IOThreadsPolicy set must preserve the policy behavior on the destination node; I/O to all disks must remain continuous throughout the migration
     - If I/O to existing disks is temporarily interrupted during hotplug or live migration, it must resume automatically without manual intervention
@@ -93,7 +94,11 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 #### **3. Technology and Design Review**
 
 - [ ] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* Pending — kickoff meeting with dev team to be scheduled before test execution begins. Must be completed before STP approval.
+  - *Participants:* TBD
+  - *Date:* TBD
+  - *Key takeaways and concerns:* TBD — kickoff meeting with dev team to be scheduled before test execution begins
+  - *Decisions:* TBD
+  - *Sign-off:* TBD — must be recorded before STP can move from Draft to Approved
 
 - [x] **Technology Challenges**
   - *List identified challenges:*
@@ -118,12 +123,10 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 **Testing Goals**
 
-- **[P0]** Verify that a VM with virtio-scsi disks and the feature gate enabled allocates I/O threads to the SCSI controller consistent with the selected IOThreadsPolicy
-- **[P0]** Verify that a VM with virtio-scsi disks behaves identically to pre-feature behavior when the feature gate is disabled, regardless of IOThreadsPolicy setting
-- **[P0]** Verify that the shared policy produces consistent I/O behavior across all virtio-scsi disks on the VM
-- **[P0]** Verify that the auto policy scales I/O parallelism with the number of vCPUs assigned to the VM
-- **[P0]** Verify that the supplementalPool policy assigns additional I/O threads from a supplemental pool to the SCSI controller, suitable for hotplug-heavy workloads
-- **[P0]** Verify that a VM with mixed virtio-blk and virtio-scsi disks delivers expected I/O behavior for both device types under each policy
+- **[P0]** Verify that each IOThreadsPolicy (shared, auto, supplementalPool) produces predictable, policy-consistent I/O behavior for VMs with virtio-scsi disks when the feature gate is enabled
+- **[P0]** Verify that disabling the feature gate preserves pre-feature single-thread behavior with no disruption to running or newly created VMs
+- **[P0]** Verify that VMs with virtio-scsi disks achieve improved I/O throughput under concurrent workloads compared to the single-thread baseline
+- **[P0]** Verify that VMs with mixed virtio-blk and virtio-scsi disks deliver correct I/O behavior for both device types under each policy
 - **[P1]** Verify that hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy set uses the existing thread pool and that I/O to existing disks remains continuous throughout the operation
 - **[P1]** Verify that I/O parallelism does not exceed the VM's vCPU count, even when the policy would otherwise allocate more threads
 - **[P1]** Verify that live migration of a VM with IOThreadsPolicy preserves the policy behavior on the destination node and that I/O to all disks remains continuous throughout the migration
