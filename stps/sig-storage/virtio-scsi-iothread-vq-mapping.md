@@ -5,11 +5,11 @@
 ### **Metadata & Tracking**
 
 - **Enhancement(s):** [VEP #343: IOThread Virtqueue Mapping for virtio-scsi](https://github.com/kubevirt/enhancements/pull/343)
-- **Feature Tracking:** [CNV-86526](https://redhat.atlassian.net/browse/CNV-86526)
+- **Feature Tracking:** [CNV-59316](https://redhat.atlassian.net/browse/CNV-59316)
 - **Epic Tracking:** [CNV-86526](https://redhat.atlassian.net/browse/CNV-86526)
 - **Feature Maturity:**
 
-  - DP: v1.10
+  - DP: KubeVirt v1.10 / OpenShift Virtualization 5.1
   - TP: N/A
   - GA: N/A
 - **QE Owner(s):** Jose Manuel Castano (joscasta@redhat.com)
@@ -24,14 +24,16 @@
 | **IOThread** | A dedicated host thread used to process disk I/O outside the main QEMU thread, reducing CPU contention |
 | **Virtqueue** | A queue used by virtio devices to exchange data between the guest and the host |
 | **IOThreadsPolicy** | A VM-level setting that controls how I/O threads are allocated to virtio-blk disks and to the virtio-scsi controller's virtqueues (shared, auto, or supplementalPool) |
+| **SCSIMultiIOThread** | The feature gate that enables multi-threaded I/O for the virtio-scsi controller |
+| **MultiIOThreadAutoPolicy** | A KubeVirt CR configuration toggle that enables the new multi-threaded `auto` policy behavior for virtio-blk disks; requires the `SCSIMultiIOThread` feature gate |
 
 ### **Feature Overview**
 
 This STP covers the **Dev Preview (v1.10)** phase of IOThread virtqueue mapping for virtio-scsi.
 
-Virtual machines that use multiple virtio-scsi disks can experience reduced I/O throughput under heavy workloads because the SCSI controller processes all disk I/O on a single thread. This feature allows the SCSI controller to distribute I/O processing across multiple dedicated threads, enabling parallel disk operations and reducing CPU contention on the host. Additionally, the existing `auto` policy is modified so that each disk — regardless of bus type — is allocated the full auto thread pool instead of a single round-robin thread.
+Virtual machines that use multiple virtio-scsi disks can experience reduced I/O throughput under heavy workloads because the SCSI controller processes all disk I/O on a single thread. This feature allows the SCSI controller to distribute I/O processing across multiple dedicated threads, enabling parallel disk operations and reducing CPU contention on the host. Additionally, the existing `auto` policy is modified so that each disk — regardless of bus type — is allocated the full auto thread pool instead of a single round-robin thread. For virtio-blk disks, this new `auto` behavior requires the `MultiIOThreadAutoPolicy` toggle in the KubeVirt CR to be enabled alongside the `SCSIMultiIOThread` feature gate, preserving backwards compatibility.
 
-Users opt in by setting an I/O thread policy on the VM specification and enabling the corresponding feature gate on the cluster. Three policies are available: a shared mode where all virtio-blk disks and the SCSI controller's virtqueues share one thread, an automatic mode that scales threads with the number of virtual CPUs, and a supplemental pool mode suited for workloads that frequently hotplug disks. When the feature gate is disabled, running VMs remain unchanged until restart, and new or restarted VMs use the existing single-thread behavior; the `auto` policy also reverts to assigning a single round-robin thread.
+Users opt in by setting an I/O thread policy on the VM specification and enabling the `SCSIMultiIOThread` feature gate on the cluster. Three policies are available: a shared mode where all virtio-blk disks and the SCSI controller's virtqueues share one thread, an automatic mode that scales threads with the number of virtual CPUs, and a supplemental pool mode suited for workloads that frequently hotplug disks. When the feature gate is disabled, running VMs remain unchanged until restart, and new or restarted VMs use the existing single-thread behavior; the `auto` policy also reverts to assigning a single round-robin thread. The `MultiIOThreadAutoPolicy` toggle will persist after the feature gate graduates to GA, allowing users to retain the legacy single-thread `auto` behavior for virtio-blk.
 
 The primary benefit is improved I/O throughput for storage-intensive workloads such as databases or analytics pipelines running on VMs with multiple virtio-scsi disks.
 
@@ -45,7 +47,8 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
   - *List the key D/S requirements reviewed:*
     - The existing IOThreadsPolicy API (shared, auto, supplementalPool) must be used to allocate additional I/O threads to the virtio-scsi controller without changes to the API itself
     - The existing `auto` policy must be modified so that each disk is allocated the full auto thread pool instead of a single round-robin thread, aligning behavior across virtio-blk and virtio-scsi bus types
-    - Feature must be gated behind a feature gate; disabled by default
+    - Feature must be gated behind the `SCSIMultiIOThread` feature gate; disabled by default
+    - The new multi-threaded `auto` policy for virtio-blk must require both the `SCSIMultiIOThread` feature gate and the `MultiIOThreadAutoPolicy` KubeVirt CR toggle to be enabled; without the toggle, virtio-blk retains legacy single round-robin thread behavior
     - Thread count allocated to disks must not exceed the number of virtqueues (equal to vCPU count) for both virtio-blk and virtio-scsi
 
 - [x] **Understand Value and Customer Use Cases**
@@ -60,7 +63,9 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - When the feature gate is enabled and IOThreadsPolicy is set, the virtio-scsi controller allocates I/O threads according to the selected policy
+    - When the `SCSIMultiIOThread` feature gate is enabled and IOThreadsPolicy is set, the virtio-scsi controller allocates I/O threads according to the selected policy
+    - When the `SCSIMultiIOThread` feature gate is enabled and `MultiIOThreadAutoPolicy` is also enabled, the `auto` policy allocates the full thread pool to each virtio-blk disk instead of a single round-robin thread
+    - When the `SCSIMultiIOThread` feature gate is enabled but `MultiIOThreadAutoPolicy` is not enabled, the `auto` policy retains the legacy single round-robin thread behavior for virtio-blk disks
     - When the feature gate is disabled, running VMs retain their current I/O thread allocation until the next restart; after restart, the virtio-scsi controller uses the existing single-thread behavior regardless of IOThreadsPolicy, and the `auto` policy reverts to assigning a single round-robin thread to virtio-blk disks
     - With the shared policy, the SCSI controller maps all its virtqueues to a single shared I/O thread
     - With the auto policy, each virtio-blk disk and the SCSI controller's virtqueues are allocated the full pool of non-dedicated I/O threads, up to a maximum of one thread per virtqueue (one virtqueue per vCPU)
@@ -107,8 +112,8 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
   - *Impact on testing approach:* Tests must validate on environments with the required libvirt/QEMU versions. On environments that do not meet the minimum versions (libvirt < 11.2.0 or QEMU < 10.0), the VM must be rejected at creation with a clear validation error indicating the unsupported version; silent degradation to single-thread behavior is not acceptable. The target OCP release ships libvirt 11.2.0+ and QEMU 10.0+; this rejection path applies only to clusters running older or mixed-version infrastructure
 
 - [x] **API Extensions**
-  - *List new or modified APIs:* No new user-facing APIs; the existing IOThreadsPolicy field in the VM spec is reused to control I/O thread allocation for the virtio-scsi controller's virtqueues. The `auto` policy behavior is modified: each virtio-blk disk and the SCSI controller's virtqueues now receive the full auto thread pool instead of a single round-robin thread.
-  - *Testing impact:* Tests must verify that existing IOThreadsPolicy values (shared, auto, supplementalPool) produce correct virtqueue-level mapping for the virtio-scsi controller, and that the modified `auto` policy allocates thread pools to virtio-blk disks
+  - *List new or modified APIs:* The existing IOThreadsPolicy field in the VM spec is reused to control I/O thread allocation for the virtio-scsi controller's virtqueues. A new `MultiIOThreadAutoPolicy` configuration field is added to the KubeVirt CR to toggle the new multi-threaded `auto` policy behavior for virtio-blk disks. The feature is gated behind the `SCSIMultiIOThread` feature gate.
+  - *Testing impact:* Tests must verify that existing IOThreadsPolicy values (shared, auto, supplementalPool) produce correct virtqueue-level mapping for the virtio-scsi controller, and that the modified `auto` policy allocates thread pools to virtio-blk disks only when both the `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle are enabled
 
 - [x] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
@@ -127,7 +132,9 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 - **[P0]** Verify that each IOThreadsPolicy (shared, auto, supplementalPool) produces predictable, policy-consistent I/O behavior for VMs with virtio-scsi disks when the feature gate is enabled
 - **[P1]** Verify that VM creation is rejected with a version-unsupported validation error when libvirt < 11.2.0 or QEMU < 10.0
-- **[P0]** Verify that the `auto` policy allocates the full auto thread pool to each disk regardless of bus type (virtio-blk and virtio-scsi)
+- **[P0]** Verify that the `auto` policy allocates the full auto thread pool to the SCSI controller's virtqueues when the `SCSIMultiIOThread` feature gate is enabled
+- **[P0]** Verify that the `auto` policy allocates the full auto thread pool to each virtio-blk disk only when both the `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle are enabled
+- **[P1]** Verify that with the `SCSIMultiIOThread` feature gate enabled but `MultiIOThreadAutoPolicy` disabled, the `auto` policy retains legacy single round-robin thread behavior for virtio-blk disks
 - **[P0]** Verify that VMs with mixed virtio-blk and virtio-scsi disks deliver correct I/O behavior for both device types under each policy
 - **[P1]** Verify that hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy set uses the existing thread pool and that a continuous fio writer on existing disks completes with no I/O errors
 - **[P1]** Verify that I/O thread allocation per disk does not exceed the number of virtqueues (equal to vCPU count) for both virtio-blk and virtio-scsi, even when the policy would otherwise allocate more threads
@@ -213,7 +220,7 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 - **Cluster Topology:** 3-master/3-worker bare-metal
 
-- **OCP & OpenShift Virtualization Version(s):** [TBD]
+- **OCP & OpenShift Virtualization Version(s):** OpenShift Virtualization 5.1
 
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
 
@@ -244,7 +251,8 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
-- [ ] Feature gate is implemented and available in the target build
+- [ ] `SCSIMultiIOThread` feature gate is implemented and available in the target build
+- [ ] `MultiIOThreadAutoPolicy` KubeVirt CR configuration is implemented and available in the target build
 - [ ] Test environment has libvirt 11.2.0+ and QEMU 10.0+ available
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
 
@@ -309,7 +317,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-86526]** — As a user, I want to dedicate multiple I/O threads for my virtio-scsi disks so that I can gain a performance increase during heavy I/O operations
-  - *Test Scenario:* [Tier 1] Verify auto IOThreadsPolicy on a VM (4 vCPUs, 2 virtio-scsi disks, 1 virtio-blk disk) shows in the domain XML that each virtio-blk disk and the SCSI controller's virtqueues are each assigned min(vCPUs, virtqueues) iothreads from the auto pool
+  - *Test Scenario:* [Tier 1] Verify auto IOThreadsPolicy on a VM (4 vCPUs, 2 virtio-scsi disks, 1 virtio-blk disk) with both `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle enabled shows in the domain XML that each virtio-blk disk and the SCSI controller's virtqueues are each assigned min(vCPUs, virtqueues) iothreads from the auto pool
   - *Priority:* P0
 
 - **[CNV-86526]** — As a user, I want to dedicate multiple I/O threads for my virtio-scsi disks so that I can gain a performance increase during heavy I/O operations
@@ -317,11 +325,15 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-86526]** — As a user, I want VMs using the auto policy to benefit from per-queue IOThread assignment regardless of bus type
-  - *Test Scenario:* [Tier 1] Verify auto IOThreadsPolicy on a VM (4 vCPUs, 2 virtio-blk disks, no virtio-scsi) shows in the domain XML that each virtio-blk disk is assigned min(vCPUs, virtqueues) iothreads from the auto pool, not a single round-robin thread
+  - *Test Scenario:* [Tier 1] Verify auto IOThreadsPolicy on a VM (4 vCPUs, 2 virtio-blk disks, no virtio-scsi) with both the `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle enabled shows in the domain XML that each virtio-blk disk is assigned min(vCPUs, virtqueues) iothreads from the auto pool, not a single round-robin thread
   - *Priority:* P0
 
+- **[CNV-86526]** — As a user, I want backwards compatibility for the auto policy on virtio-blk disks
+  - *Test Scenario:* [Tier 1] Verify auto IOThreadsPolicy on a VM (4 vCPUs, 2 virtio-blk disks, no virtio-scsi) with the `SCSIMultiIOThread` feature gate enabled but `MultiIOThreadAutoPolicy` disabled shows in the domain XML that each virtio-blk disk is assigned a single round-robin iothread (legacy behavior)
+  - *Priority:* P1
+
 - **[CNV-86526]** — As a user, I want to dedicate multiple I/O threads for my virtio-scsi disks so that I can gain a performance increase during heavy I/O operations
-  - *Test Scenario:* [Tier 2] Verify VM (4 vCPUs, 2 virtio-scsi disks, 2 virtio-blk disks) with each IOThreadsPolicy shows the expected iothread-to-device assignment in the domain XML: shared → all devices share 1 iothread; auto → each device gets min(vCPUs, virtqueues) iothreads; supplementalPool → SCSI virtqueues use supplemental-pool iothreads disjoint from virtio-blk iothreads
+  - *Test Scenario:* [Tier 2] Verify VM (4 vCPUs, 2 virtio-scsi disks, 2 virtio-blk disks) with each IOThreadsPolicy and both `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle enabled shows the expected iothread-to-device assignment in the domain XML: shared → all devices share 1 iothread; auto → each device gets min(vCPUs, virtqueues) iothreads; supplementalPool → SCSI virtqueues use supplemental-pool iothreads disjoint from virtio-blk iothreads
   - *Priority:* P0
 
 - **[CNV-86526]** — As a cluster admin, I want to use the supplementalPool policy with hotplug-heavy workloads so that the SCSI controller has a sufficient thread pool for dynamically added disks
