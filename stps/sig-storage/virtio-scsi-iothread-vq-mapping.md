@@ -325,7 +325,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P0
 
 - **[CNV-86526]** — As a cluster admin, I want to use the supplementalPool policy with hotplug-heavy workloads so that the SCSI controller has a sufficient thread pool for dynamically added disks
-  - *Test Scenario:* [Tier 2] Verify hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy uses the existing thread pool and a continuous fio writer on existing disks completes with no I/O errors 
+  - *Test Scenario:* [Tier 2] Verify hotplugging a virtio-scsi disk into a running VM with IOThreadsPolicy uses the existing thread pool and a continuous fio writer on existing disks completes with no I/O errors
   - *Priority:* P1
 
 - **[CNV-86526]** — As a user, I want to dedicate multiple I/O threads for my virtio-scsi disks so that I can gain a performance increase during heavy I/O operations
