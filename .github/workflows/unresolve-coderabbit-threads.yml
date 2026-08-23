@@ -8,6 +8,9 @@
 name: Unresolve unaddressed CodeRabbit threads
 
 on:
+  # pull_request_target is required so that BOT3_TOKEN is available for
+  # fork-authored PRs. This workflow MUST NOT check out or execute PR
+  # content, otherwise untrusted code would gain access to that secret.
   pull_request_target:
     types: [synchronize]
 
@@ -16,8 +19,9 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  # Required to unresolve review threads and add comments
-  pull-requests: write
+  # All API calls use BOT3_TOKEN, so GITHUB_TOKEN needs nothing.
+  # BOT3_TOKEN itself must be scoped to "pull requests: write" on this repo only.
+  contents: read
 
 jobs:
   unresolve-threads:
@@ -37,10 +41,16 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::warning::BOT3_TOKEN is not configured. Skipping CodeRabbit thread check."
+            exit 0
+          fi
+
           # Bot identity constants — GraphQL returns login without [bot] suffix
           # and uses __typename to distinguish bots from human users.
           BOT_LOGIN="coderabbitai"
           BOT_TYPE="Bot"
+          UNRESOLVE_NOTICE="⚠️ This thread was automatically unresolved because it was resolved without a substantive response. Please address the review comment and explain how it was resolved before resolving this thread again."
 
           # --- Helper: check if a thread should be unresolved ---
           check_and_unresolve_thread() {
@@ -49,18 +59,20 @@ jobs:
             thread_id=$(echo "$thread_data" | jq -r '.id')
 
             # Check if the opening comment is from CodeRabbit — if not, skip
-            local opener_login opener_type
+            local opener_login opener_type opener_id
             opener_login=$(echo "$thread_data" | jq -r '.opening_comment.nodes[0].author.login // ""')
             opener_type=$(echo "$thread_data" | jq -r '.opening_comment.nodes[0].author.__typename // ""')
+            opener_id=$(echo "$thread_data" | jq -r '.opening_comment.nodes[0].id // ""')
             if [ "$opener_login" != "$BOT_LOGIN" ] || [ "$opener_type" != "$BOT_TYPE" ]; then
               echo "Thread $thread_id not opened by CodeRabbit (opener: $opener_login, type: $opener_type). Skipping."
               return
             fi
 
-            # Check for a substantive reply from PR author (>= 15 chars) or CodeRabbit verification
+            # Check for a substantive reply from PR author (>= 15 chars) or CodeRabbit verification.
+            # Exclude the opening comment — its body often contains verification keywords.
             local has_response
-            has_response=$(echo "$thread_data" | jq -r --arg pr_author "$PR_AUTHOR" --arg bot_login "$BOT_LOGIN" --arg bot_type "$BOT_TYPE" '
-              any(.recent_comments.nodes[];
+            has_response=$(echo "$thread_data" | jq -r --arg pr_author "$PR_AUTHOR" --arg bot_login "$BOT_LOGIN" --arg bot_type "$BOT_TYPE" --arg opener_id "$opener_id" '
+              any(.recent_comments.nodes[] | select(.id != $opener_id);
                 (
                   # PR author posted a substantive reply (>= 15 chars)
                   (.author.login == $pr_author and ((.body // "") | length) >= 15)
@@ -78,26 +90,26 @@ jobs:
 
             # No substantive reply — unresolve the thread
             echo "Unresolving thread: $thread_id"
-            if gh api graphql -f query="
-              mutation {
-                unresolveReviewThread(input: {threadId: \"$thread_id\"}) {
+            if gh api graphql -f query='
+              mutation($threadId: ID!) {
+                unresolveReviewThread(input: {threadId: $threadId}) {
                   thread {
                     id
                     isResolved
                   }
                 }
               }
-            "; then
+            ' -f threadId="$thread_id"; then
               # Add a comment explaining why it was unresolved
-              gh api graphql -f query="
-                mutation {
-                  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: \"$thread_id\", body: \"⚠️ This thread was automatically unresolved because it was resolved without a substantive response. Please address the review comment and explain how it was resolved before resolving this thread again.\"}) {
+              gh api graphql -f query='
+                mutation($threadId: ID!, $body: String!) {
+                  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $threadId, body: $body}) {
                     comment {
                       id
                     }
                   }
                 }
-              " || echo "  Warning: failed to add comment to $thread_id"
+              ' -f threadId="$thread_id" -f body="$UNRESOLVE_NOTICE" || echo "  Warning: failed to add comment to $thread_id"
             else
               echo "  Warning: failed to unresolve $thread_id"
             fi
@@ -106,10 +118,9 @@ jobs:
           echo "Scanning all resolved threads for PR #$PR_NUMBER"
           CURSOR=""
           while true; do
+            AFTER_ARGS=()
             if [ -n "$CURSOR" ]; then
-              AFTER_ARG="-f after=$CURSOR"
-            else
-              AFTER_ARG=""
+              AFTER_ARGS=(-f "after=$CURSOR")
             fi
             PAGE=$(gh api graphql -f query='
               query($owner: String!, $repo: String!, $pr: Int!, $after: String) {
@@ -121,14 +132,16 @@ jobs:
                         isResolved
                         opening_comment: comments(first: 1) {
                           nodes {
+                            id
                             author {
                               login
                               __typename
                             }
                           }
                         }
-                        recent_comments: comments(last: 5) {
+                        recent_comments: comments(last: 50) {
                           nodes {
+                            id
                             author {
                               login
                               __typename
@@ -145,7 +158,7 @@ jobs:
                   }
                 }
               }
-            ' -f owner="${REPO%%/*}" -f repo="${REPO##*/}" -F pr="$PR_NUMBER" $AFTER_ARG)
+            ' -f owner="${REPO%%/*}" -f repo="${REPO##*/}" -F pr="$PR_NUMBER" "${AFTER_ARGS[@]}")
 
             # Process each resolved thread on this page
             echo "$PAGE" | jq -c '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == true)' | while read -r thread; do
