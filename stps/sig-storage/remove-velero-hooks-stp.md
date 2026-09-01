@@ -76,6 +76,9 @@ Cluster administrators can now control or disable the automatic Velero pre- and 
 - Changing the cluster-wide opt-out setting triggers reconciliation of all running VMs, which may cause a brief processing spike in large environments.
   - *Sign-off:* Peter Lauterbach/16-06-2026
 
+- Restoring from a backup taken with hooks disabled (skip-backup-hooks) may produce a VM with filesystem inconsistencies. Without fsfreeze, Velero captures crash-consistent snapshots; restored VMs may have corrupted XFS metadata or 0-byte files (e.g. SSH host keys), making guest agent connectivity and SSH unreliable. This is expected behavior — the annotation is designed for metadata-only workflows or environments where backup vendors handle the freeze themselves.
+  - *Sign-off:* Natalie Gavrilov/22-07-2026
+
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
@@ -108,7 +111,7 @@ This STP serves as the overall roadmap for testing, detailing the scope, approac
 - **[P0]** As a cluster administrator, I want to verify that backup hooks are present by default and that the cluster-wide opt-out dynamically adds and removes them on running VMs without requiring a restart.
 - **[P0]** As a cluster administrator, I want to verify that a per-VM opt-out setting takes precedence over the cluster-wide setting.
 - **[P0]** As a cluster administrator, I want to verify that the opt-out annotation is honored for a paused VM, confirming hooks are not injected regardless of VM state.
-- **[P0]** As a cluster administrator, I want to verify that a full Velero backup and restore workflow completes successfully with hooks disabled.
+- **[P0]** As a cluster administrator, I want to verify that a Velero backup completes without hook execution when hooks are disabled on a running VM.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -250,8 +253,8 @@ Scenarios trace to epic [CNV-79727](https://redhat.atlassian.net/browse/CNV-7972
   - *Test Scenario:* [Tier 2] Deploy a VM configured to opt out of backup hooks and pause it. Run a Velero backup. Confirm no hooks were attempted and the backup completed successfully.
   - *Priority:* P0
 
-- **[CNV-79727]** — As a cluster administrator, I want to perform a full backup and restore with hooks disabled
-  - *Test Scenario:* [Tier 2] Deploy a running VM with a per-VM opt-out annotation disabling backup hooks. Run a Velero backup. Delete the VM and its namespace. Restore from backup. Confirm the VM is running. Data integrity is not verified because freeze hooks are skipped.
+- **[CNV-79727]** — As a cluster administrator, I want to verify that a Velero backup completes without hook execution when hooks are disabled on a running VM
+  - *Test Scenario:* [Tier 2] Deploy a running VM with a per-VM opt-out annotation disabling backup hooks. Run a Velero backup. Confirm no freeze/unfreeze hooks were executed. Restore is not tested because skipping fsfreeze produces crash-consistent snapshots that may leave the restored filesystem inconsistent (e.g. corrupted XFS metadata, 0-byte files).
   - *Priority:* P0
 
 ---
@@ -267,3 +270,4 @@ This Software Test Plan requires approval from the following stakeholders:
   - QE Architect (OCP-V): [Ruth Netser](@rnetser)
   - QE Member (OCP-V): [Jenia Peimer](@jpeimer)
   - PM: [Peter Lauterbach](@peterclauterbach)
+  - Engineering Manager: [Natalie Gavrilov](@ngavrilo)

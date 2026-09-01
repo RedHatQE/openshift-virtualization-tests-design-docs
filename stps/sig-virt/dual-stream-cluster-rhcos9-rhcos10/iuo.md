@@ -1,4 +1,4 @@
-# Openshift-virtualization-tests Test plan
+# OpenShift-virtualization-tests Test plan
 
 ## **[Dual-Stream RHCOS 9.x + RHCOS 10.x — IUO Scope] - Quality Engineering Plan**
 
@@ -200,15 +200,24 @@ Covered by the parent STP. IUO-specific entry criteria:
 
 #### **5. Risks**
 
-No IUO-specific risks identified. Feature-wide risks are covered by the parent STP.
+**Test Coverage**
+
+- **Risk:** Must-gather may encounter differences in log paths or system service names between
+  RHCOS 9.x and RHCOS 10.x nodes, potentially causing incomplete diagnostic data collection.
+  - **Mitigation:** Must-gather output is compared between RHCOS 9.x and RHCOS 10.x during testing
+    to identify and address any gaps before GA.
+
+Feature-wide risks are covered by the parent STP.
 
 ---
 
 ### **III. Test Scenarios & Traceability**
 
 IUO coverage for dual-stream RHCOS is primarily provided through regression testing
-(existing Tier 1/2 suites on RHCOS 10.x clusters). The following new test scenarios
-are required for migration metrics validation on dual-stream clusters:
+(existing Tier 1/2 suites on RHCOS 10.x and dual-stream clusters). Node placement
+and must-gather validation are covered by existing regression suites — no new scenarios
+required. The following new test scenarios are required for migration metrics validation
+on dual-stream clusters:
 
 - **[CNV-85504]** — As a VM operator, I want migration metrics to be reported and populated when migrating from an RHCOS 9.x node to an RHCOS 10.x node.
   - *Test Scenario:* [Tier 2] Live migrate a VM from an RHCOS 9.x node to an RHCOS 10.x node and verify that migration metrics (duration, data processed, bandwidth) have values (non-zero/non-empty).

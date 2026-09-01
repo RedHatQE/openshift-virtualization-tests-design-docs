@@ -54,6 +54,17 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] No implementation details (no API names, no internal component names)
 - [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
   phase and which phase this STP covers
+- [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
+  "seamless") must have matching acceptance criteria and test scenarios. If the feature
+  doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
+  with Rationale and PM/Lead Agreement (name/date), or reference existing coverage
+  elsewhere (do not use Out of Scope for work already covered by other teams/suites).
+
+**Common rejection reasons:**
+- Feature Overview makes claims ("hardware-isolated," "safe multi-tenant") with no matching
+  acceptance criteria or test scenarios, and without documenting the gap in Out of Scope
+  with Rationale and PM/Lead Agreement
+- Feature Overview describes internal system changes instead of user capabilities
 
 ### I.1 — Requirement & User Story Review
 
@@ -124,8 +135,10 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] If regression goals are included in Testing Goals, they identify which SIG test suites
   run on the feature cluster. Regression testing is primarily documented in Test Strategy (II.2),
   and regression tests are NOT included in the Test Scenarios table (III).
-- [ ] Negative and edge-case scenarios are considered (e.g., "what happens if migration fails?",
-  "what if the VM starts during the operation?", "what about error handling?")
+- [ ] At least one negative or failure-path Testing Goal exists for each P0 functional goal
+  (e.g., "what happens if migration fails?", "what if the VM starts during the operation?",
+  "what about error handling?"). If negative scenarios are out of scope, they must be
+  documented in Out of Scope with PM/Lead agreement — "considered" alone is insufficient.
 - [ ] Goals are ordered by priority (P0 first, then P1, then P2)
 - [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
   the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
@@ -157,6 +170,7 @@ Assisted-by: Claude <noreply@anthropic.com>
   (e.g., CNI) to make the goal implementable
 - Test scenario added for post-stable-state behavior without justifying why the feature's
   execution history would produce a different outcome than baseline
+- No negative or failure-path Testing Goal (with matching Section III scenario) for P0 goals — only happy-path coverage
 
 ### II.2 — Test Strategy
 
@@ -170,14 +184,25 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Usability Testing: if checked, must describe what QE tests (not "UI team owns it")
 - [ ] If UI team owns UI testing, uncheck Usability and note in details
 - [ ] Monitoring: explicitly state whether alerts/metrics are required
+- [ ] Security: if Security NFR or Security Testing makes specific security claims
+  (e.g., "prevents command injection," "restricts access to authorized commands"),
+  a matching Testing Goal (II.1) and Section III scenario must exist. Vague security
+  claims without test coverage create false confidence.
 - [ ] Upgrade Testing: even if N/A, confirm the upgrade path was evaluated
 - [ ] Performance/Scale: even if deferred, document the consideration and plans
 - [ ] UI: if the feature has UI work, document who tests it (QE or UI team) with Jira link
+- [ ] If any testing type's details state something "must be verified/tested/validated,"
+  a corresponding Testing Goal (II.1) and Section III scenario must exist. Claims in
+  Test Strategy that aren't backed by goals/scenarios are empty promises.
+- [ ] Test Strategy details describe what is tested and how — not QE internal processes
+  (triage workflows, bug filing conventions, defect classification). Keep process
+  documentation in QE runbooks, not STPs.
 
 **Common rejection reasons:**
 - Usability checked but details say "UI team covers this" (contradictory)
 - Items marked N/A without justification
 - Upgrade Testing marked N/A without confirming upgrade path was considered
+- Test Strategy details claim something "must be verified" but no Testing Goal or scenario covers it
 
 ### II.3 — Test Environment
 
@@ -199,6 +224,22 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] At minimum: requirements approved + test environment configured
 - [ ] Feature-specific entry criteria added where applicable
 - [ ] Items marked `[x]` when completed, `[ ]` when pending
+
+### II.4.1 — Cross-Section Consistency
+
+Reviewers must verify these cross-references between sections:
+
+- [ ] Entry Criteria completion status (`[x]` vs `[ ]`) matches Dependencies and Test Limitations
+  — do not mark entry criteria complete if Dependencies or Test Limitations describe the same
+  item as a blocker
+- [ ] Testability claims ("all requirements testable through existing suites") align with
+  Automation Testing (II.2) and Section III — if new automation is required, Testability
+  must say so
+- [ ] Out of Scope "None" must be consistent with Test Strategy exclusions — if any testing
+  type explicitly skips coverage (e.g., Cloud Testing says "no dedicated cloud scenarios"),
+  that exclusion belongs in Out of Scope, not hidden in Test Strategy details
+- [ ] Security/Monitoring claims in Test Strategy (II.2) must have matching Testing Goals
+  in II.1 and Section III scenarios (see II.2 Security and must-be-verified rules)
 
 ### II.5 — Risks
 
@@ -235,6 +276,13 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
 - [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items
+- [ ] Scenario descriptions include observable pass criteria — not just "verify X works correctly."
+  Define what "correctly" means (e.g., "metrics are non-zero and consistent with the observed
+  migration workload," not "metrics are reported correctly")
+- [ ] Scenario expected outcomes are correct — especially for security-sensitive operations.
+  A scenario that expects success for a path-traversal input or injection payload validates
+  a vulnerability as correct behavior. Verify the expected result matches the feature's
+  intended security posture.
 - [ ] Regression tests are NOT listed here (they belong in Test Strategy)
 
 **Tier classification:**
@@ -248,11 +296,17 @@ Assisted-by: Claude <noreply@anthropic.com>
   user outcomes ("verify VMs can be created from architecture-specific boot sources")
 - Missing tier or priority
 - Scenarios don't map back to acceptance criteria
+- Scenario descriptions use unmeasurable language ("works correctly," "reported correctly")
+  without defining observable pass criteria
+- Scenario expects the wrong outcome (e.g., success for a path-traversal input that should
+  be rejected) — a test with the wrong expected result validates bugs as features
 
 ### IV — Sign-off and Approval
 
 - [ ] Reviewers listed with names and GitHub handles
-- [ ] Approvers listed (QE Lead, PM, Dev Lead at minimum)
+- [ ] Approvers listed with explicit role labels (QE Lead, Dev Lead, PM at minimum)
+  — each approver must include their role, name, and GitHub handle
+- [ ] Reviewers listed with role context (QE, Development, SIG representatives)
 - [ ] No placeholder text remaining
 
 ---
@@ -323,7 +377,8 @@ stps/sig-iuo/multiarch/
 - Use the current template format for STPs being added or modified in the PR
   (do not retroactively enforce on already-merged STPs)
 - Remove all template HTML comments and example text before submitting
-- Consider negative and edge-case test scenarios (error handling, partial failures, concurrent operations)
+- Include at least one negative or failure-path Testing Goal for each P0 functional goal,
+  with a matching Section III scenario — or document the omission in Out of Scope with PM/Lead agreement
 - Document what is NOT tested with explicit sign-off — anything untested must be visible
 - Order testing goals by priority (P0 first)
 
@@ -338,6 +393,7 @@ stps/sig-iuo/multiarch/
 - Leave checklist items unchecked when content is filled in
 - List items as "Out of Scope" when they are already covered by existing tests or other teams
 - Describe Topology Considerations in terms of internal resource creation — use cluster/network topology only
+- Include QE internal process language in Test Strategy (triage, bug filing, defect classification)
 - Submit child STPs that duplicate content from the parent STP
 
 ---
