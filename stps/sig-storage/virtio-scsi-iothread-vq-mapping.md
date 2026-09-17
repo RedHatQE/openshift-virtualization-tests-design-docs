@@ -131,7 +131,7 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 *Functional*
 
 - **[P0]** Verify that each IOThreadsPolicy (shared, auto, supplementalPool) produces predictable, policy-consistent I/O behavior for VMs with virtio-scsi disks when the feature gate is enabled
-- **[P1]** Verify that VM creation is rejected with a version-unsupported validation error when libvirt < 11.2.0 or QEMU < 10.0
+- **[P1]** Verify VM creation is rejected with a version-unsupported validation error when libvirt/QEMU are below the minimum (libvirt < 11.2.0 or QEMU < 10.0)
 - **[P0]** Verify that the `auto` policy allocates the full auto thread pool to the SCSI controller's virtqueues when the `SCSIMultiIOThread` feature gate is enabled
 - **[P0]** Verify that the `auto` policy allocates the full auto thread pool to each virtio-blk disk only when both the `SCSIMultiIOThread` feature gate and `MultiIOThreadAutoPolicy` toggle are enabled
 - **[P1]** Verify that with the `SCSIMultiIOThread` feature gate enabled but `MultiIOThreadAutoPolicy` disabled, the `auto` policy retains legacy single round-robin thread behavior for virtio-blk disks
