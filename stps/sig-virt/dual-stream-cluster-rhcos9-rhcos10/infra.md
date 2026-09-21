@@ -59,7 +59,7 @@ c) live migration operations
   - After successful operation on a CNV 5.0 / KubeVirt 1.9 dual-stream cluster, a RHEL VM can be deleted.
 
 - [x] **Testability**
-  - *Note any SIG-specific requirements that are unclear or untestable:* Windows and RHEL lifecycle coverage maps to `tests/infrastructure/instance_types/supported_os`; bidirectional RHEL live migration maps to `tests/virt/cluster/migration_and_maintenance/rhel9_rhel10_cluster/test_live_migration.py` (`mixed_os_nodes`). Dedicated CI lanes run these selections.
+  - *Note any SIG-specific requirements that are unclear or untestable:* Coverage maps to existing tests under `tests/infrastructure/instance_types/supported_os` in openshift-virtualization-tests. Dedicated CI lanes run these selections.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:* None — no new non-functional requirements introduced by this feature.
@@ -133,7 +133,7 @@ c) live migration operations
 **Functional**
 
 - [x] **Functional Testing** — Validates Windows VM operations on CNV 5.0 single-stream (RHCOS 9-only) and dual-stream topologies, RHEL VM operations on dual-stream clusters only, and bidirectional RHEL live migration on dual-stream clusters.
-  - *Details:* Windows: `tests/infrastructure/instance_types/supported_os` on RHCOS 9-only and dual-stream lanes. RHEL create/start/delete on dual-stream: same `supported_os` path. RHEL live migration (dual-stream): `tests/virt/cluster/migration_and_maintenance/rhel9_rhel10_cluster/test_live_migration.py` with `-m mixed_os_nodes` (separate from `supported_os`). P0 failure-path scenarios are excluded per Out of Scope (Section II.1).
+  - *Details:* All coverage uses `tests/infrastructure/instance_types/supported_os`: Windows via `TestCommonPreferenceWindows` on RHCOS 9-only and dual-stream lanes; RHEL create/start/delete via `TestVMCreationAndValidation` / `TestVMDeletion` on dual-stream; RHEL live migration via `TestVMMigrationAndState` on dual-stream only. P0 failure-path scenarios are excluded per Out of Scope (Section II.1).
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage.
   - *Details:* All scenarios run in dedicated CI lanes (see Section II.3.1).
@@ -141,8 +141,7 @@ c) live migration operations
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality.
   - *Details:* supported_os infrastructure regression selections per CNV 5.0 topology:
     - **CNV 5.0, RHCOS 9-only:** path `tests/infrastructure/instance_types/supported_os` with `-m infrastructure`; explicitly include `TestCommonPreferenceWindows`; deselect `TestVMMigrationAndState` in `test_rhel_os.py`; ignore CentOS and Fedora tests.
-    - **CNV 5.0, dual-stream (`supported_os`):** `TestCommonPreferenceWindows`; RHEL create, start, and delete tests in `tests/infrastructure/instance_types/supported_os`.
-    - **CNV 5.0, dual-stream (live migration):** `tests/virt/cluster/migration_and_maintenance/rhel9_rhel10_cluster/test_live_migration.py` with `-m mixed_os_nodes`.
+    - **CNV 5.0, dual-stream:** path `tests/infrastructure/instance_types/supported_os` — `TestCommonPreferenceWindows`; RHEL `TestVMCreationAndValidation`, `TestVMMigrationAndState`, and `TestVMDeletion` in `test_rhel_os.py`.
 
 - [ ] **Self-Validation Testing** — Tests to include in the self-validation package
   - *Details:* Not in sig-infra child scope — see [parent STP § II.2 Test Strategy](./stp.md#2-test-strategy).
@@ -216,8 +215,8 @@ Covered by the [parent STP](./stp.md). Infrastructure-specific requirements:
 - **Test Framework:** Standard. Tests require logic to identify nodes by RHCOS version, pin VMs to specific nodes before migration, and verify that migration crosses between RHCOS 9 and RHCOS 10 nodes.
 
 - **CI/CD:** Two dedicated CNV 5.0 lanes cover the infrastructure testing goals ([CNV-92281](https://issues.redhat.com/browse/CNV-92281)):
-  - `test-pytest-cnv-5.0-infrastructure-rhcos9` — `supported_os` selections (Section II.2)
-  - `test-pytest-cnv-5.0-infrastructure-dualstream` — `supported_os` plus `test_live_migration.py` with `-m mixed_os_nodes`
+  - `test-pytest-cnv-5.0-infrastructure-rhcos9` — `tests/infrastructure/instance_types/supported_os` selections (Section II.2)
+  - `test-pytest-cnv-5.0-infrastructure-dualstream` — `tests/infrastructure/instance_types/supported_os` selections (Section II.2)
 
 - **Other Tools:** N/A
 
@@ -250,36 +249,57 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
+Scenarios below map to **existing** automated tests under
+`tests/infrastructure/instance_types/supported_os` in
+[openshift-virtualization-tests](https://github.com/RedHatQE/openshift-virtualization-tests)
+(no new tests / no STD required). Lane names match Section II.3.1 CI/CD.
+
 - **[CNV-85277]** — As a cluster admin, I want a Windows VM to run correctly on a CNV 5.0 cluster with RHCOS 9-only workers.
   - *Test Scenario:* [Tier 2] Verify Windows VM reaches Running phase and passes guest connectivity checks on RHCOS 9-only workers.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_windows_os.py` — `TestCommonPreferenceWindows` (`test_create_vm`, `test_start_vm`, guest checks).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-rhcos9`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a cluster admin, I want a Windows VM to run correctly on a CNV 5.0 dual-stream cluster.
   - *Test Scenario:* [Tier 2] Verify Windows VM reaches Running phase and passes guest connectivity checks on a CNV 5.0 dual-stream cluster.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_windows_os.py` — `TestCommonPreferenceWindows` (`test_create_vm`, `test_start_vm`, guest checks).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a VM operator, I want a RHEL VM to remain Running while live-migrating from an RHCOS 9 worker to an RHCOS 10 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Verify RHEL VM remains in Running phase for the full RHCOS 9 → RHCOS 10 migration window (`test_live_migration.py`, `mixed_os_nodes`).
+  - *Test Scenario:* [Tier 2] Verify RHEL VM remains in Running phase for the full RHCOS 9 → RHCOS 10 migration window.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMMigrationAndState` (`test_migrate_vm`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a VM operator, I want guest workload continuity when live-migrating a RHEL VM from an RHCOS 9 worker to an RHCOS 10 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Verify a guest workload started before RHCOS 9 → RHCOS 10 migration remains reachable throughout the migration window without interruption or guest restart (`test_live_migration.py`, `mixed_os_nodes`).
+  - *Test Scenario:* [Tier 2] Verify a guest workload started before RHCOS 9 → RHCOS 10 migration remains reachable throughout the migration window without interruption or guest restart.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMMigrationAndState` (`test_pause_unpause_after_migrate`, `test_verify_virtctl_guest_agent_data_after_migrate`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a VM operator, I want a RHEL VM to remain Running while live-migrating from an RHCOS 10 worker to an RHCOS 9 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Verify RHEL VM remains in Running phase for the full RHCOS 10 → RHCOS 9 migration window (`test_live_migration.py`, `mixed_os_nodes`).
+  - *Test Scenario:* [Tier 2] Verify RHEL VM remains in Running phase for the full RHCOS 10 → RHCOS 9 migration window.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMMigrationAndState` (`test_migrate_vm`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a VM operator, I want guest workload continuity when live-migrating a RHEL VM from an RHCOS 10 worker to an RHCOS 9 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Verify a guest workload started before RHCOS 10 → RHCOS 9 migration remains reachable throughout the migration window without interruption or guest restart (`test_live_migration.py`, `mixed_os_nodes`).
+  - *Test Scenario:* [Tier 2] Verify a guest workload started before RHCOS 10 → RHCOS 9 migration remains reachable throughout the migration window without interruption or guest restart.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMMigrationAndState` (`test_pause_unpause_after_migrate`, `test_verify_virtctl_guest_agent_data_after_migrate`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P0
 
 - **[CNV-85277]** — As a cluster admin, I want to create and start a RHEL VM on a CNV 5.0 dual-stream cluster.
   - *Test Scenario:* [Tier 2] Verify RHEL VM creation and start succeed on a CNV 5.0 dual-stream cluster; VM reaches Running phase.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMCreationAndValidation` (`test_create_vm`, `test_start_vm`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P1
 
 - **[CNV-85277]** — As a cluster admin, I want to delete a RHEL VM on a CNV 5.0 dual-stream cluster after successful operation.
   - *Test Scenario:* [Tier 2] Verify RHEL VM deletion succeeds on a CNV 5.0 dual-stream cluster.
+  - *Test location:* `tests/infrastructure/instance_types/supported_os/test_rhel_os.py` — `TestVMDeletion` (`test_vm_deletion`).
+  - *CI lane:* `test-pytest-cnv-5.0-infrastructure-dualstream`
   - *Priority:* P1
 
 - **[CNV-92281]** — As QE, I need dedicated CI lanes for CNV 5.0 infrastructure testing on dual-stream and RHCOS 9-only topologies.
