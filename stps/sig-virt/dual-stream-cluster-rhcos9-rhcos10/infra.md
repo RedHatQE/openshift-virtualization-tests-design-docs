@@ -303,7 +303,7 @@ Scenarios below map to **existing** automated tests under
   - *Priority:* P1
 
 - **[CNV-92281]** — As QE, I need dedicated CI lanes for CNV 5.0 infrastructure testing on dual-stream and RHCOS 9-only topologies.
-  - *Test Scenario:* [Tier 1] Provision and validate `test-pytest-cnv-5.0-infrastructure-rhcos9` and `test-pytest-cnv-5.0-infrastructure-dualstream` lanes.
+  - *Test Scenario:* [Tier 2] Provision and validate `test-pytest-cnv-5.0-infrastructure-rhcos9` and `test-pytest-cnv-5.0-infrastructure-dualstream` lanes.
   - *Priority:* P0
 
 ---
