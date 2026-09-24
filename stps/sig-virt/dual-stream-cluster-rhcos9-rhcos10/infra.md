@@ -172,7 +172,7 @@ c) live migration operations
   - *Details:* Not in sig-infra child scope — see [parent STP § II.2](./stp.md#2-test-strategy).
 
 - [x] **Dependencies**
-  - *Details:* Dedicated CNV 5.0 CI lanes must be provisioned by QE DevOps before testing can begin ([CNV-92281](https://issues.redhat.com/browse/CNV-92281)).
+  - *Details:* Dedicated CNV 5.0 CI lanes are provisioned and available ([CNV-92281](https://issues.redhat.com/browse/CNV-92281) — Closed / Done): `test-pytest-cnv-5.0-infrastructure-rhcos9`, `test-pytest-cnv-5.0-infrastructure-dualstream`.
 
 - [ ] **Cross Integrations**
   - *Details:* Not in sig-infra child scope — see [parent STP § II.2](./stp.md#2-test-strategy).
