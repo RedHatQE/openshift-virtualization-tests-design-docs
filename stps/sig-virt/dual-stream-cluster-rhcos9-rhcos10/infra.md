@@ -121,6 +121,10 @@ c) live migration operations
   - *Rationale:* Dedicated `supported_os` infra lanes validate successful Windows/RHEL guest operation and successful RHEL live migration only. Deliberate failure injection (guest OS faults, forced unsuccessful migration with recovery expectations) is not part of the lane selection and is not owned by this child STP.
   - *PM/Lead Agreement:* Ruth Netser, 09/2026
 
+- **RHEL guest testing on RHCOS 9-only clusters**
+  - *Rationale:* Already covered by gating infrastructure regression. This STP focuses on dual-stream topologies and Windows guest coverage on RHCOS 9-only and dual-stream.
+  - *PM/Lead Agreement:* Akriti Gupta (@akri3i), 09/2026
+
 **Test Limitations**
 
 - **Testing is limited to worker nodes.** Full infrastructure regression on every topology combination is not executed — targeted supported_os selections and dedicated CI lanes cover the infra scope (see Test Strategy, Section II.2).
@@ -133,7 +137,7 @@ c) live migration operations
 **Functional**
 
 - [x] **Functional Testing** — Validates Windows VM operations on CNV 5.0 single-stream (RHCOS 9-only) and dual-stream topologies, RHEL VM operations on dual-stream clusters only, and bidirectional RHEL live migration on dual-stream clusters.
-  - *Details:* All coverage uses `tests/infrastructure/instance_types/supported_os`: Windows via `TestCommonPreferenceWindows` on RHCOS 9-only and dual-stream lanes; RHEL create/start/delete via `TestVMCreationAndValidation` / `TestVMDeletion` on dual-stream; RHEL live migration via `TestVMMigrationAndState` on dual-stream only. P0 failure-path scenarios are excluded per Out of Scope (Section II.1).
+  - *Details:* All coverage uses `tests/infrastructure/instance_types/supported_os`: Windows via `TestCommonPreferenceWindows` on RHCOS 9-only and dual-stream lanes; RHEL create/start/delete via `TestVMCreationAndValidation` / `TestVMDeletion` on dual-stream; RHEL live migration via `TestVMMigrationAndState` on dual-stream only. RHEL guest testing on RHCOS 9-only is out of scope (see Out of Scope, Section II.1). P0 failure-path scenarios are excluded per Out of Scope (Section II.1).
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage.
   - *Details:* All scenarios run in dedicated CI lanes (see Section II.3.1).
