@@ -111,13 +111,21 @@ graph TD
 
 This repository uses automated linting to maintain consistent Markdown formatting.
 
+#### Repository Tools
+
+| Tool | Purpose |
+|------|---------|
+| `tools/check_stp_moves.py` | Validates existing moved-STP stubs as part of pre-commit. |
+
 #### Prerequisites
 
-```bash
-# Install pre-commit
-pip install pre-commit
+Install uv first using your package manager or the [official guide](https://docs.astral.sh/uv/getting-started/installation/), then install pre-commit:
 
-# Install pre-commit hooks
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+uv tool install pre-commit
+uv tool update-shell
+export PATH="$HOME/.local/bin:$PATH"
 pre-commit install
 ```
 
@@ -129,9 +137,10 @@ pre-commit run --all-files
 
 # Run on specific files
 pre-commit run --files README.md docs/stp-guide.md
+
 ```
 
-See `.markdownlint.yaml` for complete configuration with detailed comments for each rule.
+The move validator and its tests use pre-commit-managed Python environments and run in both local pre-commit and pre-commit.ci. See `.markdownlint.yaml` for complete Markdown configuration with detailed comments for each rule.
 
 ## Responsibilities
 

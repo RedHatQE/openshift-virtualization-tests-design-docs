@@ -2,6 +2,21 @@
 # See https://pre-commit.com for more information
 
 repos:
+  - repo: local
+    hooks:
+      - id: check-stp-moves
+        name: Check STP move stubs
+        entry: tools/check_stp_moves.py
+        language: python
+        pass_filenames: false
+        files: ^stps/.*\.md$
+      - id: test-stp-moves
+        name: Test STP move validator
+        entry: tools/test_check_stp_moves.py
+        language: python
+        pass_filenames: false
+        files: ^(stps/.*\.md|tools/check_stp_moves\.py|tools/test_check_stp_moves\.py|\.pre-commit-config\.yaml)$
+
   # Markdownlint for Markdown file linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.49.1

@@ -175,6 +175,30 @@ The STP template uses four distinct categories for constraints. Refer to the tem
 - Product Manager
 - Development Lead
 
+## Moving an STP
+
+The canonical STP may move, but its historical paths must remain available as permanent stubs. When moving an STP:
+
+1. Move the canonical STP to the new path.
+2. Leave a stub at the old path.
+3. Update every existing stub for that STP to point directly to the new canonical path.
+4. Never delete historical stubs.
+5. The pre-commit hooks validate the move stub before submitting the change.
+
+The validator and its regression tests run as pre-commit-managed Python hooks in both local pre-commit and pre-commit.ci. They validate all existing moved-STP stubs; pre-commit does not inspect deleted paths that are no longer present in the working tree.
+
+Use this format for every historical path:
+
+```markdown
+<!-- STP-MOVED-TO: stps/<sig>/<current-file>.md -->
+
+# MOVED
+
+This STP was moved to [the current STP](<relative-link-from-this-stub>.md).
+```
+
+The Markdown link is relative to the stub's directory. For a nested stub at `stps/sig-virt/feature/old.md` pointing to `stps/sig-virt/feature/current.md`, use `[the current STP](current.md)`. The target in `STP-MOVED-TO` must be the current canonical file, not another stub. The validator checks that targets exist and stubs are clearly marked.
+
 ## STP Lifecycle
 
 ### 1. Feature Review (Pre-STP)
