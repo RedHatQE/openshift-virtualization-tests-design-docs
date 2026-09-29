@@ -6,7 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_stp_moves import validate, without_html_tags
+from check_stp_moves import validate, validate_base_ref, without_html_tags
+from unittest.mock import patch
 
 
 STUB = """<!-- STP-MOVED-TO: stps/sig-virt/current.md -->
@@ -206,6 +207,102 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "commit -m delete")
         self.assertIn("permanent stub", validate(root, base)[0])
 
+    def test_deleted_path_with_special_characters_requires_a_stub(self):
+        root = Path(tempfile.mkdtemp())
+        original = root / 'stps/sig-virt/über\t"\roriginal".md'
+        original.parent.mkdir(parents=True)
+        original.write_text("# STP\n", encoding="utf-8")
+        self.git(root, "init")
+        self.git(root, "config user.email test@example.com")
+        self.git(root, "config user.name Test")
+        self.git(root, "add .")
+        self.git(root, "commit -m initial")
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        original.unlink()
+        self.git(root, "add .")
+        self.git(root, "commit -m delete")
+        errors = validate(root, base)
+        escaped = repr(str(original.relative_to(root)))
+        self.assertTrue(any(escaped in error and "permanent stub" in error for error in errors))
+        original.write_text("<!-- STP-MOVED-TO: stps/sig-virt/current.md -->\n\n# MOVED\n\n[current](current.md)\n", encoding="utf-8")
+        (original.parent / "current.md").write_text("# Current STP\n", encoding="utf-8")
+        self.assertEqual(validate(root, base), [])
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_copy_then_delete_records_are_indexed(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"C100\0source.md\0copy.md\0D\0deleted.md\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("deleted.md" in error for error in errors))
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_malformed_git_status_is_rejected(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"D\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_unknown_git_status_is_rejected(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"Q\0evil.md\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_invalid_git_status_score_is_rejected(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"D100\0evil.md\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_out_of_range_git_status_score_is_rejected(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"R999\0old.md\0new.md\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+        run.reset_mock()
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"C101\0old.md\0new.md\0"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+        run.reset_mock()
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=(b"R" + b"9" * 5000 + b"\0old.md\0new.md\0")),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+        run.reset_mock()
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout="R²\0old.md\0new.md\0".encode()),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("malformed git diff" in error for error in errors))
+
+    @patch("check_stp_moves.subprocess.run")
+    def test_unterminated_git_status_is_rejected(self, run):
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, stdout=b""),
+            subprocess.CompletedProcess([], 0, stdout=b"D\0deleted.md"),
+        ]
+        errors = validate_base_ref(Path("."), "base", {})
+        self.assertTrue(any("missing NUL terminator" in error for error in errors))
+
     def test_restored_stub_satisfies_committed_deletion(self):
         root = Path(tempfile.mkdtemp())
         original = root / "stps/sig-virt/original.md"
@@ -240,6 +337,25 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "add .")
         self.git(root, "commit -m rename")
         self.assertIn("permanent stub", validate(root, base)[0])
+
+    def test_rename_path_with_special_characters_requires_a_stub(self):
+        root = Path(tempfile.mkdtemp())
+        original = root / 'stps/sig-virt/über\t"\roriginal".md'
+        renamed = root / 'stps/sig-virt/über\t"\rrenamed".md'
+        original.parent.mkdir(parents=True)
+        original.write_text("# STP\n", encoding="utf-8")
+        self.git(root, "init")
+        self.git(root, "config user.email test@example.com")
+        self.git(root, "config user.name Test")
+        self.git(root, "add .")
+        self.git(root, "commit -m initial")
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        original.rename(renamed)
+        self.git(root, "add .")
+        self.git(root, "commit -m rename")
+        errors = validate(root, base)
+        escaped = repr(str(original.relative_to(root)))
+        self.assertTrue(any(escaped in error and "permanent stub" in error for error in errors))
 
     @staticmethod
     def git(root, command):

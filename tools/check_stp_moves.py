@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -270,6 +271,15 @@ def escaped_link(text: str, start: int) -> bool:
     return False
 
 
+def valid_status(status: str) -> bool:
+    if not status or status[0] not in "ACDMRTXUB":
+        return False
+    if status[0] in "RC":
+        score = status[1:]
+        return not score or len(score) <= 3 and score.isascii() and score.isdigit() and 0 <= int(score) <= 100
+    return len(status) == 1
+
+
 def validate_base_ref(root: Path, base_ref: str, stubs: dict[Path, str]) -> list[str]:
     errors: list[str] = []
     if not base_ref:
@@ -280,15 +290,35 @@ def validate_base_ref(root: Path, base_ref: str, stubs: dict[Path, str]) -> list
         return ["base ref must not start with '-'"]
     try:
         subprocess.run(["git", "rev-parse", "--verify", f"{base_ref}^{{commit}}"], cwd=root, capture_output=True, text=True, check=True)
-        result = subprocess.run(["git", "diff", "--name-status", "--find-renames", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, text=True, check=True)
+        result = subprocess.run(["git", "diff", "-z", "--name-status", "--find-renames", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, check=True)
     except (OSError, ValueError, UnicodeError, subprocess.CalledProcessError) as error:
         return [f"cannot inspect base ref {base_ref}: {error}"]
-    for row in result.stdout.splitlines():
-        fields = row.split("\t")
-        if fields[0].startswith("R") or fields[0] == "D":
-            deleted = fields[1]
-            if deleted.endswith(".md") and Path(deleted) not in stubs:
-                errors.append(f"{deleted}: moved/deleted STPs must leave a permanent stub")
+    raw = result.stdout
+    if raw and not raw.endswith(b"\0"):
+        return ["malformed git diff status stream: missing NUL terminator"]
+    fields = raw.split(b"\0")
+    if fields and fields[-1] == b"":
+        fields.pop()
+    index = 0
+    while index < len(fields):
+        if not fields[index]:
+            errors.append("malformed git diff status record: empty status")
+            break
+        status = os.fsdecode(fields[index])
+        if not valid_status(status):
+            errors.append(f"malformed git diff status record: {status!r}")
+            break
+        path_count = 2 if status[0] in "RC" else 1
+        path_start = index + 1
+        path_end = path_start + path_count
+        paths = fields[path_start:path_end]
+        if len(paths) != path_count or any(not path for path in paths):
+            errors.append(f"malformed git diff status record: {status!r}")
+            break
+        deleted = os.fsdecode(paths[0])
+        index = path_end
+        if (status.startswith("R") or status == "D") and deleted.endswith(".md") and Path(deleted) not in stubs:
+            errors.append(f"{deleted!r}: moved/deleted STPs must leave a permanent stub")
     return errors
 
 
