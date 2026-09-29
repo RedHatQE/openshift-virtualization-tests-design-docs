@@ -123,7 +123,7 @@ c) live migration operations
 
 - **RHEL guest testing on RHCOS 9-only clusters**
   - *Rationale:* Already covered by gating infrastructure regression. This STP focuses on dual-stream topologies and Windows guest coverage on RHCOS 9-only and dual-stream.
-  - *PM/Lead Agreement:* Akriti Gupta (@akri3i), 09/2026
+  - *Sign-off:* Michal Jankowski, 09/2026
 
 **Test Limitations**
 
