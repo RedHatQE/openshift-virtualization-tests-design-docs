@@ -290,7 +290,7 @@ def validate_base_ref(root: Path, base_ref: str, stubs: dict[Path, str]) -> list
         return ["base ref must not start with '-'"]
     try:
         subprocess.run(["git", "rev-parse", "--verify", f"{base_ref}^{{commit}}"], cwd=root, capture_output=True, text=True, check=True)
-        result = subprocess.run(["git", "diff", "-z", "--name-status", "--find-renames", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, check=True)
+        result = subprocess.run(["git", "diff", "-z", "--name-status", "--find-renames", "--relative", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, check=True)
     except (OSError, ValueError, UnicodeError, subprocess.CalledProcessError) as error:
         return [f"cannot inspect base ref {base_ref}: {error}"]
     raw = result.stdout
