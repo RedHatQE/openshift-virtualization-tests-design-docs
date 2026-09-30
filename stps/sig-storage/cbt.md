@@ -1,0 +1,1 @@
+<!-- STP-MOVED-TO: stps/sig-storage/cbt/cbt.md -->

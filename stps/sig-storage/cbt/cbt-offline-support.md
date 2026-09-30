@@ -8,22 +8,23 @@
 - **Feature Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
 - **Epic Tracking:** [VIRTSTRAT-481](https://redhat.atlassian.net/browse/VIRTSTRAT-481) (storage agnostic incremental backup)
 - **Feature Maturity:**
-  - DP: N/A
+  - DP: CNV 5.1.0
   - TP: N/A
-  - GA: CNV v5.1.0
+  - GA: N/A
 - **QE Owner(s):** Emanuele Prella (eprella@redhat.com)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
-- **Related STP:** This plan extends the [CBT STP](./cbt.md) with offline VM backup scenarios for GA in CNV v5.1.0
+- **Related STP:** This plan extends the [CBT STP](./cbt.md) with offline VM backup scenarios.
 
 **Document Conventions (if applicable):**
 
-- **Offline VM:** A stopped (powered-off) virtual machine.
 - **Offline backup:** A backup of a stopped VM that reports offline mode to the backup provider.
+- **Push mode:** Backup mode where the hypervisor writes backup data to a user-provided PVC.
+- **Pull mode:** Backup mode where the hypervisor exposes an NBD export and the client pulls backup data. Scratch space on a PVC is used during the backup.
 
 ### **Feature Overview**
 
-Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. VEP 401 extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs, enabling complete protection regardless of VM power state. Offline mode is selected automatically when the source VM is stopped.This STP covers GA validation for offline VM backup only; running-VM backup remains in the existing CBT test plan.
+Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This enhancement extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs, enabling complete protection regardless of VM power state. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and checkpoint continuity while retaining the existing running-VM backup scope in the parent CBT plan. Restore is not a CNV product capability.
 
 ---
 
@@ -79,15 +80,15 @@ The limitations are documented to ensure alignment between development, QA, and 
 The following are confirmed product constraints accepted before testing begins.
 
 - **Only one offline incremental backup between VM starts**
-  - VEP-401 known limitation — second incremental while VM remains stopped produces empty delta and is rejected
+  - VEP-401 known limitation — A second incremental while still stopped is rejected; a full backup can proceed.
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 - **RAW disk format is not supported for offline CBT**
-  - VEP-401 non-goal — change tracking requires QCOW2
+  - VEP-401 non-goal — Offline change tracking requires QCOW2 disk overlays.
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 - **Automatic VM stop/start orchestration is not supported**
-  - VEP-401 non-goal
+  - VEP-401 non-goal - Offline backup does not automatically stop or start the source VM.
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 - **Pull-mode trust boundary: deleting a completed backup request advances the checkpoint even if the provider did not retrieve all data**
@@ -95,11 +96,11 @@ The following are confirmed product constraints accepted before testing begins.
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 - **Node affinity window**
-  - VEP 401 known limitation - Brief scheduling restriction after backup completion while backup resources release volume mounts
+  - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
   - *Sign-off:* [Placeholder] / [Date placeholder] 
 
 - **Restore as a product feature is not supported**
-  - Inherited from parent CBT STP — restore used only for backup integrity validation
+  - Inherited from parent CBT STP — Restore used only for backup integrity validation
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 #### **3. Technology and Design Review**
@@ -120,7 +121,7 @@ The following are confirmed product constraints accepted before testing begins.
   - *Impact on testing approach:* Scenarios derived from VEP 401 functional testing approach; prioritize online→offline transition and start-gating as P0; validate push vs pull completion paths separately
 
 - [x] **API Extensions**
-  - *List new or modified APIs:* No new CRs — existing backup API from VEP #25 extended for stopped VMs; backup status includes an offline indicator
+  - *List new or modified APIs:* No new CRs — he existing backup API accepts stopped VMs and reports offline operation.
   - *Testing impact:* Extend existing backup API tests with stopped-VM fixtures; verify offline status on backup resources; feature gate enablement is a prerequisite
 
 - [x] **Test Environment Needs**
@@ -238,7 +239,7 @@ found will not be classified as defects for this release.
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* QCOW2 VM disks required; validate RWO block and filesystem storage classes. Windows stopped VM covered at P1. Online CBT checkpoints must remain compatible with offline incremental backups.
+  - *Details:* QCOW2 VM disks required; validate RWO block and filesystem storage classes. Online CBT checkpoints must remain compatible with offline incremental backups.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
   - *Details:* Section III validates offline incremental backup after upgrade with existing online CBT checkpoints; verify in-progress offline backup fails cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
@@ -272,7 +273,7 @@ found will not be classified as defects for this release.
 
 - **Required Operators:** OpenShift Virtualization (CNV)
 
-- **Platform:** Standard (bare metal or supported cloud — no platform-specific offline backup behavior)
+- **Platform:** Standard (bare metal or virtualized — no platform-specific offline backup behavior)
 
 - **Special Configurations:** CBT feature gate enabled; offline incremental backup feature gate enabled; VM disks must use QCOW2 format for offline CBT scenarios
 
@@ -289,7 +290,7 @@ found will not be classified as defects for this release.
 The following conditions must be met before testing can begin:
 
 - [x] Requirements and design documents are **approved and merged** (VEP 401 merged via [PR #402](https://github.com/kubevirt/enhancements/pull/402))
-- [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
+- [x] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
 - [ ] Offline VM backup feature gate available in CNV v5.1 test builds
 - [ ] CNV-side offline backup API implementation available (CNV-96536)
 - [ ] Developer Handoff/QE Kickoff meeting completed
