@@ -149,23 +149,23 @@ and schedule.
 - **[P0] G07 — Windows recovery integrity:** As a backup provider, validate that Windows data recovered from offline push and pull backups matches the source data through the existing recovery workflow; backup completion alone is insufficient evidence of integrity.
 - **[P0] G08 — Online-to-offline continuity:** As a backup provider, use an online CBT checkpoint, stop the VM, and complete offline incremental push and pull backups that capture only changes after the checkpoint while preserving the usable backup chain.
 - **[P0] G09 — Start gating:** As a cluster admin, verify that a VM cannot start during an active offline push or pull backup and can start only after the appropriate completion, deletion, or cleanup action.
-- **[P0] G11 — Checkpoint continuity across restart:** As a backup provider, verify that offline checkpoints remain usable across VM restart and support a subsequent incremental backup without missing backed-up data.
-- **[P1] G12 — Interruption and recovery safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no advancement of recoverable history, preservation of valid tracking, and a successful later backup.
-- **[P1] G13 — Deletion handling:** As a cluster admin, delete the source VM during an active push or pull backup and verify that the backup fails while VM deletion completes.
-- **[P1] G14 — Same-source conflicts:** As a cluster admin, reject overlapping push and pull requests for the same stopped VM while an offline backup is active.
-- **[P1] G15 — Offline forced-full behavior:** As a backup provider, reject unchanged repeat offline incremental push and pull requests while allowing an explicitly forced full offline backup to proceed for the stopped VM.
-- **[P1] G16 — Offline full fallback:** As a backup provider, for a stopped VM, use a full push or pull backup for a disk with missing or inconsistent tracking history while retaining incremental treatment for eligible disks.
-- **[P1] G17 — Offline hotplugged disks:** As a cluster admin, after a disk is added to a VM and the VM is stopped, back up the new disk fully while backing up existing disks incrementally in both push and pull modes.
-- **[P1] G18 — Active-source rejection:** As a cluster admin, reject push and pull requests when residual runtime activity prevents the source VM from being fully stopped.
-- **[P1] G19 — Per-disk degradation:** As a backup provider, distinguish a disk that becomes unavailable during backup from healthy output in push and pull mode without reporting complete-guest success when a required disk is unavailable.
-- **[P1] G20 — Rollback safety:** As a cluster admin, fail an active offline push or pull backup safely during supported rollback and verify that the VM is not permanently blocked and later operations remain possible.
-- **[P1] G21 — Offline pull authorization:** As a cluster admin, allow authorized offline pull reads and reject invalid or unauthenticated export credentials.
-- **[P1] G22 — Offline storage compatibility:** As a cluster admin, complete offline push and pull backups for QCOW2 disks on the supported block and filesystem storage classes required by the offline path.
-- **[P2] G23 — Concurrent offline backups:** As a cluster admin, complete concurrent push and pull offline backups on five stopped VMs without errors or corruption, subject to existing CBT cluster-level parallelism limits.
-- **[P2] G24 — Unsupported disk format:** As a cluster admin, reject offline push and pull backup for VMs using RAW disks while retaining support for the required QCOW2 format.
-- **[P2] G25 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing the prior checkpoint or losing prior history.
-- **[P2] G26 — Migration continuity:** As a cluster admin, start with an existing online CBT checkpoint, complete live migration while the VM is running, stop the VM, and verify that the retained checkpoint supports an offline incremental backup.
-- **[P2] G27 — Upgrade continuity:** As a cluster admin, preserve recoverability across a supported upgrade and complete offline incremental push and pull backups from online CBT checkpoints that already exist.
+- **[P0] G10 — Checkpoint continuity across restart:** As a backup provider, verify that offline checkpoints remain usable across VM restart and support a subsequent incremental backup without missing backed-up data.
+- **[P1] G11 — Interruption and recovery safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no advancement of recoverable history, preservation of valid tracking, and a successful later backup.
+- **[P1] G12 — Deletion handling:** As a cluster admin, delete the source VM during an active push or pull backup and verify that the backup fails while VM deletion completes.
+- **[P1] G13 — Same-source conflicts:** As a cluster admin, reject overlapping push and pull requests for the same stopped VM while an offline backup is active.
+- **[P1] G14 — Offline forced-full behavior:** As a backup provider, reject unchanged repeat offline incremental push and pull requests while allowing an explicitly forced full offline backup to proceed for the stopped VM.
+- **[P1] G15 — Offline full fallback:** As a backup provider, for a stopped VM, use a full push or pull backup for a disk with missing or inconsistent tracking history while retaining incremental treatment for eligible disks.
+- **[P1] G16 — Offline hotplugged disks:** As a cluster admin, after a disk is added to a VM and the VM is stopped, back up the new disk fully while backing up existing disks incrementally in both push and pull modes.
+- **[P1] G17 — Active-source rejection:** As a cluster admin, reject push and pull requests when residual runtime activity prevents the source VM from being fully stopped.
+- **[P1] G18 — Per-disk degradation:** As a backup provider, distinguish a disk that becomes unavailable during backup from healthy output in push and pull mode without reporting complete-guest success when a required disk is unavailable.
+- **[P1] G19 — Rollback safety:** As a cluster admin, fail an active offline push or pull backup safely during supported rollback and verify that the VM is not permanently blocked and later operations remain possible.
+- **[P1] G20 — Offline pull authorization:** As a cluster admin, allow authorized offline pull reads and reject invalid or unauthenticated export credentials.
+- **[P1] G21 — Offline storage compatibility:** As a cluster admin, complete offline push and pull backups for QCOW2 disks on the supported block and filesystem storage classes required by the offline path.
+- **[P2] G22 — Concurrent offline backups:** As a cluster admin, complete concurrent push and pull offline backups on five stopped VMs without errors or corruption, subject to existing CBT cluster-level parallelism limits.
+- **[P2] G23 — Unsupported disk format:** As a cluster admin, reject offline push and pull backup for VMs using RAW disks while retaining support for the required QCOW2 format.
+- **[P2] G24 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing the prior checkpoint or losing prior history.
+- **[P2] G25 — Migration continuity:** As a cluster admin, start with an existing online CBT checkpoint, complete live migration while the VM is running, stop the VM, and verify that the retained checkpoint supports an offline incremental backup.
+- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve recoverability across a supported upgrade and complete offline incremental push and pull backups from online CBT checkpoints that already exist.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -341,20 +341,20 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 1] **TS-02:** With the offline backup feature gate disabled, submit a stopped-VM pull request; confirm the request is rejected and no offline export or offline status is created.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want to create a full offline push backup of a stopped Linux VM with complete disk artifacts
-  - *Test Scenario:* [Tier 1] **TS-03:** Complete a full push backup of a stopped Linux VM; confirm offline status, full-mode disk artifacts, and successful export completion.
+- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline push backup, including when an incremental request has no prior checkpoint
+  - *Test Scenario:* [Tier 1] **TS-03:** Request an incremental push backup for a stopped Linux VM with no prior checkpoint; confirm it falls back to a full backup with offline status and complete full-mode disk artifacts.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want to create a full offline pull backup of a stopped Linux VM after complete retrieval and finalization
-  - *Test Scenario:* [Tier 1] **TS-04:** Complete a full pull backup of a stopped Linux VM; retrieve all exported data, finalize the request, and confirm full-mode exports and offline status.
+- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline pull backup, including when an incremental request has no prior checkpoint
+  - *Test Scenario:* [Tier 1] **TS-04:** Request an incremental pull backup for a stopped Linux VM with no prior checkpoint; retrieve and finalize the export, then confirm it falls back to a full export with offline status.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want an offline push incremental backup to contain only blocks changed since the prior checkpoint
-  - *Test Scenario:* [Tier 1] **TS-05:** Complete a full push backup, change data while the Linux VM remains stopped, then complete an incremental push backup; confirm only changed blocks are present for eligible disks.
+- **[CNV-96511]** — As a cluster admin, I want an offline push incremental backup to contain only blocks changed since the prior checkpoint
+  - *Test Scenario:* [Tier 1] **TS-05:** Complete a full push backup, start the Linux VM and write additional data, stop the VM, then complete an offline incremental push backup; confirm only blocks changed since the full backup are present for eligible disks.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want an offline pull incremental backup to contain only blocks changed since the prior checkpoint after retrieval and finalization
-  - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, change data while the Linux VM remains stopped, then retrieve and finalize an incremental pull backup; confirm only changed blocks are exported and incomplete retrieval is not acknowledged as complete.
+- **[CNV-96511]** — As a cluster admin, I want an offline pull incremental backup to contain only blocks changed since the prior checkpoint after retrieval and finalization
+  - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, start the Linux VM and write additional data, stop the VM, then retrieve and finalize an offline incremental pull backup; confirm only blocks changed since the full backup are exported and incomplete retrieval is not acknowledged as complete.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want recovered Linux data from offline backups to match the source data
@@ -368,24 +368,24 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want an online CBT checkpoint to remain usable for offline incremental backup after the VM stops
-  - *Test Scenario:* [Tier 2] **TS-11:** Start with an online CBT checkpoint, stop the Linux VM, and complete an offline incremental push backup; confirm only post-checkpoint changes are captured and the VM starts successfully afterward.
-  - *Test Scenario:* [Tier 2] **TS-12:** Start with an online CBT checkpoint, stop the Linux VM, and complete an offline incremental pull backup; confirm only post-checkpoint changes are exported and the VM starts successfully afterward.
+  - *Test Scenario:* [Tier 2] **TS-11:** Start with an online CBT checkpoint, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental push backup; confirm the dirty extent map contains only post-checkpoint writes and the VM starts successfully afterward.
+  - *Test Scenario:* [Tier 2] **TS-12:** Start with an online CBT checkpoint, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental pull backup; confirm the exported dirty extents contain only post-checkpoint writes and the VM starts successfully afterward.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want VM startup blocked while an offline backup is active and allowed after completion
-  - *Test Scenario:* [Tier 2] **TS-13:** Attempt to start the VM during an active offline push backup; confirm startup is blocked until successful completion, then confirm startup succeeds.
-  - *Test Scenario:* [Tier 2] **TS-14:** Attempt to start the VM during an active offline pull backup; confirm startup is blocked until the required request deletion or cleanup, then confirm startup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-13:** Attempt to start the VM during an active offline push backup; confirm startup is blocked while the export pod finishes writing and the backup completes, then confirm startup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-14:** Attempt to start the VM during an active offline pull backup; delete the backup request through the backup API, then confirm the backup reaches its expected terminal state, no backup operation remains active, startup unblocks, and the VM starts successfully.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want offline checkpoints to remain usable across VM restart
-  - *Test Scenario:* [Tier 2] **TS-15:** After an offline push backup, start and restart the VM, then complete a push incremental backup; confirm checkpoint continuity and no missing backed-up data.
-  - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, then complete a pull incremental backup; confirm checkpoint continuity and no missing backed-up data.
+  - *Test Scenario:* [Tier 2] **TS-15:** After an offline push backup, start and restart the VM, confirm the checkpoint is redefined during boot, then complete a push incremental backup; confirm checkpoint continuity and no missing backed-up data.
+  - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, confirm the checkpoint is redefined during boot, then complete a pull incremental backup; confirm checkpoint continuity and no missing backed-up data.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without losing recoverable history
   - *Test Scenario:* [Tier 2] **TS-17:** Interrupt an active offline push transfer; confirm explicit failure, no checkpoint advancement, preserved prior history, and a later successful backup.
-  - *Test Scenario:* [Tier 2] **TS-18:** Interrupt offline push preparation; after recovery, confirm valid tracking is preserved, inconsistent tracking is recreated, and a later backup succeeds.
-  - *Test Scenario:* [Tier 2] **TS-19:** Interrupt offline pull preparation; after recovery, confirm valid tracking is preserved, inconsistent tracking is recreated, and a later backup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-18:** Crash the export pod during offline push bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-19:** Crash the export pod during offline pull bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want source VM deletion to complete even when an offline backup is active
