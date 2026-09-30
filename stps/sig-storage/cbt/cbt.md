@@ -153,7 +153,9 @@ The following are confirmed product constraints accepted before testing begins.
 | Known Limitation                                                    | Rationale/Details              | PM/ Lead Agreement |
 |:--------------------------------------------------------------------|:-------------------------------|:-------------------|
 | Restore as a feature is not supported                               | There is no restore API, restore workflows, or restore UX. Restore is used only to validate that backup was done properly (backup integrity), not as a product feature. | [x] Peter Lauterbach / May 7, 2026 |
-| Offline backup is not supported                                     | Only online backup is supported in initial implementation per VEP.   | [x] Peter Lauterbach / May 7, 2026 |
+| ~~Offline backup is not supported~~                                     | ~~Only online backup is supported in initial implementation per VEP.~~    | ~~[x] Peter Lauterbach / May 7, 2026~~|
+
+ Edit: Offline backup is now supported and documented in [CBT offline STP](./cbt-offline-support.md).
 
 ---
 
