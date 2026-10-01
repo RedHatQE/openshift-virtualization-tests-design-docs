@@ -121,7 +121,7 @@ The following are confirmed product constraints accepted before testing begins.
   - *Impact on testing approach:* Scenarios derived from VEP 401 functional testing approach; prioritize online→offline transition and start-gating as P0; validate push vs pull completion paths separately
 
 - [x] **API Extensions**
-  - *List new or modified APIs:* No new CRs — he existing backup API accepts stopped VMs and reports offline operation.
+  - *List new or modified APIs:* No new CRs — the existing backup API accepts stopped VMs and reports offline operation.
   - *Testing impact:* Extend existing backup API tests with stopped-VM fixtures; verify offline status on backup resources; feature gate enablement is a prerequisite
 
 - [x] **Test Environment Needs**
