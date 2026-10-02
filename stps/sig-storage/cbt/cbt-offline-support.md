@@ -97,7 +97,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - **Node affinity window**
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
-  - *Sign-off:* [Placeholder] / [Date placeholder] 
+  - *Sign-off:* [Placeholder] / [Date placeholder]
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
@@ -106,7 +106,7 @@ The following are confirmed product constraints accepted before testing begins.
 #### **3. Technology and Design Review**
 
 - [ ] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* 
+  - *Key takeaways and concerns:*
     - Not yet held. Design context is available from merged VEP 401 ([PR #402](https://github.com/kubevirt/enhancements/pull/402)); a dedicated QE kickoff with storage/CBT dev is pending before P0 test execution. Kickoff must confirm CNV v5.1 offline backup feature gate name, build availability, and test environment prerequisites.
 
 - [x] **Technology Challenges**
