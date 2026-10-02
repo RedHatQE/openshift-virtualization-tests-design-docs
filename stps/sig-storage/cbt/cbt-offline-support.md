@@ -5,8 +5,8 @@
 ### **Metadata & Tracking**
 
 - **Enhancement(s):** [VEP 401: Offline Incremental Backup](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/401-offline-incremental-backup/offline-incremental-backup.md) ([merged PR #402](https://github.com/kubevirt/enhancements/pull/402)); [CNV-92883](https://redhat.atlassian.net/browse/CNV-92883) (downstream tracking); extends [VEP #25 CBT](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/incremental-backup.md)
-- **Feature Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
-- **Epic Tracking:** [VIRTSTRAT-481](https://redhat.atlassian.net/browse/VIRTSTRAT-481) (storage agnostic incremental backup)
+- **Feature Tracking:** [VIRTSTRAT-481](https://redhat.atlassian.net/browse/VIRTSTRAT-481) (storage agnostic incremental backup)
+- **Epic Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
 - **Feature Maturity:**
   - DP: CNV 5.1.0
   - TP: N/A
@@ -273,7 +273,7 @@ found will not be classified as defects for this release.
 
 - **Platform:** Standard (bare metal or virtualized — no platform-specific offline backup behavior)
 
-- **Special Configurations:** CBT feature gate enabled; offline incremental backup feature gate enabled; VM disks must use QCOW2 format for offline CBT scenarios
+- **Special Configurations:** CBT feature gate enabled; offline incremental backup feature gate enabled (`OfflineIncrementalBackup`); VM disks must use QCOW2 format for offline CBT scenarios
 
 #### **3.1. Testing Tools & Frameworks**
 
