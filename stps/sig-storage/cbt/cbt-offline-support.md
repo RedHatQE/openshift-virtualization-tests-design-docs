@@ -39,7 +39,7 @@ technology, and testability before formal test planning.
   - *List the key D/S requirements reviewed:*
     - VEP-401 merged upstream ([PR #402](https://github.com/kubevirt/enhancements/pull/402)) — offline incremental backup for stopped VMs
     - Incremental backup of stopped/offline VMs via the CNV backup API (CNV v5.1, feature gate)
-    - Automated e2e tests for offline VM backup and restore validation (CNV-96537)
+    - Automated e2e tests for offline VM backup and integrity validation (CNV-96537)
     - STP updated to include offline VM backup scenarios (CNV-96538)
     - Same backup API as online CBT ([VEP #25](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/incremental-backup.md)); backup status exposes offline mode
 
@@ -100,7 +100,7 @@ The following are confirmed product constraints accepted before testing begins.
   - *Sign-off:* [Placeholder] / [Date placeholder] 
 
 - **Restore as a product feature is not supported**
-  - Inherited from parent CBT STP — Restore used only for backup integrity validation
+  - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
   - *Sign-off:* [Placeholder] / [Date placeholder]
 
 #### **3. Technology and Design Review**
@@ -116,7 +116,7 @@ The following are confirmed product constraints accepted before testing begins.
     - Bitmap validation failures and per-disk fallback to full backup
     - Hotplugged disks without prior checkpoints (full backup for new disk, incremental for others)
     - Stale VM runtime pods blocking backup requests
-    - Export pod crash during bitmap creation and recovery on restart
+    - Bitmap consistency after an export pod crashes and restarts during bitmap creation
     - VM deletion during backup (backup must fail cleanly)
   - *Impact on testing approach:* Scenarios derived from VEP 401 functional testing approach; prioritize online→offline transition and start-gating as P0; validate push vs pull completion paths separately
 
@@ -150,7 +150,7 @@ and schedule.
 - **[P0] G08 — Online-to-offline continuity:** As a backup provider, use an online CBT checkpoint, stop the VM, and complete offline incremental push and pull backups that capture only changes after the checkpoint while preserving the usable backup chain.
 - **[P0] G09 — Start gating:** As a cluster admin, verify that a VM cannot start during an active offline push or pull backup and can start only after the appropriate completion, deletion, or cleanup action.
 - **[P0] G10 — Checkpoint continuity across restart:** As a backup provider, verify that offline checkpoints remain usable across VM restart and support a subsequent incremental backup without missing backed-up data.
-- **[P1] G11 — Interruption and recovery safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no advancement of recoverable history, preservation of valid tracking, and a successful later backup.
+- **[P1] G11 — Interruption and retry safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no checkpoint advancement, preservation of the prior checkpoint, and a successful later backup.
 - **[P1] G12 — Deletion handling:** As a cluster admin, delete the source VM during an active push or pull backup and verify that the backup fails while VM deletion completes.
 - **[P1] G13 — Same-source conflicts:** As a cluster admin, reject overlapping push and pull requests for the same stopped VM while an offline backup is active.
 - **[P1] G14 — Offline forced-full behavior:** As a backup provider, reject unchanged repeat offline incremental push and pull requests while allowing an explicitly forced full offline backup to proceed for the stopped VM.
@@ -165,7 +165,7 @@ and schedule.
 - **[P2] G23 — Unsupported disk format:** As a cluster admin, reject offline push and pull backup for VMs using RAW disks while retaining support for the required QCOW2 format.
 - **[P2] G24 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing the prior checkpoint or losing prior history.
 - **[P2] G25 — Migration continuity:** As a cluster admin, start with an existing online CBT checkpoint, complete live migration while the VM is running, stop the VM, and verify that the retained checkpoint supports an offline incremental backup.
-- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve recoverability across a supported upgrade and complete offline incremental push and pull backups from online CBT checkpoints that already exist.
+- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve existing online CBT checkpoints across a supported upgrade and complete offline incremental push and pull backups containing only changes made after those checkpoints.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -382,7 +382,7 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, confirm the checkpoint is redefined during boot, then complete a pull incremental backup; confirm checkpoint continuity and no missing backed-up data.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without losing recoverable history
+- **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without advancing or losing the prior checkpoint
   - *Test Scenario:* [Tier 2] **TS-17:** Interrupt an active offline push transfer; confirm explicit failure, no checkpoint advancement, preserved prior history, and a later successful backup.
   - *Test Scenario:* [Tier 2] **TS-18:** Crash the export pod during offline push bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
   - *Test Scenario:* [Tier 2] **TS-19:** Crash the export pod during offline pull bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
@@ -459,9 +459,9 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 2] **TS-48:** Start with an existing online CBT checkpoint, live migrate the running VM, stop it, and complete an offline incremental pull backup; confirm the retained checkpoint supports the backup.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a cluster admin, I want offline incremental backups to remain recoverable across a supported upgrade
-  - *Test Scenario:* [Tier 2] **TS-49:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental push backup from an existing online CBT checkpoint; confirm recoverability is preserved.
-  - *Test Scenario:* [Tier 2] **TS-50:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental pull backup from an existing online CBT checkpoint; confirm recoverability is preserved.
+- **[CNV-96511]** — As a cluster admin, I want existing online CBT checkpoints to remain usable for offline incremental backup across a supported upgrade
+  - *Test Scenario:* [Tier 2] **TS-49:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental push backup from an existing online CBT checkpoint; confirm the backup contains only changes made after that checkpoint.
+  - *Test Scenario:* [Tier 2] **TS-50:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental pull backup from an existing online CBT checkpoint; confirm the retrieved export contains only changes made after that checkpoint.
   - *Priority:* P2
 
 ---
