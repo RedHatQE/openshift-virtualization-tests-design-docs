@@ -145,8 +145,8 @@ and schedule.
 - **[P0] G03 — Full pull backup:** As a backup provider, complete a full backup of a stopped Linux VM in pull mode only after all disk data has been retrieved and the request has been finalized, verifying the expected full-mode exports, offline status, and completion boundary.
 - **[P0] G04 — Incremental push backup:** As a backup provider, complete an incremental push backup of a continuously stopped Linux VM and verify that each disk contains only blocks changed since the selected prior checkpoint.
 - **[P0] G05 — Incremental pull backup:** As a backup provider, complete an incremental pull backup of a continuously stopped Linux VM only after full retrieval and finalization, verifying changed-only exports for each disk and documenting the incomplete-pull acknowledgement boundary.
-- **[P0] G06 — Linux recovery integrity:** As a backup provider, validate that Linux data recovered from offline push and pull backups matches the source data through the existing recovery workflow; backup completion alone is insufficient evidence of integrity.
-- **[P0] G07 — Windows recovery integrity:** As a backup provider, validate that Windows data recovered from offline push and pull backups matches the source data through the existing recovery workflow; backup completion alone is insufficient evidence of integrity.
+- **[P0] G06 — Linux backup integrity:** As a backup provider, validate completed Linux offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
+- **[P0] G07 — Windows backup integrity:** As a backup provider, validate completed Windows offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
 - **[P0] G08 — Online-to-offline continuity:** As a backup provider, use an online CBT checkpoint, stop the VM, and complete offline incremental push and pull backups that capture only changes after the checkpoint while preserving the usable backup chain.
 - **[P0] G09 — Start gating:** As a cluster admin, verify that a VM cannot start during an active offline push or pull backup and can start only after the appropriate completion, deletion, or cleanup action.
 - **[P0] G10 — Checkpoint continuity across restart:** As a backup provider, verify that offline checkpoints remain usable across VM restart and support a subsequent incremental backup without missing backed-up data.
@@ -357,14 +357,14 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, start the Linux VM and write additional data, stop the VM, then retrieve and finalize an offline incremental pull backup; confirm only blocks changed since the full backup are exported and incomplete retrieval is not acknowledged as complete.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want recovered Linux data from offline backups to match the source data
-  - *Test Scenario:* [Tier 2] **TS-07:** Recover data from a stopped-VM Linux push backup; confirm recovered data matches the source data.
-  - *Test Scenario:* [Tier 2] **TS-08:** Recover data from a stopped-VM Linux pull backup; confirm recovered data matches the source data.
+- **[CNV-96511]** — As a backup provider, I want to validate Linux offline backup completion and integrity
+  - *Test Scenario:* [Tier 2] **TS-07:** Complete full and incremental push backups for a stopped Linux VM; validate backup completion and confirm the backed-up disk data matches the source data at each selected backup point.
+  - *Test Scenario:* [Tier 2] **TS-08:** Complete full and incremental pull backups for a stopped Linux VM, retrieving and finalizing each export; validate backup completion and confirm the retrieved disk data matches the source data at each selected backup point.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want recovered Windows data from offline backups to match the source data
-  - *Test Scenario:* [Tier 3] **TS-09:** Complete full and incremental push backups for a stopped Windows VM, recover the selected backup, and confirm recovered data matches the source data.
-  - *Test Scenario:* [Tier 3] **TS-10:** Complete full and incremental pull backups for a stopped Windows VM, recover the selected backup, and confirm recovered data matches the source data.
+- **[CNV-96511]** — As a backup provider, I want to validate Windows offline backup completion and integrity
+  - *Test Scenario:* [Tier 3] **TS-09:** Complete full and incremental push backups for a stopped Windows VM; validate backup completion and confirm the backed-up disk data matches the source data at each selected backup point.
+  - *Test Scenario:* [Tier 3] **TS-10:** Complete full and incremental pull backups for a stopped Windows VM, retrieving and finalizing each export; validate backup completion and confirm the retrieved disk data matches the source data at each selected backup point.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want an online CBT checkpoint to remain usable for offline incremental backup after the VM stops
