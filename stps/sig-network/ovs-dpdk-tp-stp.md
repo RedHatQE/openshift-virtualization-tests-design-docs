@@ -48,9 +48,9 @@ Performance-intensive VM workloads need higher network throughput and lower late
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* VM owners can attach a high-performance network interface to workloads that need it; cluster admins can deploy and enable the capability on supported bare-metal environments.
   - *List the customer use cases identified:*
-    - As a VM owner, I would like to run a DPDK application in my VM by using OVS-DPDK network binding, to gain high-throughput and low-latency.
-    - As a VM owner, I would like to be able to live-migrate an OVS-DPDK based VM.
-    - As a cluster admin, I would like to enable DPDK network acceleration.
+    - As a VM owner, I want to run a DPDK application in my VM by using OVS-DPDK network binding, to gain high-throughput and low-latency.
+    - As a VM owner, I want to live-migrate an OVS-DPDK based VM.
+    - As a cluster admin, I want to enable DPDK network acceleration.
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:* Core flows are testable. The OVS-DPDK DRA driver setup is applied at cluster deployment time (day-0; see CNV-96151 for the CI lane implementation tracking issue), so it will be eventually validated by the dedicated tests.
@@ -60,20 +60,20 @@ Performance-intensive VM workloads need higher network throughput and lower late
     1. A VM with OVS DPDK network binding plugin starts successfully and has connectivity through the assigned device.
     2. A VM with OVS DPDK network binding plugin can be live-migrated (limited to binding using ResourceClaimTemplate); an active connection established before migration is maintained and restored after migration completes, and the VM is reachable on the destination node.
     3. VMs with OVS-DPDK network devices on a bridge configured with a non-default MTU can exchange traffic using the full jumbo-frame payload size, with no fragmentation.
-    4. A VM with two OVS-DPDK network interfaces, each backed by a separate entry in `devices.requests` within the same ResourceClaim (one device per request; not `count > 1` on a single request), starts successfully and has connectivity through both interfaces.
+    4. A VM with two OVS-DPDK network interfaces (several requests in the same ResourceClaim, not multiple devices on a single request), starts successfully and has connectivity through both interfaces.
     5. Two VMs requesting the same device (same OVS-DPDK device class), each using different ports (separate ResourceClaims), can be co-scheduled on the same node and exchange traffic with each other.
     - *Note any gaps or missing criteria:* None for TP scope.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
     - Security: No new RBAC or authentication changes introduced; existing Kubernetes DRA access controls and webhook validations apply.
-    - Scalability: No new scale requirements for TP phase; the feature follows the [existing DRA scalability model](https://github.com/kubevirt/enhancements/blob/main/veps/sig-compute/10-dra-devices/vep.md#scalability) from Kubernetes.
+    - Scalability: No new scale requirements for TP phase. Device scheduling and claim allocation follow the [existing DRA scalability model](https://github.com/kubevirt/enhancements/blob/main/veps/sig-compute/10-dra-devices/vep.md#scalability) (metadata/API load and local device metadata reads). Live migration of RCT-backed OVS-DPDK attachments still depends on platform-wide limits that already apply to OpenShift Virtualization (for example, cluster-wide concurrent live-migration caps) and on per-node OVS-DPDK device availability on the migration destination. Those inherited constraints are acknowledged; this feature does not introduce new scale targets beyond them. TP functional tests use single-VM (low-count) migration on the bare-metal test cluster, not max cluster parallelism.
     - Monitoring/Observability: No new metrics or alerts required for TP phase.
     - UI: Feature is API-driven; no new UI components required. UI team confirmed no testing needed for TP.
     - Performance: No performance requirements defined for TP phase; performance validation is deferred to GA, and is anyway owned by the dedicated performance team and is outside this team's scope.
     - Documentation: Tracked in https://redhat.atlassian.net/browse/CNV-98307
   - *Note any NFRs not covered and why:*
-    - Portability (cloud): OVS-DPDK requires bare-metal; cloud platform testing is not applicable.
+    - Portability (cloud): OVS-DPDK requires bare-metal, which we currently don't have with cloud platform support; therefore - cloud platform testing is not applicable.
 
 #### **2. Known Limitations**
 
@@ -127,6 +127,8 @@ Performance-intensive VM workloads need higher network throughput and lower late
 
 - **[P0] [TG-1]** Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface.
   - *Setup:* Device allocated via ResourceClaimTemplate; VM uses the OVS-DPDK network binding plugin.
+- **[P0] [TG-14]** Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other (e.g. using a PMD application such as testpmd between guests).
+  - *Setup:* Two VMs each with an OVS-DPDK attachment; L2 reachability per test harness (see test case for topology).
 - **[P0] [TG-2]** Verify that a VM with an OVS-DPDK network attachment can be live-migrated between nodes; an active connection established before migration is maintained or re-established within normal migration bounds after migration completes, and the VM is reachable on the destination node.
   - *Setup:* Backing device allocated via ResourceClaimTemplate (required for live migration in this release).
 - **[P1] [TG-3]** Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface when the device is allocated without a per-VM claim template.
@@ -192,7 +194,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
   - *Details:* Not applicable for TP phase; no performance requirements defined. Deferred to GA.
 
 - [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
-  - *Details:* Not applicable for TP phase; no scale requirements defined. The feature follows the existing DRA scalability model.
+  - *Details:* Not applicable for TP phase; no dedicated scale test plan. Inherited platform limits (including cluster-wide live-migration parallelism) and per-node OVS-DPDK device capacity can constrain scheduling and migration in production; this STP does not add scale scenarios to validate those limits.
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* Not applicable; no new RBAC or authentication changes introduced. Webhook admission validation for invalid DRA network configurations is covered by unit tests in the KubeVirt codebase (see [CNV-97357](https://redhat.atlassian.net/browse/CNV-97357)).
@@ -206,7 +208,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* Validate that the feature gate can be toggled between enabled and disabled. Existing Multus-based VM tests run as regression to confirm no impact from enabling the feature gate.
+  - *Details:* Existing Multus-based VM tests run as regression (when feature-gate enabled) to confirm no impact from OVS-DPDK network workloads on the same cluster and nodes.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions (starting from 5.1), data migration, and configuration preservation
   - *Details:* Validate that a VM with an RCT-backed network device remains functional after an OCP minor-version upgrade with connectivity re-established after the upgrade (see P2 testing goal).
@@ -220,7 +222,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
 **Infrastructure**
 
 - [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing?
-  - *Details:* Not applicable. OVS-DPDK requires bare-metal; cloud platforms are not supported for this feature.
+  - *Details:* Not applicable. OVS-DPDK requires bare-metal, and the cloud platforms that we use are currently not available on bare-metal.
 
 #### **3. Test Environment**
 
@@ -236,7 +238,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
 - **Required Operators:** N/A
 - **Platform:** Bare-metal
 - **Special Configurations:** OVS-DPDK DRA driver deployed and configured on worker nodes at cluster provisioning time (day-0; see CNV-96151); `NetworkDevicesWithDRA` feature gate enabled; network binding plugin registered in the HyperConverged CR.
-- **Not suitable for:** Cloud platforms (OVS-DPDK requires bare-metal hardware).
+- **Not suitable for:** Cloud platforms (OVS-DPDK requires bare-metal hardware, and we currently don't have cloud-platform bare-metal clusters).
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -253,7 +255,6 @@ The following conditions must be met before testing can begin:
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] OCP 5.1 version confirmed (which necessarily assures Kubernetes server version ≥ 1.36)
 - [ ] Test environment is **set up and configured** with OVS-DPDK DRA driver deployed and functional (see Section II.3)
-- [ ] `NetworkDevicesWithDRA` feature gate is available and can be toggled in the test cluster
 - [ ] Network binding plugin is registered for the OVS-DPDK device type in the HCO CR
 
 #### **5. Risks**
@@ -298,21 +299,21 @@ The following conditions must be met before testing can begin:
 
 | Requirement ID   | Requirement Summary                                                                                                                                                        | Test Scenario(s)                                                                                                                                                                                                                                                                                               | Tier | Priority |
 |:-----------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----|:---------|
-| CNV-88618 (epic) | As a VM owner, I want to attach OVS-DPDK-managed network devices to my VM using a ResourceClaimTemplate so I can consume them the same way I would in a container workload | [TG-1] Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface. | Tier 1 | P0 |
-|                  | As a VM owner, I want two VMs with OVS-DPDK-managed network devices to be able to communicate with each other                                                              | [TG-1] Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other (via a PMD application, i.e. testpmd). | Tier 1 | P0 |
-|                  | As a VM owner, I want to live-migrate my VM with a OVS-DPDK-managed network device so I can perform maintenance with minimal VM downtime                                   | [TG-2] Verify that a VM with an OVS-DPDK network attachment can be live-migrated between nodes; an active connection established before migration is maintained or re-established within normal migration bounds after migration completes, and the VM is reachable on the destination node. | Tier 2 | P0 |
-|                  | As a VM owner, I want to attach OVS-DPDK-managed network devices to my VM using a direct ResourceClaim so I can consume them the same way I would in a container workload  | [TG-3] Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface when the device is allocated without a per-VM claim template. | Tier 1 | P1 |
-| AC #3            | As a VM owner, I want jumbo-frame traffic to traverse my OVS-DPDK interface without fragmentation                                                                          | [TG-6] Verify that two VMs with OVS-DPDK network attachments can exchange traffic at full jumbo-frame payload size with no fragmentation. | Tier 1 | P1 |
-|                  | As a VM owner, I want to attach two independent high-performance network interfaces to my VM                                                                               | [TG-4] Verify that a VM with two OVS-DPDK network interfaces starts successfully and traffic flows independently on each interface. | Tier 1 | P1 |
-| AC #4            | As a VM owner, I want to attach two OVS-DPDK network interfaces from different device classes to my VM using a single ResourceClaim                                        | [TG-7] Verify that a VM with two OVS-DPDK network interfaces starts successfully and has connectivity through both interfaces when both interfaces are provisioned from a single device claim. | Tier 1 | P1 |
-| AC #5            | As a VM owner, I want two VMs using the same OVS-DPDK device class via separate ResourceClaims to be co-scheduled on the same node and exchange traffic with each other | [TG-8] Verify that two VMs with OVS-DPDK network attachments on the same node can exchange traffic with each other. | Tier 1 | P1 |
-|                  | As a VM owner, I want my existing VM's network to recover if the backing driver is restarted                                                                               | [TG-5] Verify that after the OVS-DPDK DRA driver is restarted, existing VMs with OVS-DPDK network attachments remain reachable. | Tier 2 | P1 |
-|                  | As a VM owner, I want to create new VMs with OVS-DPDK network devices after the backing driver is restarted                                                                | [TG-5] Verify that after the OVS-DPDK DRA driver is restarted, newly created VMs can start and achieve connectivity. | Tier 2 | P1 |
-|                  | As a VM owner, I want my OVS-DPDK network device to remain functional after OVS is restarted | [TG-13] Verify that when OVS is restarted, VMs with OVS-DPDK network attachments remain reachable. | Tier 2 | P1 |
-|                  | As a VM owner, I want my DRA-backed network device to remain usable after a cluster upgrade                                                                                | [TG-11] Verify that a VM with an OVS-DPDK network attachment remains running after an OCP minor-version upgrade and network connectivity can be re-established after the upgrade completes. | Tier 2 | P2 |
-|                  | As a VM owner, I want to live-migrate my VM even after the backing driver was restarted                                                                                    | [TG-9] Verify that a VM with an OVS-DPDK network attachment can be live-migrated with connectivity preserved after the OVS-DPDK DRA driver has been restarted on both source and destination nodes. | Tier 2 | P2 |
-|                  | As a VM owner, I want VMs on different nodes sharing the same DeviceClass to each get an independent OVS-DPDK device and communicate with each other                       | [TG-10] Verify that two VMs on different nodes, each with an OVS-DPDK network attachment, start successfully and can exchange traffic over their respective interfaces. | Tier 2 | P2 |
-|                  | As a VM owner, I want my OVS-DPDK network device to remain functional after a guest reboot                                                                                 | [TG-12] Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot. | Tier 2 | P2 |
+| CNV-88618 (epic) | As a VM owner, I want to attach an OVS-DPDK network interface to my VM so it can exchange traffic over a high-throughput, low-latency connection.                          | [TG-1] Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface. *Setup:* device allocated via ResourceClaimTemplate (see Section II.1 [TG-1]). | Tier 1 | P0 |
+|                  | As a VM owner, I want two VMs with OVS-DPDK network interfaces to exchange traffic with each other.                                                                        | [TG-14] Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other (e.g. using a PMD application such as testpmd between guests). | Tier 1 | P0 |
+|                  | As a VM owner, I want to live-migrate my VM that uses an OVS-DPDK network interface so I can perform node maintenance and remain reachable on the destination node.        | [TG-2] Verify that a VM with an OVS-DPDK network attachment can be live-migrated between nodes; an active connection established before migration is maintained or re-established within normal migration bounds after migration completes, and the VM is reachable on the destination node. *Setup:* ResourceClaimTemplate-backed allocation (see Section II.1 [TG-2]). | Tier 2 | P0 |
+|                  | As a VM owner, I want to attach an OVS-DPDK network interface to my VM so it can exchange traffic over a high-throughput, low-latency connection.                          | [TG-3] Verify that a VM with an OVS-DPDK network attachment starts successfully and has network connectivity through that interface. *Setup:* device allocated via a direct ResourceClaim, not a per-VM ResourceClaimTemplate (see Section II.1 [TG-3]). | Tier 1 | P1 |
+| AC #3            | As a VM owner, I want jumbo-frame traffic to traverse my OVS-DPDK interface without fragmentation.                                                                         | [TG-6] Verify that two VMs with OVS-DPDK network attachments can exchange traffic at full jumbo-frame payload size with no fragmentation. *Setup:* OVS bridge with non-default MTU (see Section II.1 [TG-6]). | Tier 1 | P1 |
+|                  | As a VM owner, I want two independent OVS-DPDK network interfaces on my VM so traffic can flow on each interface separately.                                               | [TG-4] Verify that a VM with two OVS-DPDK network interfaces starts successfully and traffic flows independently on each interface. *Setup:* each interface backed by a separate ResourceClaimTemplate-generated claim (see Section II.1 [TG-4]). | Tier 1 | P1 |
+| AC #4            | As a VM owner, I want two OVS-DPDK network interfaces on my VM and connectivity through both connections.                                                                  | [TG-7] Verify that a VM with two OVS-DPDK network interfaces starts successfully and has connectivity through both interfaces. *Setup:* one ResourceClaim with two named `devices.requests` entries (one device per request; not `count > 1` on a single request) (see Section II.1 [TG-7]). | Tier 1 | P1 |
+| AC #5            | As a VM owner, I want two VMs on the same node with OVS-DPDK interfaces to exchange traffic with each other.                                                            | [TG-8] Verify that two VMs with OVS-DPDK network attachments on the same node can exchange traffic with each other. *Setup:* each VM uses its own ResourceClaim against the same OVS-DPDK device class; both VMs scheduled on one node (see Section II.1 [TG-8]). | Tier 1 | P1 |
+|                  | As a VM owner, I want my VM to remain reachable on its OVS-DPDK interface after the OVS-DPDK network driver is restarted.                                                  | [TG-5] Verify that after the OVS-DPDK DRA driver is restarted, existing VMs with OVS-DPDK network attachments remain reachable. | Tier 2 | P1 |
+|                  | As a VM owner, I want to create a new VM with an OVS-DPDK interface and reach the network after the network driver was restarted.                                          | [TG-5] Verify that after the OVS-DPDK DRA driver is restarted, newly created VMs can start and achieve connectivity. | Tier 2 | P1 |
+|                  | As a VM owner, I want my VM to remain reachable on its OVS-DPDK interface after OVS is restarted on the node. | [TG-13] Verify that when OVS is restarted, VMs with OVS-DPDK network attachments remain reachable. | Tier 2 | P1 |
+|                  | As a VM owner, I want my VM with an OVS-DPDK interface to keep running and regain network connectivity after a cluster upgrade.                                            | [TG-11] Verify that a VM with an OVS-DPDK network attachment remains running after an OCP minor-version upgrade and network connectivity can be re-established after the upgrade completes. *Setup:* ResourceClaimTemplate-backed attachment (see Section II.1 [TG-11]). | Tier 2 | P2 |
+|                  | As a VM owner, I want to live-migrate my VM with an OVS-DPDK interface after the network driver was restarted on the source and destination nodes.                         | [TG-9] Verify that a VM with an OVS-DPDK network attachment can be live-migrated with connectivity preserved after the OVS-DPDK DRA driver has been restarted on both source and destination nodes. *Setup:* ResourceClaimTemplate-backed allocation; driver restart on both nodes before migration (see Section II.1 [TG-9]). | Tier 2 | P2 |
+|                  | As a VM owner, I want two VMs on different nodes, each with an OVS-DPDK interface, to exchange traffic with each other.                                                    | [TG-10] Verify that two VMs on different nodes, each with an OVS-DPDK network attachment, start successfully and can exchange traffic over their respective interfaces. *Setup:* separate ResourceClaim per VM; same device class on each node (see Section II.1 [TG-10]). | Tier 2 | P2 |
+|                  | As a VM owner, I want my OVS-DPDK network interface to remain usable after I reboot the guest.                                                                             | [TG-12] Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot. | Tier 2 | P2 |
 
 ---
 
