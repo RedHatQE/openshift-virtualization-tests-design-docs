@@ -35,7 +35,7 @@ technology, and testability before formal test planning.
   - _Key D/S requirements reviewed:_
     - Velero backup must successfully capture a stopped VM (VM in powered-off state) including its DataVolume and VM specification
     - Velero restore must successfully recreate a stopped VM that can be subsequently started and retain its data
-    - Velero backup must handle DataVolumes provisioned with WaitForFirstConsumer (WFFC) StorageClasses where the PV binding is deferred until pod scheduling
+    - Velero backup and restore must correctly handle DataVolumes provisioned with WaitForFirstConsumer (WFFC) StorageClasses, including the deferred PV binding that occurs when a WFFC-bound volume is consumed by a newly scheduled pod (on restore-and-start, or while actively consumed by a running VM)
     - Velero restore must correctly recreate WFFC-bound DataVolumes and ensure the VM can start with its storage bound in a zone consistent with the node where the VM is scheduled
 
 - [x] **Understand Value and Customer Use Cases**
@@ -65,7 +65,7 @@ technology, and testability before formal test planning.
     - Tests must be idempotent and not leave orphaned resources in the cluster
   - _NFRs not covered and why:_
     - Performance: Not covered — benchmarking of backup/restore duration is out of scope for this test debt task (see Section II.1, Out of Scope)
-    - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Testing against those existing platform-level constraints is out of scope for this test debt task (see Section II.1, Out of Scope)
+    - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Validating those existing platform-level concurrency/throughput constraints would exercise the OADP/Velero platform's own scaling behavior rather than functionality introduced by this test debt task, so it is not exercised here
     - Security: No new security surface introduced; covered by existing RBAC context (see Section II.2, Security Testing)
     - Monitoring/Observability: No new metrics or alerts introduced by this test debt task (see Section II.2, Monitoring)
     - UI: N/A — feature has no UI surface; no customer-facing UI testing value identified
@@ -116,7 +116,7 @@ Both categories are tested using the DataMover backup path (Velero with CSI Data
 - [P0] Verify that a stopped VM with block volume mode DataVolume can be backed up and restored via Velero DataMover, and the restored VM can be started with data intact
 - [P0] Verify that a stopped VM with filesystem volume mode DataVolume can be backed up and restored via Velero DataMover, and the restored VM can be started with data intact
 - [P0] Verify that a Velero backup of a stopped VM with either block or filesystem volume mode DataVolume fails observably when the OADP/DataMover dependency is unavailable: the Backup ends in a non-successful phase (PartiallyFailed or Failed) carrying a failure condition/message that identifies the unavailable dependency, and the failed backup leaves no leftover backup artifacts behind (which specific artifacts to check is deferred to the STD)
-- [P0] Verify that restoring a stopped VM from a backup with a missing or corrupted DataVolume snapshot fails observably -- the Restore ends in a non-successful phase (PartiallyFailed or Failed) carrying a failure condition that references the missing or invalid snapshot data -- rather than producing a started VM with unbootable or missing storage, for both block and filesystem volume modes
+- [P0] Verify that restoring a stopped VM from a backup with a missing or corrupted DataVolume snapshot fails observably -- the Restore ends in a non-successful phase (PartiallyFailed or Failed) carrying a failure condition that references the missing or invalid snapshot data, and no partially-created or incomplete restored resources (VM, DataVolume, PVC) are left behind -- rather than producing a started VM with unbootable or missing storage, for both block and filesystem volume modes
 - [P1] Verify that a running VM with WFFC StorageClass DataVolume can be backed up and restored via Velero DataMover with correct storage binding
 - [P1] Verify that a stopped VM with WFFC StorageClass DataVolume can be backed up and restored via Velero DataMover
 - [P1] Verify data integrity (file content written before backup is readable after restore) for all four new test configurations: stopped VM with block volume mode, stopped VM with filesystem volume mode, running VM with WFFC StorageClass, and stopped VM with WFFC StorageClass
@@ -126,7 +126,7 @@ _Priority note:_ Stopped VM backup/restore is prioritized P0 because it is a pre
 
 _Implementation note:_ The two failure-path P0 goals above define the observable pass/fail (Backup/Restore phase, surfaced failure condition, and a post-run check for leftover artifacts). The concrete failure-injection mechanism -- how OADP/DataMover unavailability or a missing/corrupted snapshot is simulated non-destructively in a shared CI suite -- is a test-implementation detail to be designed in the STD before automation.
 
-_WFFC binding note:_ For the stopped-VM WFFC scenario, the source DataVolume is already Bound at backup time -- CDI's import populator provisions the PVC when the DataVolume is imported, independent of the StorageClass's `WaitForFirstConsumer` mode -- so the backup step does not exercise deferred binding. The WFFC deferred-binding path is exercised on restore-and-start, when the restored PVC stays Pending until the VM's virt-launcher pod is scheduled and then binds in the scheduled zone. Binding for an actively-consumed volume is additionally covered by the running-VM WFFC scenario (P1).
+_WFFC binding note:_ For the stopped-VM WFFC scenario, the source volume is already bound at backup time, independent of the StorageClass's `WaitForFirstConsumer` mode, so the backup step does not exercise deferred binding. The WFFC deferred-binding path is exercised on restore-and-start instead: the restored volume remains pending until the VM is scheduled, then binds in a zone consistent with the scheduled node. Binding for an actively-consumed volume is additionally covered by the running-VM WFFC scenario (P1). (The underlying mechanism for how this deferred binding is triggered is a test-implementation detail for the STD.)
 
 **Out of Scope (Testing Scope Exclusions)**
 
