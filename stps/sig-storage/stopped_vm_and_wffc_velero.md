@@ -32,38 +32,38 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 - [x] **Review Requirements**
-  - _List the key D/S requirements reviewed:_
+  - _Key D/S requirements reviewed:_
     - Velero backup must successfully capture a stopped VM (VM in powered-off state) including its DataVolume and VM specification
     - Velero restore must successfully recreate a stopped VM that can be subsequently started and retain its data
     - Velero backup must handle DataVolumes provisioned with WaitForFirstConsumer (WFFC) StorageClasses where the PV binding is deferred until pod scheduling
     - Velero restore must correctly recreate WFFC-bound DataVolumes and ensure the VM can start with its storage bound in a zone consistent with the node where the VM is scheduled
 
 - [x] **Understand Value and Customer Use Cases**
-  - _Describe the feature's value to customers:_ Customers using OADP/Velero for disaster recovery and migration need confidence that all VM states are protected. Stopped VMs represent valid production workloads (e.g., template VMs, scheduled-off VMs, maintenance windows), and WFFC is the recommended StorageClass binding mode for multi-zone clusters. Without test coverage, regressions in these scenarios could cause data loss during DR operations.
-  - _List the customer use cases identified:_
+  - _Feature value to customers:_ Customers using OADP/Velero for disaster recovery and migration need confidence that all VM states are protected. Stopped VMs represent valid production workloads (e.g., template VMs, scheduled-off VMs, maintenance windows), and WFFC is the recommended StorageClass binding mode for multi-zone clusters. Without test coverage, regressions in these scenarios could cause data loss during DR operations.
+  - _Customer use cases identified:_
     - As a cluster admin, I want to back up and restore template VMs that remain in a stopped state, so that my VM templates survive a disaster recovery event
     - As a cluster admin, I need to recover VMs that were powered off during a scheduled maintenance window, so that maintenance activity doesn't put those workloads at risk
     - As a cluster admin, I want to back up and restore VMs using WFFC StorageClasses within the same cluster and namespace, so that WaitForFirstConsumer workloads are protected by the same disaster-recovery flow as other VMs
     - As a cluster admin, I expect a restored VM in a multi-zone cluster to come up with its storage co-located in the zone where it is scheduled, so that zone-local data access is preserved after restore
 
 - [x] **Testability**
-  - _Note any requirements that are unclear or untestable:_ All requirements are testable through the existing OADP/Velero test framework. The existing `data_protection/oadp/` infrastructure supports parameterized VM configurations and DataVolume modes.
+  - _Requirements unclear or untestable:_ None. All requirements are testable through the existing OADP/Velero test framework. The existing `data_protection/oadp/` infrastructure supports parameterized VM configurations and DataVolume modes.
 
 - [x] **Acceptance Criteria**
-  - _List the acceptance criteria:_
+  - _Acceptance criteria:_
     - Stopped VM can be backed up via Velero with DataMover without errors
     - Stopped VM is restored in the powered-off state (not auto-started), and can then be explicitly started successfully
     - Data written while the VM is running, before it is stopped and backed up, is present after restore and VM start
     - Restored stopped VM preserves, unchanged from before backup, its resource configuration (CPU/memory, network interfaces) and its DataVolume storage attributes (size, StorageClass, volume mode); Velero-injected changes -- new resource identifiers (UID/resourceVersion), restore-tool labels/annotations, and object status -- are expected and are excluded from the comparison
     - VM with WFFC StorageClass DataVolume can be backed up via Velero
     - VM with WFFC StorageClass DataVolume can be restored and started with correct storage binding
-  - _Note any gaps or missing criteria:_ The Jira description is minimal ("Add stopped VM and WFFC to velero tests plan and automate the tests"). Specific WFFC StorageClass names and zone topology requirements should be confirmed with the Storage Ecosystem team.
+  - _Gaps or missing criteria:_ The Jira description is minimal ("Add stopped VM and WFFC to velero tests plan and automate the tests"). Specific WFFC StorageClass names and zone topology requirements should be confirmed with the Storage Ecosystem team.
 
 - [x] **Non-Functional Requirements (NFRs)**
-  - _List applicable NFRs and their targets:_
+  - _Applicable NFRs and their targets:_
     - Backup and restore of a single VM complete without indefinite hangs or timeouts; concrete duration thresholds are a test-implementation detail deferred to the STD (performance benchmarking itself is out of scope -- see the Performance note below)
     - Tests must be idempotent and not leave orphaned resources in the cluster
-  - _Note any NFRs not covered and why:_
+  - _NFRs not covered and why:_
     - Performance: Not covered — benchmarking of backup/restore duration is out of scope for this test debt task (see Section II.1, Out of Scope)
     - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Testing against those existing platform-level constraints is out of scope for this test debt task (see Section II.1, Out of Scope)
     - Security: No new security surface introduced; covered by existing RBAC context (see Section II.2, Security Testing)
@@ -82,20 +82,20 @@ technology, and testability before formal test planning.
   - _Key takeaways and concerns:_ This is a QE-driven test automation task. No developer handoff is required as the product functionality (Velero backup/restore of stopped VMs and WFFC volumes) already exists. The focus is on closing test coverage gaps.
 
 - [x] **Technology Challenges**
-  - _List identified challenges:_
+  - _Identified challenges:_
     - OADP operator compatibility with the test environment version must be verified; previous sprint comments indicate OADP testing on main was blocked
     - WFFC StorageClass testing requires a cluster with zone-aware storage provisioner or at minimum a StorageClass configured with `volumeBindingMode: WaitForFirstConsumer`
   - _Impact on testing approach:_ Tests validate StorageClass binding mode before executing WFFC scenarios as a sanity check. A WFFC-capable StorageClass is guaranteed present on test clusters (see Section II.5, Risks -- Test Environment), so this is not a skip condition.
 
 - [x] **API Extensions**
-  - _List new or modified APIs:_ None. This task uses existing Velero/OADP APIs and KubeVirt VM APIs.
+  - _New or modified APIs:_ None. This task uses existing Velero/OADP APIs and KubeVirt VM APIs.
   - _Testing impact:_ No API changes; existing test automation is reused.
 
 - [x] **Test Environment Needs**
   - _See environment requirements in Section II.3 and testing tools in Section II.3.1_
 
 - [x] **Topology Considerations**
-  - _Describe topology requirements:_ Multi-node, multi-zone cluster required for WFFC testing to validate storage topology-aware provisioning.
+  - _Topology requirements:_ Multi-node, multi-zone cluster required for WFFC testing to validate storage topology-aware provisioning.
   - _Impact on test design:_ Test clusters are guaranteed multi-zone (see Section II.3, Test Environment), so no topology-based skip condition is needed for WFFC scenarios.
 
 ### **II. Software Test Plan (STP)**
