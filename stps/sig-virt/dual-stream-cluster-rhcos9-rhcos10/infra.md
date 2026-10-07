@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** https://issues.redhat.com/browse/CNV-85277 - No separate VEP or HLD for this child scope; design context is owned by the [parent STP](./stp.md) 
+- **Enhancement(s):** https://issues.redhat.com/browse/CNV-85277 - No separate VEP or HLD for this child scope; design context is owned by the [parent STP](./stp.md)
 - **Feature Tracking:** [VIRTSTRAT-83](https://issues.redhat.com/browse/VIRTSTRAT-83)
 - **Epic Tracking:** [CNV-85277](https://issues.redhat.com/browse/CNV-85277) (sig-infra QE epic: [CNV-86242](https://issues.redhat.com/browse/CNV-86242))
 - **Parent STP:** [Dual-Stream RHCOS Support (parent)](./stp.md)
