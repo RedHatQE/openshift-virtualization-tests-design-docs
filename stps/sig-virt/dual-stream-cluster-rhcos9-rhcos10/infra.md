@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** No separate VEP or HLD for this child scope; design context is owned by the [parent STP](./stp.md) ([VIRTSTRAT-83](https://issues.redhat.com/browse/VIRTSTRAT-83)).
+- **Enhancement(s):** https://issues.redhat.com/browse/CNV-85277 - No separate VEP or HLD for this child scope; design context is owned by the [parent STP](./stp.md) 
 - **Feature Tracking:** [VIRTSTRAT-83](https://issues.redhat.com/browse/VIRTSTRAT-83)
 - **Epic Tracking:** [CNV-85277](https://issues.redhat.com/browse/CNV-85277) (sig-infra QE epic: [CNV-86242](https://issues.redhat.com/browse/CNV-86242))
 - **Parent STP:** [Dual-Stream RHCOS Support (parent)](./stp.md)
@@ -20,7 +20,7 @@
 
 This child STP covers the **sig-infra** slice of dual-stream RHCOS support for **CNV 5.0 GA**: Windows guest operation on dual-stream clusters, RHEL guest create/start/delete on dual-stream clusters, and RHEL live migration across RHCOS 9 and RHCOS 10 workers on dual-stream clusters.
 
-Feature-wide overview, maturity (DP/TP/GA), and cross-SIG requirements are defined in the [parent STP](./stp.md). CNV 4.22/4.23 Tech Preview infra validation is out of scope here.
+Feature-wide overview, maturity (DP/TP/GA), and cross-SIG requirements are defined in the [parent STP](./stp.md). New testing goals in this child STP target CNV 5.0 GA dual-stream and RHCOS 9-only regression selections. RHCOS 10-only is **not** omitted: for CNV 4.23 it is covered by dedicated RHCOS 10-only infrastructure testing; from CNV 5.0, RHCOS 10 is the default worker configuration and is covered by standard infrastructure regression (see Existing coverage and Regression Testing).
 
 ---
 
@@ -90,10 +90,6 @@ None — no user-facing product limitations specific to sig-infra beyond those i
   - *Rationale:* This feature targets RHCOS worker nodes only; control plane and non-RHCOS worker variants are out of scope
   - *PM/Lead Agreement:* Ronen Sde-Or, 09/2026
 
-- **CNV 4.22/4.23 Tech Preview infra validation**
-  - *Rationale:* This child STP covers CNV 5.0 GA infra validation only; Tech Preview coverage belongs to the parent STP and earlier 4.22-era work
-  - *PM/Lead Agreement:* Ruth Netser, 09/2026
-
 - **P0 failure-path scenarios on dedicated CNV 5.0 infra lanes**
   - *Rationale:* Dedicated infra lanes validate successful Windows/RHEL guest operation and successful RHEL live migration only; deliberate failure injection is not part of the lane selection
   - *PM/Lead Agreement:* Ruth Netser, 09/2026
@@ -105,6 +101,8 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 **Existing coverage (not Out of Scope)**
 
 - **RHEL guest testing on RHCOS 9-only clusters** is already covered by gating infrastructure regression. This child STP does not restate it as a new testing goal; RHCOS 9-only regression selections for infrastructure are documented under Regression Testing (Section II.2).
+
+- **RHCOS 10-only infrastructure coverage** is not omitted by sig-infra. For CNV 4.23 it is covered by dedicated RHCOS 10-only infrastructure testing. From CNV 5.0, RHCOS 10 is the default worker OS, so coverage continues via standard infrastructure regression on that default configuration (no separate RHCOS 10-only feature goals in this child STP).
 
 **Test Limitations**
 
@@ -122,7 +120,7 @@ None — no user-facing product limitations specific to sig-infra beyond those i
   - *Details:* Scenarios run via existing infrastructure guest-OS automation in dedicated CNV 5.0 CI lanes (see Section II.3.1). No new STD required for this child scope.
 
 - [x] **Regression Testing**
-  - *Details:* On CNV 5.0 RHCOS 9-only: infrastructure guest-OS regression with Windows coverage included; RHEL migration deselected (migration is dual-stream only). On CNV 5.0 dual-stream: Windows guest coverage plus RHEL create/start/migration/delete selections. RHEL guest coverage on RHCOS 9-only remains existing gating regression (see Existing coverage above).
+  - *Details:* On CNV 5.0 RHCOS 9-only: infrastructure guest-OS regression with Windows coverage included; RHEL migration deselected (migration is dual-stream only). On CNV 5.0 dual-stream: Windows guest coverage plus RHEL create/start/migration/delete selections. RHEL guest coverage on RHCOS 9-only remains existing gating regression (see Existing coverage above). RHCOS 10-only: dedicated infrastructure testing for CNV 4.23; from CNV 5.0 covered by standard infrastructure regression on the default RHCOS 10 worker configuration.
 
 - [ ] **Self-Validation Testing**
   - *Details:* Not in sig-infra child scope — see [parent STP § II.2](./stp.md#2-test-strategy)
@@ -195,9 +193,7 @@ Covered by the [parent STP](./stp.md). Infrastructure-specific requirements:
 
 - **Test Framework:** Standard. Dual-stream migration scenarios require identifying workers by RHCOS version and targeting migration between RHCOS 9 and RHCOS 10.
 
-- **CI/CD:** Two dedicated CNV 5.0 lanes cover the infrastructure testing goals ([CNV-92281](https://issues.redhat.com/browse/CNV-92281) — Closed / Done):
-  - `test-pytest-cnv-5.0-infrastructure-rhcos9`
-  - `test-pytest-cnv-5.0-infrastructure-dualstream`
+- **CI/CD:** Dedicated CNV 5.0 infrastructure lanes for this child STP’s RHCOS 9-only and dual-stream goals ([CNV-92281](https://issues.redhat.com/browse/CNV-92281) — Closed / Done). CNV 4.23 RHCOS 10-only and CNV 5.0 default RHCOS 10 regression use existing infrastructure CI coverage (lane definitions live with QE DevOps / CI configuration, not in this STP).
 
 - **Other Tools:** N/A
 
@@ -212,12 +208,32 @@ The following conditions must be met before testing can begin:
 
 #### **5. Risks**
 
+**Timeline/Schedule**
+
+- **Risk:** None identified.
+  - **Mitigation:** sig-infra coverage uses existing guest-OS automation and already-provisioned CNV 5.0 CI lanes; no schedule risk specific to this child STP.
+
 **Test Coverage**
 
 - **Risk:** Mixed RHCOS 9 and RHCOS 10 kernels may affect Windows guest operation or RHEL live migration differently per node type.
   - **Mitigation:** Run Windows and RHEL dual-stream scenarios via dedicated CI lanes; investigate failures per guest OS and node type.
   - *Areas with reduced coverage:* Full gating infrastructure suite is not run on every topology — only the guest-OS selections described in Section II.2.
   - *Sign-off:* Roni Kishner (@RoniKishner), 09/2026
+
+**Test Environment**
+
+- **Risk:** None identified.
+  - **Mitigation:** Dual-stream and RHCOS 9-only environments are available via dedicated CNV 5.0 infrastructure CI lanes ([CNV-92281](https://issues.redhat.com/browse/CNV-92281)).
+
+**Untestable Aspects**
+
+- **Risk:** None identified.
+  - **Mitigation:** All SIG-owned goals in this child STP are testable through existing infrastructure guest-OS automation; in-migration continuity is intentionally Out of Scope (Section II.1), not untestable by constraint.
+
+**Resource Constraints**
+
+- **Risk:** None identified.
+  - **Mitigation:** No additional QE headcount or special hardware beyond the standard dual-stream / RHCOS 9-only bare-metal lanes already in use.
 
 **Dependencies**
 
