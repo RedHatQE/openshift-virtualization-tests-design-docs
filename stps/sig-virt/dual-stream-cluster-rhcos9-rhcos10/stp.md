@@ -15,7 +15,7 @@
   - [sig-network](./network.md) — QE Owner: Asia Khromov (@azhivovk)
   - [sig-storage](./storage.md) — QE Owner: Kate Shvaika (@kshvaika)
   - sig-iuo — QE Owner: Ohad Revah (@OhadRevah) — child STP: [PR #108](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/108) (not yet merged)
-  - sig-infra — tracked in [CNV-86242](https://redhat.atlassian.net/browse/CNV-86242); child STP not yet created
+  - [sig-infra](./infra.md) — QE Owner: Michal Jankowski (@mijankow); tracked in [CNV-86242](https://issues.redhat.com/browse/CNV-86242)
   - sig-virt — covered by this parent STP (no separate child STP)
 
 - **Target Release(s):**
