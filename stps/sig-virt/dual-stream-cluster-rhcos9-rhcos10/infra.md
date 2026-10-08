@@ -54,8 +54,8 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 
 #### **3. Technology and Design Review**
 
-- [ ] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* Pending — no separate sig-infra kickoff meeting recorded; scope aligned asynchronously via parent STP and CNV-85277 / CNV-86242. Checklist remains open until a dated handoff is captured.
+- [x] **Developer Handoff/QE Kickoff**
+  - *Key takeaways and concerns:* Covered by the parent STP handoff (PM / Engineering / Platform / Product Operations recommendation review). Sig-infra scope confirmed asynchronously via [CNV-85277](https://issues.redhat.com/browse/CNV-85277) / [CNV-86242](https://issues.redhat.com/browse/CNV-86242): Windows create/start/connectivity and RHEL create/start/delete/live-migration on dual-stream with post-migration usability; explicit RHCOS source/target pinning remains parent / sig-virt ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)). Dedicated CNV 5.0 infrastructure CI lanes available ([CNV-92281](https://issues.redhat.com/browse/CNV-92281)).
 
 - [x] **Technology Challenges**
   - *List identified challenges:* Mixed RHCOS 9 and RHCOS 10 worker kernels may affect Windows guest operation or RHEL live migration differently per node type
@@ -146,7 +146,7 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing**
-  - *Details:* Cross-version and platform compatibility for the dual-stream feature is owned by the [parent STP](./stp.md#2-test-strategy). Bidirectional RHEL migration scenarios for sig-infra remain under Functional Testing above.
+  - *Details:* Cross-version and platform compatibility for the dual-stream feature is owned by the [parent STP](./stp.md#2-test-strategy). Sig-infra RHEL live migration with post-migration usability remains under Functional Testing above; enforced RHCOS source/target pinning is parent / sig-virt ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)).
 
 - [ ] **Upgrade Testing**
   - *Details:* Not in sig-infra child scope — see [parent STP § II.2](./stp.md#2-test-strategy)
@@ -188,11 +188,11 @@ Covered by the [parent STP](./stp.md). Infrastructure-specific requirements:
 
 - **Platform:** Bare metal. Dual-stream and single-stream clusters provisioned by QE DevOps tooling.
 
-- **Special Configurations:** Worker nodes labeled by RHCOS version for VM scheduling and migration targeting; FIPS enabled per parent STP.
+- **Special Configurations:** Worker nodes labeled by RHCOS version (cluster topology for dual-stream lanes); FIPS enabled per parent STP. Enforced migration source/target pinning is parent / sig-virt ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)).
 
 #### **3.1. Testing Tools & Frameworks**
 
-- **Test Framework:** Standard. Dual-stream migration scenarios require identifying workers by RHCOS version and targeting migration between RHCOS 9 and RHCOS 10.
+- **Test Framework:** Standard. Dual-stream scenarios run on a mixed RHCOS 9/10 worker cluster. Sig-infra migration coverage validates post-migration usability only; identifying/targeting specific RHCOS source and target workers is parent / sig-virt coverage ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)), not a child claim.
 
 - **CI/CD:** Dedicated CNV 5.0 infrastructure lanes for this child STP’s RHCOS 9-only and dual-stream goals ([CNV-92281](https://issues.redhat.com/browse/CNV-92281) — Closed / Done). CNV 4.23 RHCOS 10-only and CNV 5.0 default RHCOS 10 regression use existing infrastructure CI coverage (lane definitions live with QE DevOps / CI configuration, not in this STP).
 
