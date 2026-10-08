@@ -4,14 +4,18 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** https://redhat.atlassian.net/browse/CNV-77018 - no VEP for this feature.
+- **Enhancement(s):**
+  - https://redhat.atlassian.net/browse/CNV-77018 - no VEP for this feature.
+  - https://redhat.atlassian.net/browse/CNV-85250
 - **Feature Tracking:** https://redhat.atlassian.net/browse/VIRTSTRAT-83
-- **Epic Tracking:** https://redhat.atlassian.net/browse/CNV-77018
+- **Epic Tracking:**
+  - https://redhat.atlassian.net/browse/CNV-77018
+  - https://redhat.atlassian.net/browse/CNV-85250
 - **Feature Maturity:**
   - DP: N/A
   - TP: v4.22
   - GA: v5.0
-- **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com)
+- **QE Owner(s):** Kate Shvaika (kshvaika@redhat.com), Ahmad Hafe (ahafe@redhat.com)
 - **Owning SIG:** sig-virt
 - **Participating SIGs:** sig-virt, sig-storage
 
@@ -19,16 +23,20 @@
 - RHCOS = Red Hat CoreOS, the immutable container-optimized OS used for OpenShift worker nodes.
 - dual-stream cluster = a cluster running both RHCOS9 and RHCOS10 worker nodes simultaneously.
 - hotplug = attaching a storage volume (PVC) to a running VM without restart.
+- snapshot = a point-in-time copy of a VM's disk state, capturing the VM's data and filesystem; snapshots can be created while the VM is running or stopped.
+- restore = the process of recovering a VM from a snapshot, returning it to the state captured at snapshot time.
 
 ### **Feature Overview**
 
 Starting with OCP 4.22, OpenShift Virtualization supports dual-stream clusters running both RHCOS9 and RHCOS10 worker nodes simultaneously.
 
-**Note:** this STP is specific to the OCP 4.22 release cycle and should be reviewed when RHCOS9 or RHCOS10 support changes.
+**Note:** this STP covers storage testing for dual-stream clusters starting from OCP 4.22 and should be reviewed when RHCOS9 or RHCOS10 support changes.
 
-Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually. VM live migration with hotplugged volume must work correctly across node types without data loss or corruption.
+Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually. VM live migration, hotplugged storage, and snapshots must work correctly across node types without data loss or corruption.
 
-This STP covers the storage-specific aspects of the feature: validating storage hotplug operations and live migration with attached volumes across RHCOS9 and RHCOS10 nodes.
+This STP covers storage testing for dual-stream clusters: hotplug storage operations, live migration with attached volumes, and snapshot/restore across RHCOS9 and RHCOS10 nodes.
+
+
 
 ---
 
@@ -43,16 +51,18 @@ technology, and testability before formal test planning.
   - *List the key D/S requirements reviewed:* See Acceptance Criteria and Testing Goals (Sections I.1 and II.1).
 
 - [x] **Understand Value and Customer Use Cases**
-  - *Describe the feature's value to customers:* Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually, maintaining VM storage availability and live migration capability with attached volumes throughout the transition.
+  - *Describe the feature's value to customers:* Customers can upgrade their clusters from RHCOS9 to RHCOS10 nodes gradually while maintaining VM availability and storage operations.
   - *List the customer use cases identified:*
-    - As a cluster admin performing a gradual cluster upgrade, I want to migrate VMs with hotplugged storage between RHCOS9 and RHCOS10 nodes to rebalance workloads without data loss or corruption.
+    - Migrate VMs with hotplugged storage between RHCOS9 and RHCOS10 nodes without data loss.
+    - Snapshot a VM on RHCOS 9 and restore it on RHCOS 10 (or vice versa) without data loss.
 
 - [x] **Testability**
-  - *Note any requirements that are unclear or untestable:* All requirements are testable. New automated tests will be added to cover VM migration with hotplugged storage across RHCOS9 and RHCOS10 nodes.
+  - *Note any requirements that are unclear or untestable:* All requirements are testable. Tests will cover VM migration with hotplugged storage and snapshot/restore operations across RHCOS9 and RHCOS10 nodes. New automated tests will be added to cover hotplug storage migration and snapshot/restore scenarios across RHCOS9 and RHCOS10 nodes.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - VM with hotplugged storage volume live migrates successfully in both directions (RHCOS9 ↔ RHCOS10) without data loss or corruption.
+    - VM snapshots created on RHCOS9 can be restored on RHCOS10 and vice versa without data loss or corruption.
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -74,8 +84,8 @@ None — reviewed and confirmed with Kate Shvaika May 20, 2026 that no feature l
   - *Key takeaways and concerns:* See Testing Goals (Section II.1) and Test Strategy (Section II.2).
 
 - [x] **Technology Challenges**
-  - *List identified challenges:* Mixed RHCOS9 and RHCOS10 kernel versions may affect storage subsystem behavior (hotplug mechanisms) differently per node.
-  - *Impact on testing approach:* Tests must explicitly validate storage hotplug and live migration across RHCOS versions to detect kernel-related incompatibilities.
+  - *List identified challenges:* Mixed RHCOS9 and RHCOS10 kernel versions may affect storage subsystem behavior (hotplug mechanisms, snapshot/restore compatibility) differently per node.
+  - *Impact on testing approach:* Tests must explicitly validate storage hotplug, live migration, and snapshot/restore operations across RHCOS versions to detect kernel-related incompatibilities.
 
 - [x] **API Extensions**
   - *List new or modified APIs:* No new APIs required for this feature.
@@ -86,7 +96,7 @@ None — reviewed and confirmed with Kate Shvaika May 20, 2026 that no feature l
 
 - [x] **Topology Considerations**
   - *Describe topology requirements:* See Section II.3 - Test Environment.
-  - *Impact on test design:* Adding migration tests with hotplugged storage between RHCOS9 and RHCOS10 nodes.
+  - *Impact on test design:* Adding migration tests with hotplugged storage and snapshot/restore tests between RHCOS9 and RHCOS10 nodes.
 
 ### **II. Software Test Plan (STP)**
 
@@ -97,6 +107,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 **Testing Goals**
 
 - **[P0]** Verify VM with hotplugged storage volume live migrates successfully between RHCOS9 and RHCOS10 nodes in both directions without data loss or corruption.
+- **[P0]** Verify VM snapshots created on RHCOS9 can be restored on RHCOS10 and vice versa without data loss or corruption on a dual-stream cluster.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -113,13 +124,13 @@ None — reviewed and confirmed that no test limitations apply for this release.
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Validate VM live migration with hotplugged storage on a dual-stream cluster between RHCOS9 and RHCOS10 nodes.
+  - *Details:* Validate VM live migration with hotplugged storage and snapshot/restore operations on a dual-stream cluster between RHCOS9 and RHCOS10 nodes.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
-  - *Details:* All new migration tests with storage hotplug will be automated and run in dedicated CI lanes (see Section II.3.1).
+  - *Details:* All new migration tests with storage hotplug and snapshot/restore tests will be automated and run in dedicated CI lanes (see Section II.3.1).
 
 - [ ] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Not applicable. Existing Tier 2 storage tests have already been validated on dual-stream cluster. This STP covers only new cross-version migration scenarios.
+  - *Details:* Not applicable. Existing Tier 2 storage tests have already been validated on dual-stream cluster. This STP covers only new cross-version migration and snapshot/restore scenarios.
 
 **Non-Functional**
 
@@ -160,9 +171,9 @@ None — reviewed and confirmed that no test limitations apply for this release.
 #### **3. Test Environment**
 
 - **Cluster Topology:**
-  - Dual-stream cluster with at least one RHCOS9 and one RHCOS10 worker node - for migration scenarios with hotplugged storage
+  - Dual-stream cluster with at least one RHCOS9 and one RHCOS10 worker node - for live migration and snapshot/restore scenarios with storage
 
-- **OCP & OpenShift Virtualization Version(s):** OCP 4.22 with OpenShift Virtualization 4.22
+- **OCP & OpenShift Virtualization Version(s):** OCP 4.22+ with OpenShift Virtualization 4.22+
 
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
 
@@ -182,7 +193,7 @@ None — reviewed and confirmed that no test limitations apply for this release.
 
 #### **3.1. Testing Tools & Frameworks**
 
-- **Test Framework:** Standard. Tests require logic to identify nodes by RHCOS version, create VM on specific nodes via nodeAffinity before migration, hotplug storage to VM, and verify that migration crosses between RHCOS9 and RHCOS10 nodes.
+- **Test Framework:** Standard. Tests require logic to identify nodes by RHCOS version, create VM on specific nodes via nodeAffinity, hotplug storage to VM, verify live migration crosses between RHCOS9 and RHCOS10 nodes, and validate snapshot/restore operations work across RHCOS versions.
 
 - **CI/CD:** dedicated lane required for a dual-stream cluster topology (see Cluster Topology above).
 
@@ -243,11 +254,23 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
+#### **VM live migration with hotplugged storage (CNV-96771)**
+
 - **[CNV-77018]** — As a cluster admin, I want VMs with hotplugged storage to live migrate without data loss or corruption from RHCOS9 to RHCOS10 nodes on a dual-stream cluster.
   - *Test Tier:* Tier 2
   - *Priority:* P0
 
 - **[CNV-77018]** — As a cluster admin, I want VMs with hotplugged storage to live migrate without data loss or corruption from RHCOS10 to RHCOS9 nodes on a dual-stream cluster.
+  - *Test Tier:* Tier 2
+  - *Priority:* P0
+
+#### **Snapshot/Restore Across RHCOS Versions (CNV-96772)**
+
+- **[CNV-96772]** — As a cluster admin, I want to snapshot a VM on RHCOS 9 and restore it on RHCOS 10 without data loss or corruption on a dual-stream cluster.
+  - *Test Tier:* Tier 2
+  - *Priority:* P0
+
+- **[CNV-96772]** — As a cluster admin, I want to snapshot a VM on RHCOS 10 and restore it on RHCOS 9 without data loss or corruption on a dual-stream cluster.
   - *Test Tier:* Tier 2
   - *Priority:* P0
 
