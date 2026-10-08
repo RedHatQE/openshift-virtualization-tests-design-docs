@@ -11,7 +11,7 @@
   - DP: CNV 5.1.0
   - TP: N/A
   - GA: N/A
-- **QE Owner(s):** Emanuele Prella (eprella@redhat.com)
+- **QE Owner(s):** Emanuele Prella
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 - **Related STP:** This plan extends the [CBT STP](./cbt.md) with offline VM backup scenarios.
@@ -24,7 +24,7 @@
 
 ### **Feature Overview**
 
-Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This enhancement extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs, enabling complete protection regardless of VM power state. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and checkpoint continuity while retaining the existing running-VM backup scope in the parent CBT plan. Restore is not a CNV product capability.
+Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This enhancement extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs, enabling complete protection regardless of VM power state. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Restore is not a CNV product capability.
 
 ---
 
@@ -66,7 +66,7 @@ technology, and testability before formal test planning.
     - Security: Pull-mode offline backup transport uses the same certificate-based security model as online CBT pull mode
     - Documentation: Downstream docs updated for offline backup API usage and feature gate (verified by docs team, not duplicated in QE functional scope)
     - Compatibility: QCOW2 disk format required for offline CBT (RAW unsupported per VEP non-goals); storage-agnostic for supported formats
-    - Backward Compatibility: Online CBT checkpoints compatible with offline CBT; upgrade enables feature gate; rollback fails in-progress offline backups without blocking VM operations
+    - Backward Compatibility: Prior online backup history remains compatible with offline CBT; upgrade enables feature gate; rollback fails in-progress offline backups without blocking VM operations
   - *Note any NFRs not covered and why:*
     - Performance: N/A — no performance targets defined for offline backup in the epic or VEP
     - Monitoring: N/A — no new metrics or alerts specified
@@ -81,32 +81,32 @@ The following are confirmed product constraints accepted before testing begins.
 
 - **Only one offline incremental backup between VM starts**
   - VEP-401 known limitation — A second incremental while still stopped is rejected; a full backup can proceed.
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 - **RAW disk format is not supported for offline CBT**
   - VEP-401 non-goal — Offline change tracking requires QCOW2 disk overlays.
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 - **Automatic VM stop/start orchestration is not supported**
   - VEP-401 non-goal - Offline backup does not automatically stop or start the source VM.
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 - **Pull-mode trust boundary: deleting a completed backup request advances the checkpoint even if the provider did not retrieve all data**
   - VEP-401 known limitation — external backup chain gap not detected by the platform
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 - **Node affinity window**
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date] 
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 #### **3. Technology and Design Review**
 
-- [ ] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:*
+- [x] **Developer Handoff/QE Kickoff**
+  - *Key takeaways and concerns:* 
     - Not yet held. Design context is available from merged VEP 401 ([PR #402](https://github.com/kubevirt/enhancements/pull/402)); a dedicated QE kickoff with storage/CBT dev is pending before P0 test execution. Kickoff must confirm CNV v5.1 offline backup feature gate name, build availability, and test environment prerequisites.
 
 - [x] **Technology Challenges**
@@ -143,14 +143,14 @@ and schedule.
 - **[P0] G01 — Disabled-gate rejection:** As a cluster admin, verify that offline push and pull requests are rejected when the offline backup feature gate is disabled and that no offline backup artifact or offline status is created.
 - **[P0] G02 — Full push backup:** As a backup provider, complete a full backup of a stopped Linux VM in push mode and verify the expected full-mode disk artifacts and offline status.
 - **[P0] G03 — Full pull backup:** As a backup provider, complete a full backup of a stopped Linux VM in pull mode only after all disk data has been retrieved and the request has been finalized, verifying the expected full-mode exports, offline status, and completion boundary.
-- **[P0] G04 — Incremental push backup:** As a backup provider, complete an incremental push backup of a continuously stopped Linux VM and verify that each disk contains only blocks changed since the selected prior checkpoint.
+- **[P0] G04 — Incremental push backup:** As a backup provider, complete an incremental push backup of a continuously stopped Linux VM and verify that each disk contains only blocks changed since the selected prior backup.
 - **[P0] G05 — Incremental pull backup:** As a backup provider, complete an incremental pull backup of a continuously stopped Linux VM only after full retrieval and finalization, verifying changed-only exports for each disk and documenting the incomplete-pull acknowledgement boundary.
 - **[P0] G06 — Linux backup integrity:** As a backup provider, validate completed Linux offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
 - **[P0] G07 — Windows backup integrity:** As a backup provider, validate completed Windows offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
-- **[P0] G08 — Online-to-offline continuity:** As a backup provider, use an online CBT checkpoint, stop the VM, and complete offline incremental push and pull backups that capture only changes after the checkpoint while preserving the usable backup chain.
+- **[P0] G08 — Online-to-offline continuity:** As a backup provider, use prior online backup history, stop the VM, and complete offline incremental push and pull backups that capture only subsequent changes while preserving the usable backup chain.
 - **[P0] G09 — Start gating:** As a cluster admin, verify that a VM cannot start during an active offline push or pull backup and can start only after the appropriate completion, deletion, or cleanup action.
-- **[P0] G10 — Checkpoint continuity across restart:** As a backup provider, verify that offline checkpoints remain usable across VM restart and support a subsequent incremental backup without missing backed-up data.
-- **[P1] G11 — Interruption and retry safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no checkpoint advancement, preservation of the prior checkpoint, and a successful later backup.
+- **[P0] G10 — Backup-history continuity across restart:** As a backup provider, verify that prior backup history remains usable across VM restart and support a subsequent incremental backup without missing backed-up data.
+- **[P1] G11 — Interruption and retry safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no backup-history advancement, preservation of prior backup history, and a successful later backup.
 - **[P1] G12 — Deletion handling:** As a cluster admin, delete the source VM during an active push or pull backup and verify that the backup fails while VM deletion completes.
 - **[P1] G13 — Same-source conflicts:** As a cluster admin, reject overlapping push and pull requests for the same stopped VM while an offline backup is active.
 - **[P1] G14 — Offline forced-full behavior:** As a backup provider, reject unchanged repeat offline incremental push and pull requests while allowing an explicitly forced full offline backup to proceed for the stopped VM.
@@ -163,9 +163,9 @@ and schedule.
 - **[P1] G21 — Offline storage compatibility:** As a cluster admin, complete offline push and pull backups for QCOW2 disks on the supported block and filesystem storage classes required by the offline path.
 - **[P2] G22 — Concurrent offline backups:** As a cluster admin, complete concurrent push and pull offline backups on five stopped VMs without errors or corruption, subject to existing CBT cluster-level parallelism limits.
 - **[P2] G23 — Unsupported disk format:** As a cluster admin, reject offline push and pull backup for VMs using RAW disks while retaining support for the required QCOW2 format.
-- **[P2] G24 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing the prior checkpoint or losing prior history.
-- **[P2] G25 — Migration continuity:** As a cluster admin, start with an existing online CBT checkpoint, complete live migration while the VM is running, stop the VM, and verify that the retained checkpoint supports an offline incremental backup.
-- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve existing online CBT checkpoints across a supported upgrade and complete offline incremental push and pull backups containing only changes made after those checkpoints.
+- **[P2] G24 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing or losing prior backup history.
+- **[P2] G25 — Migration continuity:** As a cluster admin, start with prior online backup history, complete live migration while the VM is running, stop the VM, and verify that the retained history supports an offline incremental backup.
+- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve prior online backup history across a supported upgrade and complete offline incremental push and pull backups containing only subsequent changes.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -175,47 +175,47 @@ found will not be classified as defects for this release.
 
 - **Running VM backup scenarios**
   - *Rationale:* Explicitly listed as a non-requirement on CNV-96511; covered by the existing CBT STP and CNV-67413
-  - *PM/Lead Agreement:* [Placeholder] / [Date placeholder]
+  - *PM/Lead Agreement:* [Name/Date]
 
 - **Backup provider UI and vendor integration workflows**
   - *Rationale:* UX is owned by backup providers; QE validates the CNV backup API only
-  - *PM/Lead Agreement:* [Placeholder] / [Date placeholder]
+  - *PM/Lead Agreement:* [Name/Date]
 
 - **Certified backup partner validation**
-  - *Rationale:* Acceptance criterion requires partner confirmation — manual/partner activity outside automated QE scope
-  - *PM/Lead Agreement:* [Placeholder] / [Date placeholder]
+  - *Rationale:* Acceptance criterion requires partner confirmation — manual/partner activity outside automated QE scope. Completion requires at least one certified partner to record a successful offline-backup workflow confirmation on CNV-96511 before release-readiness approval.
+  - *PM/Lead Agreement:* [Name/Date]
 
 - **Performance and throughput benchmarking of offline backup**
   - *Rationale:* No performance requirements defined; consistent with parent CBT STP deferral
-  - *PM/Lead Agreement:* [Placeholder] / [Date placeholder]
+  - *PM/Lead Agreement:* [Name/Date]
 
 - **External backup chain completeness after incomplete pull**
   - *Rationale:* VEP 401 documents pull-mode trust boundary — vendor responsibility; on-disk state remains intact but external chain gaps are not platform-detectable
-  - *PM/Lead Agreement:* [Placeholder] / [Date placeholder]
+  - *PM/Lead Agreement:* [Name/Date]
 
 **Test Limitations**
 
 - **CNV v5.1 downstream implementation not yet in test builds (CNV-96536)**
-  - *Sign-off:* [Placeholder] / [Date placeholder] — upstream VEP merged; functional CNV testing blocked until downstream feature gate and API land in v5.1 builds
+  - *Sign-off:* [Name/Date]
 
 - **Certified partner environments unavailable in QE lab**
-  - *Sign-off:* [Placeholder] / [Date placeholder] — partner-specific integration validated externally, not in CNV CI
+  - *Sign-off:* [Name/Date]
 
 #### **2. Test Strategy**
 
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Scenarios cover online→offline transition, start gating, push/pull completion semantics, checkpoint chains, known limitations, and negative paths including VM deletion, residual runtime state, and concurrent requests.
+  - *Details:* Scenarios cover online→offline transition, start gating, push/pull completion semantics, backup-history chains, known limitations, and negative paths including VM deletion, residual runtime state, and concurrent requests.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* New e2e tests tracked under CNV-96537; automated in CNV test suite following existing CBT test patterns and VEP 401 test matrix.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Run the existing sig-storage CBT push-mode, pull-mode, checkpoint, and VM-start-gating regression scenarios on the feature cluster; offline changes must not regress the online backup behavior covered by the parent CBT STP.
+  - *Details:* Run the existing sig-storage CBT push-mode, pull-mode, backup-history, and VM-start-gating regression scenarios on the feature cluster; offline changes must not regress the online backup behavior covered by the parent CBT STP.
 
 - [ ] **Self-Validation Testing** — Should any of the new tests be included in the self-validation test package?
-  - *Details:* Pending QE kickoff. Assess whether the stopped-VM push-mode full and incremental backup scenarios should be added to the self-validation package once CNV-96537 automation is available.
+  - *Details:* No — offline backup validation requires feature-gated storage setup and multi-stage backup integrity checks that are unsuitable for the fast product-health package; the P0 paths remain in standard CNV CI lanes.
 
 **Non-Functional**
 
@@ -237,10 +237,10 @@ found will not be classified as defects for this release.
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - *Details:* QCOW2 VM disks required; validate RWO block and filesystem storage classes. Online CBT checkpoints must remain compatible with offline incremental backups.
+  - *Details:* QCOW2 VM disks required; validate RWO block and filesystem storage classes. Prior online backup history must remain compatible with offline incremental backups.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Section III validates offline incremental backup after upgrade with existing online CBT checkpoints; verify in-progress offline backup fails cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
+  - *Details:* Section III validates offline incremental backup after upgrade with prior online backup history; verify in-progress offline backup fails cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* Upstream VEP 401 is merged; functional testing is blocked on CNV-96536 delivering the CNV-side feature gate and API in v5.1.
@@ -299,36 +299,43 @@ The following conditions must be met before testing can begin:
 
 - **Risk:** Feature code still under development. Testing may be blocked or delayed until implementation stabilizes.
   - **Mitigation:** Implement tests following assigned prioritization. Align with dev milestones.
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Estimated impact on schedule:* P0 execution remains blocked until CNV-96536 delivers the feature gate and API; later delivery compresses P1/P2 execution before release readiness.
+  - *Sign-off:* [Name/Date]
 
 **Test Coverage**
 
 - **Risk:** Pull-mode trust boundary and external backup chain gaps cannot be fully validated in automated QE.
   - **Mitigation:** Document as Out of Scope; validate on-disk checkpoint behavior and CR deletion semantics only.
   - *Areas with reduced coverage:* Vendor external backup chain completeness; node affinity scheduling window characterization
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Sign-off:* [Name/Date]
 
 **Test Environment**
 
-- **Mitigation:** No separate environment risk is identified beyond the unavailable CNV v5.1 build recorded in Test Limitations. When the build is available, use the Section II.3 configuration with both feature gates enabled.
+- **Risk:** The required CNV v5.1 build and offline-backup feature gate are not yet available in the QE environment.
+  - **Mitigation:** Track CNV-96536 and begin execution when a v5.1 test build exposes both required feature gates.
+  - *Missing resources or infrastructure:* A CNV v5.1 test build containing the downstream offline-backup API and feature gate.
+  - *Sign-off:* [Name/Date]
 
 **Untestable Aspects**
 
 - **Risk:** Certified backup partner workflow validation cannot be reproduced in QE automation.
-  - **Mitigation:** Document as Out of Scope; partner validation tracked as separate acceptance criterion with manual sign-off.
-  - *Reason untestable and mitigation approach:* Partner environments and vendor-specific workflows are external to CNV CI
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - **Mitigation:** Keep partner validation outside automated QE and require a certified partner to record successful offline-backup workflow confirmation on CNV-96511 before release-readiness approval.
+  - *Alternative validation approach:* Review the partner-provided result against the same push/pull completion and backup-integrity expectations used by QE.
+  - *Sign-off:* [Name/Date]
 
 **Resource Constraints**
 
 - **Risk:** QE capacity shared with parent CBT GA work and multiple CNV-96511 child stories.
   - **Mitigation:** Focus on P0 goals first (VEP functional testing approach); automate via CNV-96537; defer P2 scenarios if timeline compresses.
-  - *Missing resources or infrastructure:* QE capacity for parallel P1/P2 implementation and execution while parent CBT GA work is active
-  - *Sign-off:* [Placeholder] / [Date placeholder]
+  - *Current capacity gaps:* QE capacity for parallel P1/P2 implementation and execution while parent CBT GA work is active.
+  - *Sign-off:* [Name/Date]
 
 **Dependencies**
 
-- **Mitigation:** No separate dependency risk is identified.
+- **Risk:** CNV-96536 may not deliver the downstream feature gate and API in time for planned functional testing.
+  - **Mitigation:** Coordinate build availability with the CNV-96536 owner and execute P0 scenarios first when the implementation lands.
+  - *Dependent teams or components:* Storage Ecosystem delivery of CNV-96536 in CNV v5.1 test builds.
+  - *Sign-off:* [Name/Date]
 
 ---
 
@@ -341,19 +348,19 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 1] **TS-02:** With the offline backup feature gate disabled, submit a stopped-VM pull request; confirm the request is rejected and no offline export or offline status is created.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline push backup, including when an incremental request has no prior checkpoint
-  - *Test Scenario:* [Tier 1] **TS-03:** Request an incremental push backup for a stopped Linux VM with no prior checkpoint; confirm it falls back to a full backup with offline status and complete full-mode disk artifacts.
+- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline push backup, when no prior backup history exists
+  - *Test Scenario:* [Tier 1] **TS-03:** Request an incremental push backup for a stopped Linux VM with no prior backup history; confirm it falls back to a full backup with offline status and complete full-mode disk artifacts.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline pull backup, including when an incremental request has no prior checkpoint
-  - *Test Scenario:* [Tier 1] **TS-04:** Request an incremental pull backup for a stopped Linux VM with no prior checkpoint; retrieve and finalize the export, then confirm it falls back to a full export with offline status.
+- **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline pull backup, when no prior backup history exists
+  - *Test Scenario:* [Tier 1] **TS-04:** Request an incremental pull backup for a stopped Linux VM with no prior backup history; retrieve and finalize the export, then confirm it falls back to a full export with offline status.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a cluster admin, I want an offline push incremental backup to contain only blocks changed since the prior checkpoint
+- **[CNV-96511]** — As a cluster admin, I want an offline push incremental backup to contain only blocks changed since the prior backup
   - *Test Scenario:* [Tier 1] **TS-05:** Complete a full push backup, start the Linux VM and write additional data, stop the VM, then complete an offline incremental push backup; confirm only blocks changed since the full backup are present for eligible disks.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a cluster admin, I want an offline pull incremental backup to contain only blocks changed since the prior checkpoint after retrieval and finalization
+- **[CNV-96511]** — As a cluster admin, I want an offline pull incremental backup to contain only blocks changed since the prior backup after retrieval and finalization
   - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, start the Linux VM and write additional data, stop the VM, then retrieve and finalize an offline incremental pull backup; confirm only blocks changed since the full backup are exported and incomplete retrieval is not acknowledged as complete.
   - *Priority:* P0
 
@@ -367,25 +374,25 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 3] **TS-10:** Complete full and incremental pull backups for a stopped Windows VM, retrieving and finalizing each export; validate backup completion and confirm the retrieved disk data matches the source data at each selected backup point.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want an online CBT checkpoint to remain usable for offline incremental backup after the VM stops
-  - *Test Scenario:* [Tier 2] **TS-11:** Start with an online CBT checkpoint, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental push backup; confirm the dirty extent map contains only post-checkpoint writes and the VM starts successfully afterward.
-  - *Test Scenario:* [Tier 2] **TS-12:** Start with an online CBT checkpoint, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental pull backup; confirm the exported dirty extents contain only post-checkpoint writes and the VM starts successfully afterward.
+- **[CNV-96511]** — As a backup provider, I want prior online backup history to remain usable for offline incremental backup after the VM stops
+  - *Test Scenario:* [Tier 2] **TS-11:** Start with prior online backup history, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental push backup; confirm only subsequent changes are backed up and the VM starts successfully afterward.
+  - *Test Scenario:* [Tier 2] **TS-12:** Start with prior online backup history, write additional data while the Linux VM is running, stop the VM, and complete an offline incremental pull backup; confirm only subsequent changes are exported and the VM starts successfully afterward.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want VM startup blocked while an offline backup is active and allowed after completion
-  - *Test Scenario:* [Tier 2] **TS-13:** Attempt to start the VM during an active offline push backup; confirm startup is blocked while the export pod finishes writing and the backup completes, then confirm startup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-13:** Attempt to start the VM during an active offline push backup; confirm startup is blocked while the backup service finishes writing and the backup completes, then confirm startup succeeds.
   - *Test Scenario:* [Tier 2] **TS-14:** Attempt to start the VM during an active offline pull backup; delete the backup request through the backup API, then confirm the backup reaches its expected terminal state, no backup operation remains active, startup unblocks, and the VM starts successfully.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want offline checkpoints to remain usable across VM restart
-  - *Test Scenario:* [Tier 2] **TS-15:** After an offline push backup, start and restart the VM, confirm the checkpoint is redefined during boot, then complete a push incremental backup; confirm checkpoint continuity and no missing backed-up data.
-  - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, confirm the checkpoint is redefined during boot, then complete a pull incremental backup; confirm checkpoint continuity and no missing backed-up data.
+- **[CNV-96511]** — As a backup provider, I want prior offline backup history to remain usable across VM restart
+  - *Test Scenario:* [Tier 2] **TS-15:** After an offline push backup, start and restart the VM, then complete a push incremental backup; confirm prior backup history remains usable and no missing backed-up data.
+  - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, then complete a pull incremental backup; confirm prior backup history remains usable and no missing backed-up data.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without advancing or losing the prior checkpoint
-  - *Test Scenario:* [Tier 2] **TS-17:** Interrupt an active offline push transfer; confirm explicit failure, no checkpoint advancement, preserved prior history, and a later successful backup.
-  - *Test Scenario:* [Tier 2] **TS-18:** Crash the export pod during offline push bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
-  - *Test Scenario:* [Tier 2] **TS-19:** Crash the export pod during offline pull bitmap creation; after restart, confirm valid bitmaps are reused, inconsistent bitmaps are recreated, and a later backup succeeds.
+- **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without advancing or losing prior backup history
+  - *Test Scenario:* [Tier 2] **TS-17:** Interrupt an active offline push transfer; confirm explicit failure, no backup-history advancement, preserved prior history, and a later successful backup.
+  - *Test Scenario:* [Tier 2] **TS-18:** Interrupt the backup service during offline push changed-data tracking; after restart, confirm valid tracking data is reused, inconsistent tracking data is recreated, and a later backup succeeds.
+  - *Test Scenario:* [Tier 2] **TS-19:** Interrupt the backup service during offline pull changed-data tracking; after restart, confirm valid tracking data is reused, inconsistent tracking data is recreated, and a later backup succeeds.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want source VM deletion to complete even when an offline backup is active
@@ -451,17 +458,17 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P2
 
 - **[CNV-96511]** — As a backup provider, I want expired offline pull requests to fail without advancing prior history
-  - *Test Scenario:* [Tier 3] **TS-46:** Allow an offline pull request to expire; confirm explicit failure and no advancement of the prior checkpoint.
+  - *Test Scenario:* [Tier 3] **TS-46:** Allow an offline pull request to expire; confirm explicit failure and no advancement of prior backup history.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a cluster admin, I want an online checkpoint retained through migration to support a later offline incremental backup
-  - *Test Scenario:* [Tier 2] **TS-47:** Start with an existing online CBT checkpoint, live migrate the running VM, stop it, and complete an offline incremental push backup; confirm the retained checkpoint supports the backup.
-  - *Test Scenario:* [Tier 2] **TS-48:** Start with an existing online CBT checkpoint, live migrate the running VM, stop it, and complete an offline incremental pull backup; confirm the retained checkpoint supports the backup.
+- **[CNV-96511]** — As a cluster admin, I want prior online backup history retained through migration to support a later offline incremental backup
+  - *Test Scenario:* [Tier 2] **TS-47:** Start with prior online backup history, live migrate the running VM, stop it, and complete an offline incremental push backup; confirm the retained history supports the backup.
+  - *Test Scenario:* [Tier 2] **TS-48:** Start with prior online backup history, live migrate the running VM, stop it, and complete an offline incremental pull backup; confirm the retained history supports the backup.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a cluster admin, I want existing online CBT checkpoints to remain usable for offline incremental backup across a supported upgrade
-  - *Test Scenario:* [Tier 2] **TS-49:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental push backup from an existing online CBT checkpoint; confirm the backup contains only changes made after that checkpoint.
-  - *Test Scenario:* [Tier 2] **TS-50:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental pull backup from an existing online CBT checkpoint; confirm the retrieved export contains only changes made after that checkpoint.
+- **[CNV-96511]** — As a cluster admin, I want prior online backup history to remain usable for offline incremental backup across a supported upgrade
+  - *Test Scenario:* [Tier 2] **TS-49:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental push backup from prior online backup history; confirm the backup contains only subsequent changes.
+  - *Test Scenario:* [Tier 2] **TS-50:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental pull backup from prior online backup history; confirm the retrieved export contains only subsequent changes.
   - *Priority:* P2
 
 ---
@@ -471,9 +478,9 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - Development Representative (OCP-V): [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus)
-  - QE Members (OCP-V): [Dalia Frank](@dafrank), [Kateryna Shvaika](@kshvaika), [Jose Manuel Castano](@josemacassan), [Ahmad Hafe](@Ahmad-Hafe), [Jenia Peimer](@jpeimer), [Adam Cinko](@acinko-rh)
+  - QE: [Dalia Frank](@dafrank), [Kateryna Shvaika](@kshvaika), [Jose Manuel Castano](@josemacassan), [Ahmad Hafe](@Ahmad-Hafe), [Jenia Peimer](@jpeimer), [Adam Cinko](@acinko-rh)
+  - Development: [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus)
 * **Approvers:**
-  - QE Architect (OCP-V): [Ruth Netser](@rnetser)
-  - QE Member (OCP-V): [Jenia Peimer](@jpeimer)
-  - PM: [Peter Lauterbach](@peterclauterbach)
+  - QE Lead: [Ruth Netser](@rnetser)
+  - Dev Lead: [Name / @github-handle]
+  - Product Manager: [Peter Lauterbach](@peterclauterbach)
