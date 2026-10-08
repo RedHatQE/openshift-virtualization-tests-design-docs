@@ -18,9 +18,9 @@
 
 ### **Feature Overview**
 
-This child STP covers the **sig-infra** slice of dual-stream RHCOS support for **CNV 5.0 GA**: Windows guest operation on dual-stream clusters, RHEL guest create/start/delete on dual-stream clusters, and RHEL live migration across RHCOS 9 and RHCOS 10 workers on dual-stream clusters.
+This child STP covers the **sig-infra** slice of dual-stream RHCOS support for **CNV 5.0 GA**: Windows guest create/start/connectivity on dual-stream clusters, RHEL guest create/start/delete on dual-stream clusters, and RHEL live migration on dual-stream clusters with post-migration guest usability.
 
-Feature-wide overview, maturity (DP/TP/GA), and cross-SIG requirements are defined in the [parent STP](./stp.md). New testing goals in this child STP target CNV 5.0 GA dual-stream and RHCOS 9-only regression selections. RHCOS 10-only is **not** omitted: for CNV 4.23 it is covered by dedicated RHCOS 10-only infrastructure testing; from CNV 5.0, RHCOS 10 is the default worker configuration and is covered by standard infrastructure regression (see Existing coverage and Regression Testing).
+Feature-wide overview, maturity (DP/TP/GA), and cross-SIG requirements are defined in the [parent STP](./stp.md). Explicit RHCOS source/target pinning for cross-stream live migration (both directions, RHEL and Windows) is owned by the parent STP / sig-virt — see Existing coverage. New testing goals in this child STP target CNV 5.0 GA dual-stream and RHCOS 9-only regression selections. RHCOS 10-only is **not** omitted: for CNV 4.23 it is covered by dedicated RHCOS 10-only infrastructure testing; from CNV 5.0, RHCOS 10 is the default worker configuration and is covered by standard infrastructure regression (see Existing coverage and Regression Testing).
 
 ---
 
@@ -30,20 +30,19 @@ Feature-wide overview, maturity (DP/TP/GA), and cross-SIG requirements are defin
 
 - [x] **Review Requirements**
   - *SIG-specific requirements:*
-    - Windows VMs can be created, started, and used (guest connectivity) on a dual-stream cluster
+    - Windows VMs can be created, started, and used (guest connectivity) on a dual-stream cluster (without claiming placement on every worker OS version)
     - RHEL VMs can be created, started, and deleted on a dual-stream cluster
-    - RHEL VMs can be live-migrated between RHCOS 9 and RHCOS 10 workers on a dual-stream cluster in both directions, and remain usable after migration
-  - *Parent-owned requirements:* All other dual-stream feature requirements are defined in the [parent STP](./stp.md)
+    - RHEL VMs can be live-migrated on a dual-stream cluster and remain usable after migration (post-migration usability; without claiming enforced RHCOS source/target direction)
+  - *Parent-owned requirements:* Explicit RHCOS 9 ↔ RHCOS 10 source/target live-migration pinning (both directions; RHEL and Windows) and related dual-stream migration acceptance criteria are defined in the [parent STP](./stp.md) (sig-virt). All other dual-stream feature requirements are also in the parent STP.
 
 - [x] **Acceptance Criteria**
   - On a dual-stream cluster, an administrator can create and start a Windows VM and connect to the guest successfully
   - On a dual-stream cluster, an administrator can create and start a RHEL VM and connect to the guest successfully
-  - On a dual-stream cluster, an operator can live-migrate a RHEL VM from an RHCOS 9 worker to an RHCOS 10 worker; after migration the VM stays up and the guest remains reachable
-  - On a dual-stream cluster, an operator can live-migrate a RHEL VM from an RHCOS 10 worker to an RHCOS 9 worker; after migration the VM stays up and the guest remains reachable
+  - On a dual-stream cluster, an operator can live-migrate a RHEL VM; after migration the VM stays up and the guest remains reachable
   - On a dual-stream cluster, an administrator can delete a RHEL VM after successful operation
 
 - [x] **Testability**
-  - *Note any SIG-specific requirements that are unclear or untestable:* All sig-infra requirements above are testable through existing infrastructure guest-OS automation and dedicated CNV 5.0 CI lanes (see Section II.3.1). Continuous in-migration guest reachability (proving no interruption during the migration window) is **not** covered by the current automation and is not claimed below.
+  - *Note any SIG-specific requirements that are unclear or untestable:* All sig-infra requirements above are testable through existing infrastructure guest-OS automation and dedicated CNV 5.0 CI lanes (see Section II.3.1). Continuous in-migration guest reachability and enforced RHCOS source/target migration direction are **not** claimed by this child STP; direction pinning is covered by the parent STP / sig-virt (see Existing coverage).
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *SIG-specific NFRs:* None — no new NFRs introduced in the sig-infra scope
@@ -60,7 +59,7 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 
 - [x] **Technology Challenges**
   - *List identified challenges:* Mixed RHCOS 9 and RHCOS 10 worker kernels may affect Windows guest operation or RHEL live migration differently per node type
-  - *Impact on testing approach:* Validate Windows and RHEL guest workflows on dual-stream clusters and bidirectional RHEL live migration between RHCOS versions
+  - *Impact on testing approach:* Validate Windows and RHEL guest workflows on dual-stream clusters via infrastructure automation; rely on parent STP / sig-virt for enforced cross-stream source/target migration coverage
 
 - [x] **API Extensions**
   - *List new or modified user-facing APIs:* N/A — see parent STP
@@ -79,8 +78,8 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 
 **Testing Goals**
 
-- **[P0]** As a cluster admin, I can create and start a Windows VM on a CNV 5.0 dual-stream cluster and connect to the guest
-- **[P0]** As a VM operator, I can live-migrate a RHEL VM between RHCOS 9 and RHCOS 10 workers on a CNV 5.0 dual-stream cluster in both directions; after migration the VM stays up and the guest remains reachable
+- **[P0]** As a cluster admin, I can create and start a Windows VM on a CNV 5.0 dual-stream cluster and connect to the guest (no per-worker-OS placement claim)
+- **[P0]** As a VM operator, I can live-migrate a RHEL VM on a CNV 5.0 dual-stream cluster; after migration the VM stays up and the guest remains reachable (post-migration usability; no enforced RHCOS source/target direction claim)
 - **[P1]** As a cluster admin, I can create, start, and delete a RHEL VM on a CNV 5.0 dual-stream cluster
 - **P0 failure-path coverage:** Negative / injected failure scenarios for the P0 goals above are not tested in this child STP (see Out of Scope)
 
@@ -104,6 +103,8 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 
 - **RHCOS 10-only infrastructure coverage** is not omitted by sig-infra. For CNV 4.23 it is covered by dedicated RHCOS 10-only infrastructure testing. From CNV 5.0, RHCOS 10 is the default worker OS, so coverage continues via standard infrastructure regression on that default configuration (no separate RHCOS 10-only feature goals in this child STP).
 
+- **Explicit RHCOS source/target live migration (both directions)** for RHEL and Windows guests — including placement on a chosen RHCOS worker version before migration and verification on the target RHCOS version after migration — is covered by the [parent STP](./stp.md) / sig-virt dual-stream live-migration scenarios ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)). This child STP does not duplicate that pinning coverage.
+
 **Test Limitations**
 
 - **Testing is limited to RHCOS-based worker nodes.** Control plane and infrastructure nodes are not exercised — VMs are not scheduled or migrated on those nodes. Full infrastructure gating is not run on every topology; targeted guest-OS selections and dedicated CI lanes cover the sig-infra scope (see Section II.2).
@@ -114,7 +115,7 @@ None — no user-facing product limitations specific to sig-infra beyond those i
 **Functional**
 
 - [x] **Functional Testing**
-  - *Details:* Validate Windows guest create/start/connectivity and RHEL create/start/delete on dual-stream clusters; validate bidirectional RHEL live migration between RHCOS 9 and RHCOS 10 workers with post-migration guest reachability. P0 failure-path and in-migration continuity claims are excluded per Out of Scope (Section II.1).
+  - *Details:* Validate Windows guest create/start/connectivity and RHEL create/start/delete on dual-stream clusters; validate RHEL live migration on dual-stream clusters with post-migration guest reachability. Enforced RHCOS source/target direction and Windows placement on both worker OS versions are covered by the parent STP / sig-virt (see Existing coverage). P0 failure-path and in-migration continuity claims are excluded per Out of Scope (Section II.1).
 
 - [x] **Automation Testing**
   - *Details:* Scenarios run via existing infrastructure guest-OS automation in dedicated CNV 5.0 CI lanes (see Section II.3.1). No new STD required for this child scope.
@@ -246,18 +247,14 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
-Scenarios below are feature outcomes owned by sig-infra. They map to **existing** infrastructure guest-OS automation (no new STD). Implementation details live in the test repository and CI lane definitions (Section II.3.1).
+Scenarios below are feature outcomes owned by sig-infra. They map to **existing** infrastructure guest-OS automation (no new STD). Implementation details live in the test repository and CI lane definitions (Section II.3.1). Explicit RHCOS source/target pinning for cross-stream migration (RHEL and Windows) is covered by the [parent STP](./stp.md) / sig-virt ([CNV-81251](https://issues.redhat.com/browse/CNV-81251)) and is not duplicated here.
 
 - **[CNV-85277]** — As a cluster admin, I want a Windows VM to run correctly on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 3] Create and start a Windows VM on a dual-stream cluster; confirm guest connectivity (console or remote access succeeds).
+  - *Test Scenario:* [Tier 3] Create and start a Windows VM on a dual-stream cluster; confirm guest connectivity (console or remote access succeeds). Does not claim placement on every RHCOS worker OS version.
   - *Priority:* P0
 
-- **[CNV-85277]** — As a VM operator, I want to live-migrate a RHEL VM from an RHCOS 9 worker to an RHCOS 10 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Live-migrate RHEL VM RHCOS 9 → RHCOS 10; after migration the VM stays up and the guest remains reachable.
-  - *Priority:* P0
-
-- **[CNV-85277]** — As a VM operator, I want to live-migrate a RHEL VM from an RHCOS 10 worker to an RHCOS 9 worker on a CNV 5.0 dual-stream cluster.
-  - *Test Scenario:* [Tier 2] Live-migrate RHEL VM RHCOS 10 → RHCOS 9; after migration the VM stays up and the guest remains reachable.
+- **[CNV-85277]** — As a VM operator, I want to live-migrate a RHEL VM on a CNV 5.0 dual-stream cluster and keep the guest usable afterward.
+  - *Test Scenario:* [Tier 2] Live-migrate a RHEL VM on a dual-stream cluster; after migration the VM stays up and the guest remains reachable. Does not claim enforced RHCOS 9→10 or 10→9 source/target direction (see Existing coverage / parent STP).
   - *Priority:* P0
 
 - **[CNV-85277]** — As a cluster admin, I want to create and start a RHEL VM on a CNV 5.0 dual-stream cluster.
