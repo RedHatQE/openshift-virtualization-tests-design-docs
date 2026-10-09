@@ -107,7 +107,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - [x] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:* 
-    - Not yet held. Design context is available from merged VEP 401 ([PR #402](https://github.com/kubevirt/enhancements/pull/402)); a dedicated QE kickoff with storage/CBT dev is pending before P0 test execution. Kickoff must confirm CNV v5.1 offline backup feature gate name, build availability, and test environment prerequisites.
+    - Initial kickoff held. Follow-up kickoff must confirm build availability.
 
 - [x] **Technology Challenges**
   - *List identified challenges:*
@@ -291,7 +291,7 @@ The following conditions must be met before testing can begin:
 - [x] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
 - [ ] Offline VM backup feature gate available in CNV v5.1 test builds
 - [ ] CNV-side offline backup API implementation available (CNV-96536)
-- [ ] Developer Handoff/QE Kickoff meeting completed
+- [x] Developer Handoff/QE Kickoff meeting completed
 
 #### **5. Risks**
 
