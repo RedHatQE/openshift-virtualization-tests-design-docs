@@ -97,7 +97,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - **Node affinity window**
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
-  - *Sign-off:* [Name/Date] 
+  - *Sign-off:* [Name/Date]
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
@@ -106,7 +106,7 @@ The following are confirmed product constraints accepted before testing begins.
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* 
+  - *Key takeaways and concerns:*
     - Initial kickoff held. Follow-up kickoff must confirm build availability.
 
 - [x] **Technology Challenges**
