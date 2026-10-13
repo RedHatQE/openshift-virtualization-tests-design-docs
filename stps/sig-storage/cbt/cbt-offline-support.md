@@ -97,7 +97,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - **Node affinity window**
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
-  - *Sign-off:* [Name/Date] 
+  - *Sign-off:* [Name/Date]
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
@@ -106,7 +106,7 @@ The following are confirmed product constraints accepted before testing begins.
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
-  - *Key takeaways and concerns:* 
+  - *Key takeaways and concerns:*
     - Initial kickoff held. Follow-up kickoff must confirm build availability.
 
 - [x] **Technology Challenges**
@@ -140,7 +140,7 @@ and schedule.
 
 **Testing Goals**
 
-- **[P0] G01 — Disabled-gate rejection:** As a cluster admin, verify that offline push and pull requests are rejected when the offline backup feature gate is disabled and that no offline backup artifact or offline status is created.
+- **[P0] G01 — Disabled-gate handling:** As a cluster admin, with incremental backup enabled but offline backup disabled, verify that push and pull requests for a stopped VM wait for the VM to run and create no offline backup artifact or offline status.
 - **[P0] G02 — Full push backup:** As a backup provider, complete a full backup of a stopped Linux VM in push mode and verify the expected full-mode disk artifacts and offline status.
 - **[P0] G03 — Full pull backup:** As a backup provider, complete a full backup of a stopped Linux VM in pull mode only after all disk data has been retrieved and the request has been finalized, verifying the expected full-mode exports, offline status, and completion boundary.
 - **[P0] G04 — Incremental push backup:** As a backup provider, complete an incremental push backup of a continuously stopped Linux VM and verify that each disk contains only blocks changed since the selected prior backup.
@@ -343,9 +343,9 @@ The following conditions must be met before testing can begin:
 
 Scenarios aligned with VEP 401 functional testing approach and CNV-96511 acceptance criteria.
 
-- **[CNV-96511]** — As a cluster admin, I want offline backup requests rejected when the offline backup feature gate is disabled
-  - *Test Scenario:* [Tier 1] **TS-01:** With the offline backup feature gate disabled, submit a stopped-VM push request; confirm the request is rejected and no offline backup artifact or offline status is created.
-  - *Test Scenario:* [Tier 1] **TS-02:** With the offline backup feature gate disabled, submit a stopped-VM pull request; confirm the request is rejected and no offline export or offline status is created.
+- **[CNV-96511]** — As a cluster admin, I want stopped-VM backup requests to wait for a running VM when incremental backup is enabled but offline backup is disabled
+  - *Test Scenario:* [Tier 1] **TS-01:** With incremental backup enabled and offline backup disabled, submit a stopped-VM push request; confirm the request is accepted but remains pending with a message that the VM is not running, and no offline backup artifact or offline status is created while the VM stays stopped.
+  - *Test Scenario:* [Tier 1] **TS-02:** With incremental backup enabled and offline backup disabled, submit a stopped-VM pull request; confirm the request is accepted but remains pending with a message that the VM is not running, and no offline export or offline status is created while the VM stays stopped.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want a stopped Linux VM to produce a full offline push backup, when no prior backup history exists
@@ -482,5 +482,5 @@ This Software Test Plan requires approval from the following stakeholders:
   - Development: [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus)
 * **Approvers:**
   - QE Lead: [Ruth Netser](@rnetser)
-  - Dev Lead: [Name / @github-handle]
+  - Dev Lead: [Adam Litke](@aglitke)
   - Product Manager: [Peter Lauterbach](@peterclauterbach)
