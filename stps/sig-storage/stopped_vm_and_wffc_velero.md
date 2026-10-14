@@ -290,8 +290,8 @@ The following conditions must be met before testing can begin:
 
 **Resource Constraints**
 
-- **Risk:** A prior implementation attempt for this same test coverage (RedHatQE/openshift-virtualization-tests#162) was closed without merge when OADP testing on main became blocked (see Section I.2, Known Limitations); rebasing and updating that work requires additional rework effort
-  - **Mitigation:** Reuse PR #162's code as a starting reference for the new implementation rather than starting from scratch. Its diff was small (~35 additions) and was already reviewed at the time, reducing the risk and effort of the rebase.
+- **Risk:** The earlier PR for this same test coverage (RedHatQE/openshift-virtualization-tests#162) was closed without merging when OADP testing on main was blocked. Its implementation must be checked against the current test code and updated before it can be reused.
+  - **Mitigation:** Compare PR #162's changes with the current test utilities and reuse the applicable parts. The original change was small (~35 additions), so this should require less rework than starting from scratch.
   - _Current capacity gaps:_ None identified
   - _Sign-off:_ [Name/Date]
 
