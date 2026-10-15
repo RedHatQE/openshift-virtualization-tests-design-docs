@@ -4,7 +4,7 @@
 
 ### **Metadata & Tracking**
 
-- **Enhancement(s):** [VEP 401: Offline Incremental Backup](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/401-offline-incremental-backup/offline-incremental-backup.md) ([merged PR #402](https://github.com/kubevirt/enhancements/pull/402)); [CNV-92883](https://redhat.atlassian.net/browse/CNV-92883) (downstream tracking); extends [VEP #25 CBT](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/incremental-backup.md)
+- **Enhancement(s):** [VEP 401: Offline Incremental Backup](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/401-offline-incremental-backup/offline-incremental-backup.md) ([merged PR #402](https://github.com/kubevirt/enhancements/pull/402)); [CNV-92883](https://redhat.atlassian.net/browse/CNV-92883) (downstream tracking); extends [VEP #25 CBT](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/vep.md)
 - **Feature Tracking:** [VIRTSTRAT-481](https://redhat.atlassian.net/browse/VIRTSTRAT-481) (storage agnostic incremental backup)
 - **Epic Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
 - **Feature Maturity:**
@@ -24,7 +24,7 @@
 
 ### **Feature Overview**
 
-Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This enhancement extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs, enabling complete protection regardless of VM power state. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Restore is not a CNV product capability.
+Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This Dev Preview plan covers the VEP 401 Alpha phase in CNV v5.1.0 and extends the existing backup API so backup providers can perform consistent full and incremental backups of stopped (offline) VMs. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Restore is not a CNV product capability.
 
 ---
 
@@ -41,7 +41,7 @@ technology, and testability before formal test planning.
     - Incremental backup of stopped/offline VMs via the CNV backup API (CNV v5.1, feature gate)
     - Automated e2e tests for offline VM backup and integrity validation (CNV-96537)
     - STP updated to include offline VM backup scenarios (CNV-96538)
-    - Same backup API as online CBT ([VEP #25](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/incremental-backup.md)); backup status exposes offline mode
+    - Same backup API as online CBT ([VEP #25](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/vep.md)); backup status exposes offline mode
 
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* Backup vendors can protect stopped VMs during maintenance windows without full copies; cluster admins reduce nightly backup time and storage for powered-off workloads.
@@ -70,6 +70,7 @@ technology, and testability before formal test planning.
   - *Note any NFRs not covered and why:*
     - Performance: N/A — no performance targets defined for offline backup in the epic or VEP
     - Monitoring: N/A — no new metrics or alerts specified
+    - Observability: N/A — offline mode uses existing backup status and events; no new observability contract is defined
     - Scalability: N/A for new scale dimensions — offline backup uses the same CBT mechanism; existing cluster-level backup parallelism limits apply
     - Usability: N/A — no CNV UI changes; backup provider UX is vendor-owned (explicit non-requirement)
     - UI: No CNV console changes — per epic non-requirement; QE validates API behavior only
@@ -140,32 +141,16 @@ and schedule.
 
 **Testing Goals**
 
-- **[P0] G01 — Disabled-gate handling:** As a cluster admin, with incremental backup enabled but offline backup disabled, verify that push and pull requests for a stopped VM wait for the VM to run and create no offline backup artifact or offline status.
-- **[P0] G02 — Full push backup:** As a backup provider, complete a full backup of a stopped Linux VM in push mode and verify the expected full-mode disk artifacts and offline status.
-- **[P0] G03 — Full pull backup:** As a backup provider, complete a full backup of a stopped Linux VM in pull mode only after all disk data has been retrieved and the request has been finalized, verifying the expected full-mode exports, offline status, and completion boundary.
-- **[P0] G04 — Incremental push backup:** As a backup provider, complete an incremental push backup of a continuously stopped Linux VM and verify that each disk contains only blocks changed since the selected prior backup.
-- **[P0] G05 — Incremental pull backup:** As a backup provider, complete an incremental pull backup of a continuously stopped Linux VM only after full retrieval and finalization, verifying changed-only exports for each disk and documenting the incomplete-pull acknowledgement boundary.
-- **[P0] G06 — Linux backup integrity:** As a backup provider, validate completed Linux offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
-- **[P0] G07 — Windows backup integrity:** As a backup provider, validate completed Windows offline push and pull backups by confirming that backed-up disk data matches the source data at the selected backup point; completion alone is insufficient evidence of integrity.
-- **[P0] G08 — Online-to-offline continuity:** As a backup provider, use prior online backup history, stop the VM, and complete offline incremental push and pull backups that capture only subsequent changes while preserving the usable backup chain.
-- **[P0] G09 — Start gating:** As a cluster admin, verify that a VM cannot start during an active offline push or pull backup and can start only after the appropriate completion, deletion, or cleanup action.
-- **[P0] G10 — Backup-history continuity across restart:** As a backup provider, verify that prior backup history remains usable across VM restart and support a subsequent incremental backup without missing backed-up data.
-- **[P1] G11 — Interruption and retry safety:** As a backup provider, interrupt an active offline push transfer or push/pull preparation and verify explicit failure, no backup-history advancement, preservation of prior backup history, and a successful later backup.
-- **[P1] G12 — Deletion handling:** As a cluster admin, delete the source VM during an active push or pull backup and verify that the backup fails while VM deletion completes.
-- **[P1] G13 — Same-source conflicts:** As a cluster admin, reject overlapping push and pull requests for the same stopped VM while an offline backup is active.
-- **[P1] G14 — Offline forced-full behavior:** As a backup provider, reject unchanged repeat offline incremental push and pull requests while allowing an explicitly forced full offline backup to proceed for the stopped VM.
-- **[P1] G15 — Offline full fallback:** As a backup provider, for a stopped VM, use a full push or pull backup for a disk with missing or inconsistent tracking history while retaining incremental treatment for eligible disks.
-- **[P1] G16 — Offline hotplugged disks:** As a cluster admin, after a disk is added to a VM and the VM is stopped, back up the new disk fully while backing up existing disks incrementally in both push and pull modes.
-- **[P1] G17 — Active-source rejection:** As a cluster admin, reject push and pull requests when residual runtime activity prevents the source VM from being fully stopped.
-- **[P1] G18 — Per-disk degradation:** As a backup provider, distinguish a disk that becomes unavailable during backup from healthy output in push and pull mode without reporting complete-guest success when a required disk is unavailable.
-- **[P1] G19 — Rollback safety:** As a cluster admin, fail an active offline push or pull backup safely during supported rollback and verify that the VM is not permanently blocked and later operations remain possible.
-- **[P1] G20 — Offline pull authorization:** As a cluster admin, allow authorized offline pull reads and reject invalid or unauthenticated export credentials.
-- **[P1] G21 — Offline storage compatibility:** As a cluster admin, complete offline push and pull backups for QCOW2 disks on the supported block and filesystem storage classes required by the offline path.
-- **[P2] G22 — Concurrent offline backups:** As a cluster admin, complete concurrent push and pull offline backups on five stopped VMs without errors or corruption, subject to existing CBT cluster-level parallelism limits.
-- **[P2] G23 — Unsupported disk format:** As a cluster admin, reject offline push and pull backup for VMs using RAW disks while retaining support for the required QCOW2 format.
-- **[P2] G24 — Pull expiry:** As a backup provider, allow a pull request to expire and verify explicit failure without advancing or losing prior backup history.
-- **[P2] G25 — Migration continuity:** As a cluster admin, start with prior online backup history, complete live migration while the VM is running, stop the VM, and verify that the retained history supports an offline incremental backup.
-- **[P2] G26 — Upgrade continuity:** As a cluster admin, preserve prior online backup history across a supported upgrade and complete offline incremental push and pull backups containing only subsequent changes.
+- **[P0] G01 — Availability controls:** As a cluster admin, verify stopped-VM backups are available only when the offline gate is enabled and are rejected or held without artifacts otherwise.
+- **[P0] G02 — Offline backup correctness:** As a backup provider, verify full and incremental push and pull backups expose the expected stopped-VM data, and reject a second empty incremental request.
+- **[P0] G03 — Backup integrity:** As a backup provider, verify Linux and Windows backup data matches its source backup point, and detect unavailable or incomplete disk data rather than reporting complete-guest success.
+- **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
+- **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
+- **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests, active sources, and unsupported disk state are rejected safely.
+- **[P1] G07 — Storage and transport security:** As a cluster admin, verify supported QCOW2 storage coverage and trusted TLS access while rejecting invalid credentials and untrusted certificates.
+- **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
+- **[P2] G09 — Extended validation:** As a cluster admin, verify bounded concurrency and migration retain correct backup data without claiming a new platform scale limit.
+- **[P2] G10 — Upgrade continuity:** As a cluster admin, verify CNV v5.0.0 online history remains usable after upgrade to CNV v5.1.0 for offline incremental backup.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -226,7 +211,7 @@ found will not be classified as defects for this release.
   - *Details:* Validate five concurrent offline backups as a bounded regression-scale scenario. This does not establish a new platform scale limit; existing CBT cluster-level parallelism limits still apply.
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Pull-mode offline backup inherits certificate-based transport security from existing CBT pull mode; Section III includes unauthenticated connection rejection for offline pull mode.
+  - *Details:* Pull-mode offline backup inherits certificate-based TLS transport security from existing CBT pull mode; Section III verifies trusted access and rejects invalid credentials and untrusted certificates.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* N/A — no CNV UI changes; backup provider UX is vendor-owned (epic non-requirement).
@@ -240,7 +225,7 @@ found will not be classified as defects for this release.
   - *Details:* QCOW2 VM disks required; validate RWO block and filesystem storage classes. Prior online backup history must remain compatible with offline incremental backups.
 
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Section III validates offline incremental backup after upgrade with prior online backup history; verify in-progress offline backup fails cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
+  - *Details:* Section III validates CNV v5.0.0 online backup history after upgrade to CNV v5.1.0; in-progress offline backup must fail cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* Upstream VEP 401 is merged; functional testing is blocked on CNV-96536 delivering the CNV-side feature gate and API in v5.1.
@@ -257,7 +242,7 @@ found will not be classified as defects for this release.
 
 - **Cluster Topology:** Standard (3-master/3-worker or equivalent CI topology)
 
-- **OCP & OpenShift Virtualization Version(s):** OCP aligned with CNV v5.1.0 (CNV v5.1.0)
+- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 on the OCP release listed as compatible in the CNV v5.1 build metadata; upgrade coverage starts on CNV v5.0.0 and ends on CNV v5.1.0, using one OCP release supported by both builds
 
 - **CPU Virtualization:** Standard
 
@@ -265,7 +250,7 @@ found will not be classified as defects for this release.
 
 - **Special Hardware:** N/A
 
-- **Storage:** QCOW2 VM disks on standard StorageClasses (RWO primary; RWX where pull-mode scratch requires it)
+- **Storage:** QCOW2 VM disks on `ocs-storagecluster-ceph-rbd-virtualization` (RWO block/filesystem coverage) and `ocs-storagecluster-cephfs` (RWX pull scratch coverage)
 
 - **Network:** Standard (OVN-Kubernetes)
 
@@ -277,9 +262,9 @@ found will not be classified as defects for this release.
 
 #### **3.1. Testing Tools & Frameworks**
 
-- **Test Framework:** Standard
+- **Test Framework:** N/A — no non-standard framework required
 
-- **CI/CD:** Standard CNV test lanes
+- **CI/CD:** N/A — no feature-specific lane required
 
 - **Other Tools:** N/A
 
@@ -361,7 +346,7 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want an offline pull incremental backup to contain only blocks changed since the prior backup after retrieval and finalization
-  - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, start the Linux VM and write additional data, stop the VM, then retrieve and finalize an offline incremental pull backup; confirm only blocks changed since the full backup are exported and incomplete retrieval is not acknowledged as complete.
+  - *Test Scenario:* [Tier 1] **TS-06:** Complete a full pull backup, write additional data, and prepare an offline incremental pull backup; delete the backup request before retrieving all data and confirm deletion completes the pull and advances backup history despite the incomplete provider copy.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want to validate Linux offline backup completion and integrity
@@ -438,8 +423,8 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want authorized offline pull reads allowed and invalid export credentials rejected
-  - *Test Scenario:* [Tier 1] **TS-38:** Connect to an offline pull export with valid credentials; confirm the authorized data read succeeds.
-  - *Test Scenario:* [Tier 1] **TS-39:** Connect to an offline pull export with missing or invalid credentials; confirm the connection is rejected.
+  - *Test Scenario:* [Tier 1] **TS-38:** Connect to an offline pull export with valid credentials and a trusted certificate; confirm the TLS-protected data read succeeds.
+  - *Test Scenario:* [Tier 1] **TS-39:** Connect with invalid credentials or an untrusted certificate; confirm the offline pull export rejects the connection before data is read.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want offline backup to work for QCOW2 disks on each supported storage class
@@ -466,9 +451,9 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Test Scenario:* [Tier 2] **TS-48:** Start with prior online backup history, live migrate the running VM, stop it, and complete an offline incremental pull backup; confirm the retained history supports the backup.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a cluster admin, I want prior online backup history to remain usable for offline incremental backup across a supported upgrade
-  - *Test Scenario:* [Tier 2] **TS-49:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental push backup from prior online backup history; confirm the backup contains only subsequent changes.
-  - *Test Scenario:* [Tier 2] **TS-50:** After a supported upgrade with the offline feature gate enabled, complete an offline incremental pull backup from prior online backup history; confirm the retrieved export contains only subsequent changes.
+- **[CNV-96511]** — As a cluster admin, I want CNV v5.0.0 online backup history to remain usable after upgrade to CNV v5.1.0
+  - *Test Scenario:* [Tier 2] **TS-49:** After upgrading CNV v5.0.0 to v5.1.0 with the offline feature gate enabled, complete an offline incremental push backup from prior online history; confirm only subsequent changes are present.
+  - *Test Scenario:* [Tier 2] **TS-50:** After upgrading CNV v5.0.0 to v5.1.0 with the offline feature gate enabled, complete an offline incremental pull backup from prior online history; confirm only subsequent changes are exported.
   - *Priority:* P2
 
 ---
