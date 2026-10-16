@@ -20,7 +20,7 @@
 
 ### **Feature Overview**
 
-This plan targets CNV v5.0.0 and closes test coverage gaps for existing GA Velero/OADP backup and restore behavior. Administrators can protect stopped VMs with block or filesystem disks and VMs using WaitForFirstConsumer (WFFC) storage. This plan covers stopped-VM backup and restore, running- and stopped-VM backup and restore with WFFC storage, preservation of VM configuration and guest data, and recovery when a backup dependency or snapshot is unavailable. These customer-visible outcomes help administrators confirm that their workloads can be recovered after a failure.
+This plan targets CNV v5.0.0 and closes test coverage gaps for existing GA Velero/OADP backup and restore behavior. Administrators can protect stopped VMs with block or filesystem disks and VMs using WaitForFirstConsumer (WFFC) storage. This plan covers stopped-VM backup and restore, running- and stopped-VM backup and restore with WFFC storage, preservation of VM configuration and guest data, recovery when a backup dependency or snapshot is unavailable, and service-account permissions for these operations. These customer-visible outcomes help administrators confirm that authorized users can recover workloads after a failure.
 
 ---
 
@@ -32,7 +32,7 @@ technology, and testability before formal test planning.
 #### **1. Requirement & User Story Review Checklist**
 
 - [x] **Review Requirements**
-  - _Traceability basis:_ [CNV-44308](https://redhat.atlassian.net/browse/CNV-44308) is a QE automation task under the [CNV-12960 technical-debt epic](https://redhat.atlassian.net/browse/CNV-12960). Neither ticket links product-level D/S requirements for this existing behavior. This plan therefore uses CNV-44308 as its Jira tracking ID, with the local coverage requirements R1–R6 below to distinguish the outcomes verified by each scenario; these labels are not product Jira IDs.
+  - _Traceability basis:_ [CNV-44308](https://redhat.atlassian.net/browse/CNV-44308) is a QE automation task under the [CNV-12960 technical-debt epic](https://redhat.atlassian.net/browse/CNV-12960). Neither ticket links product-level D/S requirements for this existing behavior. This plan therefore uses CNV-44308 as its Jira tracking ID, with the local coverage requirements R1–R8 below to distinguish the outcomes verified by each scenario; these labels are not product Jira IDs. R7/R8 capture the [authorization coverage requested during PR review](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/146#discussion_r4133352457).
   - _Coverage requirements (CNV-44308):_
     - **R1 — Stopped-VM backup:** Administrators can back up a powered-off VM, including its configuration and stored data, with block or filesystem storage.
     - **R2 — Stopped-VM recovery:** A restored stopped VM retains its configuration and data, remains powered off, and starts only when requested.
@@ -40,6 +40,8 @@ technology, and testability before formal test planning.
     - **R4 — WFFC recovery:** A restored VM retains its WFFC storage class and saved startup policy, starts successfully with bound storage, and retains its data. When zone-aware storage is enabled, its storage placement matches the scheduled worker's zone.
     - **R5 — Backup failure reporting:** An unavailable backup dependency causes a clear backup failure without leftover backup artifacts.
     - **R6 — Restore failure reporting:** A missing or invalid snapshot causes a clear restore failure without a partially restored VM or storage.
+    - **R7 — Operation permissions:** A service account granted backup, snapshot, or restore permissions can perform that operation; an account without the corresponding permission receives a permission-denied error and creates no resources for the denied operation.
+    - **R8 — Cross-namespace restore access:** A trusted backup administrator can restore a VM into another test namespace. A workload-only account without access to the backup administration interface cannot submit that restore or change the destination workload.
 
 - [x] **Understand Value and Customer Use Cases**
   - _Feature value to customers:_ Customers using OADP/Velero for disaster recovery and migration need confidence that all VM states are protected. Stopped VMs represent valid production workloads (e.g., template VMs, scheduled-off VMs, maintenance windows), and WFFC is the recommended StorageClass binding mode for multi-zone clusters. Without test coverage, regressions in these scenarios could cause data loss during DR operations.
@@ -48,6 +50,7 @@ technology, and testability before formal test planning.
     - As a cluster admin, I need to recover VMs that were powered off during a scheduled maintenance window, so that maintenance activity doesn't put those workloads at risk
     - As a cluster admin, I want to back up and restore VMs using WFFC StorageClasses within the same cluster and namespace, so that WaitForFirstConsumer workloads are protected by the same disaster-recovery flow as other VMs
     - As a cluster admin, I expect a restored VM in a multi-zone cluster to come up with its storage co-located in the zone where it is scheduled, so that zone-local data access is preserved after restore
+    - As a cluster admin, I want backup, snapshot, and restore operations to require explicit permissions, so that workload-only or read-only accounts cannot perform administrative recovery operations
 
 - [x] **Testability**
   - _Requirements unclear or untestable:_ None. All requirements are testable through the existing OADP/Velero test framework. The existing `data_protection/oadp/` infrastructure supports parameterized VM configurations and DataVolume modes.
@@ -63,16 +66,20 @@ technology, and testability before formal test planning.
     - Restored WFFC storage retains its storage class and binds successfully, without requiring binding before a VM start request; placement matches the scheduled worker's zone when that storage topology is enabled. Both block and filesystem volumes are covered.
     - An unavailable OADP/DataMover dependency causes a failed or partially failed backup with an identifying error and no leftover backup artifacts, for block and filesystem volumes
     - A missing or invalid snapshot causes a failed or partially failed restore with an identifying error and no partially restored VM or storage, for block and filesystem volumes
+    - A trusted administrative service account can complete a VM backup; a read-only account cannot submit the same backup and creates no backup artifacts
+    - A service account with snapshot permissions can create a ready snapshot of the bound test disk; an account without snapshot-create permission receives a permission-denied error and creates no snapshot
+    - A trusted administrative service account can restore a VM with its expected power state and readable data; a read-only account cannot submit the restore and creates no restored VM or storage
+    - A trusted administrative service account can restore a stopped VM from test namespace A into test namespace B and start it with readable data, leaving the source unchanged; a workload-only account without backup-administration access receives a permission-denied error when submitting the same restore and creates nothing in B
   - _Gaps or missing criteria:_ The Jira description is minimal ("Add stopped VM and WFFC to velero tests plan and automate the tests"). Section II.3 defines the OCS and HPP storage classes and the snapshot-capable OCS WFFC test class. Compatible OADP/Velero/DataMover versions and dated Storage Ecosystem confirmation of the topology configuration remain required before execution.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - _Applicable NFRs and their targets:_
     - Backup and restore of a single VM complete without indefinite hangs or timeouts; concrete duration thresholds are a test-implementation detail deferred to the STD (performance benchmarking itself is out of scope -- see the Performance note below)
     - Tests must be idempotent and not leave orphaned resources in the cluster
+    - Security: Allowed and denied backup, snapshot, restore, and cross-namespace restore requests are tested with separate service accounts and recorded permissions. Denied requests must report a permission error, create no operation resources, and leave existing VM data and power state unchanged (Sections II.1 and III).
   - _NFRs not covered and why:_
     - Performance: Not covered — benchmarking of backup/restore duration is out of scope for this test debt task (see Section II.1, Out of Scope)
     - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Validating those existing platform-level concurrency/throughput constraints would exercise the OADP/Velero platform's own scaling behavior rather than functionality introduced by this test debt task, so it is not exercised here
-    - Security: Positive scenarios use an authorized account. Existing OADP authorization coverage has not been established for allowed and denied backup, snapshot, restore, or cross-namespace operations. Inclusion of these checks requires a QE Architect/PM scope decision; this is pending, not an approved exclusion (see Section II.2, Security Testing).
     - Monitoring/Observability: No new metrics or alerts introduced by this test debt task (see Section II.2, Monitoring)
     - UI: No new UI changes are included. PM/UX must confirm whether exercising an existing customer UI adds value; that review is pending.
     - Documentation: No new user-facing documentation required; this is QE test coverage for existing product behavior
@@ -121,6 +128,10 @@ _Storage coverage:_ Run stopped-VM block and filesystem scenarios on `ocs-storag
 
 _Startup policy:_ Configure running WFFC sources for automatic startup. Stop stopped-source VMs before backup and retain their powered-off startup setting. Preserve the saved startup policy during restore, without a restore-time override: running WFFC sources must start automatically, while stopped sources must remain off until explicitly started. A manual start must not mask a failure of the running-source automatic-start check.
 
+_Authorization coverage:_ Exercise each permission check with a stopped RHEL VM using filesystem storage on the standard OCS class and a stopped RHEL VM using block storage on the OCS WFFC class. Use DataMover for backup/restore operations and separate trusted administrative, read-only, and workload-only service accounts as specified in Section II.3. Each allowed and denied operation has its own scenario. The cross-namespace security checks restore one VM from namespace A into namespace B; broader bulk multi-namespace workflows remain outside this cycle.
+
+_Authorization boundary:_ Access to the Velero administrative backup/restore interface delegates the deployed backup service's authority. Workload namespace permissions alone do not restrict the destinations that this administrative interface can restore into. Denied backup/restore checks therefore use accounts without permission to submit administrative requests; denied snapshot checks use an account without permission to create a snapshot of the test disk. OADP retains its supported operating permissions throughout these checks. The STD must record the permissions of each account and the interface used for each request.
+
 **Testing Goals**
 
 - [P0] A cluster administrator can back up and restore a stopped VM with a block DataVolume using DataMover; its configuration and data are preserved, it remains powered off, and it starts when requested.
@@ -130,6 +141,10 @@ _Startup policy:_ Configure running WFFC sources for automatic startup. Stop sto
 - [P1] A cluster administrator can back up and restore a running VM configured for automatic startup with a WFFC DataVolume; the restored VM starts automatically, its volume binds, and its data is readable, in both block and filesystem modes.
 - [P1] A cluster administrator can restore a stopped VM with a WFFC DataVolume in both block and filesystem modes; it remains powered off until explicitly started. Request startup without first waiting for a Pending volume to bind, then confirm bound storage, a running VM, and readable data.
 - [P1] Data written before backup is readable after restore in all four configuration groups: stopped VM with block storage, stopped VM with filesystem storage, running VM with WFFC storage, and stopped VM with WFFC storage. Exercise both block and filesystem modes for each WFFC group.
+- [P1] A trusted administrative service account can complete a backup of each authorization-test VM; a read-only account receives a permission-denied error when submitting the same backup, creates no backup artifacts, and leaves the source unchanged.
+- [P1] A service account with snapshot permissions can create a ready snapshot of each authorization-test disk; an account without snapshot-create permission receives a permission-denied error, creates no snapshot, and leaves the source unchanged.
+- [P1] A trusted administrative service account can complete a restore of each authorization-test VM with its expected power state and readable data; a read-only account receives a permission-denied error when submitting a restore, creates no restored VM or storage, and leaves existing workloads unchanged.
+- [P1] A trusted administrative service account can restore each authorization-test VM from namespace A into namespace B and start it with readable data, leaving the source unchanged; a workload-only account without backup-administration access cannot submit the same restore or create destination resources.
 - [P2] After restoring and starting a stopped VM with a WFFC DataVolume on zone-aware OCS storage, its PV and scheduled worker report the same zone.
 
 _Priority note:_ Stopped VM backup/restore is prioritized P0 because it is a previously completely untested VM state for Velero, representing a higher risk of undetected regressions. WFFC StorageClass coverage is prioritized P1 because it extends an existing, well-established backup/restore path (running VMs) with an additional storage-binding dimension, representing incremental rather than foundational risk.
@@ -143,8 +158,8 @@ _WFFC binding note:_ The source volume is already bound at backup time, so backu
 The following items are explicitly Out of Scope for this test cycle and represent intentional exclusions.
 No verification activities will be performed for these items during this test cycle.
 
-- **Windows guest OS backup/restore scenarios**
-  - *Rationale:* Existing Windows VM restore coverage already exists in `tests/data_protection/oadp/test_velero.py`; this test debt task targets RHEL guest coverage only and does not extend Windows coverage further
+- **Additional stopped-Windows-VM and Windows-WFFC DataMover combinations**
+  - *Rationale:* Existing Windows CSI-only backup/restore in `tests/data_protection/oadp/test_velero.py` remains regression coverage. This task extends RHEL DataMover coverage and defers these additional Windows state/storage combinations.
   - *PM/Lead Agreement:* [Name/Date]
 
 - **CSI-only backup (without DataMover)**
@@ -155,8 +170,8 @@ No verification activities will be performed for these items during this test cy
   - *Rationale:* Only on-demand backup/restore is tested; scheduled backups do not exercise different stopped-VM or WFFC code paths
   - *PM/Lead Agreement:* [Name/Date]
 
-- **Multi-namespace backup/restore with stopped VMs or WFFC StorageClass DataVolumes**
-  - *Rationale:* The existing multi-namespace backup/restore test (`test_restore_multiple_namespaces`) only exercises a running VM with no WFFC StorageClass; it does not cover stopped VMs or WFFC. This combination is genuinely untested, not covered elsewhere, and is deferred from this test debt task's scope to keep the initial pass focused on single-namespace stopped-VM and WFFC coverage.
+- **Bulk backup/restore spanning multiple workload namespaces with stopped VMs or WFFC storage**
+  - *Rationale:* The existing `test_restore_multiple_namespaces` exercises a running VM without WFFC storage. Bulk stopped-VM/WFFC combinations remain deferred to keep this cycle focused. The single-VM authorization checks restoring from namespace A into B are included in this plan and are not part of this exclusion.
   - *PM/Lead Agreement:* [Name/Date]
 
 - **Backup/restore of VMs with hotplugged volumes**
@@ -180,16 +195,17 @@ No verification activities will be performed for these items during this test cy
 **Functional**
 
 - [x] **Functional Testing** -- Validates that the feature works according to specified requirements and user stories
-  - _Details:_ The scenarios follow three distinct workflow shapes:
+  - _Details:_ The scenarios follow four distinct workflow shapes:
     - _Positive backup/restore (the five functional scenarios):_ create a VM, write test data while it is running, stop it if the scenario uses a stopped source, perform a Velero backup, delete the original resources, and submit the restore. For stopped sources, confirm the restored VM is powered off as soon as it is available and explicitly request startup without waiting for pending storage to bind or for restore completion. For the running WFFC source, require automatic startup without a manual start. Finally, confirm restore completion, bound storage, a running VM, and data integrity.
     - _Failure-path (the two P0 negative scenarios):_ drive the backup or restore into the injected failure condition and assert it fails observably (a non-successful phase plus a surfaced failure condition) leaving no leftover artifacts; there is no delete-restore-verify step.
     - _Topology (the P2 scenario):_ restore and start the stopped WFFC VM and assert its storage binds in a zone consistent with the node where the VM is scheduled.
+    - _Authorization (eight scenarios):_ use the service-account matrix in Section II.3 to check permitted and denied backup, snapshot, restore, and cross-namespace restore requests separately. Permitted operations must complete; restored VMs must start with readable data. Denied requests must report a permission error, create no operation resources, and leave existing workloads unchanged.
 
 - [x] **Automation Testing** -- Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
-  - _Details:_ All tests are automated in Python/pytest within the `tests/data_protection/oadp/` directory of the openshift-virtualization-tests repository. Tests use the existing parameterized framework and Polarion markers for traceability, and run in the existing nightly CI lane.
+  - _Details:_ Automate all planned scenarios in Python/pytest within `tests/data_protection/oadp/` in the openshift-virtualization-tests repository, including the new authorization cases. Reuse the existing parameterized framework, add Polarion markers for traceability, and run the resulting tests in the existing nightly CI lane.
 
 - [x] **Regression Testing** -- Verifies that new changes do not break existing functionality
-  - _Details:_ Existing Velero backup/restore tests must continue to pass. The new `stopped_vm` fixture and parameterization must not alter the behavior of existing test cases that use `stopped_vm=False`.
+  - _Details:_ Run the existing SIG Storage OADP suite in `tests/data_protection/oadp/`, including the Windows CSI-only backup/restore test in `test_velero.py`. The new `stopped_vm` fixture and parameterization must preserve the behavior of existing cases that use `stopped_vm=False`.
 
 - [ ] **Self-Validation Testing** -- Should any of the new tests be included in the self-validation test package?
   - _Details:_ N/A. These scenarios extend edge-case backup/restore state coverage (stopped VMs, WFFC binding) rather than core operational health checks; not proposed for the self-validation package at this time.
@@ -202,8 +218,8 @@ No verification activities will be performed for these items during this test cy
 - [ ] **Scale Testing** -- Validates feature behavior under increased load and at production-like scale
   - _Details:_ N/A. Scale testing is not in scope for this test debt task.
 
-- [ ] **Security Testing** -- Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - _Details:_ Pending QE Architect/PM scope decision for service-account permission checks covering allowed and denied backup, snapshot, restore, and cross-namespace operations. Existing positive tests use authorized access; they do not demonstrate denied-access coverage. No existing OADP RBAC test is cited as coverage, and this item is not approved as N/A.
+- [x] **Security Testing** -- Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - _Details:_ Add allowed and denied service-account checks for backup, snapshot, restore, and cross-namespace restore using the explicit authorization boundary and account matrix in Sections II.1 and II.3. Verify permission-denied errors and absence of new operation resources or changes to existing workloads. These are new coverage scenarios; existing administrator-only backup/restore tests do not establish denied-access coverage.
 
 - [ ] **Usability Testing** -- Validates user experience and accessibility requirements
   - _Details:_ PM/UX confirmation of whether testing the existing customer UI adds value is pending (see Section I.1). Absence of UI or CLI changes does not establish that usability testing is unnecessary.
@@ -249,6 +265,14 @@ No verification activities will be performed for these items during this test cy
 
 - **Network:** Standard cluster networking (OVN-Kubernetes)
 - **Required Operators:** OpenShift Virtualization Operator, OADP Operator (with Velero and DataMover components), OpenShift Data Foundation Operator for OCS storage
+- **Authorization Test Accounts:** Use dedicated test service accounts and two disposable workload namespaces, A and B, with the following grants. Record the effective permissions with results.
+
+  | Account | Backup administration access | Workload namespace access | Expected operations |
+  |:--------|:-----------------------------|:--------------------------|:--------------------|
+  | Trusted administrative account | Submit and inspect backup and restore requests | Administrative access to A and B, including snapshot creation | Backup, snapshot, restore, and cross-namespace restore complete |
+  | Read-only account | Inspect requests; no permission to submit backup or restore requests | Inspect test resources; no permission to create snapshots | Backup, snapshot, and restore submissions are denied |
+  | Workload-only account | No permission to submit backup or restore requests | Manage the VM in A; no access to B | Cross-namespace restore submission is denied |
+
 - **Platform:** RHOS PSI (OpenStack) or AWS, with ODF installed and both listed OCS classes available. Record the platform, cluster, and region used for each result. For P2, validate multiple worker zones and matching storage topology on the chosen platform; the platform name alone does not establish that prerequisite.
 - **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Record the installed OADP/Velero/DataMover versions and Storage Ecosystem approval before execution.
 
@@ -269,7 +293,7 @@ The following conditions must be met before testing can begin:
 - [ ] `ocs-storagecluster-rbdplugin-snapclass` has been validated with the installed OADP/Velero/DataMover versions for both volume modes
 - [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-virtualization-wffc` is configured and supports successful snapshot-based backup and restore
 - [ ] For the P2 topology scenario: the OCS storage topology has been confirmed against at least two worker zones
-- [ ] QE Architect/PM has decided the authorization-test scope described in Sections I.1 and II.2
+- [ ] The authorization-test accounts and namespaces A/B are configured, and their effective operation permissions match the matrix in Section II.3
 
 #### **5. Risks**
 
@@ -294,13 +318,13 @@ The following conditions must be met before testing can begin:
 
 **Untestable Aspects**
 
-- **Risk:** None -- all identified scenarios (stopped VM backup/restore, WFFC binding, topology zone verification) are reproducible with existing cluster infrastructure and require no production-only conditions.
-  - **Mitigation:** All identified scenarios are testable with the OCS snapshot class, the configured WFFC class, and the worker topology listed in Section II.3.
+- **Risk:** None -- stopped-VM recovery, WFFC binding, topology verification, and operation-permission checks are reproducible with test VMs and dedicated test accounts; none requires production-only conditions.
+  - **Mitigation:** Use the OCS snapshot and WFFC classes, worker topology, and authorization-account matrix in Section II.3 to exercise the identified scenarios.
 
 **Resource Constraints**
 
-- **Risk:** The earlier PR for this same test coverage (RedHatQE/openshift-virtualization-tests#162) was closed without merging when OADP testing on main was blocked. Its implementation must be checked against the current test code and updated before it can be reused.
-  - **Mitigation:** Compare PR #162's changes with the current test utilities and reuse the applicable parts. The original change was small (~35 additions), so this should require less rework than starting from scratch.
+- **Risk:** The earlier stopped-VM/WFFC implementation (RedHatQE/openshift-virtualization-tests#162) was closed without merging when OADP testing on main was blocked and needs checking against current utilities. The eight authorization scenarios also require account fixtures and new permission checks.
+  - **Mitigation:** Reuse applicable stopped-VM/WFFC changes from PR #162 after checking the current utilities. Design the dedicated account fixtures and eight authorization cases in the STD, and estimate that additional automation work before scheduling implementation.
   - *Current capacity gaps:* None identified
   - *Sign-off:* [Name/Date]
 
@@ -352,6 +376,46 @@ All scenarios use CNV-44308 as the QE tracking ID for existing behavior. The loc
   - _Test Scenario:_ [Tier 2] Verify pre-backup data is readable after restore in all four configuration groups: stopped VM with block storage, stopped VM with filesystem storage, running VM with WFFC storage, and stopped VM with WFFC storage. Exercise both block and filesystem modes in each WFFC group, with the automatic or explicit startup expected for that source VM.
   - _Priority:_ P1
 
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a backup administrator, I want an authorized service account to back up a stopped VM, so that approved automation can protect its configuration and data
+  - _Coverage requirements:_ R7
+  - _Test Scenario:_ [Tier 1] Using the trusted administrative account, submit a backup for each authorization-test VM defined in Section II.1 and confirm it completes successfully. Record the submitting identity and its effective backup permissions.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want backup submission denied to a read-only service account, so that viewing a workload does not grant permission to back it up
+  - _Coverage requirements:_ R7
+  - _Test Scenario:_ [Tier 1] Using the read-only account, submit the same backup for each authorization-test VM. Require a permission-denied error, no new backup request or backup artifacts, and no change to the source VM's power state or data.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a storage administrator, I want a service account with snapshot permissions to capture a stopped VM's disk, so that approved automation can protect its storage
+  - _Coverage requirements:_ R7
+  - _Test Scenario:_ [Tier 1] Using the trusted administrative account, request a snapshot of the bound disk for each authorization-test VM with the OCS snapshot class in Section II.3. Confirm the snapshot becomes ready and the source VM's power state and data remain unchanged.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a storage administrator, I want snapshot creation denied to an account without snapshot permissions, so that read access does not authorize copying a VM's disk
+  - _Coverage requirements:_ R7
+  - _Test Scenario:_ [Tier 1] Using the read-only account without snapshot-create permission, request a snapshot of each authorization-test disk. Require a permission-denied error, no new snapshot, and no change to the source VM's power state or data.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a backup administrator, I want an authorized service account to restore a stopped VM, so that approved automation can recover its workload
+  - _Coverage requirements:_ R2, R4, R7
+  - _Test Scenario:_ [Tier 2] Using the trusted administrative account, restore a backup of each authorization-test VM into its original namespace after deleting the original resources. Confirm the VM remains powered off, explicitly request startup without waiting for pending storage to bind, then verify completed restore, a running VM, and readable pre-backup data.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want restore submission denied to a read-only service account, so that viewing backups does not authorize creating recovered workloads
+  - _Coverage requirements:_ R7
+  - _Test Scenario:_ [Tier 1] Using the read-only account, submit a restore from a valid backup of each authorization-test VM. Require a permission-denied error, no new restore request, VM, or storage, and no changes to existing workloads.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a backup administrator, I want an authorized service account to restore a VM into another test namespace, so that I can recover a workload at an approved destination
+  - _Coverage requirements:_ R2, R4, R8
+  - _Test Scenario:_ [Tier 2] Using the trusted administrative account, restore a backup of each authorization-test VM from namespace A into disposable namespace B. Confirm the restored VM remains powered off until explicitly started, then verify completed restore, a running VM, and readable pre-backup data in B. Confirm the source VM and its data in A remain unchanged.
+  - _Priority:_ P1
+
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want a workload-only account denied access to administrative cross-namespace restore, so that managing a VM does not grant backup-administration authority
+  - _Coverage requirements:_ R8
+  - _Test Scenario:_ [Tier 1] Using the workload-only account from A, which has no permission to submit backup-administration requests and no access to B, submit the same cross-namespace restore for each authorization-test VM. Require a permission-denied error, no new restore request or destination resources in B, and no change to existing workloads or data in A or B.
+  - _Priority:_ P1
+
 - **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want a restored stopped VM with a WFFC DataVolume to start with its storage bound in the same zone as the node where it is scheduled, so that zone-local data access is preserved after restore
   - _Coverage requirements:_ R4
   - _Test Scenario:_ [Tier 2] Verify that a restored stopped VM with a WFFC DataVolume starts successfully and its WFFC PV binds in a zone consistent with the node where the VM is scheduled (the bound PV's zone label matches the scheduling node's zone), demonstrating zone-local storage after restore
@@ -363,12 +427,13 @@ All scenarios use CNV-44308 as the QE tracking ID for existing behavior. The loc
 
 This Software Test Plan requires approval from the following stakeholders:
 
-Required approval roles are QE Lead, PM, and Dev Lead. The QE Lead and Dev Lead identities must be confirmed before approval; a listed reviewer is not evidence of approval.
+Required approvers are listed below; listing an approver does not record a completed approval.
 
 - **Reviewers:**
   - QE Architect (OCP-V): Ruth Netser (`@rnetser`)
   - QE Members (OCP-V): Jenia Peimer (`@jpeimer`), Emanuele Prella (`@ema-aka-young`), Jose Manuel Castano (`@joscasta`)
 
 * **Approvers:**
-  - QE Architect (OCP-V): Ruth Netser (`@rnetser`)
+  - QE Lead: Ruth Netser (`@rnetser`)
+  - Dev Lead (CNV Storage): Alexander Wels (`@awels`)
   - PM: Peter Lauterbach (`@pelauter`)
