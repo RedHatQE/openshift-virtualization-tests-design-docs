@@ -1,4 +1,4 @@
-# Openshift-virtualization-tests Test plan
+# OpenShift-virtualization-tests Test plan
 
 ## **CBT: Offline VM Support - Quality Engineering Plan**
 
@@ -350,13 +350,13 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want to validate Linux offline backup completion and integrity
-  - *Test Scenario:* [Tier 2] **TS-07:** Complete full and incremental push backups for a stopped Linux VM; validate backup completion and confirm the backed-up disk data matches the source data at each selected backup point.
-  - *Test Scenario:* [Tier 2] **TS-08:** Complete full and incremental pull backups for a stopped Linux VM, retrieving and finalizing each export; validate backup completion and confirm the retrieved disk data matches the source data at each selected backup point.
+  - *Test Scenario:* [Tier 2] **TS-07:** Complete a full push backup for a stopped Linux VM, start the VM and write guest data, stop it, then complete an offline incremental push backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm every backup matches its source backup point.
+  - *Test Scenario:* [Tier 2] **TS-08:** Complete and retrieve a full pull backup for a stopped Linux VM, start the VM and write guest data, stop it, then complete and retrieve an offline incremental pull backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm every retrieved backup matches its source backup point.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want to validate Windows offline backup completion and integrity
-  - *Test Scenario:* [Tier 3] **TS-09:** Complete full and incremental push backups for a stopped Windows VM; validate backup completion and confirm the backed-up disk data matches the source data at each selected backup point.
-  - *Test Scenario:* [Tier 3] **TS-10:** Complete full and incremental pull backups for a stopped Windows VM, retrieving and finalizing each export; validate backup completion and confirm the retrieved disk data matches the source data at each selected backup point.
+  - *Test Scenario:* [Tier 3] **TS-09:** Complete a full push backup for a stopped Windows VM, start the VM and write guest data, stop it, then complete an offline incremental push backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm every backup matches its source backup point.
+  - *Test Scenario:* [Tier 3] **TS-10:** Complete and retrieve a full pull backup for a stopped Windows VM, start the VM and write guest data, stop it, then complete and retrieve an offline incremental pull backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm every retrieved backup matches its source backup point.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want prior online backup history to remain usable for offline incremental backup after the VM stops
@@ -370,8 +370,8 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want prior offline backup history to remain usable across VM restart
-  - *Test Scenario:* [Tier 2] **TS-15:** After an offline push backup, start and restart the VM, then complete a push incremental backup; confirm prior backup history remains usable and no missing backed-up data.
-  - *Test Scenario:* [Tier 2] **TS-16:** After an offline pull backup, start and restart the VM, then complete a pull incremental backup; confirm prior backup history remains usable and no missing backed-up data.
+  - *Test Scenario:* [Tier 2] **TS-15:** After a baseline offline push backup, start the Linux VM and write guest data, stop it, then complete an offline incremental push backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm prior history remains usable with every guest change present.
+  - *Test Scenario:* [Tier 2] **TS-16:** After a baseline offline pull backup, start the Linux VM and write guest data, stop it, then complete and retrieve an offline incremental pull backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm prior history remains usable with every guest change present.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want interrupted offline transfer or preparation to fail safely without advancing or losing prior backup history
@@ -447,13 +447,13 @@ Scenarios aligned with VEP 401 functional testing approach and CNV-96511 accepta
   - *Priority:* P2
 
 - **[CNV-96511]** — As a cluster admin, I want prior online backup history retained through migration to support a later offline incremental backup
-  - *Test Scenario:* [Tier 2] **TS-47:** Start with prior online backup history, live migrate the running VM, stop it, and complete an offline incremental push backup; confirm the retained history supports the backup.
-  - *Test Scenario:* [Tier 2] **TS-48:** Start with prior online backup history, live migrate the running VM, stop it, and complete an offline incremental pull backup; confirm the retained history supports the backup.
+  - *Test Scenario:* [Tier 2] **TS-47:** After an online baseline backup, live migrate the running Linux VM, write guest data, and stop it before completing an offline incremental push backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm migrated history preserves every guest change.
+  - *Test Scenario:* [Tier 2] **TS-48:** After an online baseline backup, live migrate the running Linux VM, write guest data, and stop it before completing and retrieving an offline incremental pull backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm migrated history preserves every guest change.
   - *Priority:* P2
 
 - **[CNV-96511]** — As a cluster admin, I want CNV v5.0.0 online backup history to remain usable after upgrade to CNV v5.1.0
-  - *Test Scenario:* [Tier 2] **TS-49:** After upgrading CNV v5.0.0 to v5.1.0 with the offline feature gate enabled, complete an offline incremental push backup from prior online history; confirm only subsequent changes are present.
-  - *Test Scenario:* [Tier 2] **TS-50:** After upgrading CNV v5.0.0 to v5.1.0 with the offline feature gate enabled, complete an offline incremental pull backup from prior online history; confirm only subsequent changes are exported.
+  - *Test Scenario:* [Tier 2] **TS-49:** Create an online baseline backup on CNV v5.0.0, upgrade to v5.1.0 with the offline feature gate enabled, start the Linux VM and write guest data, stop it, then complete an offline incremental push backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm only post-baseline changes are present.
+  - *Test Scenario:* [Tier 2] **TS-50:** Create an online baseline backup on CNV v5.0.0, upgrade to v5.1.0 with the offline feature gate enabled, start the Linux VM and write guest data, stop it, then complete and retrieve an offline incremental pull backup; repeat the start, write, and stop sequence before each subsequent incremental checkpoint, and confirm only post-baseline changes are exported.
   - *Priority:* P2
 
 ---
