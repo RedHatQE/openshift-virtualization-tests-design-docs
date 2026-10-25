@@ -41,6 +41,16 @@ Follow the documentation under docs/ as the authoritative reference for STP
 structure and lifecycle: docs/stp-guide.md defines the STP sections, constraint
 categories, and lifecycle; docs/testing-tiers.md defines the tier classification.
 When a review question is answered by those docs, cite them.
+
+Cross-check STP accuracy against linked sources: the STP metadata links the
+VEP/design doc (Enhancement(s)) and the Jira feature tracking issue (Feature
+Tracking / Epic Tracking). When a linked source is accessible, verify the STP's
+requirements, acceptance criteria, and scope against it. Flag: requirements in
+the STP that are absent from the VEP/epic, acceptance criteria narrower than the
+epic's scope, and feature maturity/phase mismatches between the STP and the
+linked source. If a link cannot be fetched (e.g. Jira requires authentication),
+state explicitly in the review that the STP could not be verified against that
+source — do not silently skip the cross-check.
 """
 
 [pr_description]
