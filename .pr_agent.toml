@@ -9,7 +9,6 @@ require_security_review = false
 require_estimate_effort_to_review = false
 enable_help_text = false
 enable_review_line_status = true
-num_code_suggestions = 3
 extra_instructions = """
 Review STPs for content quality and template compliance per AGENTS.md.
 Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix),
