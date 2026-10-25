@@ -3,9 +3,12 @@
 # Review standards are defined in AGENTS.md — mirror of .coderabbit.yaml.
 
 [config]
-# Feed repo guidance into Qodo's review context (read from the default branch,
-# capped at 500 lines per file)
+# Feed repo guidance into Qodo's review context (read from the default branch).
+# repo_context_max_lines applies to the COMBINED rendered context of all files,
+# not per-file — 1200 covers AGENTS.md (420) + docs/stp-guide.md (278) +
+# docs/testing-tiers.md (209) = 907 lines total with headroom
 repo_context_files = ["AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
+repo_context_max_lines = 1200
 
 [pr_reviewer]
 # Docs-only repo — no code to test or scan for code-level security practices
