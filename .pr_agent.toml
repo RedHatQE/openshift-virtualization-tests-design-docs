@@ -2,13 +2,17 @@
 # This is a documentation-only repo containing Software Test Plans (STPs).
 # Review standards are defined in AGENTS.md — mirror of .coderabbit.yaml.
 
+[config]
+# Feed repo guidance into Qodo's review context (read from the default branch,
+# capped at 500 lines per file)
+repo_context_files = ["AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
+
 [pr_reviewer]
 # Docs-only repo — no code to test or scan for code-level security practices
 require_tests_review = false
 require_security_review = false
 require_estimate_effort_to_review = false
 enable_help_text = false
-enable_review_line_status = true
 extra_instructions = """
 Review STPs for content quality and template compliance per AGENTS.md.
 Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix),
@@ -39,21 +43,10 @@ When a review question is answered by those docs, cite them.
 [pr_description]
 publish_labels = false
 generate_ai_title = false
-enable_semantic_files_info = false
+enable_semantic_files_types = false
 extra_instructions = """
 The PR description must summarize what changed in the STP(s) in terms of test
 coverage impact: scenarios added/removed/modified, priority or tier changes,
 scope changes (Out of Scope, Test Limitations), and sign-off updates. Reference
 the Jira feature tracking links found in the STP metadata when present.
 """
-
-[best_practices]
-# Docs-only repo — disable code-oriented best-practice checks
-commits_best_practices_check = false
-empty_collections_check = false
-imported_code_identifiers_check = false
-naming_check = false
-relative_url_check = false
-# Markdown hygiene checks that still apply
-uppercase_constants_check = false
-suspicious_comments_check = true
