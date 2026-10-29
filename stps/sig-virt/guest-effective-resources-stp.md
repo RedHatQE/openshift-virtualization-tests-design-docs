@@ -1,6 +1,6 @@
 # Openshift-virtualization-tests Test plan
 
-## **Guest-Effective Quota and Published Memory Overhead — Quality Engineering Plan**
+## **AAQ GuestEffectiveResources counting mode for guest CPU/memory quota counting — Quality Engineering Plan**
 
 ### **Metadata & Tracking**
 
@@ -19,15 +19,15 @@
 
 **Document Conventions:**
 
-- **Published memory overhead** — the platform memory KubeVirt reserved for a virtual machine beyond the guest. It is written on the pod as `kubevirt.io/memory-overhead-bytes` and copied to `status.memory.memoryOverhead` ([kubevirt#16746](https://github.com/kubevirt/kubevirt/pull/16746)). During a migration the destination value is `status.migrationState.targetMemoryOverhead`.
+- **Published memory overhead** — the platform memory KubeVirt reserved for a virtual machine beyond the guest. Reported as `status.memory.memoryOverhead` ([kubevirt#16746](https://github.com/kubevirt/kubevirt/pull/16746)). During a migration the destination value is `status.migrationState.targetMemoryOverhead`.
 - **Guest-effective counting** — the Application Aware Quota mode `GuestEffectiveResources`. It charges the virtual machine's compute container, then removes memory overhead. In this plan that overhead is the published value, not a separate estimate.
 - **CPU allocation ratio** — cluster setting `vmiCPUAllocationRatio`. Default 10. The pod CPU request is the vCPU count divided by this ratio, unless the virtual machine sets its own CPU request or uses dedicated CPUs. The guest still sees every vCPU.
 - **Memory overcommit percentage** — cluster setting `memoryOvercommitPercentage`. Default 100, minimum 10. Guest memory is scaled by `100 / percentage` into the pod memory request, unless the virtual machine sets its own memory request, uses hugepages, or uses dedicated CPUs. Overhead is added after that scaling.
-- **Namespace quota** — `status.used` on the namespace ApplicationAwareResourceQuota.
+- **Used quota** — the CPU and memory currently counted against the namespace ApplicationAwareResourceQuota (`status.used`).
 
 ### **Feature Overview**
 
-Quota for a virtual machine follows the CPU and memory the guest was given, after the cluster overcommit settings, and leaves out the extra memory reserved for the virtual machine process. KubeVirt shows that reserved memory on the running virtual machine, and guest-effective counting uses that shown value. The CPU charge follows the allocation ratio while the guest still sees the full vCPU count, and the memory charge follows the overcommit percentage. A live migration does not count the virtual machine twice, and a virtual machine that does not fit the quota stays pending until the quota is raised. This plan covers that behavior on CNV 5.2, where [CNV-91281](https://issues.redhat.com/browse/CNV-91281) and [CNV-73947](https://issues.redhat.com/browse/CNV-73947) are both implemented.
+ApplicationAwareResourceQuota for a virtual machine follows the CPU and memory the guest was given, after the cluster overcommit settings, and leaves out the extra memory reserved for the virtual machine process. KubeVirt shows that reserved memory on the running virtual machine, and guest-effective counting uses that shown value. The CPU charge follows the allocation ratio while the guest still sees the full vCPU count, and the memory charge follows the overcommit percentage. A live migration does not count the virtual machine twice. A virtual machine that does not fit the quota stays pending until the quota is raised or freed. This plan covers that behavior on CNV 5.2, where [CNV-91281](https://issues.redhat.com/browse/CNV-91281) and [CNV-73947](https://issues.redhat.com/browse/CNV-73947) are both implemented.
 
 ---
 
@@ -45,8 +45,10 @@ technology, and testability before formal test planning.
     - With guest-effective counting, namespace quota subtracts that overhead from the memory charge
     - Quota CPU follows the CPU allocation ratio, and the guest still sees the full vCPU count
     - Quota memory follows the memory overcommit percentage
+    - Changing the CPU allocation ratio or the memory overcommit percentage does not change Application Aware Quota accounting for virtual machines that are already running; the new settings apply when a new virt-launcher pod is created (live migration or a restart/power cycle)
     - A live migration does not add a second quota charge for the same virtual machine
-    - A virtual machine that does not fit the remaining quota stays pending, and starts after the quota is raised
+    - A virtual machine that does not fit the remaining quota stays pending, and starts after the quota is raised or freed
+    - A CPU hotplug that does not fit the remaining Application Aware Quota stays pending on the new virt-launcher pod, and completes after the quota is raised
 
 - [x] **Understand Value and Customer Use Cases**
   - *Describe the feature's value to customers:* An administrator can set a CPU and memory quota on a namespace. Each virtual machine is charged the CPU and memory reserved for the guest in its pod, after the CPU allocation ratio and the memory overcommit percentage, and is not charged the extra memory reserved for the virtual machine process. A [live migration](https://github.com/kubevirt/application-aware-quota/blob/main/README.md) does not fail the quota just because two pods exist for a short time, and the virtualization overhead is not part of the charge the guest owner requested.
@@ -56,11 +58,10 @@ technology, and testability before formal test planning.
     - As a cluster administrator, I want quota CPU to follow the CPU allocation ratio, so more virtual machines fit under the same CPU quota while the guest still sees the full vCPU count.
     - As a cluster administrator, I want quota memory to follow the memory overcommit percentage.
     - As a cluster administrator, I want a virtual machine that does not fit the quota to wait, and to start after I raise the quota, without creating it again.
+    - As a cluster administrator, I want a CPU hotplug that does not fit the quota to wait on the new virt-launcher pod, and to complete after I raise the quota.
 
 - [x] **Testability**
-  - *Note any requirements that are unclear or untestable:*
-    - The overhead on the virtual machine, namespace quota usage, the guest CPU count, and the scheduling gate are readable.
-    - On CNV 5.2, the namespace memory charge can be checked against the pod memory request minus the overhead the virtual machine reports
+  - *Note any requirements that are unclear or untestable:* None. A running virtual machine reports its memory overhead. Namespace quota usage, the guest CPU count, and the scheduling gate can be read.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
@@ -69,7 +70,9 @@ technology, and testability before formal test planning.
     - With guest-effective counting, the memory charge uses that reported overhead and does not include it.
       - The CPU charge follows the CPU allocation ratio. The guest still sees the full vCPU count.
       - The memory charge follows the memory overcommit percentage.
+      - Changing those settings does not change Application Aware Quota accounting for virtual machines that are already running. The new settings apply when a new virt-launcher pod is created (live migration or a restart/power cycle).
       - A live migration does not add a second quota charge for the same virtual machine.
+      - A CPU hotplug that does not fit Application Aware Quota leaves the new virt-launcher pod scheduling-gated. After the quota is raised, the hotplug completes and `status.used` CPU equals the compute-container CPU request for the new socket count.
   - *Note any gaps or missing criteria:* None
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -120,7 +123,7 @@ technology, and testability before formal test planning.
   - *See environment requirements in [Section II.3](#3-test-environment) and testing tools in [Section II.3.1](#31-testing-tools--frameworks)*
 
 - [x] **Topology Considerations**
-  - *Describe topology requirements:* One cluster with at least two worker nodes, so one virtual machine can live-migrate. No secondary network and no extra storage class. Application Aware Quota is enabled through OpenShift Virtualization, and the test namespace has the [`application-aware-quota/enable-gating`](https://github.com/kubevirt/application-aware-quota/blob/main/README.md#configure-aaq-operator) label. That label selects the namespaces where the scheduling gate is applied.
+  - *Describe topology requirements:* A compact 3-node cluster is enough. At least two nodes must be able to run virtual machines so one virtual machine can live-migrate. No secondary network and no extra storage class. Application Aware Quota is enabled through OpenShift Virtualization, and the test namespace has the [`application-aware-quota/enable-gating`](https://github.com/kubevirt/application-aware-quota/blob/main/README.md#configure-aaq-operator) label. That label selects the namespaces where the scheduling gate is applied.
   - *Impact on test design:* Migration scenarios check the overhead fields and the quota charge. Node placement, network type, and storage type are not part of the result.
 
 ### **II. Software Test Plan (STP)**
@@ -133,15 +136,14 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
 
 **Testing Goals**
 
-- **[P0]** A running virtual machine reports `status.memory.memoryOverhead` equal to `kubevirt.io/memory-overhead-bytes` on its current pod. No feature gate is changed.
-- **[P0]** During live migration, `status.migrationState.targetMemoryOverhead` is set. After migration, `status.memory.memoryOverhead` equals that destination value.
 - **[P0]** With guest-effective counting, namespace quota memory equals the compute-container memory request minus `status.memory.memoryOverhead`.
 - **[P0]** With `vmiCPUAllocationRatio` 10, a 10-vCPU virtual machine with no CPU request, no dedicated CPUs, and no supplemental IO threads adds 1 CPU to the namespace quota. The guest still reports 10 vCPUs.
-- **[P0]** With `memoryOvercommitPercentage` 100, a 3072Mi guest with no memory request, no hugepages, and no dedicated CPUs adds 3072Mi to the namespace quota. The pod memory request is larger by `status.memory.memoryOverhead`.
-- **[P0]** With `memoryOvercommitPercentage` 150, that same guest adds 2048Mi to the namespace quota.
+- **[P0]** With `memoryOvercommitPercentage` 150, a 3072Mi guest with no memory request, no hugepages, and no dedicated CPUs adds 2048Mi to the namespace quota.
+- **[P0]** After a virtual machine is running, changing `vmiCPUAllocationRatio` or `memoryOvercommitPercentage` does not change that virtual machine's contribution to used quota. The new settings apply when a new virt-launcher pod is created (live migration or a restart/power cycle). This suite verifies that with a live migration.
+- **[P0]** During live migration, `status.migrationState.targetMemoryOverhead` is set. After migration, `status.memory.memoryOverhead` equals that destination value.
 - **[P0]** A same-size live migration does not add a second full CPU or memory charge. Afterwards, quota memory equals the destination compute-container memory request minus the overhead shown on the virtual machine.
 - **[P0]** [NEGATIVE] With the hard limit set to one charge, a second identical virtual machine does not run and its pod stays scheduling-gated. An event reports that the quota does not allow the pod. After the hard limit is raised to two charges, the gate is removed and that same pod runs.
-- **[P1]** After an upgrade to CNV 5.2 from a cluster that already uses guest-effective counting, the running virtual machine shows memory overhead, quota CPU is unchanged, and quota memory equals the compute-container memory request minus the overhead now shown. CPU is unchanged because only the memory overhead source changes.
+- **[P0]** [NEGATIVE] With `vmiCPUAllocationRatio` 1 and Application Aware Quota `hard` equal to the `status.used` CPU and memory of a running 1-socket virtual machine, increasing that virtual machine to 2 sockets starts a live migration whose new virt-launcher pod stays scheduling-gated. After `hard` CPU is raised to 2, the gate is removed, the hotplug completes, and `status.used` CPU equals 2.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -153,8 +155,8 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
   - *Rationale:* That percentage belongs to the instance type. It is not `memoryOvercommitPercentage`.
   - *PM/Lead Agreement:* Pending
 
-- **CPU hotplug**
-  - *Rationale:* Adding vCPUs to a running virtual machine is a separate operation. This cycle covers the charge at start and across a same-size migration.
+- **Memory hotplug under guest-effective counting**
+  - *Rationale:* This plan covers CPU hotplug under guest-effective counting. Memory hotplug against Application Aware Quota already has tier2 ARQ coverage and is not repeated here for guest-effective counting.
   - *PM/Lead Agreement:* Pending
 
 - **Other guest operating systems, including Windows**
@@ -163,15 +165,14 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
 
 **Test Limitations**
 
-- **An upgrade to CNV 5.2 does not preserve the memory charge.** Guest-effective counting before 5.2 subtracts an estimate. CNV 5.2 subtracts the published overhead. Those values are not guaranteed to match, so the upgrade scenario does not expect the pre-upgrade memory number.
-  - *Sign-off:* Pending
+None.
 
 #### **2. Test Strategy**
 
 **Functional**
 
-- [x] **Functional Testing** — Validates that the feature works according toto specified requirements and user stories
-  - *Details:* The goals in [Section II.1](#1-scope-of-testing) are the suite: overhead at start and across migration, quota memory using the published overhead, the CPU ratio, both memory percentages, a same-size migration, and the gated second virtual machine. Each goal has one scenario in [Section III](#iii-test-scenarios--traceability).
+- [x] **Functional Testing** — Validates that the feature works according to the specified requirements and user stories
+  - *Details:* The goals in [Section II.1](#1-scope-of-testing) are the suite: quota memory using the published overhead, the CPU ratio, memory overcommit at 150, changing the CPU allocation ratio or memory overcommit percentage does not change used quota for a running virtual machine until a new virt-launcher pod is created (live migration or a restart/power cycle), overhead across migration, a same-size migration under quota, the gated second virtual machine, and a CPU hotplug whose new virt-launcher pod stays gated when Application Aware Quota is too small and completes after the quota is raised. Each goal has one scenario in [Section III](#iii-test-scenarios--traceability).
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* Automation is [CNV-75339](https://issues.redhat.com/browse/CNV-75339), run on CNV 5.2. No scenario in [Section III](#iii-test-scenarios--traceability) is manual-only.
@@ -180,7 +181,7 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
   - *Details:* `DedicatedVirtualResources`, `VirtualResources`, and `VmiPodUsage` already have tests and are not repeated. Existing tests already check that `vmiCPUAllocationRatio` and `memoryOvercommitPercentage` change the pod request. Those stay. This suite adds the overhead field and the namespace quota check.
 
 - [ ] **Self-Validation Testing** — Should any of the new tests be included in the self-validation test package?
-  - *Details:* No. The scenarios change cluster overcommit settings and quota, and migration needs two workers.
+  - *Details:* No.
 
 **Non-Functional**
 
@@ -188,10 +189,10 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
   - *Details:* No performance target on either epic.
 
 - [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
-  - *Details:* No scale target. Two virtual machines cover quota exhaustion.
+  - *Details:* No scale target.
 
 - [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* No new permission boundary.
+  - *Details:* No new permission boundary. Out of Scope
 
 - [x] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* No new UI. The check is the gated pod and the quota event in the negative scenario, then the same pod starting after the quota is raised.
@@ -204,8 +205,8 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* The charge does not depend on storage or network type. Dedicated CPUs, explicit requests, and hugepages are the limitations in [Section I.2](#2-known-limitations).
 
-- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Guest-effective counting is already on 4.22 and the 4.20.z and 4.21.z backports, using an estimate. The P1 scenario upgrades to CNV 5.2. CPU quota stays the same. Memory quota is checked against the published overhead, not against the pre-upgrade number, because the estimate and the published value are not guaranteed to match. A full z-stream matrix is not planned.
+- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* N/A
 
 - [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
   - *Details:* Not blocked. CNV 5.2 contains [CNV-91281](https://issues.redhat.com/browse/CNV-91281) and [CNV-73947](https://issues.redhat.com/browse/CNV-73947). The memory-overhead report is already merged, so no further KubeVirt API work is required.
@@ -220,15 +221,15 @@ One suite on CNV 5.2. Guest-effective counting subtracts the published memory ov
 
 #### **3. Test Environment**
 
-- **Cluster Topology:** 3 control-plane nodes and 3 workers(High Availability cluster). Two workers are required for live migration.
-- **OCP & OpenShift Virtualization Version(s):** OpenShift Virtualization 5.2, including [CNV-91281](https://issues.redhat.com/browse/CNV-91281) and [CNV-73947](https://issues.redhat.com/browse/CNV-73947). The upgrade scenario starts from 4.22 or a 4.20.z / 4.21.z build that already has guest-effective counting.
+- **Cluster Topology:** Compact 2-node/3-node cluster (the usual AAQ tier2 layout). At least two nodes will be required for VM Live Migration.
+- **OCP & OpenShift Virtualization Version(s):** OpenShift Virtualization 5.2, including [CNV-91281](https://issues.redhat.com/browse/CNV-91281) and [CNV-73947](https://issues.redhat.com/browse/CNV-73947).
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
 - **Special Hardware:** N/A
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization
 - **Network:** OVN-Kubernetes, IPv4
 - **Required Operators:** Application Aware Quota, enabled from OpenShift Virtualization
-- **Platform:** Bare metal
+- **Platform:** Bare metal or PSI
 - **Special Configurations:** Test namespace labeled `application-aware-quota/enable-gating`. Counting mode `GuestEffectiveResources`. `vmiCPUAllocationRatio` and `memoryOvercommitPercentage` set per scenario. `VmiMemoryOverheadReport` is not toggled.
 
 #### **3.1. Testing Tools & Frameworks**
@@ -264,7 +265,7 @@ The following conditions must be met before testing can begin:
 
 **Test Environment**
 
-- **Risk:** N/A. [Section II.3](#3-test-environment) is a standard bare-metal cluster with two workers for migration.
+- **Risk:** N/A. [Section II.3](#3-test-environment) needs at least a compact multi-node(min. 2 nodes) cluster.
   - **Mitigation:** No extra hardware profile.
 
 **Untestable Aspects**
@@ -286,43 +287,39 @@ The following conditions must be met before testing can begin:
 
 ### **III. Test Scenarios & Traceability**
 
-All of these run on CNV 5.2 with guest-effective counting. The virtual machine does not set its own CPU or memory request, does not use dedicated CPUs, hugepages, or supplemental IO threads, and does not set `overcommitGuestOverhead`, except where a scenario says otherwise.
+All of these run on CNV 5.2 with guest-effective counting, viz. a AAQ counting mode introduced in CNV-73947. Where a scenario reads or sets a quota, that quota is the namespace Application Aware Quota: `hard` is the limit, and `status.used` is the CPU and memory already consumed. The virtual machine does not set its own CPU or memory request, does not use dedicated CPUs, hugepages, or supplemental IO threads, and does not set `overcommitGuestOverhead`.
 
-- **[CNV-91264](https://issues.redhat.com/browse/CNV-91264)** — As a cluster administrator, I want a running virtual machine to show the memory overhead that was reserved for it.
-  - *Test Scenario:* [Tier 2] Start a virtual machine without changing feature gates. `status.memory.memoryOverhead` is set and equals `kubevirt.io/memory-overhead-bytes` on its current pod.
+- **[CNV-91281](https://issues.redhat.com/browse/CNV-91281)** — As a cluster administrator, I want guest-effective counting to subtract the published overhead from Application Aware Quota.
+  - *Test Scenario:* [Tier 2] Start a virtual machine. Application Aware Quota `status.used` memory increases by the compute-container memory request minus `status.memory.memoryOverhead`. It does not increase by the full memory request.
+  - *Priority:* P0
+
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want Application Aware Quota CPU to follow the CPU allocation ratio.
+  - *Test Scenario:* [Tier 2] Set `vmiCPUAllocationRatio` to 10. Start a virtual machine with 10 vCPUs. Application Aware Quota `status.used` CPU increases by 1 CPU. The guest reports 10 vCPUs.
+  - *Priority:* P0
+
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want Application Aware Quota memory to follow the memory overcommit percentage.
+  - *Test Scenario:* [Tier 2] Set `memoryOvercommitPercentage` to 150. Start a virtual machine with 3072Mi of guest memory. Application Aware Quota `status.used` memory increases by 2048Mi.
+  - *Priority:* P0
+
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want Application Aware Quota for a running virtual machine to keep the CPU allocation ratio and memory overcommit percentage that applied when it started, until a new virt-launcher pod is created.
+  - *Test Scenario:* [Tier 2] Set `vmiCPUAllocationRatio` to 10 and `memoryOvercommitPercentage` to 100. Start a virtual machine with 10 vCPUs and 3072Mi of guest memory. Record Application Aware Quota `status.used` CPU and memory. Change `vmiCPUAllocationRatio` to 5 and `memoryOvercommitPercentage` to 150. `status.used` CPU and memory stay at the recorded values. Live-migrate the virtual machine. After the migration, `status.used` CPU is 2 and `status.used` memory is 2048Mi.
   - *Priority:* P0
 
 - **[CNV-91264](https://issues.redhat.com/browse/CNV-91264)** — As a cluster administrator, I want that overhead to follow a live migration.
-  - *Test Scenario:* [Tier 2] Live-migrate the virtual machine. While the migration is in progress, `status.migrationState.targetMemoryOverhead` is set. After the migration, `status.memory.memoryOverhead` equals that destination value.
+  - *Test Scenario:* [Tier 2] Live-migrate the virtual machine. While the migration is in progress, `status.migrationState.targetMemoryOverhead` is set. After the migration, `status.memory.memoryOverhead` equals that destination pod value.
   - *Priority:* P0
 
-- **[CNV-91281](https://issues.redhat.com/browse/CNV-91281)** — As a cluster administrator, I want guest-effective quota to subtract the published overhead.
-  - *Test Scenario:* [Tier 2] Start a virtual machine. Namespace quota memory increases by the compute-container memory request minus `status.memory.memoryOverhead`. It does not increase by the full memory request.
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want a live migration to count the virtual machine once in Application Aware Quota.
+  - *Test Scenario:* [Tier 2] Record Application Aware Quota `status.used` CPU and memory. Live-migrate the virtual machine. While both pods exist, `status.used` CPU and memory do not increase by that same CPU and memory again. After the migration, `status.used` CPU equals the recorded CPU, and `status.used` memory equals the destination compute-container memory request minus `status.memory.memoryOverhead`.
   - *Priority:* P0
 
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want quota CPU to follow the CPU allocation ratio.
-  - *Test Scenario:* [Tier 2] Set `vmiCPUAllocationRatio` to 10. Start a virtual machine with 10 vCPUs. Namespace quota CPU increases by 1 CPU. The guest reports 10 vCPUs.
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want a virtual machine that does not fit in Application Aware Quota to wait, and to start after I raise the quota.
+  - *Test Scenario:* [Tier 2] [NEGATIVE] Set Application Aware Quota `hard` CPU to 1 and `hard` memory to the memory one virtual machine consumed above, 2048Mi. Start one virtual machine and wait until `status.used` shows that CPU and memory. Create a second identical virtual machine. It does not run. Its pod stays scheduling-gated, and an event says the quota does not allow the pod. Raise `hard` CPU to 2 and `hard` memory to twice that memory. The gate is removed, the same pod runs, and `status.used` shows 2 CPU and twice that memory.
   - *Priority:* P0
 
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want quota memory to stay at the guest size when the overcommit percentage does not scale it, and to exclude overhead.
-  - *Test Scenario:* [Tier 2] Set `memoryOvercommitPercentage` to 100. Start a virtual machine with 3072Mi of guest memory. Namespace quota memory increases by 3072Mi. The pod memory request minus `status.memory.memoryOverhead` is 3072Mi.
+- **[CNV-73947](https://issues.redhat.com/browse/CNV-73947)** — As a cluster administrator, I want a CPU hotplug that does not fit in Application Aware Quota to wait, and to complete after I raise the quota.
+  - *Test Scenario:* [Tier 2] [NEGATIVE] Set `vmiCPUAllocationRatio` to 1. Start a virtual machine with 1 CPU socket. Wait until Application Aware Quota `status.used` shows that virtual machine's CPU and memory. Set `hard` CPU and `hard` memory to those `status.used` values. Increase the virtual machine to 2 CPU sockets. A live migration starts for the hotplug; the new virt-launcher pod stays scheduling-gated and the hotplug does not complete. Raise `hard` CPU to 2. The gate is removed, the hotplug completes, and `status.used` CPU equals 2.
   - *Priority:* P0
-
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want quota memory to follow the memory overcommit percentage.
-  - *Test Scenario:* [Tier 2] Set `memoryOvercommitPercentage` to 150. Start a virtual machine with 3072Mi of guest memory. Namespace quota memory increases by 2048Mi.
-  - *Priority:* P0
-
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want a live migration to keep a single quota charge.
-  - *Test Scenario:* [Tier 2] Record namespace quota CPU and memory. Live-migrate the virtual machine. While both pods exist, quota CPU and memory do not increase by a second full charge. After the migration, quota CPU equals the recorded CPU charge, and quota memory equals the destination compute-container memory request minus `status.memory.memoryOverhead`.
-  - *Priority:* P0
-
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want a virtual machine that does not fit the quota to wait, and to start after I raise the quota.
-  - *Test Scenario:* [Tier 2] [NEGATIVE] Set the namespace quota hard CPU and memory to exactly one charge from the scenarios above. Start one virtual machine and wait until that charge is used. Create a second identical virtual machine. It does not run. Its pod stays scheduling-gated, and an event says the quota does not allow the pod. Raise the hard limits to two charges. The gate is removed, the same pod runs, and the used CPU and memory become two charges.
-  - *Priority:* P0
-
-- **[CNV-75339](https://issues.redhat.com/browse/CNV-75339)** — As a cluster administrator, I want an upgrade to CNV 5.2 to keep the CPU charge and to take memory from the published overhead.
-  - *Test Scenario:* [Tier 2] On a cluster that already uses guest-effective counting, record the namespace quota CPU and memory of a running virtual machine. Upgrade to CNV 5.2. The virtual machine shows `status.memory.memoryOverhead`. Quota CPU equals the recorded CPU charge. Quota memory equals the compute-container memory request minus the overhead now shown.
-  - *Priority:* P1
 
 ---
 
@@ -331,10 +328,9 @@ All of these run on CNV 5.2 with guest-effective counting. The virtual machine d
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - Development Lead: Barak Mordehai (bordeha)
+  - Development Lead: Barak Mordehai (@Barakmor1)
   - sig-virt: Akriti Gupta (@akri3i), Denys Shchedrivyi (@dshchedr), Vasiliy Sibirskiy (@vsibirsk), Samuel Alberstein (@SamAlber)
   - QE architect: Ruth Netser (@rnetser)
 * **Approvers:**
-  - QE Lead: Kedar Bidarkar (@kbidarkar)
-  - Development Lead: Barak Mordehai (bordeha)
-  - Product Manager: TBD
+  - QE architect: Ruth Netser (@rnetser)
+  - Product Manager: Martin Tessun (@mtessun)
