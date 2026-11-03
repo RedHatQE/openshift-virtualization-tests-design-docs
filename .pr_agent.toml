@@ -1,0 +1,65 @@
+# Qodo Merge (PR-Agent) configuration for openshift-virtualization-tests-design-docs
+# This is a documentation-only repo containing Software Test Plans (STPs).
+# Review standards are defined in AGENTS.md — mirror of .coderabbit.yaml.
+
+[config]
+# Feed repo guidance into Qodo's review context (read from the default branch).
+# repo_context_max_lines applies to the COMBINED rendered context of all files,
+# not per-file — 1200 covers AGENTS.md (420) + docs/stp-guide.md (278) +
+# docs/testing-tiers.md (209) = 907 lines total with headroom
+repo_context_files = ["AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
+repo_context_max_lines = 1200
+
+[pr_reviewer]
+# Docs-only repo — no code to test or scan for code-level security practices
+require_tests_review = false
+require_security_review = false
+require_estimate_effort_to_review = false
+enable_help_text = false
+extra_instructions = """
+Review STPs for content quality and template compliance per AGENTS.md.
+Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix),
+MEDIUM (should fix), LOW (suggestion).
+
+Core principles:
+- STPs describe what users experience, not internal implementation. Flag API field
+  names, CRD names, or internal component references as findings.
+- Every claim needs evidence — sign-offs, Jira links, dates. No empty placeholders
+  ("[TBD]", "[Name/Date]", "[Add details]") in approved STPs.
+- Distinguish constraint categories: Feature Limitations, Test Limitations, Out of
+  Scope, and Risks are four distinct concepts — flag any mixing.
+- Traceability is mandatory — every test scenario must map to a Jira requirement ID
+  with tier and priority.
+- Testing goals must be written from the end-user perspective with priorities
+  (P0 first), and each P0 goal needs a matching negative/failure-path scenario.
+- Test scenarios need observable pass criteria, not "verify X works correctly".
+
+For files under stps/stp-template/ — those are templates, not feature STPs. Skip
+STP content review for them; only check markdown formatting.
+
+Follow the documentation under docs/ as the authoritative reference for STP
+structure and lifecycle: docs/stp-guide.md defines the STP sections, constraint
+categories, and lifecycle; docs/testing-tiers.md defines the tier classification.
+When a review question is answered by those docs, cite them.
+
+Cross-check STP accuracy against linked sources: the STP metadata links the
+VEP/design doc (Enhancement(s)) and the Jira feature tracking issue (Feature
+Tracking / Epic Tracking). When a linked source is accessible, verify the STP's
+requirements, acceptance criteria, and scope against it. Flag: requirements in
+the STP that are absent from the VEP/epic, acceptance criteria narrower than the
+epic's scope, and feature maturity/phase mismatches between the STP and the
+linked source. If a link cannot be fetched (e.g. Jira requires authentication),
+state explicitly in the review that the STP could not be verified against that
+source — do not silently skip the cross-check.
+"""
+
+[pr_description]
+publish_labels = false
+generate_ai_title = false
+enable_semantic_files_types = false
+extra_instructions = """
+The PR description must summarize what changed in the STP(s) in terms of test
+coverage impact: scenarios added/removed/modified, priority or tier changes,
+scope changes (Out of Scope, Test Limitations), and sign-off updates. Reference
+the Jira feature tracking links found in the STP metadata when present.
+"""
