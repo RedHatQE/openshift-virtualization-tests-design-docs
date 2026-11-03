@@ -104,12 +104,19 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 #### **3. Technology and Design Review**
 
-- [ ] **Developer Handoff/QE Kickoff**
-  - *Participants:* TBD
-  - *Date:* TBD
-  - *Key takeaways and concerns:* TBD — kickoff meeting with dev team to be scheduled before test execution begins
-  - *Decisions:* TBD
-  - *Sign-off:* TBD — must be recorded before STP can move from Draft to Approved
+- [x] **Developer Handoff/QE Kickoff**
+  - *Participants:* QE (Jose Manuel Castano), Dev (Danny Sanatar)
+  - *Date:* 2026-11-03
+  - *Key takeaways and concerns:*
+    - Tracking: implementation/automation under CNV-59316; VEP/R&D story under CNV-86526
+    - Maturity: Dev Preview in KubeVirt 1.10 (OCP 5.1)
+    - `MultiIOThreadAutoPolicy` gates virtio-blk only (off → legacy single round-robin auto; on → multi-threaded auto); virtio-scsi always gets multi-threaded auto when the `SCSIMultiIOThread` feature gate is enabled, independent of the toggle
+    - `dedicatedIOThread` + SCSI rejection at the VM admitter is pre-existing behavior, not introduced by this feature and out of scope
+    - Requires libvirt 11.2.0+ / QEMU 10.0+; unsupported versions must reject VM creation with a clear error — silent degradation to single-thread is not acceptable
+    - Thread-to-virtqueue mapping is verified via domain XML inspection or guest I/O distribution, not a user-facing API
+    - Under auto policy, hotplug is bounded by the startup thread-pool size; heavy-hotplug users should use `supplementalPool`
+  - *Decisions:* virtio-scsi auto allocation is validated independently of the `MultiIOThreadAutoPolicy` toggle; version-unsupported rejection is an explicit negative test goal
+  - *Sign-off:* Jose Manuel Castano / 2026-11-03
 
 - [x] **Technology Challenges**
   - *List identified challenges:*
