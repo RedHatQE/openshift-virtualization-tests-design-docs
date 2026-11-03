@@ -110,7 +110,8 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
   - *Key takeaways and concerns:*
     - Tracking: implementation/automation under CNV-59316; VEP/R&D story under CNV-86526
     - Maturity: Dev Preview in KubeVirt 1.10 (OCP 5.1)
-    - `MultiIOThreadAutoPolicy` gates virtio-blk only (off → legacy single round-robin auto; on → multi-threaded auto); virtio-scsi always gets multi-threaded auto when the `SCSIMultiIOThread` feature gate is enabled, independent of the toggle
+    - `MultiIOThreadAutoPolicy` is a KubeVirt CR configuration (not a feature gate); it gates virtio-blk disks from receiving the multi-threaded `auto` policy, and only takes effect when the `SCSIMultiIOThread` feature gate is also enabled (toggle off, or FG off → legacy single round-robin auto for virtio-blk; both toggle on and FG on → multi-threaded auto for virtio-blk)
+    - virtio-scsi always receives multi-threaded `auto` whenever the `SCSIMultiIOThread` feature gate is enabled, independent of the `MultiIOThreadAutoPolicy` toggle
     - `dedicatedIOThread` + SCSI rejection at the VM admitter is pre-existing behavior, not introduced by this feature and out of scope
     - Requires libvirt 11.2.0+ / QEMU 10.0+; unsupported versions must reject VM creation with a clear error — silent degradation to single-thread is not acceptable
     - Thread-to-virtqueue mapping is verified via domain XML inspection or guest I/O distribution, not a user-facing API
