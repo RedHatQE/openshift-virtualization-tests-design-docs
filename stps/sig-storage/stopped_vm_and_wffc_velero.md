@@ -81,7 +81,7 @@ technology, and testability before formal test planning.
     - Performance: Not covered — benchmarking of backup/restore duration is out of scope for this test debt task (see Section II.1, Out of Scope)
     - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Validating those existing platform-level concurrency/throughput constraints would exercise the OADP/Velero platform's own scaling behavior rather than functionality introduced by this test debt task, so it is not exercised here
     - Monitoring/Observability: No new metrics or alerts introduced by this test debt task (see Section II.2, Monitoring)
-    - UI: No new UI changes are included. PM/UX must confirm whether exercising an existing customer UI adds value; that review is pending.
+    - UI: QE Lead Dalia Frank recommends against additional manual UI testing for this test-debt scope. PM/UX confirmation of whether exercising the existing customer UI adds distinct customer value remains pending.
     - Documentation: No new user-facing documentation required; this is QE test coverage for existing product behavior
 
 #### **2. Known Limitations**
@@ -222,7 +222,7 @@ No verification activities will be performed for these items during this test cy
   - _Details:_ Add allowed and denied service-account checks for backup, snapshot, restore, and cross-namespace restore using the explicit authorization boundary and account matrix in Sections II.1 and II.3. Verify permission-denied errors and absence of new operation resources or changes to existing workloads. These are new coverage scenarios; existing administrator-only backup/restore tests do not establish denied-access coverage.
 
 - [ ] **Usability Testing** -- Validates user experience and accessibility requirements
-  - _Details:_ PM/UX confirmation of whether testing the existing customer UI adds value is pending (see Section I.1). Absence of UI or CLI changes does not establish that usability testing is unnecessary.
+  - _Details:_ QE proposes no additional manual UI tests based on Dalia Frank's feedback. Functional scenarios in Section III check user-visible backup and restore outcomes. PM/UX review of the value of existing UI coverage remains pending (see Section I.1).
 
 - [ ] **Monitoring** -- Does the feature require metrics and/or alerts?
   - _Details:_ N/A. No new metrics or alerts for backup/restore.
