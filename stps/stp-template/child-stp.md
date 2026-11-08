@@ -189,12 +189,20 @@ Include only categories where this SIG has a specific risk — omit categories w
 ### **III. Test Scenarios & Traceability**
 
 <!-- List only this SIG's NEW test scenarios. Each scenario must trace to a Jira requirement.
-Regression tests are documented in Test Strategy (II.2), not in this table. -->
+Regression tests are documented in Test Strategy (II.2), not in this section.
+Scenarios MUST be grouped into separate tables by tier — one table per tier (see parent STP template). -->
 
-- **[Jira-ID]** — As a [role], I want [action] so that [benefit]
-  - *Test Scenario:* [Description]
-  - *Tier:* [1, 2, or 3]
-  - *Priority:* [P0/P1/P2]
+#### **Tier 1 — Single Feature, Isolated (API validation, basic CRUD, single operation)**
+
+| Requirement ID | Requirement Summary                               | Test Scenario(s)                | Priority |
+|:---------------|:---------------------------------------------------|:---------------------------------|:---------|
+| Jira-ID        | As a [role], I want [action] so that [benefit]     | [Description]                    | P0       |
+
+#### **Tier 2 — End-to-End User Workflows, Multi-Feature Integration, Upgrade Paths**
+
+| Requirement ID | Requirement Summary                               | Test Scenario(s)                | Priority |
+|:---------------|:---------------------------------------------------|:---------------------------------|:---------|
+| Jira-ID        | As a [role], I want [action] so that [benefit]     | [Description]                    | P1       |
 
 ---
 
