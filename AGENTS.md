@@ -272,7 +272,11 @@ Reviewers must verify these cross-references between sections:
   In the scenarios table, multiple test scenarios mapped to the same requirement
   may leave the Requirement ID cell blank in continuation rows.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
-- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2)
+- [ ] Scenarios are grouped into **separate tables by tier** — one table per tier (Tier 1, Tier 2,
+  and Tier 3 where present). Tier 1 and Tier 2 scenarios MUST NOT appear in the same table.
+- [ ] Each tier table uses the template's tier heading (e.g., `#### Tier 1 — Single Feature,
+  Isolated...`) and omits the Tier column — the table heading carries the tier
+- [ ] Each scenario has Priority (P0/P1/P2)
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
 - [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items
@@ -291,6 +295,7 @@ Reviewers must verify these cross-references between sections:
 - **Tier 3**: Extended validation — tests with higher execution cost (longer runtime, heavier resource usage, or complex setup) that typically run in dedicated test cycles rather than standard CI lanes
 
 **Common rejection reasons:**
+- Tier 1 and Tier 2 scenarios mixed in the same table — each tier must have its own table
 - All requirement IDs are "[TBD]" — blocks approval
 - Test scenarios describe implementation ("verify DataSource creation") instead of
   user outcomes ("verify VMs can be created from architecture-specific boot sources")
@@ -372,6 +377,8 @@ stps/sig-iuo/multiarch/
 - Write from the user's perspective ("As a VM admin, I want to...")
 - Use specific, verifiable language in acceptance criteria
 - Provide rationale for every out-of-scope item
+- Group test scenarios into separate tables by tier (one table per tier; never mix
+  Tier 1 and Tier 2 in the same table)
 - Link every test scenario to a Jira requirement
 - Clearly separate: Feature Limitations | Test Limitations | Out of Scope | Risks
 - Use the current template format for STPs being added or modified in the PR
@@ -392,8 +399,9 @@ stps/sig-iuo/multiarch/
 - Repeat the Feature Overview in the Requirements section
 - Leave checklist items unchecked when content is filled in
 - List items as "Out of Scope" when they are already covered by existing tests or other teams
-- Describe Topology Considerations in terms of internal resource creation — use cluster/network topology only
 - Include QE internal process language in Test Strategy (triage, bug filing, defect classification)
+- Describe Topology Considerations in terms of internal resource creation — use cluster/network topology only
+- Mix Tier 1 and Tier 2 test scenarios in the same scenarios table — use one table per tier
 - Submit child STPs that duplicate content from the parent STP
 
 ---
