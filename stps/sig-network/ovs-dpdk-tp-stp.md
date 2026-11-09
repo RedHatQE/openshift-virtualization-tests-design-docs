@@ -148,8 +148,6 @@ Performance-intensive VM workloads need higher network throughput and lower late
 - **[P2] [TG-11]** Verify that a VM with an OVS-DPDK network attachment remains running after an OCP minor-version upgrade and network connectivity can be re-established after the upgrade completes.
   - *Setup:* ResourceClaimTemplate-backed OVS-DPDK network attachment.
 - **[P2] [TG-12]** Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot.
-- **[P2] [TG-13]** Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other, using a PMD application (such as testpmd).
-  - *Setup:* Same as [TG-1].
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -310,7 +308,6 @@ The following conditions must be met before testing can begin:
 |                  | As a VM owner, I want two VMs on different nodes, each with an OVS-DPDK interface, to exchange traffic with each other.                                                    | [TG-10] Verify that two VMs on different nodes, each with an OVS-DPDK network attachment, start successfully and can exchange traffic over their respective interfaces. *Setup:* separate ResourceClaim per VM; same device class on each node (see Section II.1 [TG-10]). | Tier 2 | P2 |
 |                  | As a VM owner, I want my VM with an OVS-DPDK interface to keep running and regain network connectivity after a cluster upgrade.                                            | [TG-11] Verify that a VM with an OVS-DPDK network attachment remains running after an OCP minor-version upgrade and network connectivity can be re-established after the upgrade completes. *Setup:* ResourceClaimTemplate-backed attachment (see Section II.1 [TG-11]). | Tier 2 | P2 |
 |                  | As a VM owner, I want my OVS-DPDK network interface to remain usable after I reboot the guest.                                                                             | [TG-12] Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot. | Tier 2 | P2 |
-|                  | As a VM owner, I want two VMs with OVS-DPDK network interfaces to exchange traffic with each other.                                                                        | [TG-13] Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other, using a PMD application (such as testpmd). *Setup:* same as [TG-1] (see Section II.1 [TG-13]). | Tier 2 | P2 |
 
 ---
 
