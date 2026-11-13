@@ -90,8 +90,8 @@ The following are confirmed product constraints accepted before testing begins.
   - [CNV-100650](https://redhat.atlassian.net/browse/CNV-100650) depends on CNV-100648 and tracks recording a checkpoint during the future first full backup of a never-started VM, so subsequent incremental backups can identify zero changes. This dependent behavior is unavailable in CNV v5.1.0; the preceding limitation prevents a successful first backup for these VMs.
   - *Sign-off:* [Name/Date]
 
-- **Only one offline incremental backup between VM starts**
-  - VEP-401 specifies rejection of a second unchanged incremental; inspected upstream tests instead expect successful empty increments. This is an unresolved target-build constraint, not an established delivered limitation. Development must settle it under Entry Criteria; a full backup remains planned.
+- **Repeated unchanged increments require target-build confirmation**
+  - VEP 401 rejects repeated unchanged increments; merged PR #19294 permits empty increments and advances history in both modes. Full backups remain planned.
   - *Sign-off:* [Name/Date]
 
 - **RAW-only change tracking is unsupported**
@@ -158,7 +158,7 @@ and schedule.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
 - **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output.
-- **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage on supported storage and deny unauthorized access to offline pull data; retain CBT transport checks in the regression campaign.
+- **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
 - **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
 - **[P2] G10 — Upgrade continuity:** As a cluster admin, verify CNV v5.0.0 online history remains usable after upgrade to CNV v5.1.0 for offline incremental backup.
@@ -199,7 +199,7 @@ found will not be classified as defects for this release.
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Extend existing CBT workflows with stopped-VM output validation. Offline chains include a full baseline and two increments, with guest writes between VM starts; verify mode-specific completion, failure handling and startup gating. Successful pull validation retrieves the data before request deletion. Push cancellation occurs during writing and preserves prior history for retry.
+  - *Details:* Extend existing CBT workflows with stopped-VM output validation. Offline chains include a full baseline and two increments, with guest writes between checkpoints; verify mode-specific completion, failure handling and startup gating. Successful pull validation retrieves the data before request deletion. Push cancellation occurs during writing and preserves prior history for retry.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
   - *Details:* Automate offline API and Linux/Windows recovery under CNV-96537 (design/automation: CNV-100769/100770). Recovery requires bootability and matching checkpoint checksums; incomplete chains must fail validation.
@@ -219,7 +219,7 @@ found will not be classified as defects for this release.
   - *Details:* Validate concurrent offline backups within existing CBT parallelism limits, checking that each VM retains its own backup data.
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Verify invalid credentials cannot retrieve offline pull data. Trusted retrieval is exercised by the offline full/incremental cases; existing CBT TLS/client-trust checks remain in the regression campaign.
+  - *Details:* Verify trusted offline pull retrieval over TLS; reject invalid credentials and untrusted server certificates before reading data. Retain existing CBT transport regression coverage.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* N/A — Jira specifies no-ux and no CNV console changes. API pending/failure feedback remains Functional Testing; offline reporting needs the agreed API contract in Entry Criteria.
@@ -296,8 +296,12 @@ The following conditions must be met before testing can begin:
 
 **Test Coverage**
 
-- **Risk:** The VEP and inspected implementation disagree on repeated unchanged increments, overlapping requests, residual runtime activity and offline status reporting.
-  - **Mitigation:** Obtain a Development-approved target-build decision on all four differences before executing affected cases; update candidate VEP outcomes and reporting expectations to that decision. Retain the safety expectation of no unsafe backup output; no absent API field may be invented.
+- **Risk:** The implementation evolved through reviews and differs from the original VEP ([PR #19294](https://github.com/kubevirt/kubevirt/pull/19294)):
+  - **Unchanged increments:** VEP rejects repeats; implementation permits empty increments and advances history in both modes.
+  - **Overlapping requests:** VEP fails immediately; implementation waits.
+  - **Residual runtime activity:** VEP fails immediately; implementation waits for source cleanup.
+  - **Status reporting:** VEP proposes backup `status.offline`; implementation adds VM `status.backupInProgress` for synchronization instead.
+  - **Mitigation:** Confirm target-build outcomes with Development before execution; prevent unsafe output and use only delivered status fields.
   - *Areas with reduced coverage:* Repeat-incremental/conflict/runtime outcomes and offline reporting remain unresolved until the target-build decision is recorded; node-affinity characterization is limited to Known Limitations.
   - *Sign-off:* [Name/Date]
 
@@ -340,12 +344,12 @@ Offline-specific scenarios extend the parent CBT test plan.
   - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental offline push image contents.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want Linux offline pull backups to expose complete full data without prior history and only changed data in subsequent increments
-  - *Test Scenario:* [Tier 1] **TS-03:** Verify full and incremental offline pull data retrieval.
+- **[CNV-96511]** — As a backup provider, I want Linux offline pull backups over trusted TLS to expose complete full data without prior history and only changed data in subsequent increments
+  - *Test Scenario:* [Tier 1] **TS-03:** Verify full and incremental offline pull retrieval over TLS.
   - *Priority:* P0
 
-- **[CNV-96537]** — As a backup provider, I want successive offline backup points in push and pull modes to recover bootable Linux guests with matching data across VM restarts, while incomplete chains fail validation
-  - *Test Scenario:* [Tier 2] **TS-04:** Validate bootability and checksums across Linux offline backup chains.
+- **[CNV-96537]** — As a backup provider, I want successive offline backup points in push and pull modes to recover bootable Linux guests with checksums matching guest changes between checkpoints across VM restarts, while incomplete chains fail validation
+  - *Test Scenario:* [Tier 2] **TS-04:** Validate bootable Linux recovery with changed data between checkpoints.
   - *Priority:* P0
 
 - **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline push full baselines without history and increments from offline/online checkpoints to recover bootable guests with matching data, reject incomplete chains, and block startup until writing completes, preserving persistent vTPM/EFI configuration
@@ -426,6 +430,11 @@ Offline-specific scenarios extend the parent CBT test plan.
 - **[CNV-96537]** — As a backup provider, I want full and incremental offline Linux backup points on a supported non-default CSI backend to recover bootable guests with matching checksums in push and pull modes, while incomplete chains fail validation
   - *Test Scenario:* [Tier 3] **TS-23:** Validate offline recovery integrity on supported non-default storage.
   - *Priority:* P1
+
+- **[CNV-96511]** — As a backup provider, I want clients to reject untrusted offline pull certificates before reading disk data
+  - *Test Scenario:* [Tier 1] **TS-24:** Verify untrusted certificates block offline pull data retrieval.
+  - *Priority:* P1
+
 
 ---
 
