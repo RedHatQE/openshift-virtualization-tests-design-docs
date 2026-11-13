@@ -53,7 +53,6 @@ technology, and testability before formal test planning.
 
 - [x] **Testability**
   - *Note any requirements that are unclear or untestable:*
-    - Partner acceptance is externally executed and manually reviewed by QE; the lab constraint is in Test Limitations and the evidence requirement remains in scope.
     - HCO feature-gate configuration is an environment prerequisite. Repeated unchanged increments, residual-runtime and overlapping-request outcomes, and offline reporting require development agreement before execution (see Test Coverage risk).
 
 - [x] **Acceptance Criteria**
@@ -61,7 +60,7 @@ technology, and testability before formal test planning.
     - A backup provider can create incremental backups of stopped VMs through the CNV backup API when the offline backup feature gate is enabled.
     - The HCO feature gate enables offline backup and preserves the enabled setting across operator restart/configuration updates; leaving the feature gate disabled produces no offline output.
     - Automated e2e coverage reconstructs Linux and Windows backup points, verifies recovered bootability and matching guest-data checksums, and rejects incomplete recovery chains (CNV-96537).
-    - At least one Red Hat certified backup partner records successful stopped-VM full/incremental backup and recovery evidence on CNV-96511 before release readiness; failed or incomplete evidence cannot satisfy acceptance.
+    - External epic acceptance: [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511) requires at least one certified backup partner to confirm offline workflows through the CBT API; this is outside this STP’s test coverage (II.1).
   - *Note any gaps or missing criteria:* HCO enablement and preservation remain environment prerequisites (II.3/II.4); TS-01 retains disabled-gate behavior. VEP merge, the STP update, release note, and documentation are tracked delivery criteria (CNV-92883, CNV-96538, CNV-96539, CNV-96540 and CNV-100450), not functional scenarios.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -161,7 +160,6 @@ and schedule.
 - **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage on supported storage and deny unauthorized access to offline pull data; retain CBT transport checks in the regression campaign.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
-- **[P1] G11 — Partner acceptance:** As a backup provider, verify certified-partner offline backup and recovery evidence, rejecting failed or incomplete protection claims.
 - **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
 - **[P2] G10 — Upgrade continuity:** As a cluster admin, verify CNV v5.0.0 online history remains usable after upgrade to CNV v5.1.0 for offline incremental backup.
 
@@ -183,12 +181,13 @@ found will not be classified as defects for this release.
   - *Rationale:* No performance requirements defined; consistent with parent CBT STP deferral
   - *PM/Lead Agreement:* [Name/Date]
 
+- **Certified backup partner validation**
+  - *Rationale:* Partner integration and workflow validation are not covered by this STP; the epic’s external acceptance requirement remains separate.
+  - *PM/Lead Agreement:* [Name/Date]
+
 **Test Limitations**
 
 - **A runnable CNV v5.1 build including the HCO offline-backup feature gate is not yet confirmed**
-  - *Sign-off:* [Name/Date]
-
-- **Certified partner environments unavailable in QE lab**
   - *Sign-off:* [Name/Date]
 
 #### **2. Test Strategy**
@@ -199,7 +198,7 @@ found will not be classified as defects for this release.
   - *Details:* Extend existing CBT workflows with stopped-VM output validation. Offline chains include a full baseline and two increments, with guest writes between VM starts; verify mode-specific completion, failure handling and startup gating. Successful pull validation retrieves the data before request deletion. Push cancellation occurs during writing and preserves prior history for retry.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
-  - *Details:* Automate offline API and Linux/Windows recovery under CNV-96537 (design/automation: CNV-100769/100770). Recovery requires bootability and matching checkpoint checksums; incomplete chains must fail validation. Partner execution is external and manually reviewed by QE: evidence identifies the certified partner, build, guest and supported mode, demonstrates full/incremental recovery, and rejects failed or incomplete results.
+  - *Details:* Automate offline API and Linux/Windows recovery under CNV-96537 (design/automation: CNV-100769/100770). Recovery requires bootability and matching checkpoint checksums; incomplete chains must fail validation.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
   - *Details:* Run the existing [CBT tests](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/storage/cbt/test_cbt.py) for online full/incremental chains, multi-disk and Windows backups, concurrency and migration on the feature cluster. Current automation checks running-VM backup status and disk lists; extend these workflows for offline data validation. Retain client certificate-trust checks from the [parent CBT plan](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/blob/main/stps/sig-storage/cbt.md) as regression coverage; their execution is not established by this review.
@@ -306,9 +305,9 @@ None — no separate environment risk.
 
 **Untestable Aspects**
 
-None — no acceptance requirement is omitted as untestable.
+None — no in-scope requirement is omitted as untestable.
 
-*Mitigation:* The unavailable partner lab is a Test Limitation. External partner execution and QE review of recovery evidence provide validation before release readiness.
+*Mitigation:* Not applicable.
 
 **Resource Constraints**
 
@@ -319,10 +318,9 @@ None — no acceptance requirement is omitted as untestable.
 
 **Dependencies**
 
-- **Risk:** Certified-partner evidence may arrive too late for the epic acceptance decision.
-  - **Mitigation:** Arrange partner execution and require successful full/incremental backup and recovery evidence on CNV-96511 before release readiness; incomplete evidence does not satisfy acceptance.
-  - *Dependent teams or components:* Certified backup partner and Storage Ecosystem QE reviewing the external workflow.
-  - *Sign-off:* [Name/Date]
+None — no separate dependency risk identified.
+
+*Mitigation:* Product build dependencies are tracked in II.2 and Entry Criteria.
 
 ---
 
@@ -417,16 +415,12 @@ Offline-specific scenarios extend the parent CBT test plan.
   - *Test Scenario:* [Tier 2] **TS-21:** Verify pre-upgrade online history supports feature-gated offline increments.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a backup provider, I want certified-partner evidence of stopped-VM full/incremental recovery to demonstrate guest bootability and matching data, rejecting failed or incomplete protection claims
-  - *Test Scenario:* [Tier 2] **TS-22:** Validate certified-partner recovery from stopped-VM full and incremental backups.
-  - *Priority:* P1
-
 - **[CNV-96511]** — As a backup provider, I want early pull-request deletion to advance history without implying external-chain completeness
-  - *Test Scenario:* [Tier 1] **TS-23:** Confirm early offline pull deletion advances history despite incomplete retrieval.
+  - *Test Scenario:* [Tier 1] **TS-22:** Confirm early offline pull deletion advances history despite incomplete retrieval.
   - *Priority:* P1
 
 - **[CNV-96537]** — As a backup provider, I want full and incremental offline Linux backup points on a supported non-default CSI backend to recover bootable guests with matching checksums in push and pull modes, while incomplete chains fail validation
-  - *Test Scenario:* [Tier 3] **TS-24:** Validate offline recovery integrity on supported non-default storage.
+  - *Test Scenario:* [Tier 3] **TS-23:** Validate offline recovery integrity on supported non-default storage.
   - *Priority:* P1
 
 ---
