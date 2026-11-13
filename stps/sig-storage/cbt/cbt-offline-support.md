@@ -61,7 +61,7 @@ technology, and testability before formal test planning.
     - The HCO feature gate enables offline backup and preserves the enabled setting across operator restart/configuration updates; leaving the feature gate disabled produces no offline output.
     - Automated e2e coverage reconstructs Linux and Windows backup points, verifies recovered bootability and matching guest-data checksums, and rejects incomplete recovery chains (CNV-96537).
     - External epic acceptance: [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511) requires at least one certified backup partner to confirm offline workflows through the CBT API; this is outside this STP’s test coverage (II.1).
-  - *Note any gaps or missing criteria:* HCO enablement and preservation remain environment prerequisites (II.3/II.4); TS-01 retains disabled-gate behavior. VEP merge, the STP update, release note, and documentation are tracked delivery criteria (CNV-92883, CNV-96538, CNV-96539, CNV-96540 and CNV-100450), not functional scenarios.
+  - *Note any gaps or missing criteria:* HCO configuration is a prerequisite; operator restart/configuration-update preservation is explicitly out of scope (II.1). TS-01 retains the disabled-gate backup check. VEP merge, the STP update, release note, and documentation are tracked delivery criteria (CNV-92883, CNV-96538, CNV-96539, CNV-96540 and CNV-100450), not functional scenarios.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - *List applicable NFRs and their targets:*
@@ -116,9 +116,9 @@ The following are confirmed product constraints accepted before testing begins.
 
 #### **3. Technology and Design Review**
 
-- [ ] **Developer Handoff/QE Kickoff**
+- [x] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:*
-    - Design-phase kickoff completion/date is unconfirmed; the checkbox remains open until a human supplies the record.
+    - Initial meeting held on October, 2nd between QE and Dev.
     - Development/QE agreement is needed on mode-specific completion, HCO/build readiness, recovery evidence and the pending-versus-failed status contract.
 
 - [x] **Technology Challenges**
@@ -183,6 +183,10 @@ found will not be classified as defects for this release.
 
 - **Certified backup partner validation**
   - *Rationale:* Partner integration and workflow validation are not covered by this STP; the epic’s external acceptance requirement remains separate.
+  - *PM/Lead Agreement:* [Name/Date]
+
+- **HCO feature-gate enablement and operator lifecycle validation**
+  - *Rationale:* This plan tests offline backup behavior, including the disabled-gate check in TS-01. HCO enablement and persistence across operator restarts/configuration updates, including backup checks after those transitions, are not covered by this STP; the epic acceptance requirement remains separate.
   - *PM/Lead Agreement:* [Name/Date]
 
 **Test Limitations**
