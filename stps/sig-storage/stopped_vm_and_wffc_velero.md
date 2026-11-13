@@ -20,7 +20,7 @@
 
 ### **Feature Overview**
 
-This plan targets CNV v5.0.0 and closes test coverage gaps for existing GA Velero/OADP backup and restore behavior. Administrators can protect stopped VMs with block or filesystem disks and VMs using WaitForFirstConsumer (WFFC) storage. This plan covers stopped-VM backup and restore, running- and stopped-VM backup and restore with WFFC storage, preservation of VM configuration and guest data, recovery when a backup dependency or snapshot is unavailable, and service-account permissions for these operations. These customer-visible outcomes help administrators confirm that authorized users can recover workloads after a failure.
+This plan targets CNV v5.0.0 and later and closes test coverage gaps for existing GA Velero/OADP backup and restore behavior. Administrators can protect stopped VMs with block or filesystem disks and VMs using WaitForFirstConsumer (WFFC) storage. This plan covers stopped-VM backup and restore, running- and stopped-VM backup and restore with WFFC storage, preservation of VM configuration and guest data, recovery when a backup dependency or snapshot is unavailable, and service-account permissions for these operations. These customer-visible outcomes help administrators confirm that authorized users can recover workloads after a failure.
 
 ---
 
@@ -81,7 +81,7 @@ technology, and testability before formal test planning.
     - Performance: Not covered — benchmarking of backup/restore duration is out of scope for this test debt task (see Section II.1, Out of Scope)
     - Scalability: This feature introduces no new scale requirements; it relies on the existing OADP/Velero backup mechanism, which already has its own concurrency and throughput limits for bulk/multi-VM backups. Validating those existing platform-level concurrency/throughput constraints would exercise the OADP/Velero platform's own scaling behavior rather than functionality introduced by this test debt task, so it is not exercised here
     - Monitoring/Observability: No new metrics or alerts introduced by this test debt task (see Section II.2, Monitoring)
-    - UI: QE Lead Dalia Frank recommends against additional manual UI testing for this test-debt scope. PM/UX confirmation of whether exercising the existing customer UI adds distinct customer value remains pending.
+    - UI: UI testing is excluded from this test-debt scope. QE Lead Dalia Frank recommends against additional manual UI testing; the automated scenarios verify backup and restore outcomes through non-UI interfaces. PM/Lead agreement on the exclusion remains pending (see Section II.1).
     - Documentation: No new user-facing documentation required; this is QE test coverage for existing product behavior
 
 #### **2. Known Limitations**
@@ -182,6 +182,10 @@ No verification activities will be performed for these items during this test cy
   - *Rationale:* Performance testing is not in scope for this test debt task (see Section I.1, NFRs)
   - *PM/Lead Agreement:* [Name/Date]
 
+- **UI testing**
+  - *Rationale:* The planned automated scenarios verify backup and restore outcomes through non-UI interfaces. QE Lead Dalia Frank recommends against additional manual UI testing for this test-debt scope.
+  - *PM/Lead Agreement:* [Name/Date]
+
 **Test Limitations**
 
 - **OADP operator availability on the test cluster is required; installation or compatibility issues block execution. CNV-44308 records such a block on 2025-08-27; target-cluster readiness is still unverified.**
@@ -222,7 +226,7 @@ No verification activities will be performed for these items during this test cy
   - _Details:_ Add allowed and denied service-account checks for backup, snapshot, restore, and cross-namespace restore using the explicit authorization boundary and account matrix in Sections II.1 and II.3. Verify permission-denied errors and absence of new operation resources or changes to existing workloads. These are new coverage scenarios; existing administrator-only backup/restore tests do not establish denied-access coverage.
 
 - [ ] **Usability Testing** -- Validates user experience and accessibility requirements
-  - _Details:_ QE proposes no additional manual UI tests based on Dalia Frank's feedback. Functional scenarios in Section III check user-visible backup and restore outcomes. PM/UX review of the value of existing UI coverage remains pending (see Section I.1).
+  - _Details:_ UI testing is out of scope for this plan. Functional scenarios in Section III check backup and restore outcomes through non-UI interfaces. PM/Lead agreement on the exclusion remains pending (see Section II.1).
 
 - [ ] **Monitoring** -- Does the feature require metrics and/or alerts?
   - _Details:_ N/A. No new metrics or alerts for backup/restore.
@@ -236,7 +240,7 @@ No verification activities will be performed for these items during this test cy
   - _Details:_ N/A. The OCP upgrade path was evaluated; this task adds test coverage for existing backup/restore behavior without changing product upgrade behavior.
 
 - [x] **Dependencies** -- Blocked by deliverables from other components/products
-  - _Details:_ The planned compatibility baseline is OCP 4.23 / CNV v5.0.0; compatibility on that baseline remains unverified. On 2026-11-13, the available RHOS PSI cluster reported OCP 5.0.1 / CNV 5.0.1, OADP Operator 1.6.1, and Velero client/server v1.18.2-rc.2-OADP (see the observed inventory in Section II.3). This is a different version tuple and does not establish compatibility with the planned baseline. CNV-44308 records a testing block on main on 2025-08-27. Complete and document the target-baseline smoke check before execution.
+  - _Details:_ Testing requires OCP 4.23 or later and CNV v5.0.0 or later, with a compatible OADP/Velero/DataMover installation. On 2026-11-13, the available RHOS PSI cluster reported OCP 5.0.1 / CNV 5.0.1, OADP Operator 1.6.1, and Velero client/server v1.18.2-rc.2-OADP (see Section II.3). These versions meet the stated minimums; a VM backup/restore smoke check is still needed to demonstrate readiness of the selected installation. CNV-44308 records a testing block on main on 2025-08-27.
 
 - [x] **Cross Integrations** -- Does the feature affect other features or require testing by other teams?
   - _Details:_ Validate DataMover and WFFC compatibility for the OCS configuration in Section II.3 with the OADP/Velero team and Storage Ecosystem. Broader provider coverage requires another snapshot-capable WFFC class and is outside this plan.
@@ -249,8 +253,8 @@ No verification activities will be performed for these items during this test cy
 #### **3. Test Environment**
 
 - **Cluster Topology:** Multi-node (minimum 2 worker nodes). The P2 topology scenario additionally requires workers across at least 2 zones and matching zone-aware storage.
-- **Platform and product version:** RHOS PSI (OpenStack); target OCP 4.23 / CNV v5.0.0 (compatibility not yet demonstrated)
-- **Observed cluster software inventory (2026-11-13):** RHOS PSI/OpenStack cluster `c01-acinko500`; OCP 5.0.1 (Kubernetes v1.36.5); OpenShift Virtualization 5.0.1; OADP Operator 1.6.1 (CSV phase `Succeeded`); Velero client and server v1.18.2-rc.2-OADP. The OADP DataProtectionApplication reports `Reconciled=True`. The ODF Operator reports version `5.0.0-68.stable`. The queried inventory did not expose a separate DataMover version; record its installed version or image digest during the target-baseline smoke check. These observations record installed versions and operator reconciliation only; they do not show that a VM backup/restore smoke check passed, that the target OCP 4.23 / CNV v5.0.0 tuple is compatible, or that Storage Ecosystem approved the topology.
+- **Platform and product version:** RHOS PSI (OpenStack) or AWS; OCP 4.23 or later and CNV v5.0.0 or later. Validate compatibility of the selected installed versions before execution.
+- **Observed cluster software inventory (2026-11-13):** RHOS PSI/OpenStack cluster `c01-acinko500`; OCP 5.0.1 (Kubernetes v1.36.5); OpenShift Virtualization 5.0.1; OADP Operator 1.6.1 (CSV phase `Succeeded`); Velero client and server v1.18.2-rc.2-OADP. The OADP DataProtectionApplication reports `Reconciled=True`. The ODF Operator reports version `5.0.0-68.stable`. The queried inventory did not expose a separate DataMover version; record its installed version or image digest during the smoke check on the selected cluster. These observations record installed versions and operator reconciliation only; a successful VM backup/restore smoke check and Storage Ecosystem topology confirmation remain pending.
 - **CPU Virtualization:** Standard (Intel VT-x / AMD-V)
 - **Compute Resources:** Default (2 worker nodes with sufficient memory for RHEL VMs)
 - **Special Hardware:** None
@@ -275,7 +279,7 @@ No verification activities will be performed for these items during this test cy
   | Workload-only account | No permission to submit backup or restore requests | Manage the VM in A; no access to B | Cross-namespace restore submission is denied |
 
 - **Platform:** RHOS PSI (OpenStack) or AWS, with ODF installed and both listed OCS classes available. Record the platform, cluster, and region used for each result. For P2, validate multiple worker zones and matching storage topology on the chosen platform; the platform name alone does not establish that prerequisite.
-- **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. The dated inventory above is an observation from a separate OCP 5.0.1 / CNV 5.0.1 cluster; before executing this plan, record the exact OADP, Velero, and DataMover versions on the planned OCP 4.23 / CNV v5.0.0 cluster and obtain dated Storage Ecosystem confirmation for the topology and snapshot-class compatibility.
+- **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Before executing this plan, record the exact OADP, Velero, and DataMover versions on the selected cluster and obtain dated Storage Ecosystem confirmation for the topology and snapshot-class compatibility.
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -289,7 +293,7 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-- [ ] OADP operator installs successfully via OLM on the target OCP 4.23 / CNV v5.0.0 environment, and a sample VM backup and restore completes successfully as a smoke check; record the date, cluster, and installed OADP/Velero/DataMover versions before marking complete. The 2026-11-13 inventory in Section II.3 is from OCP 5.0.1 / CNV 5.0.1 and is not this smoke-check evidence.
+- [ ] OADP operator installs successfully via OLM on the selected OCP 4.23 or later / CNV v5.0.0 or later environment, and a sample VM backup and restore completes successfully as a smoke check; record the date, cluster, and installed OADP/Velero/DataMover versions before marking complete. The 2026-11-13 inventory in Section II.3 does not establish that the smoke check passed.
 - [x] The common storage matrix includes snapshot support through `ocs-storagecluster-ceph-rbd-virtualization`
 - [ ] `ocs-storagecluster-rbdplugin-snapclass` has been validated with the installed OADP/Velero/DataMover versions for both volume modes
 - [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-virtualization-wffc` is configured and supports successful snapshot-based backup and restore
@@ -300,7 +304,7 @@ The following conditions must be met before testing can begin:
 
 **Timeline/Schedule**
 
-- **Risk:** OADP compatibility with OCP 4.23 / CNV v5.0.0 is unverified and could block test development and validation; CNV-44308 records a historical OADP testing block on 2025-08-27.
+- **Risk:** OADP compatibility with the selected OCP and CNV versions is unverified and could block test development and validation; CNV-44308 records a historical OADP testing block on 2025-08-27.
   - **Mitigation:** Monitor OADP operator releases and validate compatibility before sprint commitment. Use a staging branch for test development while awaiting OADP fix.
   - *Estimated impact on schedule:* 1-2 sprints delay if target-version validation reveals an OADP blocker
   - *Sign-off:* [Name/Date]
