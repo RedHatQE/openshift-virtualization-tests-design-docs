@@ -236,7 +236,7 @@ No verification activities will be performed for these items during this test cy
   - _Details:_ N/A. The OCP upgrade path was evaluated; this task adds test coverage for existing backup/restore behavior without changing product upgrade behavior.
 
 - [x] **Dependencies** -- Blocked by deliverables from other components/products
-  - _Details:_ Depends on OADP being installable and functional on OCP 4.23 / CNV v5.0.0. CNV-44308 records a testing block on main on 2025-08-27. Current target-version compatibility has not been demonstrated; complete and document the unchecked smoke-check entry criterion before execution.
+  - _Details:_ The planned compatibility baseline is OCP 4.23 / CNV v5.0.0; compatibility on that baseline remains unverified. On 2026-11-13, the available RHOS PSI cluster reported OCP 5.0.1 / CNV 5.0.1, OADP Operator 1.6.1, and Velero client/server v1.18.2-rc.2-OADP (see the observed inventory in Section II.3). This is a different version tuple and does not establish compatibility with the planned baseline. CNV-44308 records a testing block on main on 2025-08-27. Complete and document the target-baseline smoke check before execution.
 
 - [x] **Cross Integrations** -- Does the feature affect other features or require testing by other teams?
   - _Details:_ Validate DataMover and WFFC compatibility for the OCS configuration in Section II.3 with the OADP/Velero team and Storage Ecosystem. Broader provider coverage requires another snapshot-capable WFFC class and is outside this plan.
@@ -249,7 +249,8 @@ No verification activities will be performed for these items during this test cy
 #### **3. Test Environment**
 
 - **Cluster Topology:** Multi-node (minimum 2 worker nodes). The P2 topology scenario additionally requires workers across at least 2 zones and matching zone-aware storage.
-- **OCP & OpenShift Virtualization Version(s):** OCP 4.23 / CNV v5.0.0
+- **Platform and product version:** RHOS PSI (OpenStack); target OCP 4.23 / CNV v5.0.0 (compatibility not yet demonstrated)
+- **Observed cluster software inventory (2026-11-13):** RHOS PSI/OpenStack cluster `c01-acinko500`; OCP 5.0.1 (Kubernetes v1.36.5); OpenShift Virtualization 5.0.1; OADP Operator 1.6.1 (CSV phase `Succeeded`); Velero client and server v1.18.2-rc.2-OADP. The OADP DataProtectionApplication reports `Reconciled=True`. The ODF Operator reports version `5.0.0-68.stable`. The queried inventory did not expose a separate DataMover version; record its installed version or image digest during the target-baseline smoke check. These observations record installed versions and operator reconciliation only; they do not show that a VM backup/restore smoke check passed, that the target OCP 4.23 / CNV v5.0.0 tuple is compatible, or that Storage Ecosystem approved the topology.
 - **CPU Virtualization:** Standard (Intel VT-x / AMD-V)
 - **Compute Resources:** Default (2 worker nodes with sufficient memory for RHEL VMs)
 - **Special Hardware:** None
@@ -274,7 +275,7 @@ No verification activities will be performed for these items during this test cy
   | Workload-only account | No permission to submit backup or restore requests | Manage the VM in A; no access to B | Cross-namespace restore submission is denied |
 
 - **Platform:** RHOS PSI (OpenStack) or AWS, with ODF installed and both listed OCS classes available. Record the platform, cluster, and region used for each result. For P2, validate multiple worker zones and matching storage topology on the chosen platform; the platform name alone does not establish that prerequisite.
-- **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Record the installed OADP/Velero/DataMover versions and Storage Ecosystem approval before execution.
+- **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. The dated inventory above is an observation from a separate OCP 5.0.1 / CNV 5.0.1 cluster; before executing this plan, record the exact OADP, Velero, and DataMover versions on the planned OCP 4.23 / CNV v5.0.0 cluster and obtain dated Storage Ecosystem confirmation for the topology and snapshot-class compatibility.
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -288,7 +289,7 @@ The following conditions must be met before testing can begin:
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-- [ ] OADP operator installs successfully via OLM on OCP 4.23 / CNV v5.0.0, and a sample VM backup and restore completes successfully as a smoke check; record the date, cluster, and installed OADP/Velero/DataMover versions before marking complete
+- [ ] OADP operator installs successfully via OLM on the target OCP 4.23 / CNV v5.0.0 environment, and a sample VM backup and restore completes successfully as a smoke check; record the date, cluster, and installed OADP/Velero/DataMover versions before marking complete. The 2026-11-13 inventory in Section II.3 is from OCP 5.0.1 / CNV 5.0.1 and is not this smoke-check evidence.
 - [x] The common storage matrix includes snapshot support through `ocs-storagecluster-ceph-rbd-virtualization`
 - [ ] `ocs-storagecluster-rbdplugin-snapclass` has been validated with the installed OADP/Velero/DataMover versions for both volume modes
 - [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-virtualization-wffc` is configured and supports successful snapshot-based backup and restore
