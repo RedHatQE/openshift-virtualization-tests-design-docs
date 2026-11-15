@@ -1,0 +1,22 @@
+enabled: true
+tier: "Tier 1"
+display_name: "Functional"
+description: >-
+  Go/Ginkgo functional tests for one feature or component in a real OpenShift
+  Virtualization cluster, with minimal cross-feature dependencies.
+language: "go"
+framework: "ginkgo-v2"
+reference_guide: "https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/blob/main/docs/testing-tiers.md"
+reference_tests: []
+default_package: "storage"
+imports:
+  dot_imports:
+    - "github.com/onsi/ginkgo/v2"
+    - "github.com/onsi/gomega"
+  project:
+    - "kubevirt.io/kubevirt/tests/decorators"
+    - "kubevirt.io/kubevirt/tests/framework/kubevirt"
+    - "kubevirt.io/kubevirt/tests/testsuite"
+test_patterns:
+  function_prefix: "It"
+  assertion_style: "gomega"

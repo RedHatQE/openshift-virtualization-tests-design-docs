@@ -16,6 +16,15 @@ QualityFlow repository:
 - [Scaffolding](https://github.com/redhat-community-ai-tools/qualityflow/blob/main/onboard.py)
   — `onboard.py --scaffold-repo <checkout> --project-id <id>` writes a starter layer.
 
+## The generic config, readable from here
+
+The generic parts of the CNV QualityFlow configuration are copied into
+[`qualityflow/`](../qualityflow/README.md) — identity and toggles, the repository list with the
+environment variable each checkout comes from, the component map, the platform, the Jira
+routing, the PII allowlist and the three tier definitions. Nothing there holds a credential or a
+local path; `env.example` lists the variables to export yourself. Those copies are for reading —
+QualityFlow reads the live ones from its own `config/projects/cnv/`.
+
 ## What the CNV project config already provides
 
 The CNV project config (`config/projects/cnv` in the QualityFlow deployment) is the layer

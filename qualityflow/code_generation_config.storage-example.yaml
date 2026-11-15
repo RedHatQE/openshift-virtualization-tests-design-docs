@@ -1,0 +1,45 @@
+test_strategy_mode: "tier"
+filename_prefix: "qf_"
+package_name: "storage"
+package_name_rules:
+  sig-storage: "storage"
+target_test_directory_rules:
+  sig-storage: "tests/storage/"
+
+tier1:
+  language: "go"
+  framework: "ginkgo-v2"
+  package_name: "storage"
+  target_test_directory: "tests/storage/"
+  build_tags:
+    - "functional"
+  imports:
+    dot_imports:
+      - "github.com/onsi/ginkgo/v2"
+      - "github.com/onsi/gomega"
+    project:
+      - "kubevirt.io/kubevirt/tests/decorators"
+      - "kubevirt.io/kubevirt/tests/framework/kubevirt"
+      - "kubevirt.io/kubevirt/tests/testsuite"
+  decorators:
+    SigStorage: "decorators.SigStorage"
+
+tier2:
+  language: "python"
+  framework: "pytest"
+  package_name: "storage"
+  target_test_directory: "tests/storage/"
+  imports:
+    framework:
+      - "pytest"
+
+tier3:
+  language: "python"
+  framework: "pytest"
+  package_name: "storage"
+  target_test_directory: "tests/storage/"
+  markers:
+    - "tier3"
+  imports:
+    framework:
+      - "pytest"
