@@ -44,6 +44,82 @@ If this guide and the template ever disagree, the template wins and the guide mu
 | III. Test Scenarios & Traceability | Each new scenario traced to a Jira requirement, with tier and priority |
 | IV. Sign-off and Approval | Sign-off by at least one person per function (Feature Owner, Quality Owner, Product Manager) |
 
+### The Template Is Fixed
+
+[`stps/stp-template/stp.md`](../stps/stp-template/stp.md) (feature STPs) and
+[`stps/stp-template/child-stp.md`](../stps/stp-template/child-stp.md) (child STPs) define both the
+section structure **and** the field set. An STP fills the template; it does not extend it.
+
+Not allowed in a feature STP, and blocking on review:
+
+- adding a section, numbered subsection, checklist item, metadata field, field inside a checklist
+  item, or Section III key
+- renaming or reordering any of those
+- removing any of those that is not listed as conditional below
+- splitting one field into several, or nesting new keys inside an existing field
+- field-shaped content inside a field: a bold or italic label followed by `:` and a value, a
+  `Key: value` line, or a table column that behaves like a field. Emphasis inside a sentence
+  (`**Note:**`) is prose, and extra detail must be free prose
+- a new group heading inside a section: a standalone bold or italic line, or a heading, that
+  introduces a group of items — that is a new subsection
+
+Inside a field value, `[Tier N]` at the start of `Test Scenario` is the bracketed label allowed
+(other than the template's own placeholders, which are replaced when the field is filled).
+
+**Repeating a template line is content, not structure** — extra entry criteria, extra risk
+entries, extra scenarios, requirements, criteria, NFRs, or limitations are all allowed.
+
+**Conditional items — the only permitted omissions in a feature STP:** `Document Conventions
+(if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that has no
+risk. Nothing else is optional there: template wording like "if applicable" or "if needed" never
+licenses deleting a labelled field. `Child STPs` is always present (single-SIG features write
+`None — single-SIG feature`), and every risk category is present.
+
+Child STPs are held to `child-stp.md`'s own field set, which legitimately has no `Enhancement(s)`,
+`Feature Maturity`, `Participating SIGs`, or `Child STPs` field and no customer value and use cases —
+and may not add fields beyond it either.
+
+In a filled STP, HTML comments carry guidance only — never a field, key, or value the visible
+document does not show — and they are removed before submitting. The templates under
+`stps/stp-template/` and the guidance files are built out of comments and are exempt from removal.
+
+If a field is missing or badly shaped, that is a **template change** and needs its own PR to this
+repository, changing the template(s), this guide, the AGENTS.md structure section, and the structure
+block in `.coderabbit.yaml` together. STPs adopt the new structure only after that PR merges. A
+rename or a documented replacement is allowed in that PR; an unexplained deletion of a required
+item is not. A typo, wording, or comment-only template edit that leaves the fields and the rules
+unchanged needs no rule-copy update and should not be flagged for one. A detail that has no matching
+field belongs in free prose in an existing field, or outside the STP (design doc, VEP, tests
+repository).
+
+A structure change must not ride along inside an STP PR: flag any PR where an STP change uses a
+field, key, or section the same PR adds, renames, or removes in a template, in `AGENTS.md`, in this
+guide, or in `.coderabbit.yaml` — a PR that changes a rule source and an STP in the same diff must
+be split. An unrelated template typo fix is fine.
+
+Consequence for reviewers: a useful-but-unknown field in an STP is a CRITICAL structure violation,
+not a suggestion to extend the template. A structure change is reviewed on its own, from the
+template PR that introduces it.
+
+**Already-merged STPs keep the shape they were approved with.** Template rules are not retroactively
+enforced. The exemption is per entry: entries a PR adds or modifies follow the current template, and
+legacy entries the PR leaves alone are not flagged. Re-shaping a legacy entry onto the current
+template — renaming its fields to the current names — is that required update, not a structure
+change. Only divergence from the **current** template counts. See the checklist in `AGENTS.md`.
+
+### Field Guidance Lives in the Comments
+
+Most template fields carry their guidance in an HTML comment next to them. The visible lines are
+what an author fills in, and there are three kinds:
+
+- **Labeled lines** (`- *Value:* …`, `- *Impact on testing approach:* …`, `- *Sign-off:* …`) are
+  fields — keep the label exactly as written.
+- **Bracket-only lines** (`- [Requirement — behavior and the condition it must hold under]`) are
+  placeholders — replace the text, and repeat the line once per item. Repeating a content line is
+  not a new field.
+- **Nested content templates** (`- As a [role], I want to [action], so that [benefit]`) are shape
+  hints under a field — fill and repeat them like placeholders.
+
 ### Purpose of Each Part
 
 The template says what to fill in. This section explains why each part exists and when it happens.

@@ -25,6 +25,12 @@ Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix
 MEDIUM (should fix), LOW (suggestion).
 
 Core principles:
+- The template structure is fixed: a feature STP fills stps/stp-template/stp.md (child STPs:
+  stps/stp-template/child-stp.md) and never extends it. An added, renamed, reordered, or
+  non-conditional removed section, checklist item, field, or Section III key is CRITICAL and blocks
+  approval; so is field-shaped content inside a field (an extra bold or italic label, a
+  `Key: value` line, a group heading, a table). See AGENTS.md "Template Structure Compliance".
+  A structure change belongs in a separate template PR.
 - STPs describe what users experience, not internal implementation. Flag internal API
   field names, internal component references, and implementation mechanisms as findings.
   Documented user-facing objects the user must create or edit (e.g. a resource kind)
@@ -34,16 +40,27 @@ Core principles:
 - Distinguish constraint categories: Feature Limitations, Test Limitations, Out of
   Scope, and Risks are distinct concepts — flag any mixing.
 - Traceability is mandatory — every test scenario must map to a Jira requirement ID
-  with tier and priority.
+  with tier and priority. Section III scenarios are required for non-regression Testing
+  Goals; a regression goal and an acceptance criterion may be satisfied by named existing
+  regression coverage in Test Strategy.
 - Testing goals must be written from the end-user perspective with priorities
   (P0 first), and each P0 functional goal needs a negative/failure-path Testing Goal with a matching
   scenario (or an Out of Scope entry with Quality Owner or Product Manager sign-off); regression goals are covered by Test Strategy.
 - Test scenarios need observable pass criteria, not "verify X works correctly".
 
-For files under stps/stp-template/ — those are templates, not feature STPs. Skip the
-STP-to-tests cross-reference check for them, but review the template content as documentation:
-check that the instructions are self-consistent, and report any place where docs/stp-guide.md or AGENTS.md
-disagrees with the template so the other document can be corrected.
+For files under stps/stp-template/ — those are templates, not feature STPs. Skip
+feature-STP content review for them (no requirements, acceptance-criteria, or scenario
+checks) and check markdown formatting, but apply the template-PR gate from AGENTS.md
+"Template Structure Compliance": the PR must not silently remove a section, field,
+checklist item, or Section III key that is not listed as conditional — a rename or a
+documented replacement is allowed, an unexplained deletion is not. When a template PR
+changes structure or shared rule guidance it must update both templates, AGENTS.md,
+docs/stp-guide.md, and the .coderabbit.yaml structure block together where the item
+exists in both; flag a PR that leaves one of those copies behind. A typo, wording, or
+comment-only template edit that leaves fields and rules unchanged is exempt — do not
+flag it for a missing rule-copy update. Check the template instructions are self-consistent, and
+report any place where docs/stp-guide.md or AGENTS.md disagrees with the template so the other
+document can be corrected.
 
 Follow stps/stp-template/stp.md (child STPs: stps/stp-template/child-stp.md) as the
 authoritative reference for STP structure, format and content requirements; docs/stp-guide.md explains the purpose
