@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow/main/schemas/qualityflow.schema.json
+# QualityFlow config shared by every SIG directory under stps/.
+#
+# QualityFlow reads the .qualityflow/ of each directory between a run's target and
+# the checkout root (redhat-community-ai-tools/qualityflow#199) and merges them,
+# deepest last: the central config/projects/cnv, then this directory, then the
+# SIG's own under stps/sig-<sig>/. /stp-builder's target is the design-docs stps/
+# tree, so these layers apply to STP and STD work; test-code generation in the
+# tests repository is configured in that repository's own .qualityflow/.
+#
+# Prerequisite, not yet wired centrally: QualityFlow finds a repo's checkout
+# through that repo's local_path_env in config/projects/cnv/repositories.yaml, and
+# design_docs_repo declares none. Until it does, these layers are inert - no
+# checkout means the directory is never read. See README.md.
+#
+# What a layer cannot say: display_name, review_sla, model_policy, stakeholders,
+# repositories.yaml, jira.yaml, github.yaml, pr_autofix. Only the files in
+# config/_schema.yaml `config_layers`, and in each the keys its own validation spec
+# allows, are accepted; anything else fails the run instead of being ignored.
+version: 1
+project_id: "cnv"
+
+feature_toggles:
+  # Tier mode, so tier-classifier derives the available tiers from the tier*.yaml
+  # files below rather than from scenario_tiers, which is auto-mode only. That is
+  # what keeps [Tier 1], [Tier 2] and [Tier 3] valid labels on an STP scenario.
+  test_strategy: "tier"

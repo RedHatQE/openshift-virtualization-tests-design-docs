@@ -1,0 +1,8 @@
+# Tier 1 for sig-infra.
+description: >-
+  Go/Ginkgo tests for one infrastructure feature. kubevirt/kubevirt has a
+  tests/infrastructure package, but it covers operator certificates, CRDs and
+  node-labeller rather than the golden images, common templates and instance
+  types this SIG's scenarios are about, so no Go home is recorded here.
+# Unset explicitly: no exemplar is recorded for this tier.
+reference_tests: null

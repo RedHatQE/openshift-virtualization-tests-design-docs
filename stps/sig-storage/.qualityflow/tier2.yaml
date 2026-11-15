@@ -1,0 +1,6 @@
+# Tier 2 for sig-storage.
+description: >-
+  A VM whose disk comes from the scenario's source, plus hotplug, resize
+  and snapshot in one workflow, ending in data the guest can read.
+reference_tests:
+  - "https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/storage/snapshots/test_snapshots.py"

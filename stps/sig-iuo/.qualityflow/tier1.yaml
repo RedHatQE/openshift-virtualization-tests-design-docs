@@ -1,0 +1,7 @@
+# Tier 1 for sig-iuo.
+description: >-
+  Go/Ginkgo tests for one install and upgrade (iuo) feature in
+  kubevirt/kubevirt, run against a cluster with OpenShift Virtualization
+  installed.
+reference_tests:
+  - "https://github.com/kubevirt/kubevirt/blob/main/tests/operator/operator.go"
