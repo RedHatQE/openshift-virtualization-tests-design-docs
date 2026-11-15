@@ -3,5 +3,10 @@ description: >-
   Go/Ginkgo tests for one install and upgrade (iuo) feature in
   kubevirt/kubevirt, run against a cluster with OpenShift Virtualization
   installed.
+# Two homes: kubevirt's operator tests, and HCO's functional tests.
+# HCO's monitoring and observability_controller tests belong to the observability
+# team and are deliberately not referenced here.
 reference_tests:
   - "https://github.com/kubevirt/kubevirt/blob/main/tests/operator/operator.go"
+  - "https://github.com/kubevirt/hyperconverged-cluster-operator/blob/main/tests/func-tests/defaults_test.go"
+  - "https://github.com/kubevirt/hyperconverged-cluster-operator/blob/main/tests/func-tests/feature_gates_test.go"

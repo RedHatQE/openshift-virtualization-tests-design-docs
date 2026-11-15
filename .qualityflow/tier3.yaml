@@ -1,16 +1,16 @@
 # Tier 3: extended validation - higher execution cost rather than wider scope.
-# A label only, for a different reason than Tier 1.
+# Generates, deliberately.
 #
-# Tier 3 tests do exist and carry @pytest.mark.tier3 by hand. What a layer cannot do
-# is make a *generated* test carry that marker: tier*.yaml `markers` is in the
-# schema's allowlist but no consumer reads it, and the one marker path that does
-# reach generated code is the project's `scenario_tiers`, which applies in auto mode
-# only. An unmarked test is stamped tier2 by conftest.py, so a generated Tier 3 test
-# would run in the tier2 lane - worse than not generating for cost-heavy work.
+# Caveat worth knowing when a Tier 3 test is generated: nothing a layer can set makes
+# the generated test carry @pytest.mark.tier3. tier*.yaml `markers` is in the
+# schema's allowlist but no consumer reads it, and the one marker path that reaches
+# generated code (the project's `scenario_tiers`) is auto mode only. An unmarked test
+# is stamped tier2 by the test suite's conftest.py, so a generated Tier 3 test lands
+# in the tier2 lane until the marker is added by hand at review.
 #
 # A SIG adds `description`, and `reference_tests` where a genuine Tier 3 module
 # exists.
-enabled: false
+enabled: true
 tier: "Tier 3"
 display_name: "Extended Validation"
 language: "python"
