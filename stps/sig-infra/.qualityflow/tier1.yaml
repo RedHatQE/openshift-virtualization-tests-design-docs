@@ -5,6 +5,7 @@ description: >-
   common-instancetypes.
 # Common templates are SSP's, instance types are common-instancetypes',
 # and kubevirt's own tests/infrastructure covers operator certificates and CRDs.
+default_package: "infrastructure"
 reference_tests:
   - "https://github.com/kubevirt/kubevirt/blob/main/tests/infrastructure/certificates.go"
   - "https://github.com/kubevirt/ssp-operator/blob/main/tests/commonTemplates_test.go"

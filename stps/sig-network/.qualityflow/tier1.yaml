@@ -4,6 +4,7 @@ description: >-
   against a cluster with OpenShift Virtualization installed.
 # kubevirt's binding-plugin tests, nmstate's bridged-network tests, and
 # sriov-network-operator's node-policy tests.
+default_package: "network"
 reference_tests:
   - "https://github.com/kubevirt/kubevirt/blob/main/tests/network/bindingplugin.go"
   - "https://github.com/nmstate/kubernetes-nmstate/blob/main/test/e2e/handler/default_bridged_network_test.go"
