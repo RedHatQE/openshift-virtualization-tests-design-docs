@@ -157,7 +157,7 @@ and schedule.
 - **[P0] G03 — Backup integrity:** As a backup provider, verify recovered Linux and Windows guests boot with checksums matching each backup point; incomplete chains or unavailable disks must not yield successful recovery validation.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
-- **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output.
+- **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while never-started VMs, overlapping requests and residual source activity cannot produce unsafe backup output.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
 - **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
@@ -266,7 +266,7 @@ found will not be classified as defects for this release.
 
 - **Platform:** Standard (bare metal or virtualized — no platform-specific offline backup behavior)
 
-- **Special Configurations:** HCO enablement and preservation of the offline feature gate in effective KubeVirt configuration are environment prerequisites. CBT and offline incremental backup (`OfflineIncrementalBackup`) are enabled for positive cases; TS-01 covers disabled offline backup. VM fixtures meet the prior-start eligibility in Known Limitations; QCOW2 tracking overlays may use raw backing disks
+- **Special Configurations:** HCO enablement and preservation of the offline feature gate in effective KubeVirt configuration are environment prerequisites. CBT and offline incremental backup (`OfflineIncrementalBackup`) are enabled for positive cases; TS-01 covers disabled offline backup. Positive VM fixtures meet the prior-start eligibility in Known Limitations; QCOW2 tracking overlays may use raw backing disks
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -433,6 +433,10 @@ Offline-specific scenarios extend the parent CBT test plan.
 
 - **[CNV-96511]** — As a backup provider, I want clients to reject untrusted offline pull certificates before reading disk data
   - *Test Scenario:* [Tier 1] **TS-24:** Verify untrusted certificates block offline pull data retrieval.
+  - *Priority:* P1
+
+- **[CNV-100648]** — As a backup provider, I want push and pull backups of never-started VMs in CNV v5.1.0 to return an error without backup output, source-data changes or blocked VM startup
+  - *Test Scenario:* [Tier 1] **TS-25:** Verify never-started VM backups fail safely with clear errors.
   - *Priority:* P1
 
 
