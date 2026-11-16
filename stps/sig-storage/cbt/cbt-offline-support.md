@@ -427,9 +427,9 @@ Offline-specific scenarios extend the parent CBT test plan.
   - *Test Scenario:* [Tier 1] **TS-22:** Confirm early offline pull deletion advances history despite incomplete retrieval.
   - *Priority:* P1
 
-- **[CNV-96537]** — As a backup provider, I want full and incremental offline Linux backup points on a supported non-default CSI backend to recover bootable guests with matching checksums in push and pull modes, while incomplete chains fail validation
+- **[CNV-96537]** — As a backup provider, I want full and incremental offline Linux backup points on a supported non-default CSI backend (e.g. Trident) to recover bootable guests with matching checksums in push and pull modes, while incomplete chains fail validation
   - *Test Scenario:* [Tier 3] **TS-23:** Validate offline recovery integrity on supported non-default storage.
-  - *Priority:* P1
+  - *Priority:* P2
 
 - **[CNV-96511]** — As a backup provider, I want clients to reject untrusted offline pull certificates before reading disk data
   - *Test Scenario:* [Tier 1] **TS-24:** Verify untrusted certificates block offline pull data retrieval.
