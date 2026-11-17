@@ -159,7 +159,13 @@ The STP template uses four distinct categories for constraints. Refer to the tem
 1. **Test Case Repository:** Links to Jira, Polarion, or test management system
 2. **Traceability Matrix:** Maps requirements to high-level test scenarios
 3. **Test Scenario Descriptions:** Brief descriptions of key scenarios
+
 4. **Traceability Maintenance:** Process for keeping traceability current
+
+**Tier separation:** Test scenarios MUST be grouped into separate tables by tier — one table
+per tier (Tier 1, Tier 2, and Tier 3 where present), each under a tier heading. Tier 1 and
+Tier 2 scenarios never appear in the same table; the table heading carries the tier, so no
+Tier column is needed. See the template (`stps/stp-template/stp.md`) for the exact format.
 
 ### IV. Sign-off and Approval
 

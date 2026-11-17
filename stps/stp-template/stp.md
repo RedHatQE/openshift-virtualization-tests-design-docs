@@ -438,30 +438,36 @@ justification in mitigation strategy. -->
 - Multiple alerts → separate if different trigger conditions, group if same flow
 **What does NOT go here:** Regression tests (covered in Test Strategy). -->
 
-<!-- **Requirement ID:**
+<!-- **Table format:** Scenarios MUST be grouped into separate tables by tier — one table per tier.
+Tier 1 and Tier 2 scenarios must never appear in the same table. Tier 3 scenarios, if present,
+get their own table. The tier is identified by the table heading, so no Tier column is needed.
+
+**Requirement ID:**
 - Use Jira issue key (e.g., CNV-12345)
+- Multiple scenarios mapped to the same requirement may leave the Requirement ID cell blank
+  in continuation rows
 
 **Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
 
-- **[Jira-123]** — As a user...
-  - *Test Scenario:* [Tier 1] Verify VM can be created with new feature X
-  - *Priority:* P0
+#### **Tier 1 — Single Feature, Isolated (API validation, basic CRUD, single operation)**
 
-- **[Jira-124]** — As an admin...
-  - *Test Scenario:* [Tier 2] Verify API for feature X is backward-compatible
-  - *Priority:* P0
+| Requirement ID | Requirement Summary | Test Scenario(s)                                                                                      | Priority |
+|:---------------|:--------------------|:------------------------------------------------------------------------------------------------------|:---------|
+| Jira-123       | As a user...        | Verify VM can be created with new feature X                                                            | P0       |
 
-- **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
-  - *Test Scenario:* [Tier 2] Verify non-admin user cannot delete a VM
-  - *Priority:* P1
+#### **Tier 2 — End-to-End User Workflows, Multi-Feature Integration, Upgrade Paths**
 
-- **[Jira-126]** — As a cluster admin...
-  - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
-  - *Priority:* P2
+| Requirement ID | Requirement Summary                                                  | Test Scenario(s)                                       | Priority |
+|:---------------|:---------------------------------------------------------------------|:-------------------------------------------------------|:---------|
+| Jira-124       | As an admin...                                                       | Verify API for feature X is backward-compatible        | P0       |
+| Jira-125       | As an admin user, I want to block non-admin users from deleting VMs  | Verify non-admin user cannot delete a VM               | P1       |
+| Jira-126       | As a cluster admin...                                                | Verify upgrade from version X to Y preserves feature state | P2    |
 
-- **[Jira-127]** — As a Windows VM user...
-  - *Test Scenario:* [Tier 3] Verify feature X works on Windows guest with NTFS filesystem
-  - *Priority:* P1
+#### **Tier 3 — Extended Validation (higher execution cost, dedicated test cycles)**
+
+| Requirement ID | Requirement Summary   | Test Scenario(s)                                                          | Priority |
+|:---------------|:----------------------|:--------------------------------------------------------------------------|:---------|
+| Jira-127       | As a Windows VM user... | Verify feature X works on Windows guest with NTFS filesystem            | P1       |
 
 ---
 
