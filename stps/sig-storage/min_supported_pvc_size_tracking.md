@@ -80,10 +80,10 @@ The limitations are documented to ensure alignment between development, QA, and 
 The following are confirmed product constraints accepted before testing begins.
 
 - **No backfill on upgrade** — Labels apply only to newly inflated PVCs.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Non-DV clone populator PVCs skip minimum inflation** — Clone PVCs created without a DataVolume do not receive storage-profile minimum supported size inflation or inflation labels. DataVolume controller clones remain in scope. Minimum inflation for non-DataVolume paths applies when the PVC carries `cdi.kubevirt.io/applyStorageProfile: "true"`.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 #### **3. Technology and Design Review**
 
@@ -133,35 +133,35 @@ No verification activities will be performed for these items, and any related is
 
 - **Metrics, alerts, and PromQL / dashboard validation**
   - *Rationale:* This STP covers PVC inflation labels only; observability team owns metrics/alert testing and may extend alerts/dashboards later
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Documentation / release-note validation**
   - *Rationale:* Outside this Tier 2 automation plan
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **UI testing**
   - *Rationale:* No console workflow in this delivery; customer value is API/label audit
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Full cloud provisioner matrix**
   - *Rationale:* Behavior depends on a StorageProfile minimum supported size, not on a specific cloud provider; one StorageClass with a usable minimum proves the label contract
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Performance benchmarking**
   - *Rationale:* No performance targets for inflation labels
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Dedicated scale / load scenarios**
   - *Rationale:* No new cluster-level scale requirements; create/clone use existing PVC paths
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 **Test Limitations**
 
 - **CDI build with inflation labels required** — Tier 2 execution cannot start until inflation labels are in the CNV build under test
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 - **Snapshot-source scenario needs VolumeSnapshot support** — Gate TS-07 when the cluster has no VolumeSnapshot-capable storage
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 #### **2. Test Strategy**
 
@@ -262,7 +262,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Testing is blocked until inflation labels land in a CNV test build; late CDI delivery compresses Tier 2 automation before release readiness
   - **Mitigation:** Gate entry criteria on the CDI build; implement tests against development builds when available
   - *Estimated impact on schedule:* P0 execution blocked until CDI image promotion; later delivery compresses automation before GA
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 **Test Coverage**
 
@@ -273,7 +273,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** CI may lack a StorageClass whose StorageProfile has a usable minimum supported size, or VolumeSnapshot support for the snapshot-clone scenario
   - **Mitigation:** Use `ocs-storagecluster-ceph-rbd-virtualization` (or equivalent) and set the StorageProfile minimum supported size in the test when needed; gate the snapshot scenario when VolumeSnapshot support is missing
   - *Missing resources or infrastructure:* Environment-dependent StorageClass / VolumeSnapshot capability
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 **Untestable Aspects**
 
@@ -288,7 +288,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Feature depends on [CDI PR #4281](https://github.com/kubevirt/containerized-data-importer/pull/4281) merge and image promotion into the CNV build under test
   - **Mitigation:** Keep entry criteria gated on that CDI build; do not start Tier 2 automation against a build without inflation labels
   - *Dependent teams or components:* CDI / OpenShift Virtualization image promotion
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Arnon Gilboa (@arnongilboa), Alexander Wels (@awels)/2026-11-11
 
 ---
 
@@ -331,7 +331,7 @@ The following conditions must be met before testing can begin:
 This Software Test Plan requires approval from the following stakeholders:
 
 * **Reviewers:**
-  - QE: Jenia Peimer (@jpeimer), Jose Manuel Castano (@josemacassan), kgoldbla (@kgoldbla), Dalia Frank (@dalia-frank), Ahmad Hafe (@Ahmad-Hafe), Kate Shvaika (@kshvaika), Emanuele Prella (@ema-aka-young), Adam Cinko (@acinko-rh), ShellyKas13 (@ShellyKas13)
+  - QE: Jenia Peimer (@jpeimer), Jose Manuel Castano (@josemacassan), Dalia Frank (@dalia-frank), Ahmad Hafe (@Ahmad-Hafe), Kate Shvaika (@kshvaika), Emanuele Prella (@ema-aka-young), Adam Cinko (@acinko-rh)
   - Development: Alexander Wels (@awels)
   - QE Lead: Ruth Netser (@rnetser)
 * **Approvers:**
