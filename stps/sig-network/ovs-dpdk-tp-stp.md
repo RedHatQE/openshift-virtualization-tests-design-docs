@@ -157,7 +157,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
   - *PM/Lead Agreement:* Ronen Sde-Or / 2026-Sep-08
 - **VM network recovery following the restart of non-KubeVirt components (OVS, OVS-DPDK driver)**
   - *Rationale:* The restart of infrastructure components such as the OVS daemon or the OVS-DPDK driver is not part of the KubeVirt control flow, and VM behavior following such restarts is therefore not covered by this STP.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Ronen Sde-Or / 2026-Nov-17
 
 **Test Limitations**
 
