@@ -155,6 +155,9 @@ Performance-intensive VM workloads need higher network throughput and lower late
 - **Live migration failure path - the destination node cannot allocate the OVS-DPDK device required by the ResourceClaimTemplate**
   - *Rationale:* The nodes configuration is set on deployment time and not changed on day-2, and is similar on all nodes. This STP covers scenarios under the assumption of fixed, similar nodes configurations.
   - *PM/Lead Agreement:* Ronen Sde-Or / 2026-Sep-08
+- **VM network recovery following the restart of non-KubeVirt components (OVS, OVS-DPDK driver)**
+  - *Rationale:* The restart of infrastructure components such as the OVS daemon or the OVS-DPDK driver is not part of the KubeVirt control flow, and VM behavior following such restarts is therefore not covered by this STP.
+  - *PM/Lead Agreement:* [Name/Date]
 
 **Test Limitations**
 
