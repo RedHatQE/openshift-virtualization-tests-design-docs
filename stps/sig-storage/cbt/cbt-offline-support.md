@@ -9,8 +9,8 @@
 - **Epic Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
 - **Feature Maturity:**
   - DP: CNV 5.1.0
-  - TP: N/A
-  - GA: CNV 5.2.0
+  - TP: CNV 5.2.0
+  - GA: N/A
 - **QE Owner(s):** Emanuele Prella
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
@@ -69,7 +69,7 @@ technology, and testability before formal test planning.
     - Functional API feedback: Pending/failure feedback is validated with API behavior; offline reporting awaits the delivered contract. No UI/UX change is specified.
     - Documentation: Downstream docs updated for offline backup API usage and feature gate (verified by docs team, not duplicated in QE functional scope)
     - Compatibility: QCOW2 tracking overlays are required and may use raw backing disks; RAW-only tracking is unsupported. Supported storage remains storage-agnostic.
-    - Backward Compatibility: Prior online backup history remains compatible with offline CBT; upgrade enables feature gate; rollback fails in-progress offline backups without blocking VM operations
+    - Backward Compatibility: Prior online backup history remains compatible with offline CBT; rollback fails in-progress offline backups without blocking VM operations
   - *Note any NFRs not covered and why:*
     - Performance: N/A — no performance targets defined for offline backup in the epic or VEP
     - Monitoring: N/A — no new metrics or alerts specified
@@ -94,10 +94,6 @@ The following are confirmed product constraints accepted before testing begins.
   - VEP 401 rejects repeated unchanged increments; merged PR #19294 permits empty increments and advances history in both modes. Full backups remain planned.
   - *Sign-off:* [Name/Date]
 
-- **RAW-only change tracking is unsupported**
-  - VEP 401 requires QCOW2 tracking overlays. Raw backing disks beneath those overlays are allowed; backing-disk format alone does not establish a blanket request-rejection contract.
-  - *Sign-off:* [Name/Date]
-
 - **Automatic VM stop/start orchestration is not supported**
   - VEP-401 non-goal - Offline backup does not automatically stop or start the source VM.
   - *Sign-off:* [Name/Date]
@@ -118,7 +114,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - [x] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:*
-    - Initial meeting held on October, 2nd between QE and Dev.
+    - Initial meeting held on October 2nd, 2026 between QE and Dev.
     - Development/QE agreement is needed on mode-specific completion, HCO/build readiness, recovery evidence and the pending-versus-failed status contract.
 
 - [x] **Technology Challenges**
@@ -161,7 +157,6 @@ and schedule.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
 - **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
-- **[P2] G10 — Upgrade continuity:** As a cluster admin, verify CNV v5.0.0 online history remains usable after upgrade to CNV v5.1.0 for offline incremental backup.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -222,7 +217,7 @@ found will not be classified as defects for this release.
   - *Details:* Verify trusted offline pull retrieval over TLS; reject invalid credentials and untrusted server certificates before reading data. Retain existing CBT transport regression coverage.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* N/A — Jira specifies no-ux and no CNV console changes. API pending/failure feedback remains Functional Testing; offline reporting needs the agreed API contract in Entry Criteria.
+  - *Details:* N/A — Jira specifies no-ux and no CNV console changes. API pending/failure feedback remains Functional Testing.
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* N/A — no new metrics or alerts specified for offline backup.
@@ -232,8 +227,8 @@ found will not be classified as defects for this release.
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* Validate Linux and Windows guests with QCOW2 tracking overlays on supported block/filesystem and CSI backends. Prior online backup history must remain compatible with offline increments.
 
-- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Section III validates CNV v5.0.0 online backup history after upgrade to CNV v5.1.0; in-progress offline backup must fail cleanly on rollback without blocking VM operations (per VEP 401 upgrade/rollback section).
+- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions was considered but is deferred to a more mature phase.
+  - *Details:* With beta graduation the api is not required to be backward compatible.
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* VEP 401 and KubeVirt implementation PR #19294 are merged; CNV-96536 is Closed in fresh Jira. Execution still requires a compatible downstream build exposing the HCO offline-backup feature gate and offline backup API.
@@ -250,7 +245,7 @@ found will not be classified as defects for this release.
 
 - **Cluster Topology:** Standard (3-master/3-worker or equivalent CI topology)
 
-- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 on the OCP release listed as compatible in the CNV v5.1 build metadata; upgrade coverage starts on CNV v5.0.0 and ends on CNV v5.1.0, using one OCP release supported by both builds
+- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 on the OCP release listed as compatible in the CNV v5.1 build metadata.
 
 - **CPU Virtualization:** Standard
 
@@ -283,7 +278,6 @@ The following conditions must be met before testing can begin:
 - [x] Requirements and design documents are **approved and merged** (VEP 401 merged via [PR #402](https://github.com/kubevirt/enhancements/pull/402))
 - [x] Developer Handoff/QE Kickoff record confirmed, including date and design-phase takeaways
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-
 
 #### **5. Risks**
 
@@ -419,26 +413,21 @@ Offline-specific scenarios extend the parent CBT test plan.
   - *Test Scenario:* [Tier 2] **TS-20:** Verify offline checkpoints survive restart, migration and shutdown.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a cluster admin, I want CNV v5.0.0 online history to support offline increments after upgrade to CNV v5.1.0 in push and pull modes
-  - *Test Scenario:* [Tier 2] **TS-21:** Verify pre-upgrade online history supports feature-gated offline increments.
-  - *Priority:* P2
-
 - **[CNV-96511]** — As a backup provider, I want early pull-request deletion to advance history without implying external-chain completeness
-  - *Test Scenario:* [Tier 1] **TS-22:** Confirm early offline pull deletion advances history despite incomplete retrieval.
+  - *Test Scenario:* [Tier 1] **TS-21:** Confirm early offline pull deletion advances history despite incomplete retrieval.
   - *Priority:* P1
 
 - **[CNV-96537]** — As a backup provider, I want full and incremental offline Linux backup points on a supported non-default CSI backend (e.g. Trident) to recover bootable guests with matching checksums in push and pull modes, while incomplete chains fail validation
-  - *Test Scenario:* [Tier 3] **TS-23:** Validate offline recovery integrity on supported non-default storage.
+  - *Test Scenario:* [Tier 3] **TS-22:** Validate offline recovery integrity on supported non-default storage.
   - *Priority:* P2
 
 - **[CNV-96511]** — As a backup provider, I want clients to reject untrusted offline pull certificates before reading disk data
-  - *Test Scenario:* [Tier 1] **TS-24:** Verify untrusted certificates block offline pull data retrieval.
+  - *Test Scenario:* [Tier 1] **TS-23:** Verify untrusted certificates block offline pull data retrieval.
   - *Priority:* P1
 
 - **[CNV-100648]** — As a backup provider, I want push and pull backups of never-started VMs in CNV v5.1.0 to return an error without backup output, source-data changes or blocked VM startup
-  - *Test Scenario:* [Tier 1] **TS-25:** Verify never-started VM backups fail safely with clear errors.
+  - *Test Scenario:* [Tier 1] **TS-24:** Verify never-started VM backups fail safely with clear errors.
   - *Priority:* P1
-
 
 ---
 
@@ -446,10 +435,13 @@ Offline-specific scenarios extend the parent CBT test plan.
 
 This Software Test Plan requires approval from the following stakeholders:
 
-* **Reviewers:**
+- **Reviewers:**
+
   - QE: [Dalia Frank](@dafrank), [Kateryna Shvaika](@kshvaika), [Jose Manuel Castano](@josemacassan), [Ahmad Hafe](@Ahmad-Hafe), [Jenia Peimer](@jpeimer), [Adam Cinko](@acinko-rh)
   - Development: [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus)
-* **Approvers:**
+
+- **Approvers:**
+
   - QE Lead: [Ruth Netser](@rnetser)
   - Dev Lead: [Adam Litke](@aglitke)
   - Product Manager: [Peter Lauterbach](@peterclauterbach)
