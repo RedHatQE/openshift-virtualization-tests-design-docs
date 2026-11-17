@@ -4,7 +4,14 @@ This document is a review checklist for AI review tools (CodeRabbit, Claude Code
 in this repository. It is an index and a review workflow, not a source of rules: the STP structure, format
 and content requirements are defined by the template (`stps/stp-template/stp.md`), and purpose and process
 are described in `docs/stp-guide.md`. When this checklist and the template differ, the template is right and
-this checklist needs fixing.
+this checklist needs fixing. The one exception is
+[Template Structure Compliance](#template-structure-compliance), whose rule text is normative here and
+is kept in sync with the other four copies — the template it changes, `docs/stp-guide.md`, the
+`.coderabbit.yaml` structure block and the `.pr_agent.toml` `extra_instructions` — so no copy drifts
+from the others. The templates define what an STP must contain; this section defines how that is
+reviewed.
+If they ever disagree, the copies are out of sync: that is a template-PR defect to fix in all five,
+not an STP finding.
 
 Evaluate new and edited STPs against the current template and guide. Existing STPs do not have to comply
 with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
@@ -48,13 +55,19 @@ An STP **fills** the template — it does not change it.
   Bold/italic used as emphasis inside a sentence (`**Note:**`) is prose and allowed.
 - **A new group heading inside a section** — a standalone bold or italic line, or a heading, that
   introduces a group of items — is a new subsection, wherever it appears.
-- **Inside a field, only two things are allowed:** plain sentences, and the template's own nested
-  lines repeated. Any other nested list item, ordered list, table, or content-bearing HTML element
-  inside a field is a new field (HTML comments excepted).
+- **Inside a field, only two things are allowed:** plain sentences, and the template's own lines
+  repeated — nested, or at the same level for the `Document Conventions` term line. Any other nested
+  list item, ordered list, table, or content-bearing HTML element inside a field is a new field (HTML
+  comments excepted).
 
-`[Tier N]` at the start of `Test Scenario` is the one bracketed *label* allowed inside a field
-value; bracketed text that is a placeholder (`[1, 2, or 3]`, `[Name/Date]`) is replaced when the
-field is filled.
+The bracketed *labels* the template itself defines stay in a filled field: `[Jira-ID]` on a
+Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the optional phase tag on a goal as
+`[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` at the start of
+`Test Scenario`. Also sanctioned, because the template itself writes them: markdown link labels
+(`[sig-network](./network.md)`, `([Risks](./stp.md#5-risks))`), the checklist markers `[ ]`/`[x]`,
+the `Document Conventions` term line, and bracketed placeholders such as `[version or N/A]` or
+`[Name/Date]`, which are replaced when the field is filled. Any other bracketed *token acting as a
+key or label* is a new field.
 
 **Repeating a template line is content, not structure.** Extra entry criteria, extra risk entries
 inside one category, extra scenarios, and extra requirements, criteria, NFRs, or limitations all
@@ -71,16 +84,16 @@ never licenses deleting a labelled field: `Child STPs` is always present (single
 `Mitigation` line and drops only the supplemental/`Sign-off` lines).
 
 Child STPs are held to their own field set — `child-stp.md` has no `Enhancement(s)`, `Feature
-Maturity`, `Participating SIGs`, or `Child STPs` field and no `Value`/`Use cases` item, and that is
-correct. The no-extend rule applies to a child STP exactly as it does to a feature STP: it must not
-add fields the child template does not define.
+Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only its own `SIG` —
+and no `Value`/`Use cases` item, and that is correct. The no-extend rule applies to a child STP
+exactly as it does to a feature STP: it must not add fields the child template does not define.
 
 **Section III has a fixed shape.** Each entry is a bullet with the Jira ID bold, the requirement
 summary as a user story, then two keys — tier inline as the first token of `Test Scenario`:
 
 ```markdown
-- **[Jira-ID]** — As a <role>, I want <action>, so that <benefit>
-  - *Test Scenario:* [Tier N] <scenario>
+- **[Jira-ID]** — As a [role], I want [action], so that [benefit]
+  - *Test Scenario:* [Tier N] [scenario]
   - *Priority:* P0
 ```
 
@@ -91,7 +104,8 @@ new fields.
 **HTML comments are not part of a filled STP.** They carry guidance only — never a field, value, or
 key the visible document does not show. A comment carrying a field, key, or value is CRITICAL
 structure smuggling; any other surviving comment is HIGH. This does not apply to the templates under
-`stps/stp-template/` or to guidance files: those are built out of comments, and their comments are
+`stps/stp-template/`, to `AGENTS.md`, or to `docs/*.md` — that is the guidance
+material rather than a filled STP, so a comment there is
 never a finding.
 
 **Common rejection reasons:**
@@ -110,16 +124,17 @@ never a finding.
   table inside a field
 
 **Where structural changes belong:** a separate PR to this repository that changes
-`stps/stp-template/stp.md` and/or `child-stp.md` together with this section of `AGENTS.md`,
-`docs/stp-guide.md` and the structure block in `.coderabbit.yaml`, reviewed on its own. STPs may use
+`stps/stp-template/stp.md` and/or `child-stp.md` together with the `Template Structure Compliance`
+section of `AGENTS.md`, `docs/stp-guide.md`, the structure block in `.coderabbit.yaml` and the
+`extra_instructions` in `.pr_agent.toml` — the five copies, reviewed on its own. STPs may use
 a new field only after that template PR is merged.
 
 **A PR must not bundle a dependency.** If an STP change uses a field, key, or section that the same
 PR adds, renames, or removes in a template or in `docs/stp-guide.md`, flag it CRITICAL and ask for a
 split: the structure change must be reviewed alone. The same applies to any PR that changes a rule
-source — `AGENTS.md`, `docs/stp-guide.md`, `.coderabbit.yaml`, or a template — and an STP in the
-same diff: split it, so the rule cannot be rewritten under cover of the STP that benefits from it.
-An unrelated typo fix in a template is fine.
+source — `AGENTS.md`, `docs/stp-guide.md`, `.coderabbit.yaml`, `.pr_agent.toml`, or a template — and
+an STP in the same diff: split it, so the rule cannot be rewritten under cover of the STP that
+benefits from it. An unrelated typo fix in a template is fine.
 
 **Where the content belongs instead:** details a proposed field would carry go into free prose in
 an existing field, or outside the STP (design doc, VEP, tests repository). A detail that is
@@ -134,7 +149,8 @@ one STP.
 - when it changes structure or shared rule guidance — adding, renaming, reordering, or removing a
   section, numbered subsection, checklist item, metadata field, field inside a checklist item, or
   Section III key — updates the template it changes, `AGENTS.md` (this section), `docs/stp-guide.md`,
-  and the structure block in `.coderabbit.yaml` in the same PR, so the four copies cannot drift
+  the structure block in `.coderabbit.yaml`, and the `extra_instructions` in `.pr_agent.toml` in the
+  same PR, so the five copies cannot drift
 - applies the change to both templates where the item exists in both
 
 A typo, wording, or comment-only template edit that leaves the fields and the rules unchanged is
@@ -145,7 +161,9 @@ retroactively enforced. The exemption is per entry, not per section: entries a P
 follow the current template, and legacy entries the PR leaves alone keep the shape they were
 approved with. Re-shaping a legacy entry onto the current template is exactly that required update —
 renaming its fields to the current names is the re-shape, not a structure change, and is not
-CRITICAL. Only divergence from the **current** template counts.
+CRITICAL. Only divergence from the **current** template counts. The labels the current templates
+retired, and the line that replaces each, are listed under "Renamed Template Lines" in
+`docs/stp-guide.md` — cite it when re-shaping a legacy entry.
 
 ---
 
@@ -362,7 +380,8 @@ CRITICAL. Only divergence from the **current** template counts.
 
 - [ ] At minimum: requirements approved + test environment configured
 - [ ] Feature-specific entry criteria added where applicable
-- [ ] Items marked `[x]` when completed, `[ ]` when pending
+- [ ] Items marked `[x]` when completed, `[ ]` when pending; a "None" entry criterion is still
+  marked `[x]` — the box records that the question was answered, not that a condition was met
 
 ### II.4.1 — Cross-Section Consistency
 
@@ -382,12 +401,13 @@ Reviewers must verify these cross-references between sections:
 
 ### II.5 — Risks
 
-- [ ] ALL standard risk categories are addressed — parent STPs only; child STPs follow the Risk bullet under
-  "Multi-SIG Features and Child STPs" in `docs/stp-guide.md` (even if no risk, include Mitigation with brief justification):
+- [ ] ALL standard risk categories are addressed — in a child STP too, every category stays and reads
+  `None — [why]` when the SIG has no risk (see the Risk bullet under "Multi-SIG Features and Child STPs"
+  in `docs/stp-guide.md`); even if no risk, include Mitigation with brief justification:
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
   Resource Constraints, Dependencies
 - [ ] "Other" category is present, holding the risks that don't fit the 6 standard categories —
-  or `None` when nothing fits it
+  or `None — [why]` when nothing fits it
 - [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
   and the category-specific supplemental field:
   *Estimated impact on schedule* (Timeline/Schedule),
@@ -458,7 +478,8 @@ Reviewers must verify these cross-references between sections:
 When an STP spans multiple SIGs:
 
 - All participating SIGs must be listed and must have confirmed their test scope
-- Child STPs (per-SIG) should NOT duplicate the parent STP — they extend it
+- Child STPs (per-SIG) should NOT duplicate the parent STP — they cover the SIG-specific part of it
+  and add scope, never fields
 - Each SIG's regression responsibility must be explicitly documented
 - Cross-SIG test scenarios (e.g., cross-architecture VM connectivity) must have a clear owner
 

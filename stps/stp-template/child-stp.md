@@ -6,12 +6,17 @@ each field as it appears; do not add, rename, remove, or reorder sections, check
 or Section III keys. Repeating a line (another entry criterion, risk entry, or scenario) is content.
 
 The only items you may omit are `Document Conventions (if applicable)` and, in a no-risk category,
-the supplemental and `Sign-off` lines. Every risk category stays, marked `None — <why>` when this SIG
-has no specific risk. A structural change is a separate PR that updates both templates and every copy
-of the rule — see Template Structure Compliance in AGENTS.md.
+the supplemental and `Sign-off` lines. Every risk category stays, marked `None — [why]` when this SIG
+has no specific risk. A structural change is a separate PR that updates the template it changes and
+the other four copies of the rule (AGENTS.md, docs/stp-guide.md, the `.coderabbit.yaml` structure
+block, the `.pr_agent.toml` instructions) — see Template Structure Compliance in AGENTS.md.
 
 Comments carry guidance only — never a field, key, or value — and are deleted before submitting.
-Replace every placeholder; never delete the field it sits in. -->
+Replace every placeholder; never delete the field it sits in.
+
+Labels this template retired are listed under "Renamed Template Lines" in docs/stp-guide.md, with the
+line that replaced each — an older child STP is re-shaped onto these lines in the entries it edits, and
+the entries a PR leaves alone keep their approved shape. -->
 
 ## **[Feature Title — SIG-Specific Scope] - Quality Engineering Plan**
 
@@ -22,7 +27,10 @@ Replace every placeholder; never delete the field it sits in. -->
 - **QE Owner(s):** [Name (@github-handle, email)]
 - **SIG:** [This SIG — the one this child STP covers]
 
-**Document Conventions (if applicable):** [Define terms specific to this SIG's scope only]
+**Document Conventions (if applicable):**
+<!-- One term per line — keep this label and its bullet, and repeat the bullet once per term. Both
+lines are the template's own shape, so neither is a new field. -->
+- **[term]** — [define a term specific to this SIG's scope only]
 
 ### **Feature Overview**
 
@@ -206,22 +214,22 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 #### **4. Entry Criteria**
 
 <!-- Covered by the parent STP. Add SIG-specific entry criteria below — repeating the line for each
-one is content, not a new field. If none apply, write "None — covered by the parent STP". -->
+one is content, not a new field. If none apply, write "None — covered by the parent STP". A child STP
+carries no completion status here: the parent tracks it. -->
 
-- [ ] [SIG-specific entry criterion, or "None — covered by the parent STP"]
+- [SIG-specific entry criterion, or "None — covered by the parent STP"]
 
 #### **5. Risks**
 
 Feature-wide risks are stated in the parent STP ([Risks](./stp.md#5-risks)) and are not repeated here.
 
-<!-- List only risks specific to this SIG, grouped under the same categories as the parent
-(Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects, Resource Constraints,
-Dependencies, plus Other if needed) — the field names are the ones the parent template defines.
+<!-- List only risks specific to this SIG, grouped under the same categories as the parent.
+Keep every category below — the field names are the ones the parent template defines.
 A risk is an uncertainty: a constraint that is already true is a Test Limitation, and a testing
 decision already taken is Out of Scope; neither belongs here.
-Keep every category below. A category with no SIG-specific risk keeps its Mitigation line and reads
-"None — [why]"; the supplemental and Sign-off lines are dropped in that case only. If this SIG has
-no specific risk in any category, state "None beyond the parent STP." -->
+A category with no SIG-specific risk keeps its Mitigation line, reads "None — [why]", and drops only
+the supplemental and Sign-off lines. When the SIG has no specific risk anywhere, every category says
+"None — no SIG-specific risk" and no Sign-off line is needed. -->
 
 **Timeline/Schedule**
 
@@ -268,9 +276,9 @@ no specific risk in any category, state "None beyond the parent STP." -->
 **Other**
 
 <!-- A risk that does not fit the six categories above. If none applies, keep this category, write
-"None" and drop the `Sign-off` line. -->
+"None — [why]" in the `Risk` line, keep the `Mitigation` line, and drop the `Sign-off` line. -->
 
-- **Risk:** [Risk not covered above, or "None"]
+- **Risk:** [Risk not covered above, or "None — [why]"]
   - **Mitigation:** [Plan, or the one-line no-risk justification]
   - *Sign-off:* [Name/Date]
 
