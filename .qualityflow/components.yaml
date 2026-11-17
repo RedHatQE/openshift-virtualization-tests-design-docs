@@ -1,7 +1,7 @@
 # Component-to-package mapping for openshift-virtualization-tests: one entry
 # per team directory. Its conftest.py derives the team marker from the same
 # directory (AGENTS.md: network, storage, virt, iuo, observability,
-# infrastructure, data_protection, chaos).
+# infrastructure, data_protection).
 
 component_package_map:
   network:
@@ -18,8 +18,6 @@ component_package_map:
     package_path: "tests/infrastructure/"
   data_protection:
     package_path: "tests/data_protection/"
-  chaos:
-    package_path: "tests/chaos/"
 
 # Reverse lookup: path → feature name
 path_to_feature:
@@ -30,4 +28,3 @@ path_to_feature:
   "tests/observability/": "Observability"
   "tests/infrastructure/": "Infrastructure"
   "tests/data_protection/": "Data protection"
-  "tests/chaos/": "Chaos"

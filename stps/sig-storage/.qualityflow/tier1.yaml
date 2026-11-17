@@ -2,8 +2,11 @@
 description: >-
   Go/Ginkgo tests for one storage feature in kubevirt/kubevirt, run
   against a cluster with OpenShift Virtualization installed.
-# kubevirt's snapshot tests and CDI's datavolume tests.
+# kubevirt's snapshot tests, CDI's datavolume tests, the VM-level backup the
+# velero plugin drives, and OADP's backup/restore suite underneath it.
 default_package: "storage"
 reference_tests:
   - "https://github.com/kubevirt/kubevirt/blob/main/tests/storage/snapshot.go"
   - "https://github.com/kubevirt/containerized-data-importer/blob/main/tests/datavolume_test.go"
+  - "https://github.com/kubevirt/kubevirt-velero-plugin/blob/main/tests/vm_backup_test.go"
+  - "https://github.com/openshift/oadp-operator/blob/oadp-dev/tests/e2e/backup_restore_suite_test.go"

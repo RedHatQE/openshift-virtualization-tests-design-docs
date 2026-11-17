@@ -1,0 +1,92 @@
+# Repositories this repository's QualityFlow layers may consult.
+#
+# The root layer carries only what the STP and STD work needs from every SIG:
+# the tests suite generated code lands in, the design-docs repository the STP
+# template and review rules come from, and the Python client libraries the
+# tests build on. A SIG's own context repositories live in
+# stps/sig-<sig>/.qualityflow/repositories.yaml.
+#
+# A repository is declared once its tests, or the product code a failure points
+# at, need to be read. The variable is how its checkout is found: without it the
+# regression and LSP analysis still probes the common directories (e.g.
+# ~/src/<repo>, ~/projects/<repo>), checking each candidate against the entry's
+# url, while /generate-tests needs the tests repository's variable exported.
+
+# The QE test suite (where generated Python tests belong).
+primary_repo:
+  name: "openshift-virtualization-tests"
+  org: "RedHatQE"
+  full_name: "RedHatQE/openshift-virtualization-tests"
+  url: "https://github.com/RedHatQE/openshift-virtualization-tests"
+  local_path_env: "SOURCE_REPO_PATH"
+  default_branch: "main"
+  language: "python"
+  build_system: "uv"
+  build_command: "uv run pytest"
+
+# Where the CNV QE keeps its STPs, the template and the review rules.
+design_docs_repo:
+  name: "openshift-virtualization-tests-design-docs"
+  org: "RedHatQE"
+  full_name: "RedHatQE/openshift-virtualization-tests-design-docs"
+  url: "https://github.com/RedHatQE/openshift-virtualization-tests-design-docs"
+  local_path_env: "OPENSHIFT_VIRTUALIZATION_TESTS_DESIGN_DOCS_REPO_PATH"
+  default_branch: "main"
+
+repo_files:
+  agents_rules:
+    repo: "primary_repo"
+    path: "AGENTS.md"
+    fallback: null
+    description: "QE test conventions and generation rules"
+  stp_template:
+    repo: "design_docs_repo"
+    path: "stps/stp-template/stp.md"
+    fallback: "templates/stp/stp-template.md"
+    description: "Official CNV software test plan template"
+  stp_guide:
+    repo: "design_docs_repo"
+    path: "docs/stp-guide.md"
+    fallback: null
+    description: "Official CNV software test plan authoring guide"
+  testing_tiers:
+    repo: "design_docs_repo"
+    path: "docs/testing-tiers.md"
+    fallback: null
+    description: "Official CNV test-tier definitions"
+  stp_review_rules:
+    repo: "design_docs_repo"
+    path: "AGENTS.md"
+    fallback: null
+    description: "The review checklist CodeRabbit and human reviewers apply to STP PRs"
+
+# The Python client libraries every tier's tests build on. Not a SIG's product:
+# they are read when a generated test needs to know which wrapper class or helper
+# already exists.
+additional_repos:
+  - name: "openshift-python-wrapper"
+    org: "RedHatQE"
+    full_name: "RedHatQE/openshift-python-wrapper"
+    url: "https://github.com/RedHatQE/openshift-python-wrapper"
+    default_branch: "main"
+    language: "python"
+    local_path_env: "OPENSHIFT_PYTHON_WRAPPER_REPO_PATH"
+
+  - name: "openshift-python-utilities"
+    org: "RedHatQE"
+    full_name: "RedHatQE/openshift-python-utilities"
+    url: "https://github.com/RedHatQE/openshift-python-utilities"
+    default_branch: "main"
+    language: "python"
+    local_path_env: "OPENSHIFT_PYTHON_UTILITIES_REPO_PATH"
+
+  - name: "python-rrmngmnt"
+    org: "rhevm-qe-automation"
+    full_name: "rhevm-qe-automation/python-rrmngmnt"
+    url: "https://github.com/rhevm-qe-automation/python-rrmngmnt"
+    default_branch: "master"
+    language: "python"
+    local_path_env: "PYTHON_RRMNGMNT_REPO_PATH"
+
+pr_url_patterns:
+  - "https://github.com/{org}/{repo}/pull/{number}"

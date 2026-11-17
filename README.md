@@ -33,7 +33,6 @@ Centralize QE documentation and test planning to ensure:
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
 | [STP Guide](./docs/stp-guide.md)               | Complete guide to Software Test Plans: structure, lifecycle, and best practices    |
 | [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
-| [QualityFlow Configuration](./docs/qualityflow-config.md) | The QualityFlow config layers for STP and STD work, and where each repository checkout comes from |
 
 ### Templates
 

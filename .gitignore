@@ -30,3 +30,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# QualityFlow local variable template (not repository content)
+.qualityflow/env.example

@@ -1,0 +1,39 @@
+# Context repositories for sig-infra.
+#
+# Read together with the root .qualityflow/repositories.yaml (tests suite,
+# design-docs repository, Python client libraries) and this SIG's tier files
+# under .qualityflow/. Only the product code, tests or fixtures a sig-infra
+# scenario needs to read belong here.
+
+additional_repos:
+  - name: "kubevirt"
+    org: "kubevirt"
+    full_name: "kubevirt/kubevirt"
+    url: "https://github.com/kubevirt/kubevirt"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "KUBEVIRT_REPO_PATH"
+
+  - name: "ssp-operator"
+    org: "kubevirt"
+    full_name: "kubevirt/ssp-operator"
+    url: "https://github.com/kubevirt/ssp-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "SSP_OPERATOR_REPO_PATH"
+
+  - name: "common-instancetypes"
+    org: "kubevirt"
+    full_name: "kubevirt/common-instancetypes"
+    url: "https://github.com/kubevirt/common-instancetypes"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "COMMON_INSTANCETYPES_REPO_PATH"
+
+  - name: "node-healthcheck-operator"
+    org: "medik8s"
+    full_name: "medik8s/node-healthcheck-operator"
+    url: "https://github.com/medik8s/node-healthcheck-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "NODE_HEALTHCHECK_OPERATOR_REPO_PATH"
