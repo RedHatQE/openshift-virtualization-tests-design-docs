@@ -1,6 +1,6 @@
-# Repository configuration for CNV / OpenShift Virtualization.
-# QualityFlow uses this to fetch PR diffs, find test locations,
-# and determine build/test commands.
+# Reference copy of the CNV project's config/projects/cnv/repositories.yaml.
+# Read it here; QualityFlow never loads this file. When the two disagree, the
+# deployment wins — see qualityflow/README.md.
 
 # The QE test suite (where QF-generated Python tests belong).
 primary_repo:
@@ -55,6 +55,8 @@ additional_repos:
     org: "kubevirt"
     full_name: "kubevirt/kubevirt"
     url: "https://github.com/kubevirt/kubevirt"
+    # Every SIG tier1 reference test for the product lives under this branch.
+    default_branch: "main"
     # Without local_path_env the regression-analyzer never looks for a local
     # checkout of this repo (agents/regression-analyzer.md Step 0.1 resolves
     # only entries that declare one), so LSP/grep analysis silently skips the
@@ -109,6 +111,103 @@ additional_repos:
     default_branch: "main"
     language: "go"
     local_path_env: "VM_FILE_RESTORE_OPERATOR_REPO_PATH"
+
+  # Repositories a SIG layer's tier1 reference test lives in, added here so the
+  # repo-aware steps (LSP, regression analysis) can open a checkout. A checkout
+  # is found through the entry's local_path_env when it is exported; when that
+  # variable is merely unset they fall back to a common-directory probe
+  # (~/src/<repo>, ~/projects/<repo>), checked against the entry's url. An
+  # entry that declares no local_path_env at all is skipped outright — see the
+  # kubevirt note above. The sixth, containerized-data-importer, is declared
+  # above; all six land in the deployment's repositories.yaml only once the
+  # companion change there lands (recorded in docs/qualityflow-config.md).
+  - name: "hyperconverged-cluster-operator"
+    org: "kubevirt"
+    full_name: "kubevirt/hyperconverged-cluster-operator"
+    url: "https://github.com/kubevirt/hyperconverged-cluster-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "HCO_REPO_PATH"
+
+  - name: "ssp-operator"
+    org: "kubevirt"
+    full_name: "kubevirt/ssp-operator"
+    url: "https://github.com/kubevirt/ssp-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "SSP_OPERATOR_REPO_PATH"
+
+  - name: "common-instancetypes"
+    org: "kubevirt"
+    full_name: "kubevirt/common-instancetypes"
+    url: "https://github.com/kubevirt/common-instancetypes"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "COMMON_INSTANCETYPES_REPO_PATH"
+
+  - name: "kubernetes-nmstate"
+    org: "nmstate"
+    full_name: "nmstate/kubernetes-nmstate"
+    url: "https://github.com/nmstate/kubernetes-nmstate"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "KUBERNETES_NMSTATE_REPO_PATH"
+
+  - name: "sriov-network-operator"
+    org: "k8snetworkplumbingwg"
+    full_name: "k8snetworkplumbingwg/sriov-network-operator"
+    url: "https://github.com/k8snetworkplumbingwg/sriov-network-operator"
+    # Default branch is master, not main: the tier1 reference test URL pins it.
+    default_branch: "master"
+    language: "go"
+    local_path_env: "SRIOV_NETWORK_OPERATOR_REPO_PATH"
+
+  # Context repos no tier1 in this repository points at yet. Inert as
+  # comments; uncommenting one registers it, which is what lets the
+  # repo-aware steps find a checkout at all. Verify its default_branch against
+  # GitHub and add its variable to env.example when you activate it.
+  #
+  # - name: "ovn-kubernetes"
+  #   org: "openshift"
+  #   full_name: "openshift/ovn-kubernetes"
+  #   url: "https://github.com/openshift/ovn-kubernetes"
+  #   default_branch: "main"
+  #   language: "go"
+  #   local_path_env: "OVN_KUBERNETES_REPO_PATH"
+  #   # stps/sig-network/EVPN.md links the upstream ovn-kubernetes org, not this
+  #   # OpenShift fork — decide which one is wanted before activating.
+  #
+  # - name: "forklift"
+  #   org: "kubev2v"
+  #   full_name: "kubev2v/forklift"
+  #   url: "https://github.com/kubev2v/forklift"
+  #   default_branch: "main"
+  #   language: "go"
+  #   local_path_env: "FORKLIFT_REPO_PATH"
+  #
+  # - name: "node-healthcheck-operator"
+  #   org: "medik8s"
+  #   full_name: "medik8s/node-healthcheck-operator"
+  #   url: "https://github.com/medik8s/node-healthcheck-operator"
+  #   default_branch: "main"
+  #   language: "go"
+  #   local_path_env: "NODE_HEALTHCHECK_OPERATOR_REPO_PATH"
+  #
+  # - name: "oadp-operator"
+  #   org: "openshift"
+  #   full_name: "openshift/oadp-operator"
+  #   url: "https://github.com/openshift/oadp-operator"
+  #   default_branch: "oadp-dev"
+  #   language: "go"
+  #   local_path_env: "OADP_OPERATOR_REPO_PATH"
+  #
+  # - name: "virt-platform-autopilot"
+  #   org: "openshift-virtualization"
+  #   full_name: "openshift-virtualization/virt-platform-autopilot"
+  #   url: "https://github.com/openshift-virtualization/virt-platform-autopilot"
+  #   default_branch: "main"
+  #   language: "go"
+  #   local_path_env: "VIRT_PLATFORM_AUTOPILOT_REPO_PATH"
 
 pr_url_patterns:
   - "https://github.com/{org}/{repo}/pull/{number}"

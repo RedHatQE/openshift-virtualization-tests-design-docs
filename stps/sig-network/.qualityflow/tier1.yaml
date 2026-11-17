@@ -8,4 +8,4 @@ default_package: "network"
 reference_tests:
   - "https://github.com/kubevirt/kubevirt/blob/main/tests/network/bindingplugin.go"
   - "https://github.com/nmstate/kubernetes-nmstate/blob/main/test/e2e/handler/default_bridged_network_test.go"
-  - "https://github.com/k8snetworkplumbingwg/sriov-network-operator/blob/main/test/e2e/sriovoperatornodepolicy_test.go"
+  - "https://github.com/k8snetworkplumbingwg/sriov-network-operator/blob/master/test/e2e/sriovoperatornodepolicy_test.go"
