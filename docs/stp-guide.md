@@ -121,9 +121,17 @@ stps/<owning-sig>/<feature-name>/
 
 **Parent STP** — defines Feature Overview, requirements, acceptance criteria, and overall coordination.
 **Child STPs** — define SIG-specific testing goals, scenarios, strategy, and risks. They reference
-the parent for shared context and do NOT duplicate it. A child STP intentionally omits
-Enhancement(s) and Feature Maturity. Its Feature Overview describes only the SIG's scope. Every other rule
-applies to it unchanged.
+the parent for shared context and do NOT duplicate it. A child STP differs from the parent in these ways:
+
+- It omits Enhancement(s), Feature Maturity, Owning/Participating SIGs and the customer value and use cases of
+  the feature; it names only its own SIG.
+- Its Feature Overview describes only the SIG's scope.
+- Test Environment and Entry Criteria are covered by the parent; the child adds only SIG-specific needs.
+- It lists only SIG-specific risks and links to the parent for the rest. Risk categories with no
+  SIG-specific risk are omitted; if there are none, it states "None beyond the parent STP", and the rule that
+  every risk category is addressed applies to the parent STP.
+
+All other rules in this guide apply to child STPs unchanged.
 
 Single-SIG features place the STP directly under `stps/<sig>/` without a feature directory.
 

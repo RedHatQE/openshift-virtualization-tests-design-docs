@@ -158,7 +158,10 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 
 #### **3. Test Environment**
 
-<!-- Covered in the parent STP; make sure it includes the SIG's specific requirements. -->
+<!-- Only what this SIG needs beyond the parent STP's Test Environment (topology, versions, hardware, storage,
+network, operators, platform, special configurations); the parent's environment applies as-is. -->
+
+- [SIG-specific environment needs, or "Covered by the parent STP"]
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -170,12 +173,17 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 
 #### **4. Entry Criteria**
 
-<!-- Covered by the parent STP. Add SIG-specific entry criteria only if needed. -->
+<!-- Only entry criteria specific to this SIG; the parent STP's criteria apply as-is. -->
+
+- [SIG-specific entry criteria, or "Covered by the parent STP"]
 
 #### **5. Risks**
 
-<!-- List only SIG-specific risks. Feature-wide risks belong in the parent STP.
-Include only categories where this SIG has a specific risk — omit categories with no SIG-specific risk. -->
+Feature-wide risks are stated in the parent STP ([Risks](./stp.md#5-risks)) and are not repeated here.
+
+<!-- List only risks specific to this SIG, grouped under the same categories as the parent
+(Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects, Resource Constraints,
+Dependencies, plus Other if needed). Omit categories with no SIG-specific risk. If there are none, state: "None beyond the parent STP." -->
 
 **[Risk Category]**
 

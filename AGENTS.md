@@ -354,6 +354,13 @@ stps/sig-iuo/multiarch/
 
 ### Child STP Review Checklist
 
+Intentional differences from the parent STP are listed under "Multi-SIG Features and Child STPs" in
+`docs/stp-guide.md`. Review the child STP against that list instead of re-deriving it here.
+
+Test Environment (II.3) and Entry Criteria (II.4) are owned by the parent: the field-filled and
+completion-status checks do not apply to a child STP. In Metadata, the child's own `SIG` field must name the
+SIG the child covers.
+
 - [ ] Parent STP lists all child STPs in the feature directory with links
 - [ ] Child STP follows the child STP template (`stps/stp-template/child-stp.md`)
 - [ ] Child STP does NOT duplicate Feature Overview, requirements, or acceptance criteria from parent
