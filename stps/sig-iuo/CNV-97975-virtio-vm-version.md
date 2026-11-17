@@ -375,7 +375,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P1
 
 - **[CNV-98903](https://redhat.atlassian.net/browse/CNV-98903)** — As a cluster admin, I want only the relevant driver metrics collected to minimize overhead
-  - *Test Scenario:* [Tier 2] Verify HCO configures the `--metrics-allowlist` flag with the expected metric names (kubevirt_vmi_guest_device_driver_timestamp_seconds, kubevirt_guest_device_driver_latest_version_info, kubevirt_guest_device_driver_config_invalid)
+  - *Test Scenario:* [Tier 2] Verify HCO configures the `--metrics-allowlist` flag with the expected metric names (kubevirt_vmi_guest_device_driver_date_seconds, kubevirt_guest_device_driver_latest_version_info, kubevirt_guest_device_driver_config_invalid)
   - *Priority:* P1
 
 - **[CNV-95504](https://redhat.atlassian.net/browse/CNV-95504)** — As a cluster admin, I want driver monitoring to degrade gracefully when the guest agent is not running
