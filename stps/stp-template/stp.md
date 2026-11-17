@@ -12,15 +12,21 @@ a line — another entry criterion, risk entry, scenario, requirement, or criter
 new field.
 
 If a field is missing or badly shaped, that is a template change and needs a separate PR to this
-repository that updates both templates, docs/stp-guide.md, the AGENTS.md structure section and the
-structure block in `.coderabbit.yaml` together. Content with no matching field goes into free prose
+repository that updates the template it changes, docs/stp-guide.md, the `Template Structure Compliance`
+section of the AGENTS.md review guide,
+the structure block in `.coderabbit.yaml` and the `extra_instructions` in `.pr_agent.toml` together,
+so the five copies cannot drift. Content with no matching field goes into free prose
 in an existing field, or outside the STP (design doc, VEP, tests repository) — never into a new
 field, label, `Key: value` line, or table invented for one STP.
 
 Guidance lives in the HTML comments; the visible lines are what you fill in. Comments carry no field,
 key, or value of their own, and every comment is deleted before submitting. Replace each placeholder
 with real content — never delete the field it sits in. When a field does not apply, write "None" or
-"N/A" plus the reason in it. -->
+"N/A" plus the reason in it.
+
+Labels this template retired are listed under "Renamed Template Lines" in docs/stp-guide.md, with the
+line that replaced each — an STP written from an older template is re-shaped onto those lines when it
+is next edited. -->
 
 ## **[Feature Title/Name] - Quality Engineering Plan**
 
@@ -59,7 +65,10 @@ with real content — never delete the field it sits in. When a field does not a
   - [sig-storage](./storage.md)
   - [sig-virt](./virt.md) -->
 
-**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+**Document Conventions (if applicable):**
+<!-- One term per line — keep this label and its bullet, and repeat the bullet once per term. Both
+lines are the template's own shape, so neither is a new field. -->
+- **[term]** — [define a term specific to this document]
 
 ### **Feature Overview**
 
@@ -112,7 +121,7 @@ before testing starts, so reviewers should check it against their own understand
   availability SLAs."
 
   **Use cases** — who does what, and to what end, in user-story form:
-  "As a <role>, I want <action>, so that <benefit>".
+  "As a [role], I want [action], so that [benefit]".
   - Name a concrete role a customer would recognize (VM owner, cluster admin, SRE running a
     fleet) — never a generic "user".
   - Name the action and the outcome, not the mechanism.
@@ -470,7 +479,9 @@ The following conditions must be met before testing can begin:
 
 <!-- Add feature-specific entry criteria as needed, and mark each item [x] when it holds. At STP
 approval time, unchecked environment criteria are expected — but a checked item must not contradict
-a listed dependency or test limitation. -->
+a listed dependency or test limitation. When no feature-specific criterion applies, write "None —
+the two criteria above cover this feature" in the third line and mark it [x]: the box records that
+the question was answered, and "None" is a complete answer. -->
 
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
@@ -555,10 +566,10 @@ fallback strategy, or stub implementation. -->
 **Other**
 
 <!-- Only for risks that do not fit the six categories above. If none apply, keep this category,
-write "None" and drop the `Sign-off` line — do not delete the category. Add any context the entry
-needs. -->
+write `None — [why]` in the `Risk` line, keep the `Mitigation` line, and drop the `Sign-off` line — do
+not delete the category. Add any context the entry needs. -->
 
-- **Risk:** [Risk not covered by the categories above]
+- **Risk:** [Risk not covered by the categories above, or "None — [why]"]
   - **Mitigation:** [Specific plan to reduce or eliminate this risk]
   - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
@@ -582,21 +593,23 @@ Every non-regression Testing Goal (II.1) has a matching scenario here; a regress
 its coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here,
 or by named existing regression coverage in Test Strategy (II.2).
 
-Copy the entry below once per scenario. Complete examples:
+Copy the entry below once per scenario. The bracketed text is replaced — except the labels that keep
+their brackets: `[Jira-ID]` takes the real key, `[Tier N]` the tier number. `[role]`, `[action]`,
+`[benefit]`, `[P0/P1/P2]` and the scenario text are replaced without brackets.
 
-- **[Jira-123]** — As a cluster admin, I want to create a VM with feature X, so that <benefit>
+- **[Jira-123]** — As a cluster admin, I want to create a VM with feature X, so that VM workloads start without a separate configuration step
   - *Test Scenario:* [Tier 1] Verify VM can be created with new feature X
   - *Priority:* P0
-- **[Jira-124]** — As a VM owner, I want the feature X API to reject invalid input, so that <benefit>
+- **[Jira-124]** — As a VM owner, I want the feature X API to reject invalid input, so that a bad request fails fast instead of corrupting a VM
   - *Test Scenario:* [Tier 1] Verify API for feature X rejects invalid field values
   - *Priority:* P0
-- **[Jira-125]** — As a cluster admin, I want non-admin users blocked from deleting VMs, so that <benefit>
+- **[Jira-125]** — As a cluster admin, I want non-admin users blocked from deleting VMs, so that a single tenant cannot remove another tenant's workload
   - *Test Scenario:* [Tier 2] Verify non-admin user cannot delete a VM
   - *Priority:* P1
-- **[Jira-126]** — As a cluster admin, I want an upgrade to preserve feature X state, so that <benefit>
+- **[Jira-126]** — As a cluster admin, I want an upgrade to preserve feature X state, so that maintenance does not require reconfiguring running VMs
   - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
   - *Priority:* P2
-- **[Jira-127]** — As a Windows VM owner, I want feature X to work on NTFS guests, so that <benefit>
+- **[Jira-127]** — As a Windows VM owner, I want feature X to work on NTFS guests, so that existing Windows workloads can adopt the feature
   - *Test Scenario:* [Tier 3] Verify feature X works on Windows guest with NTFS filesystem
   - *Priority:* P1 -->
 
