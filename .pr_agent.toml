@@ -1,14 +1,16 @@
 # Qodo Merge (PR-Agent) configuration for openshift-virtualization-tests-design-docs
 # This is a documentation-only repo containing Software Test Plans (STPs).
-# Review standards are defined in AGENTS.md — mirror of .coderabbit.yaml.
+# Review checklist: AGENTS.md. Authoritative references: stps/stp-template/stp.md for structure,
+# format and content requirements, docs/stp-guide.md for purpose and process. Mirrors .coderabbit.yaml.
 
 [config]
 # Feed repo guidance into Qodo's review context (read from the default branch).
 # repo_context_max_lines applies to the COMBINED rendered context of all files,
-# not per-file — 1200 covers AGENTS.md (420) + docs/stp-guide.md (278) +
-# docs/testing-tiers.md (209) = 907 lines total with headroom
-repo_context_files = ["AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
-repo_context_max_lines = 1200
+# not per-file — 2200 covers AGENTS.md (438) + docs/stp-guide.md (269) + docs/testing-tiers.md (210)
+# + stps/stp-template/stp.md (486) + stps/stp-template/child-stp.md (218) = ~1620 today, with room to grow.
+# The authoritative templates are listed first so an overflow truncates them last.
+repo_context_files = ["stps/stp-template/stp.md", "stps/stp-template/child-stp.md", "AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
+repo_context_max_lines = 2200
 
 [pr_reviewer]
 # Docs-only repo — no code to test or scan for code-level security practices
@@ -17,7 +19,8 @@ require_security_review = false
 require_estimate_effort_to_review = false
 enable_help_text = false
 extra_instructions = """
-Review STPs for content quality and template compliance per AGENTS.md.
+Review STPs for content quality and template compliance (stps/stp-template/stp.md, or
+stps/stp-template/child-stp.md for a child STP; checklist in AGENTS.md).
 Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix),
 MEDIUM (should fix), LOW (suggestion).
 
@@ -29,19 +32,22 @@ Core principles:
 - Every claim needs evidence — sign-offs, Jira links, dates. No empty placeholders
   ("[TBD]", "[Name/Date]", "[Add details]") in approved STPs.
 - Distinguish constraint categories: Feature Limitations, Test Limitations, Out of
-  Scope, and Risks are four distinct concepts — flag any mixing.
+  Scope, and Risks are distinct concepts — flag any mixing.
 - Traceability is mandatory — every test scenario must map to a Jira requirement ID
   with tier and priority.
 - Testing goals must be written from the end-user perspective with priorities
   (P0 first), and each P0 goal needs a matching negative/failure-path scenario.
 - Test scenarios need observable pass criteria, not "verify X works correctly".
 
-For files under stps/stp-template/ — those are templates, not feature STPs. Skip
-STP content review for them; only check markdown formatting.
+For files under stps/stp-template/ — those are templates, not feature STPs. Skip the
+STP-to-tests cross-reference check for them, but review the template content as documentation:
+check that the instructions are self-consistent, and report any place where docs/stp-guide.md or AGENTS.md
+disagrees with the template so the other document can be corrected.
 
-Follow the documentation under docs/ as the authoritative reference for STP
-structure and lifecycle: docs/stp-guide.md defines the STP sections, constraint
-categories, and lifecycle; docs/testing-tiers.md defines the tier classification.
+Follow stps/stp-template/stp.md (child STPs: stps/stp-template/child-stp.md) as the
+authoritative reference for STP structure, format and content requirements; docs/stp-guide.md explains the purpose
+of each part, the constraint categories, and the lifecycle; docs/testing-tiers.md defines the
+tier classification.
 When a review question is answered by those docs, cite them.
 
 Cross-check STP accuracy against linked sources: the STP metadata links the
@@ -53,6 +59,10 @@ epic's scope, and feature maturity/phase mismatches between the STP and the
 linked source. If a link cannot be fetched (e.g. Jira requires authentication),
 state explicitly in the review that the STP could not be verified against that
 source — do not silently skip the cross-check.
+
+For a child STP, check inherited feature-wide requirements, acceptance criteria and coverage
+against the parent STP; the child lists only SIG-specific ones. Do not flag a child STP for
+omitting content that docs/stp-guide.md (Multi-SIG Features and Child STPs) lists as parent-owned.
 """
 
 [pr_description]
