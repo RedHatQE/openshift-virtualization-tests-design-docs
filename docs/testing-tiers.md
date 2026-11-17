@@ -15,7 +15,7 @@ OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive 
      /__________\  - Full system workflows
     /            \
    /    Tier 1    \   Tier 1 (Functional)
-  /________________\  - More tests, feature integration
+  /________________\  - Single-feature tests on a cluster
  /                  \
 /     Unit Tests     \  Unit Tests
 /____________________\  - Most tests, isolated components

@@ -448,7 +448,7 @@ justification in mitigation strategy. -->
   - *Priority:* P0
 
 - **[Jira-124]** — As an admin...
-  - *Test Scenario:* [Tier 2] Verify API for feature X is backward-compatible
+  - *Test Scenario:* [Tier 1] Verify API for feature X rejects invalid field values
   - *Priority:* P0
 
 - **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
