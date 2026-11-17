@@ -189,7 +189,7 @@ Include only categories where this SIG has a specific risk — omit categories w
 ### **III. Test Scenarios & Traceability**
 
 <!-- List only this SIG's NEW test scenarios. Each scenario must trace to a Jira requirement.
-Regression tests are documented in Test Strategy (II.2), not in this table. -->
+Regression tests are documented in Test Strategy (II.2), not in this section. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
   - *Test Scenario:* [Description]

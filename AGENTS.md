@@ -134,7 +134,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Distinguish between new functional tests and regression tests
 - [ ] If regression goals are included in Testing Goals, they identify which SIG test suites
   run on the feature cluster. Regression testing is primarily documented in Test Strategy (II.2),
-  and regression tests are NOT included in the Test Scenarios table (III).
+  and regression tests are NOT included in the Test Scenarios section (III).
 - [ ] At least one negative or failure-path Testing Goal exists for each P0 functional goal
   (e.g., "what happens if migration fails?", "what if the VM starts during the operation?",
   "what about error handling?"). If negative scenarios are out of scope, they must be
@@ -251,10 +251,10 @@ Reviewers must verify these cross-references between sections:
   and the category-specific supplemental field:
   *Estimated impact on schedule* (Timeline/Schedule),
   *Areas with reduced coverage* (Test Coverage),
-  *Missing or unavailable environments* (Test Environment),
-  *Missing resources or infrastructure* (Resource Constraints),
-  *Third-party services or blockers* (Dependencies),
-  *Reason untestable and mitigation approach* (Untestable Aspects)
+  *Missing resources or infrastructure* (Test Environment),
+  *Current capacity gaps* (Resource Constraints),
+  *Dependent teams or components* (Dependencies),
+  *Alternative validation approach* (Untestable Aspects)
 - [ ] When no risk exists: only a short justification in the Mitigation field is needed
   (not just "N/A"); no Sign-off or category-specific supplemental fields are required
 - [ ] Mitigations are specific and actionable (not "we will address this")
@@ -269,8 +269,8 @@ Reviewers must verify these cross-references between sections:
 ### III — Test Scenarios & Traceability
 
 - [ ] Every scenario has a Jira Requirement ID (not "[TBD]").
-  In the scenarios table, multiple test scenarios mapped to the same requirement
-  may leave the Requirement ID cell blank in continuation rows.
+  Multiple scenarios may reference the same requirement ID, but the Section III structure must follow
+  the template.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
 - [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2)
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
