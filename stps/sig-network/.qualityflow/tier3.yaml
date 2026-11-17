@@ -1,7 +1,8 @@
 # Tier 3 for sig-network.
 description: >-
-  Network scopes whose cost keeps them out of standard CI: SR-IOV and
-  DPDK/OVS binding plugins, L2 bridge and localnet with traffic
-  measurement, multi-NIC matrices.
+  Network scopes outside standard CI: SR-IOV and DPDK/OVS binding plugins
+  needing dedicated hardware, traffic measurement under sustained load or at
+  scale, and full multi-NIC matrices. Idle-cluster stuntime on a Linux bridge
+  or localnet secondary network stays Tier 2.
 reference_tests:
   - "https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/network/sriov/test_sriov.py"
