@@ -203,8 +203,8 @@ No verification activities will be performed for these items, and any related is
 <!-- **What does Out of Scope mean?**
 Out of Scope items are areas where the product works, but QE has decided not to test them this cycle.
 This is the most critical section in the STP — it explicitly documents the gap between what the product can do and what QE will verify.
-Every item here is a conscious risk accepted by PM/Lead. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
-Each item requires PM/Lead sign-off.
+Every item here is a conscious decision accepted by the Quality Owner or Product Manager. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
+Each item requires Quality Owner or Product Manager sign-off.
 
 **Difference from Risks:** A risk is something that *might* prevent testing — you plan to test it but it could be blocked and you provide a mitigation plan.
 Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
@@ -214,11 +214,11 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 
 - **[e.g., Core OCP network functionality]**
   - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (PM/Lead):* [Name/Date]
 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
@@ -467,13 +467,8 @@ justification in mitigation strategy. -->
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This Software Test Plan requires sign-off from at least one person per function:
 
-* **Reviewers:**
-  - QE: [Name / @github-handle]
-  - Development: [Name / @github-handle]
-  - [Additional reviewers as needed]
-* **Approvers:**
-  - QE Lead: [Name / @github-handle]
-  - Dev Lead: [Name / @github-handle]
-  - Product Manager: [Name / @github-handle]
+- Feature Owner: [Name / @github-handle]
+- Quality Owner: [Name / @github-handle]
+- Product Manager: [Name / @github-handle]

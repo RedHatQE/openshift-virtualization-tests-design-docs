@@ -147,16 +147,18 @@ The move validator and its tests use pre-commit-managed Python environments and 
 
 ### QE Owner
 
+The Quality Owner is the QE sign-off function, and must be someone other than the STP author — normally the
+author's lead. The QE Owner(s) named in the metadata own and write the testing plan; they do not sign it off.
+
 - Write and maintain STP
 - Review design and identify testing challenges
 - Ensure NFRs are addressed
 - Manage risks and document untestable aspects
 - Ensure automation runs in release checklist jobs
-- Provide formal feature sign-off
 
-### Stakeholders (SIGs/Approvers)
+### Stakeholders (Feature Owner, Quality Owner, Product Manager)
 
-- Approve STP
+- Sign off the STP per the sign-off functions in the [STP Guide](./docs/stp-guide.md)
 - Agree to risks associated with untestable aspects
 - Coordinate feature enhancement and STP reviews
 
@@ -164,7 +166,7 @@ The move validator and its tests use pre-commit-managed Python environments and 
 
 | Question                                      | Answer                                                                                    |
 |:----------------------------------------------|:------------------------------------------------------------------------------------------|
-| **Do PRs need STP approver sign-off?**        | No, the whole SIG is responsible for code approval. Approvers should be aware of the STP. |
+| **Do PRs need STP sign-off?**                 | No. Code PRs are approved by the SIG as usual; the STP itself is signed off by the Feature Owner, Quality Owner and Product Manager (see the [STP Guide](./docs/stp-guide.md)). |
 | **What if PRs miss the deadline?**            | STP author files for an exception; maintainers decide based on context.                   |
 | **How to raise attention for my STP?**        | Join bi-weekly QE recurring meetings to introduce your STP.                               |
 | **What if feature relates to multiple SIGs?** | One SIG must own it. Reach out to other relevant SIGs for review.                         |

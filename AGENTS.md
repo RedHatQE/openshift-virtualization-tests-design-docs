@@ -57,13 +57,13 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
   "seamless") must have matching acceptance criteria and test scenarios. If the feature
   doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
-  with Rationale and PM/Lead Agreement (name/date), or reference existing coverage
+  with Rationale and Sign-off (Quality Owner or Product Manager, name/date), or reference existing coverage
   elsewhere (do not use Out of Scope for work already covered by other teams/suites).
 
 **Common rejection reasons:**
 - Feature Overview makes claims ("hardware-isolated," "safe multi-tenant") with no matching
   acceptance criteria or test scenarios, and without documenting the gap in Out of Scope
-  with Rationale and PM/Lead Agreement
+  with Rationale and Sign-off (Quality Owner or Product Manager)
 - Feature Overview describes internal system changes instead of user capabilities
 
 ### I.1 — Requirement & User Story Review
@@ -138,7 +138,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] At least one negative or failure-path Testing Goal exists for each P0 functional goal
   (e.g., "what happens if migration fails?", "what if the VM starts during the operation?",
   "what about error handling?"). If negative scenarios are out of scope, they must be
-  documented in Out of Scope with PM/Lead agreement — "considered" alone is insufficient.
+  documented in Out of Scope with Quality Owner or Product Manager sign-off — "considered" alone is insufficient.
 - [ ] Goals are ordered by priority (P0 first, then P1, then P2)
 - [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
   the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
@@ -150,9 +150,9 @@ Assisted-by: Claude <noreply@anthropic.com>
   feature's prior execution would produce a different outcome than a baseline reaching the same state.
 
 **Out of Scope:**
-- [ ] Each item has Rationale and PM/Lead Agreement with name and date
+- [ ] Each item has Rationale and a Quality Owner or Product Manager Sign-off with name and date
 - [ ] Items are decisions QE made (not constraints imposed on QE — those are Test Limitations)
-- [ ] Format per template: `- **Item** / *Rationale:* / *PM/Lead Agreement:*`
+- [ ] Format per template: `- **Item** / *Rationale:* / *Sign-off (Quality Owner or Product Manager):*`
 - [ ] Items are genuinely out of scope — if already tested elsewhere,
   document as existing coverage, not out of scope
 
@@ -304,10 +304,8 @@ Reviewers must verify these cross-references between sections:
 
 ### IV — Sign-off and Approval
 
-- [ ] Reviewers listed with names and GitHub handles
-- [ ] Approvers listed with explicit role labels (QE Lead, Dev Lead, PM at minimum)
-  — each approver must include their role, name, and GitHub handle
-- [ ] Reviewers listed with role context (QE, Development, SIG representatives)
+- [ ] Sign-off lists at least one person per function required by the template
+  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle
 - [ ] No placeholder text remaining
 
 ---
@@ -379,7 +377,7 @@ stps/sig-iuo/multiarch/
   (do not retroactively enforce on already-merged STPs)
 - Remove all template HTML comments and example text before submitting
 - Include at least one negative or failure-path Testing Goal for each P0 functional goal,
-  with a matching Section III scenario — or document the omission in Out of Scope with PM/Lead agreement
+  with a matching Section III scenario — or document the omission in Out of Scope with Quality Owner or Product Manager sign-off
 - Document what is NOT tested with explicit sign-off — anything untested must be visible
 - Order testing goals by priority (P0 first)
 

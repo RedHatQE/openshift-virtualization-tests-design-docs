@@ -42,7 +42,7 @@ If this guide and the template ever disagree, the template wins and the guide mu
 | II.4 Entry Criteria | What must be true before testing starts |
 | II.5 Risks | Uncertainties, grouped by the template's risk categories, each with mitigation and sign-off |
 | III. Test Scenarios & Traceability | Each new scenario traced to a Jira requirement, with tier and priority |
-| IV. Sign-off and Approval | Reviewers and approvers (QE Lead, Dev Lead, Product Manager) |
+| IV. Sign-off and Approval | Sign-off by at least one person per function (Feature Owner, Quality Owner, Product Manager) |
 
 ### Purpose of Each Part
 
@@ -83,9 +83,25 @@ scenarios so that coverage can be verified. Scenarios stay brief; the test cases
 code or the test management system (for example Jira or Polarion), linked from here where one is used.
 Traceability is kept current as tests are implemented, so that Section III is accurate at sign-off.
 
-**IV. Sign-off and Approval.** Records who accepted the plan. Feature sign-off additionally requires: Tier 1 and
-Tier 2 tests defined (Tier 3 where applicable), automation merged for GA, tests running in release checklist
-jobs, documentation reviewed, and QE feature sign-off.
+**IV. Sign-off and Approval.** Records who accepted the plan. Stakeholders approve the STP before test
+implementation starts. Feature sign-off is a later milestone, given only when Tier 1 and Tier 2 tests are
+defined (Tier 3 where applicable), automation is merged for GA, tests run in the release checklist jobs, and
+the documentation is reviewed.
+
+The sign-off functions are:
+
+- **Feature Owner**: the person accountable for the feature from the moment the requirement arrives until GA.
+  They don't necessarily do all the work, but they make sure the right work happens, in the right order, by the
+  right people, with nothing falling between teams and phases.
+- **Quality Owner**: the person accountable for the quality of the feature, both the processes that build quality
+  in and the verification that confirms it. They define what "good" means (test strategy, coverage, acceptance
+  criteria), design quality in from the start instead of inspecting it at the end, and give the authoritative
+  assessment of whether the feature is fit to ship.
+- **Product Manager**: the person accountable for defining what gets built and why. They own the product vision
+  and roadmap, gather and prioritize requirements from customers, stakeholders and market signals, translate them
+  into clear problem statements for the delivery teams, and represent the customer and the business throughout
+  the development lifecycle, adjusting priorities and scope as new information emerges; they are the primary
+  source of requirements flowing to Feature Owners.
 
 ### Multi-SIG Features and Child STPs
 

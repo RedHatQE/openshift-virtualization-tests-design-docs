@@ -92,7 +92,7 @@ entire feature, it belongs in the parent STP — not here. -->
 
 - **[Item]**
   - *Rationale:* [Why this SIG won't test it]
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
@@ -200,11 +200,8 @@ Regression tests are documented in Test Strategy (II.2), not in this section. --
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This Software Test Plan requires sign-off from at least one person per function:
 
-* **Reviewers:**
-  - [Name / @github-handle]
-* **Approvers:**
-  - [QE Lead Name / @github-handle]
-  - [PM Name / @github-handle]
-  - [Dev Lead Name / @github-handle]
+- Feature Owner: [Name / @github-handle]
+- Quality Owner: [Name / @github-handle]
+- Product Manager: [Name / @github-handle]
