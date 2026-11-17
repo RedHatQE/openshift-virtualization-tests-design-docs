@@ -22,6 +22,9 @@ Do NOT repeat the parent's Feature Overview. -->
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
+*This section records the quality interpretation of the SIG's part of the feature. Its purpose is to expose
+misunderstandings before testing starts, so reviewers should check it against their own understanding.*
+
 <!-- In child STPs: this section covers only SIG-specific review items.
 Feature-wide requirements, acceptance criteria, and NFRs are defined in the parent STP. -->
 

@@ -35,7 +35,7 @@ If this guide and the template ever disagree, the template wins and the guide mu
 | Template part | Purpose |
 |:--------------|:--------|
 | Metadata & Tracking, Feature Overview | Identify the feature (links, maturity, owners) and explain it to a reader who has not seen it before |
-| I. Motivation and Requirements Review | Requirements, customer value, testability, acceptance criteria, Feature Limitations and the outcome of the design review (Developer Handoff / QE Kickoff) |
+| I. Motivation and Requirements Review | The quality interpretation of the feature: requirements, customer value, testability, acceptance criteria, Feature Limitations and the outcome of the design review (Developer Handoff / QE Kickoff). Sign-off confirms that this interpretation is correct and shared |
 | II.1 Scope of Testing | Testing Goals (with priority), Out of Scope, Test Limitations |
 | II.2 Test Strategy | Which of the listed testing types apply and the high-level approach for each |
 | II.3 / II.3.1 Environment, Tools | What the tests need to run; only new or non-standard tools |

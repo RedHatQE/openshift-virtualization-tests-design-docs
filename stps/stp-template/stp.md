@@ -51,6 +51,9 @@ and how the test scope for this STP relates to that phase. -->
 This section documents the mandatory QE review process. The goal is to understand the feature's value,
 technology, and testability before formal test planning.
 
+*This section records the quality interpretation of the feature. Its purpose is to expose misunderstandings
+before testing starts, so reviewers should check it against their own understanding of the feature.*
+
 #### **1. Requirement & User Story Review Checklist**
 
 <!-- **How to complete this checklist:**
