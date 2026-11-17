@@ -99,7 +99,7 @@ Assisted-by: Claude <noreply@anthropic.com>
   existing cluster-level scale limits
 - UI NFR dismissed with "no UI changes" without PM/UX input on whether testing adds customer value
 
-### I.2 — Known Limitations
+### I.2 — Feature Limitations
 
 - [ ] Each limitation has a sign-off: `*Sign-off:* [Name/Date]`
 - [ ] Limitations are constraints (not scope decisions)

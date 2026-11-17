@@ -83,7 +83,7 @@ technology, and testability before formal test planning.
   - *List applicable NFRs and their targets:* [e.g., Resource Efficiency: < 5% CPU overhead on host during feature operation, Security: RBAC enforced, Scalability: supports 500 VMs]
   - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following are confirmed product constraints accepted before testing begins.

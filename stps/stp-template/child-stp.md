@@ -42,7 +42,7 @@ Feature-wide requirements, acceptance criteria, and NFRs are defined in the pare
   - *SIG-specific NFRs:* [List or "None — all NFRs are covered by the parent STP"]
   - *NFRs not covered and why:* [List with justification]
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 <!-- List only SIG-specific limitations. Feature-wide limitations belong in the parent STP.
 If none, state: "None — reviewed and confirmed with [Name/Date]." -->
