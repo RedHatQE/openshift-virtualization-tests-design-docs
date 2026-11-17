@@ -1,18 +1,23 @@
 # AI Review Guide for STP Pull Requests
 
-This document defines the review standards for Software Test Plans (STPs) in this repository.
-It is used by AI review tools (CodeRabbit, Claude Code) and human reviewers.
+This document is a review checklist for AI review tools (CodeRabbit, Claude Code) working on STPs
+in this repository. It is an index and a review workflow, not a source of rules: the STP structure, format
+and content requirements are defined by the template (`stps/stp-template/stp.md`), and purpose and process
+are described in `docs/stp-guide.md`. When this checklist and the template differ, the template is right and
+this checklist needs fixing.
 
-For template structure and STP lifecycle, see `docs/stp-guide.md` and `stps/stp-template/stp.md`.
-
-Assisted-by: Claude <noreply@anthropic.com>
+Evaluate new and edited STPs against the current template and guide. Existing STPs do not have to comply
+with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
+rather than requiring it.
 
 ---
 
 ## Core Principles
 
 1. **User perspective only** — STPs describe what users experience, not how the system works internally.
-   No API field names, CRD names, internal component references, or implementation mechanisms.
+   No internal API field names, internal component references, or implementation mechanisms.
+   User-facing objects that the user must create or edit (for example a resource kind or feature gate
+   named in the feature's documentation) may be named; explain them in Document Conventions.
 2. **Every claim needs evidence** — sign-offs, Jira links, dates. No empty placeholders in approved STPs.
 3. **Distinguish constraint categories** — Feature Limitations, Test Limitations, Out of Scope, and Risks
    are distinct concepts. Never mix them.
@@ -51,7 +56,8 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] 2-8 sentences maximum
 - [ ] Describes what the feature does from the user's perspective
 - [ ] Explains why it matters to customers
-- [ ] No implementation details (no API names, no internal component names)
+- [ ] No implementation details (no internal API fields, no internal component names); documented
+  user-facing objects the user must create or edit may be named (see Core Principle 1)
 - [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
   phase and which phase this STP covers
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
@@ -78,7 +84,8 @@ Assisted-by: Claude <noreply@anthropic.com>
   end-state alone (e.g., "X is present after the operation") is insufficient — it would also pass
   after a disruptive stop-and-restart cycle. The criterion must be one that *would fail* if a
   disrupt-then-restore sequence happened instead of the claimed seamless path.
-- [ ] NFRs explicitly address: Monitoring, Observability, UI, Documentation, Performance, Security, Scalability
+- [ ] NFRs explicitly address every NFR the template lists, including monitoring and observability, Usability,
+  Downtime, Connectivity and Portability
 - [ ] NFRs not covered have justification
 - [ ] Scalability NFR: if the feature relies on a platform mechanism (e.g., live migration) that
   has existing scale constraints (e.g., cluster-level parallelism limits), those constraints must
@@ -389,7 +396,8 @@ SIG the child covers.
 - Order testing goals by priority (P0 first)
 
 ### DON'T
-- Use implementation terms (API field names, CRD names, internal component names)
+- Use implementation terms (internal API field names, internal component names), other than documented
+  user-facing objects the user must create or edit
 - Leave template placeholder text ("[Add details]", "[Name/Date]", "[TBD]")
 - Mark all risks as N/A
 - Mix constraint categories (limitations vs. out-of-scope vs. risks)

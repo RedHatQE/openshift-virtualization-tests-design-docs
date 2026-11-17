@@ -7,7 +7,7 @@ Project guidance for AI coding assistants.
 ## Key References
 
 - `README.md` — Project overview, structure, and contributing guidelines
-- `AGENTS.md` — AI review standards for STP pull requests
+- `AGENTS.md` — AI review checklist for STP pull requests (review index and workflow; the template and guide hold the rules)
 - `docs/stp-guide.md` — STP lifecycle and structure guide
 - `docs/testing-tiers.md` — Testing tier definitions
 - `stps/stp-template/stp.md` — STP template with inline instructions

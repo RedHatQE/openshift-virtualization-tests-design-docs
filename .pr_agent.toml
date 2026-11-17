@@ -22,8 +22,10 @@ Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix
 MEDIUM (should fix), LOW (suggestion).
 
 Core principles:
-- STPs describe what users experience, not internal implementation. Flag API field
-  names, CRD names, or internal component references as findings.
+- STPs describe what users experience, not internal implementation. Flag internal API
+  field names, internal component references, and implementation mechanisms as findings.
+  Documented user-facing objects the user must create or edit (e.g. a resource kind)
+  may be named.
 - Every claim needs evidence — sign-offs, Jira links, dates. No empty placeholders
   ("[TBD]", "[Name/Date]", "[Add details]") in approved STPs.
 - Distinguish constraint categories: Feature Limitations, Test Limitations, Out of
