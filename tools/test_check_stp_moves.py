@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_stp_moves import validate, validate_base_ref, without_html_tags
+from check_stp_moves import fixture_git_env, git_env, validate, validate_base_ref, without_html_tags
 from unittest.mock import patch
 
 
@@ -201,7 +201,7 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "config user.name Test")
         self.git(root, "add .")
         self.git(root, "commit -m initial")
-        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
         original.unlink()
         self.git(root, "add .")
         self.git(root, "commit -m delete")
@@ -217,7 +217,7 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "config user.name Test")
         self.git(root, "add .")
         self.git(root, "commit -m initial")
-        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
         original.unlink()
         self.git(root, "add .")
         self.git(root, "commit -m delete")
@@ -313,7 +313,7 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "config user.name Test")
         self.git(root, "add .")
         self.git(root, "commit -m initial")
-        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
         original.unlink()
         self.git(root, "add .")
         self.git(root, "commit -m delete")
@@ -332,7 +332,7 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "config user.name Test")
         self.git(root, "add .")
         self.git(root, "commit -m initial")
-        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
         original.rename(renamed)
         self.git(root, "add .")
         self.git(root, "commit -m rename")
@@ -349,7 +349,7 @@ class CheckStpMovesTest(unittest.TestCase):
         self.git(root, "config user.name Test")
         self.git(root, "add .")
         self.git(root, "commit -m initial")
-        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
         original.rename(renamed)
         self.git(root, "add .")
         self.git(root, "commit -m rename")
@@ -363,7 +363,89 @@ class CheckStpMovesTest(unittest.TestCase):
         if args and args[0] == "commit":
             args.insert(0, "-c")
             args.insert(1, "commit.gpgSign=false")
-        subprocess.run(["git", *args], cwd=root, check=True, capture_output=True)
+        subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, env=fixture_git_env())
+
+    def test_fixture_git_isolated_from_ambient_git_dir(self):
+        decoy = Path(tempfile.mkdtemp())
+        (decoy / "decoy.md").write_text("# Decoy\n", encoding="utf-8")
+        self.git(decoy, "init")
+        self.git(decoy, "config user.email test@example.com")
+        self.git(decoy, "config user.name Test")
+        self.git(decoy, "add .")
+        self.git(decoy, "commit -m decoy")
+        decoy_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=decoy, text=True, env=fixture_git_env()).strip()
+        (decoy / "untracked-in-decoy.md").write_text("# Untracked\n", encoding="utf-8")
+
+        root = self.make_tree()
+        with patch.dict(
+            os.environ,
+            {
+                "GIT_DIR": str(decoy / ".git"),
+                "GIT_INDEX_FILE": str(decoy / ".git/index"),
+                "GIT_WORK_TREE": str(decoy),
+            },
+        ):
+            self.git(root, "init")
+            self.git(root, "config user.email test@example.com")
+            self.git(root, "config user.name Test")
+            self.git(root, "add .")
+            self.git(root, "commit -m initial")
+            base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
+            (root / "stps/sig-virt/new.md").write_text("# New STP\n", encoding="utf-8")
+            self.git(root, "add .")
+            self.git(root, "commit -m added")
+            self.assertEqual(validate(root, base), [])
+
+        self.assertEqual(
+            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=decoy, text=True, env=fixture_git_env()).strip(),
+            decoy_head,
+        )
+        fixture_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
+        self.assertNotEqual(fixture_head, decoy_head)
+
+    def test_validator_env_keeps_object_store_and_config_variables(self):
+        ambient = {
+            "GIT_DIR": "/elsewhere/.git",
+            "GIT_WORK_TREE": "/elsewhere",
+            "GIT_INDEX_FILE": "/elsewhere/.git/index",
+            "GIT_OBJECT_DIRECTORY": "/alternate/objects",
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/shared/objects",
+            "GIT_CONFIG_GLOBAL": "/home/user/.gitconfig",
+            "UNRELATED": "kept",
+        }
+        with patch.dict(os.environ, ambient):
+            validator_env = git_env()
+            fixture_env = fixture_git_env()
+        for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"):
+            self.assertNotIn(name, validator_env)
+            self.assertNotIn(name, fixture_env)
+        for name, value in (
+            ("GIT_OBJECT_DIRECTORY", "/alternate/objects"),
+            ("GIT_ALTERNATE_OBJECT_DIRECTORIES", "/shared/objects"),
+            ("GIT_CONFIG_GLOBAL", "/home/user/.gitconfig"),
+        ):
+            self.assertEqual(validator_env[name], value)
+            self.assertNotIn(name, fixture_env)
+        self.assertEqual(validator_env["UNRELATED"], "kept")
+
+    def test_base_ref_in_an_alternate_object_store_is_still_validated(self):
+        root = self.make_tree()
+        self.git(root, "init")
+        self.git(root, "config user.email test@example.com")
+        self.git(root, "config user.name Test")
+        self.git(root, "add .")
+        self.git(root, "commit -m initial")
+        base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, env=fixture_git_env()).strip()
+        (root / "stps/sig-virt/new.md").write_text("# New STP\n", encoding="utf-8")
+        self.git(root, "add .")
+        self.git(root, "commit -m added")
+        # Keep every object of the fixture in an alternate store, so the base commit is
+        # only reachable when the validator keeps GIT_ALTERNATE_OBJECT_DIRECTORIES.
+        alternate = root.parent / f"{root.name}-objects"
+        (root / ".git/objects").rename(alternate)
+        (root / ".git/objects").mkdir()
+        with patch.dict(os.environ, {"GIT_ALTERNATE_OBJECT_DIRECTORIES": str(alternate)}):
+            self.assertEqual(validate(root, base), [])
 
 
 if __name__ == "__main__":

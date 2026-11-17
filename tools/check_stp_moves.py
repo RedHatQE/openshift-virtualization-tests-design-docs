@@ -17,6 +17,33 @@ HTML_TAG_START = re.compile(r"<\s*(/?)\s*([A-Za-z][\w:-]*)")
 VOID_TAGS = {"area", "base", "br", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
 
 
+REDIRECTING_GIT_VARS = frozenset(
+    {"GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR", "GIT_NAMESPACE", "GIT_PREFIX"}
+)
+
+
+def git_env() -> dict[str, str]:
+    """Environment for git runs on the repository passed as cwd.
+
+    Git hooks export GIT_DIR, GIT_INDEX_FILE and GIT_WORK_TREE, and children inherit
+    them. cwd= does not override GIT_DIR, so without this git would act on the real
+    repository instead of the one passed as cwd, e.g. when this suite runs as a
+    pre-commit hook from a linked worktree. Only the variables that redirect git to
+    another repository, work tree, index or namespace are dropped: object stores and
+    config stay, so a base ref reachable only through an alternate object store still
+    resolves.
+    """
+    return {name: value for name, value in os.environ.items() if name not in REDIRECTING_GIT_VARS}
+
+
+def fixture_git_env() -> dict[str, str]:
+    """Environment for git runs on a throwaway fixture repository.
+
+    Fixtures must not see any ambient git state, so every GIT_* variable is dropped.
+    """
+    return {name: value for name, value in os.environ.items() if not name.startswith("GIT_")}
+
+
 def without_fenced_blocks(text: str) -> str:
     lines: list[str] = []
     fence: tuple[str, int] | None = None
@@ -289,8 +316,8 @@ def validate_base_ref(root: Path, base_ref: str, stubs: dict[Path, str]) -> list
     if base_ref.startswith("-"):
         return ["base ref must not start with '-'"]
     try:
-        subprocess.run(["git", "rev-parse", "--verify", f"{base_ref}^{{commit}}"], cwd=root, capture_output=True, text=True, check=True)
-        result = subprocess.run(["git", "diff", "-z", "--name-status", "--find-renames", "--relative", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "rev-parse", "--verify", f"{base_ref}^{{commit}}"], cwd=root, capture_output=True, text=True, check=True, env=git_env())
+        result = subprocess.run(["git", "diff", "-z", "--name-status", "--find-renames", "--relative", f"{base_ref}...HEAD", "--", "stps"], cwd=root, capture_output=True, check=True, env=git_env())
     except (OSError, ValueError, UnicodeError, subprocess.CalledProcessError) as error:
         return [f"cannot inspect base ref {base_ref}: {error}"]
     raw = result.stdout
