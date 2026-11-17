@@ -1,9 +1,12 @@
-# Context repositories for sig-virt.
+# Context repositories for sig-sig-virt.
 #
 # Read together with the root .qualityflow/repositories.yaml (tests suite,
 # design-docs repository, Python client libraries) and this SIG's tier files
-# under .qualityflow/. Only the product code, tests or fixtures a sig-virt
+# under .qualityflow/. Only the product code, tests or fixtures a sig-sig-virt
 # scenario needs to read belong here.
+#
+# kubevirt/enhancements is declared in every SIG: the VEPs describe the feature
+# design behind any repository under the kubevirt org.
 
 additional_repos:
   - name: "kubevirt"
@@ -22,14 +25,6 @@ additional_repos:
     language: "go"
     local_path_env: "KUBEVIRT_MIGRATION_OPERATOR_REPO_PATH"
 
-  - name: "forklift"
-    org: "kubev2v"
-    full_name: "kubev2v/forklift"
-    url: "https://github.com/kubev2v/forklift"
-    default_branch: "main"
-    language: "go"
-    local_path_env: "FORKLIFT_REPO_PATH"
-
   - name: "kubevirt-plugin"
     org: "kubevirt-ui"
     full_name: "kubevirt-ui/kubevirt-plugin"
@@ -37,6 +32,14 @@ additional_repos:
     default_branch: "main"
     language: "typescript"
     local_path_env: "KUBEVIRT_PLUGIN_REPO_PATH"
+
+  - name: "node-healthcheck-operator"
+    org: "medik8s"
+    full_name: "medik8s/node-healthcheck-operator"
+    url: "https://github.com/medik8s/node-healthcheck-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "NODE_HEALTHCHECK_OPERATOR_REPO_PATH"
 
   - name: "enhancements"
     org: "kubevirt"

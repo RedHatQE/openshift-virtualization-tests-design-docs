@@ -1,9 +1,12 @@
-# Context repositories for sig-storage.
+# Context repositories for sig-sig-storage.
 #
 # Read together with the root .qualityflow/repositories.yaml (tests suite,
 # design-docs repository, Python client libraries) and this SIG's tier files
-# under .qualityflow/. Only the product code, tests or fixtures a sig-storage
+# under .qualityflow/. Only the product code, tests or fixtures a sig-sig-storage
 # scenario needs to read belong here.
+#
+# kubevirt/enhancements is declared in every SIG: the VEPs describe the feature
+# design behind any repository under the kubevirt org.
 
 additional_repos:
   - name: "kubevirt"
@@ -45,3 +48,11 @@ additional_repos:
     default_branch: "main"
     language: "go"
     local_path_env: "VM_FILE_RESTORE_OPERATOR_REPO_PATH"
+
+  - name: "enhancements"
+    org: "kubevirt"
+    full_name: "kubevirt/enhancements"
+    url: "https://github.com/kubevirt/enhancements"
+    default_branch: "main"
+    language: "markdown"
+    local_path_env: "KUBEVIRT_ENHANCEMENTS_REPO_PATH"

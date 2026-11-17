@@ -88,5 +88,16 @@ additional_repos:
     language: "python"
     local_path_env: "PYTHON_RRMNGMNT_REPO_PATH"
 
+# Context repos that belong to no single SIG stay here, commented out, until a
+# layer references them.
+#
+# - name: "forklift"
+#   org: "kubev2v"
+#   full_name: "kubev2v/forklift"
+#   url: "https://github.com/kubev2v/forklift"
+#   default_branch: "main"
+#   language: "go"
+#   local_path_env: "FORKLIFT_REPO_PATH"
+
 pr_url_patterns:
   - "https://github.com/{org}/{repo}/pull/{number}"
