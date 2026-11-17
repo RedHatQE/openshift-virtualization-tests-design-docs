@@ -175,7 +175,7 @@ Assisted-by: Claude <noreply@anthropic.com>
 ### II.2 — Test Strategy
 
 - [ ] All testing types are addressed (checked or unchecked with justification)
-- [ ] All 14 testing types from the template are present (Functional, Automation, Regression, Self-Validation,
+- [ ] Every testing type from the template's Test Strategy section is present (Functional, Automation, Regression, Self-Validation,
   Performance, Scale, Security, Usability, Monitoring, Compatibility, Upgrade, Dependencies,
   Cross Integrations, Cloud Testing)
 - [ ] Unchecked items without details = incomplete review — flag this
@@ -243,10 +243,11 @@ Reviewers must verify these cross-references between sections:
 
 ### II.5 — Risks
 
-- [ ] ALL 6 standard risk categories are addressed (even if no risk, include Mitigation with brief justification):
+- [ ] ALL standard risk categories are addressed — parent STPs only; child STPs follow the Risk bullet under
+  "Multi-SIG Features and Child STPs" in `docs/stp-guide.md` (even if no risk, include Mitigation with brief justification):
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
   Resource Constraints, Dependencies
-- [ ] "Other" category is included only if risks exist that don't fit the 6 standard categories above
+- [ ] "Other" category is included only if risks exist that don't fit the standard categories above
 - [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
   and the category-specific supplemental field:
   *Estimated impact on schedule* (Timeline/Schedule),
