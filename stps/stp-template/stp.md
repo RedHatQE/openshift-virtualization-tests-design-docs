@@ -16,7 +16,9 @@
   Example:
   - DP: N/A
   - TP: 4.22
-  - GA: 5.0 -->
+  - GA: 5.0
+
+  If goals or scenarios must also pass at an intermediate phase, see the optional phase tag under Testing Goals priority levels. -->
 
   - DP: [version or N/A]
   - TP: [version or N/A]
@@ -39,8 +41,8 @@
 
 <!-- Provide a brief (2-8 sentences) description of the feature being tested.
 Include: what it does, why it matters to customers, and the user-visible lifecycle context.
-If the feature spans multiple releases (e.g., Tech Preview → GA), state the current phase
-and how the test scope for this STP relates to that phase. -->
+If the feature spans multiple releases (e.g., Tech Preview → GA), describe how the test scope
+for this STP relates to those phases; the STP always targets GA. -->
 
 [Brief description of the feature and its purpose]
 
@@ -167,10 +169,19 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **Relevant**: Directly supports feature acceptance criteria and user stories
 - **Verifiable**: Can be objectively confirmed as complete
 
+**Negative paths:** Each P0 functional goal has a negative or failure-path Testing Goal (e.g., "what happens if
+migration fails?", "what if the VM starts during the operation?"), or an Out of Scope entry with Quality Owner or
+Product Manager sign-off — "considered" alone is insufficient. A negative path that is also an Acceptance Criterion
+cannot be moved to Out of Scope: Section III covers it. -->
+
 **Priority Levels:**
-- **P0**: Blocking GA - must be complete before release
+- **P0**: Blocks GA - must be complete before release
 - **P1**: High priority - required for full feature coverage
-- **P2**: Nice-to-have - can be deferred if timeline constraints exist -->
+- **P2**: Nice-to-have - can be deferred if timeline constraints exist
+
+**Phase tag (optional):** Priorities refer to GA. If a goal or scenario must also pass at an intermediate phase
+(e.g. Tech Preview), add a phase tag: `[P0][TP]` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
+phase names from Feature Maturity (from the parent STP for a child STP).
 
 <!-- **Example - Functional Goals**:
 - **[P0]** Verify VM live migration completes successfully with new network binding plugin across
@@ -194,7 +205,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
   alerts fire correctly in Alertmanager -->
 
-- **[P0]** [List key functional areas to be tested with priority]
+- **[P0]** [List key functional areas to be tested with priority; add a phase tag such as `[P0][TP]` only if needed]
 - **[P1]** [List non-functional requirements to be tested with priority]
 - **[P2]** [Reference specific user stories from Section I with priority]
 

@@ -49,7 +49,7 @@ If this guide and the template ever disagree, the template wins and the guide mu
 The template says what to fill in. This section explains why each part exists and when it happens.
 
 **Feature Overview and metadata.** Let a reader who has never seen the feature understand what it is,
-why customers need it and which maturity phase this STP covers, and find the tracking links.
+why customers need it and how its maturity phases map to releases, and find the tracking links.
 
 **I. Motivation and Requirements Review.** Happens before test planning. It makes sure the requirements are
 understood, testable and unambiguous, that acceptance criteria are verifiable, and that the non-functional
@@ -153,11 +153,8 @@ needs only a justification in the Mitigation field. The template shows where eac
 
 ## Priority and Tier
 
-**Priority** (testing goals and scenarios):
-
-- **P0** — blocks GA; must be complete before release
-- **P1** — required for full feature coverage
-- **P2** — nice-to-have; can be deferred if the timeline is constrained
+**Priority** — the priority levels and the optional phase tag are defined in the template's Testing Goals
+section; they apply to testing goals and scenarios alike. See "Phase tag" there before tagging a goal.
 
 **Tier** — see [Testing Tiers](./testing-tiers.md). Every scenario in Section III states its tier.
 

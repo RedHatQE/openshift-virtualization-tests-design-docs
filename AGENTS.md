@@ -38,7 +38,7 @@ rather than requiring it.
   `DP: [version or N/A]`, `TP: [version or N/A]`, `GA: [version]`.
   Standard maturity phases: **Dev Preview (DP)**, **Tech Preview (TP)**, **General Availability (GA)**.
   A typical progression is DP → TP → GA across releases (e.g., DP in 4.22, TP in 4.23, GA in 5.0).
-  For multi-phase features, the STP scope must clearly state which phase it covers.
+  The STP always targets GA; it must clearly state which intermediate phases (DP/TP), if any, its phase tags refer to.
 - [ ] QE Owner(s) listed with name and contact
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
@@ -58,8 +58,8 @@ rather than requiring it.
 - [ ] Explains why it matters to customers
 - [ ] No implementation details (no internal API fields, no internal component names); documented
   user-facing objects the user must create or edit may be named (see Core Principle 1)
-- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
-  phase and which phase this STP covers
+- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states how the test
+  scope relates to the phases
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
   "seamless") must have matching acceptance criteria and test scenarios. If the feature
   doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
@@ -136,7 +136,8 @@ rather than requiring it.
 
 **Testing Goals:**
 - [ ] Written from end-user perspective ("Deploy a VM from..." not "Verify DataImportCron creates...")
-- [ ] Each goal has priority: P0 (blocks GA), P1 (required for coverage), P2 (nice-to-have)
+- [ ] Each goal has priority: P0 (blocks GA), P1 (required for coverage), P2 (nice-to-have);
+  an optional phase tag (e.g. `[P0][TP]`) is allowed when a goal must also pass at an intermediate phase
 - [ ] Goals are SMART: Specific, Measurable, Achievable, Relevant, Verifiable
 - [ ] Distinguish between new functional tests and regression tests
 - [ ] If regression goals are included in Testing Goals, they identify which SIG test suites
@@ -146,7 +147,7 @@ rather than requiring it.
   (e.g., "what happens if migration fails?", "what if the VM starts during the operation?",
   "what about error handling?"). If negative scenarios are out of scope, they must be
   documented in Out of Scope with Quality Owner or Product Manager sign-off — "considered" alone is insufficient.
-- [ ] Goals are ordered by priority (P0 first, then P1, then P2)
+- [ ] Goals are ordered by priority (P0 first, then P1, then P2); phase tags do not change the ordering
 - [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
   the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
   only one dimension leaves test authors to guess the rest.
@@ -280,7 +281,7 @@ Reviewers must verify these cross-references between sections:
   Multiple scenarios may reference the same requirement ID, but the Section III structure must follow
   the template.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
-- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2)
+- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2, optionally with a phase tag)
 - [ ] Every Testing Goal from Section II.1 has a matching scenario here
 - [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items

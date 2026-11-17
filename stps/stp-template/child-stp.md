@@ -82,7 +82,10 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
 **Testing Goals**
 
 <!-- List only this SIG's testing goals. Feature-wide goals belong in the parent STP.
-Order by priority: P0 first, then P1, then P2. -->
+Order by priority: P0 first, then P1, then P2. Priorities refer to GA. As in the parent STP, an optional phase tag
+(e.g. `[P0][TP]`) marks goals that must also pass at an intermediate phase; phase names come from the parent STP.
+As in the parent STP, each P0 functional goal has a negative or failure-path Testing Goal, or an Out of Scope entry
+with Quality Owner or Product Manager sign-off. -->
 
 - **[P0]** [SIG-specific testing goal]
 - **[P1]** [SIG-specific testing goal]
@@ -205,7 +208,7 @@ Regression tests are documented in Test Strategy (II.2), not in this section. --
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
   - *Test Scenario:* [Description]
   - *Tier:* [1, 2, or 3]
-  - *Priority:* [P0/P1/P2]
+  - *Priority:* [P0/P1/P2, with an optional phase tag as in the parent STP]
 
 ---
 
