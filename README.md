@@ -31,7 +31,7 @@ Centralize QE documentation and test planning to ensure:
 
 | Guide                                          | Description                                                                        |
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
-| [STP Guide](./docs/stp-guide.md)               | Complete guide to Software Test Plans: structure, lifecycle, and best practices    |
+| [STP Guide](./docs/stp-guide.md)               | Guide to Software Test Plans: purpose of each part, lifecycle, and best practices   |
 | [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
 
 ### Templates
@@ -39,6 +39,7 @@ Centralize QE documentation and test planning to ensure:
 | Template                                   | Purpose                                         |
 |:-------------------------------------------|:------------------------------------------------|
 | [STP Template](./stps/stp-template/stp.md) | Software Test Plan template for feature testing |
+| [Child STP Template](./stps/stp-template/child-stp.md) | Per-SIG child STP for multi-SIG features |
 
 ## Key Concepts
 
@@ -178,8 +179,8 @@ The move validator and its tests use pre-commit-managed Python environments and 
 
 ## Contributing
 
-1. Create STP using the [template](./stps/stp-template/stp.md)
-2. Follow the [STP Guide](./docs/stp-guide.md) for structure and content
+1. Create the STP from the [template](./stps/stp-template/stp.md), which defines structure and format
+2. Follow the [STP Guide](./docs/stp-guide.md) for purpose and process
 3. Ensure proper test tier coverage per [Testing Tiers Guide](./docs/testing-tiers.md)
 4. Get stakeholder approval before testing begins
 5. Ensure automation is merged before GA

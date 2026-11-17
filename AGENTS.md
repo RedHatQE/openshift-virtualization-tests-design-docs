@@ -15,8 +15,8 @@ Assisted-by: Claude <noreply@anthropic.com>
    No API field names, CRD names, internal component references, or implementation mechanisms.
 2. **Every claim needs evidence** — sign-offs, Jira links, dates. No empty placeholders in approved STPs.
 3. **Distinguish constraint categories** — Feature Limitations, Test Limitations, Out of Scope, and Risks
-   are four distinct concepts. Never mix them.
-   See `docs/stp-guide.md` Section II.8 (Constraints Summary) for definitions.
+   are distinct concepts. Never mix them.
+   See the "Constraint Categories" section of `docs/stp-guide.md` for definitions.
 4. **Traceability is mandatory** — every test scenario must map to a Jira requirement ID with tier and priority.
 5. **Concise and actionable** — no walls of text, no template boilerplate left in, no vague statements.
 
