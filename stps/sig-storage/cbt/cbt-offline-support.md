@@ -8,9 +8,9 @@
 - **Feature Tracking:** [VIRTSTRAT-481](https://redhat.atlassian.net/browse/VIRTSTRAT-481) (storage agnostic incremental backup)
 - **Epic Tracking:** [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511)
 - **Feature Maturity:**
-  - DP: CNV 5.1.0
-  - TP: CNV 5.2.0
-  - GA: N/A
+  - DP: N/A
+  - TP: CNV 5.1.0
+  - GA: CNV 5.2.0
 - **QE Owner(s):** Emanuele Prella
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
