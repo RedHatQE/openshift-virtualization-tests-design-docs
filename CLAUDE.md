@@ -11,4 +11,5 @@ Project guidance for AI coding assistants.
 - `docs/stp-guide.md` — STP purpose, lifecycle and process guide
 - `docs/testing-tiers.md` — Testing tier definitions
 - `stps/stp-template/stp.md` — STP template with inline instructions
+- `stps/stp-template/child-stp.md` — Per-SIG child STP template for multi-SIG features
 - `.markdownlint.yaml` — Markdown linting configuration

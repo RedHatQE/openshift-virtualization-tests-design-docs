@@ -39,7 +39,7 @@ Centralize QE documentation and test planning to ensure:
 | Template                                   | Purpose                                         |
 |:-------------------------------------------|:------------------------------------------------|
 | [STP Template](./stps/stp-template/stp.md) | Software Test Plan template for feature testing |
-| [Child STP Template](./stps/stp-template/child-stp.md) | Per-SIG child STP for multi-SIG features |
+| [Child STP Template](./stps/stp-template/child-stp.md)      | Per-SIG child STP for multi-SIG features        |
 
 ## Key Concepts
 
@@ -178,6 +178,7 @@ author's lead. The QE Owner(s) named in the metadata own and write the testing p
 - [STP Guide](./docs/stp-guide.md)
 - [Testing Tiers Guide](./docs/testing-tiers.md)
 - [STP Template](./stps/stp-template/stp.md)
+- [Child STP Template](./stps/stp-template/child-stp.md)
 
 ## Contributing
 
