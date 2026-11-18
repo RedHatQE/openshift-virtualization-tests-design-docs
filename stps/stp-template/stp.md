@@ -224,11 +224,14 @@ Each item requires Quality Owner or Product Manager sign-off.
 Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
 Example: "MultiArch cluster might not be available" is a **risk**. "We will not test on bare-metal MultiArch clusters" is **out of scope**.
 
+**Difference from existing coverage:** Areas already covered by existing regression suites or other teams are
+not Out of Scope; record them under Regression Testing in Test Strategy (II.2).
+
 **Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
 
-- **[e.g., Core OCP network functionality]**
-  - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
-  - *Sign-off (PM/Lead):* [Name/Date]
+- **[e.g., Interface settings that are independent of the new network binding (e.g., NIC model)]**
+  - *Rationale:* The feature is expected to work with any interface setting. These settings affect the vNIC emulation towards the guest and are agnostic to the binding choice, so no feature-specific test is planned
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
