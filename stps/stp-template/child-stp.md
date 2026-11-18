@@ -203,7 +203,9 @@ Dependencies, plus Other if needed). Omit categories with no SIG-specific risk. 
 ### **III. Test Scenarios & Traceability**
 
 <!-- List only this SIG's NEW test scenarios. Each scenario must trace to a Jira requirement.
-Regression tests are documented in Test Strategy (II.2), not in this section. -->
+Every non-regression Testing Goal above has a matching scenario here. Every SIG-specific Acceptance Criterion is
+covered by a scenario here, or by named existing regression coverage in Test Strategy (II.2). Regression tests are
+documented in Test Strategy (II.2), not in this section. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
   - *Test Scenario:* [Description]

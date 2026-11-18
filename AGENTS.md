@@ -178,7 +178,7 @@ rather than requiring it.
   (e.g., CNI) to make the goal implementable
 - Test scenario added for post-stable-state behavior without justifying why the feature's
   execution history would produce a different outcome than baseline
-- No negative or failure-path Testing Goal (with matching Section III scenario) for P0 goals — only happy-path coverage
+- No negative or failure-path Testing Goal (with matching Section III scenario) for P0 functional goals — only happy-path coverage, and no Out of Scope entry with Quality Owner or Product Manager sign-off
 
 ### II.2 — Test Strategy
 
@@ -282,8 +282,10 @@ Reviewers must verify these cross-references between sections:
   the template.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
 - [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2, optionally with a phase tag)
-- [ ] Every Testing Goal from Section II.1 has a matching scenario here
-- [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
+- [ ] Every non-regression Testing Goal from Section II.1 has a matching scenario here; regression goals
+  refer to their coverage in Test Strategy (II.2)
+- [ ] Every Acceptance Criterion from Section I.1 is covered by a scenario here, or by named existing
+  regression coverage in Test Strategy (II.2)
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items
 - [ ] Scenario descriptions include observable pass criteria — not just "verify X works correctly."
   Define what "correctly" means (e.g., "metrics are non-zero and consistent with the observed

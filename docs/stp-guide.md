@@ -160,10 +160,11 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
 
 ## Checklist Before Requesting Review
 
-- Template HTML comments and example text removed; no `[placeholder]` text left
-- Every acceptance criterion maps to a scenario in Section III, and every Testing Goal has a scenario
-- Out of Scope, Feature Limitations, Test Limitations and Risks each carry the required sign-off (name/date)
-- Test Strategy addresses every testing type listed in the template (checked, or unchecked with justification)
+- Template HTML comments and example text removed; no template placeholder text is left (`[Add details]`,
+  `[Name/Date]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
+- Traceability holds: every non-regression Testing Goal has a Section III scenario, and every acceptance
+  criterion is covered by a scenario or by named existing regression coverage in Test Strategy
+- Every limitation, exclusion and risk entry is signed off (see Constraint Categories)
 
 ## Moving an STP
 

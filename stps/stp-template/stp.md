@@ -450,6 +450,9 @@ justification in mitigation strategy. -->
 - Different conditions (VMs with feature X vs without) → separate scenarios
 - Feature Gate enable/disable → separate scenarios (different expected behavior)
 - Multiple alerts → separate if different trigger conditions, group if same flow
+**Traceability:** Every non-regression Testing Goal (II.1) has a matching scenario here; regression goals refer
+to their coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here, or by
+named existing regression coverage in Test Strategy (II.2).
 **What does NOT go here:** Regression tests (covered in Test Strategy). -->
 
 <!-- **Requirement ID:**

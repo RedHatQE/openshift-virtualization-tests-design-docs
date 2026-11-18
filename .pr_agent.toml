@@ -36,7 +36,8 @@ Core principles:
 - Traceability is mandatory — every test scenario must map to a Jira requirement ID
   with tier and priority.
 - Testing goals must be written from the end-user perspective with priorities
-  (P0 first), and each P0 goal needs a matching negative/failure-path scenario.
+  (P0 first), and each P0 functional goal needs a negative/failure-path Testing Goal with a matching
+  scenario (or an Out of Scope entry with Quality Owner or Product Manager sign-off); regression goals are covered by Test Strategy.
 - Test scenarios need observable pass criteria, not "verify X works correctly".
 
 For files under stps/stp-template/ — those are templates, not feature STPs. Skip the
