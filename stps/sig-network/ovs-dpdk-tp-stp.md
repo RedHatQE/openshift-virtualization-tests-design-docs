@@ -123,6 +123,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
 #### **1. Scope of Testing**
 
 **Testing Goals**
+Unless stated otherwise for a specific goal, test VMs are configured for DPDK workloads as documented for OVS-DPDK, including hugepages-backed guest memory (`spec.template.spec.domain.memory.hugepages`, e.g. `pageSize: 1Gi`), which the vhost-user backend of the OVS-DPDK binding requires.
 
 - **[P0] [TG-1]** Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other from within the guests.
   - *Setup:* Two VMs each with an OVS-DPDK attachment; L2 reachability per test harness (see test case for topology).
@@ -140,7 +141,7 @@ Performance-intensive VM workloads need higher network throughput and lower late
   - *Setup:* ResourceClaimTemplate-backed OVS-DPDK network attachment.
 - **[P2] [TG-8]** Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot.
 - **[P2] [TG-9]** Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other, using a PMD application (such as testpmd).
-  - *Setup:* Same as [TG-1].
+  - *Setup:* Same as [TG-1], plus guest-OS configuration for the PMD application (hugepages reserved in the guest, for buffer allocation).
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -299,7 +300,7 @@ The following conditions must be met before testing can begin:
 |                  | As a VM owner, I want two VMs on different nodes, each with an OVS-DPDK interface, to exchange traffic with each other.                                                    | [TG-6] Verify that two VMs on different nodes, each with an OVS-DPDK network attachment, start successfully and can exchange traffic over their respective interfaces. *Setup:* separate ResourceClaimTemplate per VM; same device class on each node (see Section II.1 [TG-6]). | Tier 2 | P2 |
 |                  | As a VM owner, I want my VM with an OVS-DPDK interface to keep running and regain network connectivity after a cluster upgrade.                                            | [TG-7] Verify that a VM with an OVS-DPDK network attachment remains running after an OCP minor-version upgrade and network connectivity can be re-established after the upgrade completes. *Setup:* ResourceClaimTemplate-backed attachment (see Section II.1 [TG-7]). | Tier 2 | P2 |
 |                  | As a VM owner, I want my OVS-DPDK network interface to remain usable after I reboot the guest.                                                                             | [TG-8] Verify that a VM with an OVS-DPDK network device retains network connectivity after a guest reboot. | Tier 2 | P2 |
-|                  | As a VM owner, I want two VMs with OVS-DPDK network interfaces to exchange traffic with each other.                                                                        | [TG-9] Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other, using a PMD application (such as testpmd). *Setup:* same as [TG-1] (see Section II.1 [TG-9]). | Tier 2 | P2 |
+|                  | As a VM owner, I want two VMs with OVS-DPDK network interfaces to exchange traffic with each other.                                                                        | [TG-9] Verify that two VMs with OVS-DPDK network attachments can communicate and exchange traffic with each other, using a PMD application (such as testpmd). *Setup:* same as [TG-1], plus guest-OS hugepages reservation (see Section II.1 [TG-9]). | Tier 2 | P2 |
 
 ---
 
