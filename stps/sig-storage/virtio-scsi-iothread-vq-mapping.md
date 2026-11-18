@@ -91,15 +91,15 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 - **SCSI controller maps I/O threads to virtqueues, not to individual disks**
   - Unlike virtio-blk, where each disk can get a dedicated thread, the SCSI controller distributes threads across virtqueues. Users cannot assign a specific thread to a specific disk.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 - **dedicatedIOThread is not supported for virtio-scsi disks**
   - Because the SCSI controller cannot map an exclusive thread to an individual disk, the dedicatedIOThread disk option is incompatible with SCSI disks and is rejected at the VM admitter level. Users needing dedicated per-disk threads must use virtio-blk.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 - **Hotplug with auto policy is limited by the thread pool size set at VM startup**
   - The SCSI controller's thread pool is initialized when the VM starts and cannot be modified at runtime. If many virtio-scsi disks are hotplugged later, the controller may have fewer threads than optimal. Users needing heavy hotplug should use the supplementalPool policy instead.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 #### **3. Technology and Design Review**
 
@@ -168,12 +168,12 @@ The primary benefit is improved I/O throughput for storage-intensive workloads s
 
 - **Adding new IOThreadsPolicy values**
   - *Rationale:* This feature reuses the existing IOThreadsPolicy API; no new policy values are introduced
-  - *PM/Lead Agreement:* [Name/Date]
+  - *PM/Lead Agreement:* Danny Sanatar / 2026-11-18
 
 **Test Limitations**
 
 - **Performance benchmarking accuracy depends on consistent hardware and I/O load generation**
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 #### **2. Test Strategy**
 
@@ -274,21 +274,21 @@ The following conditions must be met before testing can begin:
 - **Risk:** Feature depends on upstream KubeVirt v1.10 release timeline; delays in upstream graduation may push downstream testing
   - **Mitigation:** Track upstream milestone progress; begin test development against development builds before formal release
   - *Estimated impact on schedule:* Up to one sprint delay if upstream graduation slips
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 **Test Coverage**
 
 - **Risk:** Performance testing results may vary across hardware configurations, making it difficult to establish a universal baseline
   - **Mitigation:** Define performance baselines on reference hardware; document hardware specs alongside results for reproducibility
   - *Areas with reduced coverage:* Performance benchmarks may not generalize across all supported hardware
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 **Test Environment**
 
 - **Risk:** Required libvirt/QEMU versions may not be available in early test builds
   - **Mitigation:** Coordinate with platform team to confirm libvirt/QEMU version availability in target OCP builds; use development builds for early testing if needed
   - *Missing resources or infrastructure:* libvirt 11.2.0+ / QEMU 10.0+ in test environment
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 **Untestable Aspects**
 
@@ -305,7 +305,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Feature depends on upstream KubeVirt changes and libvirt/QEMU versions shipping in the target OCP release
   - **Mitigation:** Monitor upstream PRs and coordinate with the platform team on dependency versions
   - *Dependent teams or components:* KubeVirt upstream, OpenShift platform (libvirt/QEMU packaging)
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Danny Sanatar / 2026-11-18
 
 ---
 
