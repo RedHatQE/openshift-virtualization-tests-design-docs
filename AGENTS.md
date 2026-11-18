@@ -281,7 +281,8 @@ Reviewers must verify these cross-references between sections:
   Multiple scenarios may reference the same requirement ID, but the Section III structure must follow
   the template.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
-- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2, optionally with a phase tag)
+- [ ] Each scenario states its Tier (1, 2, or 3) in the scenario line, as in the template, and a Priority
+  (P0/P1/P2, optionally with a phase tag)
 - [ ] Every non-regression Testing Goal from Section II.1 has a matching scenario here; regression goals
   refer to their coverage in Test Strategy (II.2)
 - [ ] Every Acceptance Criterion from Section I.1 is covered by a scenario here, or by named existing

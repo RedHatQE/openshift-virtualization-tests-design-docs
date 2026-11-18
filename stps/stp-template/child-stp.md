@@ -30,17 +30,17 @@ Feature-wide requirements, acceptance criteria, and NFRs are defined in the pare
 
 #### **1. Requirement & User Story Review Checklist**
 
-- [x] **Review Requirements**
+- [ ] **Review Requirements**
   - *SIG-specific requirements:* [List requirements this SIG owns, or "None — all requirements are in the parent STP"]
 
-- [x] **Acceptance Criteria**
+- [ ] **Acceptance Criteria**
   <!-- Only list acceptance criteria specific to this SIG's scope. -->
   - [List SIG-specific acceptance criteria, or "None — all acceptance criteria are in the parent STP"]
 
-- [x] **Testability**
+- [ ] **Testability**
   - *Note any SIG-specific requirements that are unclear or untestable:* [List or "None"]
 
-- [x] **Non-Functional Requirements (NFRs)**
+- [ ] **Non-Functional Requirements (NFRs)**
   <!-- Only list NFRs specific to this SIG's scope. If all NFRs are covered by the parent, state that. -->
   - *SIG-specific NFRs:* [List or "None — all NFRs are covered by the parent STP"]
   - *NFRs not covered and why:* [List with justification]
@@ -55,23 +55,23 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
 
 #### **3. Technology and Design Review**
 
-- [x] **Developer Handoff/QE Kickoff**
+- [ ] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:* [SIG-specific technical concerns]
 
-- [x] **Technology Challenges**
+- [ ] **Technology Challenges**
   - *List identified challenges:* [SIG-specific challenges]
   - *Impact on testing approach:* [Impact on this SIG's tests]
 
-- [x] **API Extensions**
+- [ ] **API Extensions**
   <!-- New APIs belong in the parent STP. List here only if this SIG tests existing APIs
   in a SIG-specific way, otherwise state "N/A — see parent STP". -->
   - *List new or modified user-facing APIs:* [SIG-specific, or "N/A — see parent STP"]
   - *Testing impact:* [Impact]
 
-- [x] **Test Environment Needs**
+- [ ] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
-- [x] **Topology Considerations**
+- [ ] **Topology Considerations**
   - *Describe topology requirements:* [SIG-specific topology needs]
   - *Impact on test design:* [Impact]
 
@@ -208,8 +208,7 @@ covered by a scenario here, or by named existing regression coverage in Test Str
 documented in Test Strategy (II.2), not in this section. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
-  - *Test Scenario:* [Description]
-  - *Tier:* [1, 2, or 3]
+  - *Test Scenario:* [Tier 1/2/3] [Description]
   - *Priority:* [P0/P1/P2, with an optional phase tag as in the parent STP]
 
 ---
