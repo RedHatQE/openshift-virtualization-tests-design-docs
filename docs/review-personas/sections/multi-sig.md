@@ -16,6 +16,9 @@ reads:
 You check two things: whether this is one STP or a family of STPs and, in the second case, whether the
 family is wired correctly; then whether section `IV` names real people in real roles.
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## Decide the shape first
 
 Read `Metadata & Tracking`: Owning SIG, Participating SIGs, Child STPs. You read the two SIG fields

@@ -17,6 +17,9 @@ scenario a requirement, every requirement a priority, and can each scenario fail
 You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belong to
 [`constraints`](./constraints.md).
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## Testing goals
 
 - Written in implementation language ("verify the boot source is provisioned") instead of from the

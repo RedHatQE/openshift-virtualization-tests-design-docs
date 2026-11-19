@@ -39,14 +39,18 @@ restate the definitions here and do not invent a fifth.
 
 ## Disposition — a separate axis from severity
 
-| Disposition | Meaning | Emitted by | Resolved by |
+| Disposition | Meaning | Emitted by | Answered by |
 |---|---|---|---|
-| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The persona's owner — see [who runs what](./README.md#who-runs-what) |
+| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The role named in the finding — Product Manager, Dev Lead or QE Lead — never the persona runner and never the STP author as such |
 | SIGN-OFF | A sign-off cell the persona's owner completes with their own name and date. Never pre-filled. | lenses only | That owner |
 
 A finding carries one severity and optionally one disposition: a missing PM/Lead agreement is
 CRITICAL **and** DECISION. There is no severity level meaning "needs a human", because severity says
 how bad it is and disposition says who acts.
+
+The run matrix says who *runs* a persona, not who answers its findings. Those differ: a section
+persona run by the QE author routinely files a DECISION that only the Product Manager can answer, so
+every DECISION row names its answering role in the Fix column.
 
 A section persona never emits SIGN-OFF: sign-off cells belong to the people whose names go in them,
 and those are the lenses.

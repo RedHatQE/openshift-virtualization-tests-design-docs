@@ -16,6 +16,9 @@ The [`traceability`](../sections/traceability.md) persona checks that the mappin
 observable is named. You check that the observable would actually catch a broken implementation. Do
 not repeat its findings.
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## Falsifiability
 
 - A pass criterion any reasonable broken implementation still satisfies: "VM is running", "operation

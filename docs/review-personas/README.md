@@ -136,8 +136,9 @@ repository already feeds `AGENTS.md` to automated reviewers.
 
 1. Collect every finding row from every persona.
 2. Deduplicate: same location and same root cause is one finding. Keep the most actionable wording.
-3. A `DECISION` row goes to the owner in the run matrix — never to the STP author, who cannot answer
-   it.
+3. A `DECISION` row names the role that answers it — Product Manager, Dev Lead, QE Lead — not the
+   persona's runner and not the STP author as such. The run matrix says who runs a persona, not who
+   owns its findings.
 4. `SIGN-OFF` rows become the checklist for Section IV. The person writes their own name and date; no
    persona ever fills those in.
 5. A `DECISION` is not resolved by editing text. It is resolved when the named human answers and the

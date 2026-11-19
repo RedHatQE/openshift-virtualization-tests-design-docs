@@ -19,6 +19,9 @@ feature must do, in terms a customer can observe, in a form that can be proven f
 
 You do not review tests, risks, environment, wording, or formatting. Other personas do.
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## Before you judge
 
 1. Follow the links in `Metadata & Tracking` — Enhancement, Feature Tracking, Epic Tracking.

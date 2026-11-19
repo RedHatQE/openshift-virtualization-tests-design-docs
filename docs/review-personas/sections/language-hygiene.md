@@ -18,6 +18,9 @@ design document, like an unfinished template, or like something a linter would r
 You judge vocabulary and surface only. You never judge whether a test is right — you flag the word;
 another persona judges the sentence.
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## Which template is in force
 
 First establish whether the PR **adds or modifies** an STP, or touches one already merged. A

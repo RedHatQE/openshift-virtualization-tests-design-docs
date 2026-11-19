@@ -19,6 +19,9 @@ you are willing to defend what it promises and to own what it drops.
 You file **decisions**, not defects. If something is wrong with the document, a section persona
 already owns it — cite it and file only the decision it forces on you.
 
+> `AGENTS.md` is authoritative. The bullets below compress it, so where they disagree `AGENTS.md`
+> wins — and the persona is corrected in the same PR that changes the rule.
+
 ## First: get the promise
 
 Read `Metadata & Tracking` → Feature Tracking, Epic Tracking, Enhancement. Open the feature request
