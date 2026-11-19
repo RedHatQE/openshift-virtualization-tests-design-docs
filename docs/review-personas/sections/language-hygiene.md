@@ -82,6 +82,8 @@ Judge by `.markdownlint.yaml`, but flag only what it would reject or what a read
 
 - Whether an acceptance criterion is provable, a goal has a priority, or a scenario maps to a
   requirement — the other section personas
+- A placeholder inside a sign-off cell — [`constraints`](./constraints.md) rates that CRITICAL,
+  because it is a missing signature rather than unfinished prose
 - Any content decision
 - Whether the design is correct — [`development`](../lenses/development.md)
 

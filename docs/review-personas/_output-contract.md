@@ -8,7 +8,8 @@ Each persona starts its own report with this block:
 
 ```text
 ## Persona run
-- Persona: sections/traceability
+- Persona: sections/traceability          # the file's path under docs/review-personas/
+                                          # (frontmatter `persona:` is only the file stem)
 - STP: stps/sig-network/<feature>/stp.md
 - Reviewed at: <commit sha the review was made against>
 - Sources: <Jira key(s), VEP, feature request — or "not linked">
@@ -42,7 +43,11 @@ restate the definitions here and do not invent a fifth.
 | Disposition | Meaning | Emitted by | Answered by |
 |---|---|---|---|
 | DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The role named in the finding — Product Manager, Dev Lead or QE Lead — never the persona runner and never the STP author as such |
-| SIGN-OFF | A sign-off cell the persona's owner completes with their own name and date. Never pre-filled. | lenses only | That owner |
+| SIGN-OFF | A sign-off cell the persona's owner completes with their own name and date. Never pre-filled. | lenses only | That owner. Where two lenses sign the same cell — the template gives one cell per limitation and per risk — both names and dates go in it |
+
+When two personas could file the same text at different severities, the higher severity wins and the
+agreeing persona says so — a sign-off cell left as `[Name/Date]` is CRITICAL because it is a missing
+sign-off, not HIGH because it is a placeholder.
 
 A finding carries one severity and optionally one disposition: a missing PM/Lead agreement is
 CRITICAL **and** DECISION. There is no severity level meaning "needs a human", because severity says
@@ -97,6 +102,10 @@ with `review-out/` gitignored, or a PR review comment titled `## Persona run: <p
 owner collects them. Nobody writes findings into the STP, and nobody leaves the scratch files in the
 tree.
 
+The severity a persona assigns to a specific check lives in its own `## Output` paragraph. Changing
+one of those is a rule change: it goes through the same PR as the rule it belongs to, and a reviewer
+who disagrees with a mapping argues it there, not in the run.
+
 ## Clearing rule
 
 End every run with what **you** checked and found acceptable:
@@ -114,8 +123,9 @@ indistinguishable from a run that skipped the section.
 
 ## Budget
 
-At most 10 findings per run, severity first, plus SIGN-OFF rows. Nine personas are not nine times ten
-rows: the boundary rule and this budget exist so the merge stays readable.
+At most 10 findings per run, severity first, plus SIGN-OFF rows. The merge owner then combines them
+to at most about 15 rows, most severe first: if nine runs produce 90 rows, the persona boundaries are
+wrong and that is the thing to fix, not the report to truncate.
 
 ## Never
 

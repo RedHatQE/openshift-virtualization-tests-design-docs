@@ -25,13 +25,15 @@ already owns it — cite it and file only the decision it forces on you.
 ## First: get the promise
 
 Read `Metadata & Tracking` → Feature Tracking, Epic Tracking, Enhancement. Open the feature request
-and its acceptance criteria. If a link is missing or an unjustified "N/A", say so once (CRITICAL) and
-stop: nothing else you report is trustworthy.
+and its acceptance criteria. If a link is missing or an unjustified "N/A", state once that you cannot
+review without it, cite [`requirements`](../sections/requirements.md) as the owner of that finding,
+and stop. You do not file the defect — you file the decision it blocks.
 
 ## Scope
 
-- Something the feature request promises that this STP does not test, and that is not in Out of Scope.
-  Either it gets covered, or you sign it away deliberately
+- A promise in the feature request that this STP does not test, and that is not in Out of Scope:
+  either it gets covered, or you sign it away deliberately. The missing coverage itself is
+  [`requirements`](../sections/requirements.md)' finding; yours is the waiver
 - Something the STP tests that the feature request does not promise. Scope creep in the test plan is
   scope creep in the release
 - An Out of Scope item that reads as QE convenience rather than a product decision. You are being
@@ -50,7 +52,9 @@ stop: nothing else you report is trustworthy.
 ## Phase and version
 
 - Feature Maturity versions inconsistent with the delivery plan across DP, TP, GA
-- The STP not stating which phase it covers, so its scope cannot be read as a commitment
+- A phase declaration too vague for you to read the scope as a commitment. That the declaration is
+  missing or malformed is [`requirements`](../sections/requirements.md)' finding; yours is that you
+  cannot sign against it
 - A GA claim while the acceptance criteria for the GA phase are still TBD
 
 ## Risks and accepted gaps
@@ -64,7 +68,8 @@ stop: nothing else you report is trustworthy.
 - A DECISION row for each thing that needs your answer, phrased as the decision rather than the
   defect, with the STP line it comes from
 - A SIGN-OFF row per cell you are accepting, naming the cell and what you verified — name and date
-  blank, because you write those yourself
+  blank. On a limitation or risk cell you sign the *business* exposure; the Dev Lead signs the
+  technical exposure in that same cell, and both names go in it, because you write those yourself
 
 ## Do NOT report
 

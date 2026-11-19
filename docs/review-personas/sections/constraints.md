@@ -70,9 +70,8 @@ II.5 — not against the author, who cannot fix it.
   reads as unreviewed
 - A standard category missing entirely rather than addressed
 - A real risk with no sign-off, or missing the per-category field the template puts on that category
-- A category whose Mitigation is a bare "N/A" with no one-line reason no risk exists. When no risk
-  exists, a short justification in Mitigation is the whole entry — no sign-off and no category field
-  required
+- A category whose Mitigation is a bare "N/A". When no risk exists, a one-line reason saying so is
+  the whole entry — mitigation, no sign-off and no category field required
 - A mitigation that restates the risk, or says "we will address this"
 - "Other" used for a risk that fits one of the six categories
 

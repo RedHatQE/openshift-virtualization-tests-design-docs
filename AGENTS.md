@@ -27,7 +27,7 @@ to your AI assistant; findings follow the format in
 ## Review Personas
 
 Reviewer personas that partition the checks below by review focus and by stakeholder role live in
-[`docs/review-personas/`](./docs/review-personas/README.md). Each one is a prompt you hand to your AI
+[review personas](./docs/review-personas/README.md). Each one is a prompt you hand to your AI
 assistant; findings follow the format in
 [`_output-contract.md`](./docs/review-personas/_output-contract.md).
 

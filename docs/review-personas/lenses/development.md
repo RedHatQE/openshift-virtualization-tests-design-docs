@@ -25,7 +25,9 @@ traceability already have owners — cite them and file only what your role must
 ## First: get the design
 
 Read `Metadata & Tracking` → Enhancement, Feature Tracking. Open the VEP or design doc. If no design
-source is linked, say so once (CRITICAL) and stop: feasibility cannot be reviewed against nothing.
+source is linked, state once that you cannot review without it, cite
+[`requirements`](../sections/requirements.md) as the owner of that finding, and stop. You do not file
+the defect — you file the decision it blocks.
 
 ## Environment feasibility
 
@@ -61,7 +63,8 @@ source is linked, say so once (CRITICAL) and stop: feasibility cannot be reviewe
 - A DECISION row for each design-versus-plan mismatch: state the design fact, the conflicting STP
   line, and what you need changed to sign
 - A SIGN-OFF row per cell you are accepting, naming the cell and what you verified — name and date
-  blank
+  blank. On a limitation or risk cell you sign for the *technical* exposure only; the Product
+  Manager signs the business exposure in that same cell, and both names go in it
 
 ## Do NOT report
 

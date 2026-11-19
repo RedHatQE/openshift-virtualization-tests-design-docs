@@ -56,8 +56,8 @@ This table is also called *the run matrix* below — same thing.
 | `sections/language-hygiene.md` | anyone | merge |
 | `sections/multi-sig.md` | owning-SIG QE | merge |
 | `lenses/test-quality.md` | QE Lead | Section IV approval |
-| `lenses/development.md` | Dev Lead | Section IV approval |
-| `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements |
+| `lenses/development.md` | Dev Lead | Section IV approval, accepted technical limitations and risk |
+| `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements, accepted limitations and business risk |
 
 A lens run by the wrong role produces questions nobody will answer. A section persona run by a lens
 owner produces template noise that buries the decision.
@@ -66,8 +66,9 @@ owner produces template noise that buries the decision.
 
 The YAML block at the top of each persona is metadata for humans and tooling; quote a value that
 contains a colon, or YAML reads it as a mapping. The prose after it is the prompt. `reads:` lists what
-to give the assistant: repository paths, plus any external source — feature request, VEP — that only
-a human can paste.
+to give the assistant: repository paths, plus any external source written in angle brackets — the
+feature request, the VEP — which only a human can paste. A run missing one of those is not valid, and
+the lens will say so instead of guessing.
 
 ### Level 1 — paste it
 
@@ -170,7 +171,8 @@ Quote any value containing a colon. `- II.5 — Risks (Sign-off)` survives unquo
 string, so the convention is to quote them all.
 
 `owns:` takes an `AGENTS.md` heading, optionally suffixed `(partial: ...)` naming the sub-part this
-persona owns when a heading is split. `signs:` takes a sign-off **cell** — the section whose per-item
+persona owns when a heading is split. Those two forms — a heading and a heading with `(partial: ...)`
+— are the only ones for `owns:`; a persona that owns several related headings lists each of them. `signs:` takes a sign-off **cell** — the section whose per-item
 cells this role fills, so `II.5 — Risks (Sign-off)` means every risk's `*Sign-off:*` — or the role's
 cell in `IV`. Never a section with no cell behind it: a section with nothing to sign is a defect
 area, and defect areas are `owns:`. Where a lens vouches for a section that has no cell at all, that
@@ -189,6 +191,10 @@ field's name, the template wins and the divergence is a finding against `AGENTS.
    copies of the same review.
 5. Compare against every other persona: if two would file the same finding, the boundary is wrong.
 6. Add it to the run matrix above.
+
+These personas are hand-run. They are deliberately not in `.pr_agent.toml`'s
+`repo_context_files` or `.coderabbit.yaml`'s `code_guidelines.filePatterns`: those budgets cover the
+standard, and 880 lines of personas would crowd it out. Wiring them in is a separate decision.
 
 ## Related
 
