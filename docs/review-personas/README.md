@@ -1,11 +1,12 @@
 # Review Personas
 
-Nine reviewer personas for Software Test Plan pull requests. Each one is a prompt: hand it to any
-AI assistant — Claude Code, Cursor, CodeRabbit, a local model, or a plain chat window — together
-with the PR diff and the relevant files, and you get that reviewer's findings in a uniform format.
+Nine reviewer personas for Software Test Plan pull requests. Each file is a prompt: hand it to your
+AI assistant together with the PR diff and the relevant files, and you get that reviewer's findings in
+a uniform format.
 
-The rules live in [`AGENTS.md`](../../AGENTS.md). Personas do not restate rules; they name the
-`AGENTS.md` section they own, so a rule change happens in one place.
+The rules live in [`AGENTS.md`](../../AGENTS.md). Personas paraphrase the checks of the `AGENTS.md`
+section they own and name that section in every finding, so a rule change and the persona that
+enforces it are updated in the same PR.
 
 ## Two kinds of persona
 
@@ -14,12 +15,18 @@ The rules live in [`AGENTS.md`](../../AGENTS.md). Personas do not restate rules;
 | **section** | Is this part of the STP correct? | [`sections/`](./sections/) |
 | **lens** | Would this stakeholder approve? | [`lenses/`](./lenses/) |
 
-A section persona owns slices of `AGENTS.md` and reports **defects**.
-A lens persona owns one stakeholder's questions, reads the whole document plus that stakeholder's own
-sources, and reports **decisions and sign-offs**.
+A section persona owns slices of `AGENTS.md` and files **defects**.
+A lens persona carries one stakeholder's questions, reads the whole document plus that stakeholder's
+own sources, and files **the decisions and sign-offs that role owes** — plus the defects that block
+them.
 
-Six section personas, plus one lens per approver named in `IV. Sign-off and Approval`: QE Lead, Dev
-Lead, Product Manager.
+**One root cause, one owner.** A section persona files the defect; the matching lens files only the
+decision the defect forces on its owner, citing the section finding. A rule never appears in two
+section personas, and never in two lenses.
+
+Six section personas, plus one lens per approver in `IV. Sign-off and Approval` — QE Lead, Dev Lead,
+Product Manager. That list is a minimum: add a lens in the same PR that adds an approver role to the
+template.
 
 | Section persona | Owns |
 |---|---|
@@ -27,14 +34,14 @@ Lead, Product Manager.
 | [`traceability`](./sections/traceability.md) | Testing Goals, scenarios, tiers, priorities, IDs |
 | [`constraints`](./sections/constraints.md) | Known Limitations, Out of Scope, Test Limitations, Risks |
 | [`strategy`](./sections/strategy.md) | Technology review, Test Strategy, Environment, Entry Criteria |
-| [`language-hygiene`](./sections/language-hygiene.md) | Implementation vocabulary, conventions, placeholders, markdown |
+| [`language-hygiene`](./sections/language-hygiene.md) | User perspective, conventions, placeholders, markdown |
 | [`multi-sig`](./sections/multi-sig.md) | Parent/child STP structure, Section IV roles |
 
 | Lens | Signs |
 |---|---|
-| [`product-manager`](./lenses/product-manager.md) | Section IV (PM), Out of Scope, Known Limitations, accepted risk |
-| [`development`](./lenses/development.md) | Section IV (Dev Lead), Technology and Design, Test Environment |
-| [`test-quality`](./lenses/test-quality.md) | Section IV (QE Lead), scenario design |
+| [`product-manager`](./lenses/product-manager.md) | Product Manager approval; Out of Scope agreements; accepted limitations and business risk |
+| [`development`](./lenses/development.md) | Dev Lead approval; accepted technical limitations and risk |
+| [`test-quality`](./lenses/test-quality.md) | QE Lead approval; scenario design it will vouch for |
 
 ## Who runs what
 
@@ -48,89 +55,103 @@ Lead, Product Manager.
 | `sections/multi-sig.md` | owning-SIG QE | merge |
 | `lenses/test-quality.md` | QE Lead | Section IV approval |
 | `lenses/development.md` | Dev Lead | Section IV approval |
-| `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope sign-offs |
+| `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements |
 
 A lens run by the wrong role produces questions nobody will answer. A section persona run by a lens
 owner produces template noise that buries the decision.
 
 ## Running one
 
-Three levels of effort, all valid.
+The YAML block at the top of each persona is metadata for humans and tooling. The prose after it is
+the prompt; `reads:` lists the files to give the assistant along with the persona.
 
 ### Level 1 — paste it
 
 ```text
-Read docs/review-personas/sections/traceability.md and follow it.
-The STP under review is stps/sig-network/<feature>/stp.md.
-The PR diff is:
-<gh pr diff 123 output>
+Read docs/review-personas/sections/traceability.md, AGENTS.md, and
+docs/review-personas/_output-contract.md, and follow them.
+
+STP: stps/sig-network/<feature>/stp.md
+Diff:
+<paste `gh pr diff 123` output here>
 ```
 
-Anything that can read files and follow instructions works. No setup.
+In a chat window with no file access, paste the contents of those three files as one message, then
+the STP and the diff. All three are needed: every finding cites an `AGENTS.md` section, and every
+persona reports in the contract's format.
 
 ### Level 2 — one subagent per persona
 
-Give each persona its own context so findings do not bleed between streams:
+Run each persona in its own context so findings do not bleed between streams. Keep the diff inside
+the repository — an agent confined to its working directory cannot read `/tmp` — and grant the file
+access explicitly, because with output redirected nobody is there to answer a permission prompt:
 
 ```bash
-gh pr diff 123 > /tmp/pr.diff
-for p in requirements traceability constraints; do
-  claude -p "$(cat docs/review-personas/sections/$p.md)
-
-Review /tmp/pr.diff plus the changed STP files.
-Report per docs/review-personas/_output-contract.md." > "/tmp/review-$p.md"
+gh pr diff 123 > review-diff.patch
+for p in requirements traceability constraints strategy language-hygiene multi-sig; do
+  claude -p "Follow the persona in docs/review-personas/sections/$p.md together with
+AGENTS.md and docs/review-personas/_output-contract.md. Review review-diff.patch and the
+changed STP files. Report per the output contract." \
+    --allowedTools Read,Bash \
+    > "review-$p.md"
 done
 ```
 
-Run at most three section personas in one pass on a large STP; past that the merge cost exceeds the
-review value. Do not run lenses in the same pass as section personas — a lens needs the author's
-answers to the defects first.
+The flag name is CLI-specific — check `claude --help` (or your tool's equivalent) before relying on
+an unattended run. Run all six section personas: a run that skips some is not a clean run, and the
+run header must name what was skipped. Do not run lenses in the same pass as section personas — a
+lens needs the author's answers to the defects first.
 
 ### Level 3 — a native tool adapter
 
-Wrap the persona in whatever the tool wants: a Claude Code subagent, a Cursor rule, a CodeRabbit path
-instruction. Commit the generation recipe, not the generated file — agent directories such as
-`.claude/agents/` are machine-local and get overwritten. `.coderabbit.yaml` and `.pr_agent.toml`
-show how this repository already feeds `AGENTS.md` to automated reviewers.
+Wrap the persona in whatever the tool wants: a subagent, an editor rule, a CodeRabbit path
+instruction. Commit the generation recipe, not the generated file — `.claude/` is gitignored here and
+agent directories get overwritten on upgrade. `.coderabbit.yaml` and `.pr_agent.toml` show how this
+repository already feeds `AGENTS.md` to automated reviewers.
 
 ## Merging results
 
 1. Collect every finding row from every persona.
 2. Deduplicate: same location and same root cause is one finding. Keep the most actionable wording.
-3. `DECISION` rows go to the owner in the run matrix — never to the STP author, who cannot answer
-   them.
+3. A `DECISION` row goes to the owner in the run matrix — never to the STP author, who cannot answer
+   it.
 4. `SIGN-OFF` rows become the checklist for Section IV. The person writes their own name and date; no
    persona ever fills those in.
 5. A `DECISION` is not resolved by editing text. It is resolved when the named human answers and the
    STP records the answer.
 
-Findings format, channels, evidence and budget rules: [`_output-contract.md`](./_output-contract.md).
+Channels, format, evidence and budget rules: [`_output-contract.md`](./_output-contract.md).
 
 ## Adding a persona
 
 1. Decide the type: does it own part of `AGENTS.md`, or one stakeholder's questions?
-2. Copy the closest existing file and change the frontmatter:
+2. Copy the closest existing file. Frontmatter:
 
 ```yaml
 ---
 persona: <file-name-without-extension>
 type: section            # or: lens
-owns:                    # section only — heading text from AGENTS.md, exact
+owns:                    # section only — heading text from AGENTS.md
   - II.5 — Risks
-signs:                   # lens only — the Section IV role or heading this lens signs
+signs:                   # lens only — the sign-off CELLS this role completes
   - IV — Sign-off and Approval (Approvers: QE Lead)
+  - II.5 — Risks (Sign-off)
 reads:                   # files, plus any external source the persona needs
   - AGENTS.md
 ---
 ```
 
-Both `owns:` and `signs:` entries use the exact `AGENTS.md` heading text and may carry a
-`(partial: ...)` or role suffix; the check matches the text before the suffix.
+`owns:` takes an `AGENTS.md` heading, optionally suffixed `(partial: ...)` naming the sub-part this
+persona owns when a heading is split. `signs:` takes a sign-off cell with the name of the person who
+fills it, never a whole section — a section is a defect area, a cell is a signature. Keep both exact:
+a mistyped heading currently fails nothing, so review is the only thing that catches it.
 
-3. Write the `Do NOT report` list before the `Hunt for` list. The scope boundary is what makes nine
-   personas useful instead of nine copies of the same review.
-4. Compare against every other persona: if two would file the same finding, the boundary is wrong.
-5. Add it to the run matrix above.
+3. Body order: role paragraph, `## Before you judge` when the persona needs an external source, one
+   `##` per thing it hunts, `## Do NOT report`, `## Output`.
+4. Write `Do NOT report` first. The scope boundary is what makes nine personas useful instead of nine
+   copies of the same review.
+5. Compare against every other persona: if two would file the same finding, the boundary is wrong.
+6. Add it to the run matrix above.
 
 ## Related
 

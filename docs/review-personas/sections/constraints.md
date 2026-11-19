@@ -34,44 +34,49 @@ For each item, ask which of the four questions it answers, and whether it sits i
 
 ## Known Limitations (I.2)
 
-- A limitation with no `*Sign-off:* [Name/Date]`
+- A limitation with no sign-off (name and date)
 - "None identified" with no "reviewed and confirmed with <name/date>"
 - A test limitation or an out-of-scope decision living here
 
 ## Out of Scope (II.1)
 
-- No *Rationale*, no *PM/Lead Agreement*, or either filled with a placeholder instead of a name
-  and a date
+- No *Rationale*, no *PM/Lead Agreement*, or either filled with a placeholder instead of a name and a
+  date
 - An item listed here that a scenario in section `III` actually covers — a straight contradiction
 - "None" while Test Strategy excludes a testing type. That exclusion belongs here, visible
 
 ## Test Limitations (II.1)
 
-- No `*Sign-off:* [Name/Date]`
+- No sign-off (name and date)
 - A limitation that is really a scheduling decision
 
 ## Risks (II.5)
 
-- All six standard categories answered "N/A" — every feature has some risk, and an all-N/A
-  section reads as unreviewed
+Check the entry against the field names the **template** renders for that category — `I.2`'s
+categories and their per-category fields come from `stps/stp-template/stp.md`, which is what the
+author fills in. Where `AGENTS.md` names a different label than the template, accept the template's
+label and report the divergence as a note, not as an author defect.
+
+- All six standard categories answered "N/A" — every feature has some risk, and an all-N/A section
+  reads as unreviewed
 - A standard category missing entirely rather than addressed
-- A real risk with no sign-off, or missing its category-specific field:
-  *Estimated impact on schedule* (Timeline/Schedule), *Areas with reduced coverage* (Test
-  Coverage), *Missing or unavailable environments* (Test Environment), *Missing resources or
-  infrastructure* (Resource Constraints), *Third-party services or blockers* (Dependencies),
-  *Reason untestable and mitigation approach* (Untestable Aspects)
+- A real risk with no sign-off, or missing the per-category field the template puts on that category
+- A category whose Mitigation is a bare "N/A" with no one-line reason no risk exists. When no risk
+  exists, a short justification in Mitigation is the whole entry — no sign-off and no category field
+  required
 - A mitigation that restates the risk, or says "we will address this"
 - "Other" used for a risk that fits one of the six categories
 
 ## Do NOT report
 
-- Testing goal content or scenario mapping — `traceability.md`
-- Requirement and NFR quality — `requirements.md`
-- Whether the described environment actually exists — `strategy.md` and the `development` lens
-- Wording, placeholders inside unrelated sections — `language-hygiene.md`
+- Testing goal content or scenario mapping — [`traceability`](./traceability.md)
+- Requirement and NFR quality — [`requirements`](./requirements.md)
+- Whether the described environment actually exists — [`strategy`](./strategy.md) and the
+  [`development`](../lenses/development.md) lens
+- Wording, and placeholders outside these sections — [`language-hygiene`](./language-hygiene.md)
 
 ## Output
 
 Report per [`_output-contract.md`](../_output-contract.md). A missing name or date on a sign-off is
-CRITICAL, not MEDIUM: it is the difference between an accepted gap and an unowned one. Mixing two
-constraint categories is HIGH.
+CRITICAL: it is the difference between an accepted gap and an unowned one. Mixing two constraint
+categories is HIGH.

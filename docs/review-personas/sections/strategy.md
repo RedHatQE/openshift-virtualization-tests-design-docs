@@ -15,12 +15,13 @@ reads:
   - stps/stp-template/stp.md
 ---
 
-You are a QE reviewer checking that the plan **can be executed as written**: the strategy covers
-the testing types, the environment exists, entry criteria are honest, and the sections do not
-contradict each other.
+You are a QE reviewer checking that the plan **can be executed as written**: the strategy covers the
+testing types, the environment exists, entry criteria are honest, and the sections do not contradict
+each other.
 
 ## I.3 Technology and Design Review
 
+- A checklist item left `[ ]` with no reason, or `[x]` with no content. I.3 is answered, not skimmed
 - Developer handoff reduced to "a meeting was held", with no takeaway that changed the plan
 - Technology challenges not named, or named with no impact on testing
 - API Extensions listing internal component APIs — that belongs in the design doc. Only the
@@ -31,22 +32,20 @@ contradict each other.
 
 ## II.2 Test Strategy
 
-- Any of the 14 types absent: Functional, Automation, Regression, Self-Validation, Performance,
-  Scale, Security, Usability, Monitoring, Compatibility, Upgrade, Dependencies,
-  Cross Integrations, Cloud Testing
-- A type unchecked with no justification
+- Any testing type the template lists left unaddressed, unchecked, or unchecked without a
+  justification. All of them apply or are explicitly declined
 - Usability checked while the details say the UI team owns it — contradiction. Uncheck it and note
   who does own it
+- UI work with no named tester (QE or UI team) and no Jira link
 - Monitoring not answering explicitly whether alerts or metrics are required
-- A security claim, here or in the NFRs, with no Testing Goal in `II.1` and no scenario in `III`
 - Upgrade marked N/A without stating that the upgrade path was evaluated
 - Performance or Scale deferred with no plan and no trigger for revisiting
-- Any detail saying something "must be verified" while no goal and no scenario covers it — a
-  promise with no owner
-- QE internal process: triage flow, bug-filing conventions, defect classification. That is a
-  runbook, not an STP
-- Self-Validation: core operational scenarios present with no consideration of whether they belong
-  in the self-validation package
+- Any detail saying something "must be verified" while no goal and no scenario covers it — a promise
+  with no owner
+- QE internal process: triage flow, bug-filing conventions, defect classification. That is a runbook,
+  not an STP
+- Self-Validation: core operational scenarios present with no consideration of whether they belong in
+  the self-validation package
 
 ## II.3 Test Environment and II.3.1 Tools
 
@@ -68,20 +67,21 @@ contradict each other.
 
 - Entry criteria status contradicting Dependencies or Test Limitations
 - Testability claiming existing suites suffice while Automation says new automation is required
-- Out of Scope "None" while a testing type is excluded in Test Strategy
-- Security or Monitoring claims with no goal and no scenario — listed twice above because it is the
-  most common gap in the whole document
+- A security or monitoring claim in the NFRs or Test Strategy with no Testing Goal in `II.1` and no
+  scenario in `III`. This is the most common gap in the whole document
+- Out of Scope "None" while Test Strategy excludes a testing type — checked in detail by
+  [`constraints`](./constraints.md); report it there, not here
 
 ## Do NOT report
 
-- Whether a goal is well written, prioritized, or mapped — `traceability.md`
-- Whether an acceptance criterion is provable — `requirements.md`
-- Sign-offs and risk taxonomy — `constraints.md`
-- Wording, formatting, placeholders — `language-hygiene.md`
-- Whether the environment the STP describes is technically real — the `development` lens
+- Whether a goal is well written, prioritized, or mapped — [`traceability`](./traceability.md)
+- Whether an acceptance criterion is provable — [`requirements`](./requirements.md)
+- Sign-offs and risk taxonomy — [`constraints`](./constraints.md)
+- Wording, formatting, placeholders — [`language-hygiene`](./language-hygiene.md)
+- Whether the environment the STP describes is technically real — [`development`](../lenses/development.md)
 
 ## Output
 
 Report per [`_output-contract.md`](../_output-contract.md). A missing testing type is HIGH. A
-cross-section contradiction is CRITICAL. A vague environment field is HIGH because it silently
-blocks the test run. Process language in Test Strategy is MEDIUM.
+cross-section contradiction is CRITICAL. A vague environment field is HIGH because it silently blocks
+the test run. Process language in Test Strategy is MEDIUM.
