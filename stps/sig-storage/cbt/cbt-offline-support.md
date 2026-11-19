@@ -328,42 +328,36 @@ None — no separate dependency risk identified.
 
 ### **III. Test Scenarios & Traceability**
 
-Offline-specific scenarios extend the parent CBT test plan.
+Offline-specific scenarios extend the parent CBT test plan. Each scenario with push and pull variants requires two independent executions, each with its own backup requests and mode-specific assertions. Coverage requires both executions to pass.
 
 - **[CNV-96511]** — As a cluster admin, I want the disabled HCO offline-backup feature gate to keep stopped-VM backup requests pending without offline output
   - *Test Scenario:* [Tier 1] **TS-01:** Verify disabled offline backup remains pending without output.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want Linux offline push backups to write complete full images without prior history and only changed data in subsequent increments
-  - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental offline push image contents.
-  - *Priority:* P0
-
-- **[CNV-96511]** — As a backup provider, I want Linux offline pull backups over trusted TLS to expose complete full data without prior history and only changed data in subsequent increments
-  - *Test Scenario:* [Tier 1] **TS-03:** Verify full and incremental offline pull retrieval over TLS.
+- **[CNV-96511]** — As a backup provider, I want Linux offline backups in both modes to capture complete disk data in the first full backup and only changed data in subsequent increments.
+  - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental Linux offline backup data.
+  - **Push execution** — Verify the full and incremental images written to the target PVC.
+  - **Pull execution** — Retrieve and verify the full and incremental disk data over trusted HTTPS before deleting each backup request.
   - *Priority:* P0
 
 - **[CNV-96537]** — As a backup provider, I want successive offline backup points in push and pull modes to recover bootable Linux guests with checksums matching guest changes between checkpoints across VM restarts, while incomplete chains fail validation
   - *Test Scenario:* [Tier 2] **TS-04:** Validate bootable Linux recovery with changed data between checkpoints.
   - *Priority:* P0
 
-- **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline push full baselines without history and increments from offline/online checkpoints to recover bootable guests with matching data, reject incomplete chains, and block startup until writing completes, preserving persistent vTPM/EFI configuration
-  - *Test Scenario:* [Tier 3] **TS-05:** Validate Windows offline push integrity and startup gating.
-  - *Priority:* P0
-
-- **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline pull full baselines without history and increments from offline/online checkpoints to recover bootable guests with matching data, reject incomplete chains, and block startup until request deletion, preserving persistent vTPM/EFI configuration
-  - *Test Scenario:* [Tier 3] **TS-06:** Validate Windows offline pull integrity and startup gating.
+- **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline recovery in both modes to produce bootable guests with matching data checksums and preserved persistent vTPM/EFI configuration. Verify recovery from a full baseline without prior backup history and from increments based on online and offline checkpoints. Verify that incomplete chains fail recovery validation.
+  - *Test Scenario:* [Tier 3] **TS-05:** Validate Windows offline recovery and startup gating.
+  - **Push execution** — Run the recovery checks using push backups and verify the Windows VM follows the push startup rules in TS-08.
+  - **Pull execution** — Run the recovery checks using pull backups and verify the Windows VM follows the pull startup rules in TS-08.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want Linux online history to support Linux offline increments and subsequent VM startup in push and pull modes
   - *Test Scenario:* [Tier 2] **TS-07:** Verify online checkpoints support offline increments across backup modes.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a cluster admin, I want Linux VM startup blocked throughout offline push writing and allowed after successful completion
-  - *Test Scenario:* [Tier 2] **TS-08:** Verify startup stays blocked during offline push, then resumes.
-  - *Priority:* P0
-
-- **[CNV-96511]** — As a cluster admin, I want Linux VM startup blocked throughout a successful offline pull and allowed after request deletion
-  - *Test Scenario:* [Tier 2] **TS-09:** Verify startup stays blocked during offline pull until deletion.
+- **[CNV-96511]** — As a cluster admin, I want Linux VM startup blocked while an offline backup is active and allowed when it completes according to its mode.
+  - *Test Scenario:* [Tier 2] **TS-08:** Verify VM startup waits for offline backup completion.
+  - **Push execution** — Attempt startup while the backup is writing and verify it stays blocked. Verify startup is allowed after writing succeeds and the backup completes.
+  - **Pull execution** — Attempt startup while the backup is active and verify it stays blocked, including after successful retrieval. Verify startup is allowed after deleting the backup request.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want interrupted preparation in either mode to resume the original request without corruption, and failed or cancelled pushes to preserve history, release startup and permit retry
