@@ -30,12 +30,12 @@ template.
 
 | Section persona | Owns |
 |---|---|
-| [`requirements`](./sections/requirements.md) | Metadata, Feature Overview, requirements, NFRs |
+| [`requirements`](./sections/requirements.md) | Metadata and links, Feature Overview, requirements, NFRs |
 | [`traceability`](./sections/traceability.md) | Testing Goals, scenarios, tiers, priorities, IDs |
 | [`constraints`](./sections/constraints.md) | Known Limitations, Out of Scope, Test Limitations, Risks |
-| [`strategy`](./sections/strategy.md) | Technology review, Test Strategy, Environment, Entry Criteria |
-| [`language-hygiene`](./sections/language-hygiene.md) | User perspective, conventions, placeholders, markdown |
-| [`multi-sig`](./sections/multi-sig.md) | Parent/child STP structure, Section IV roles |
+| [`strategy`](./sections/strategy.md) | Technology review, Test Strategy, Test Environment, Tools, Entry Criteria, cross-section consistency |
+| [`language-hygiene`](./sections/language-hygiene.md) | User perspective, evidence, conventions, placeholders, concision, markdown |
+| [`multi-sig`](./sections/multi-sig.md) | Child STPs, parent/child structure, Section IV roles |
 
 | Lens | Signs |
 |---|---|
@@ -44,6 +44,8 @@ template.
 | [`test-quality`](./lenses/test-quality.md) | QE Lead approval; scenario design it will vouch for |
 
 ## Who runs what
+
+This table is also called *the run matrix* below — same thing.
 
 | Persona | Run by | Output gates |
 |---|---|---|
@@ -72,6 +74,7 @@ Read docs/review-personas/sections/traceability.md, AGENTS.md, and
 docs/review-personas/_output-contract.md, and follow them.
 
 STP: stps/sig-network/<feature>/stp.md
+Reviewed at: <commit sha>
 Diff:
 <paste `gh pr diff 123` output here>
 ```
@@ -83,24 +86,42 @@ persona reports in the contract's format.
 ### Level 2 — one subagent per persona
 
 Run each persona in its own context so findings do not bleed between streams. Keep the diff inside
-the repository — an agent confined to its working directory cannot read `/tmp` — and grant the file
-access explicitly, because with output redirected nobody is there to answer a permission prompt:
+the repository — an agent confined to its working directory cannot read `/tmp` — write the reports to
+one scratch directory, and grant the file access explicitly, because with output redirected nobody is
+there to answer a permission prompt:
 
 ```bash
-gh pr diff 123 > review-diff.patch
+mkdir -p review-out                     # gitignore this, or delete it when done
+SHA=$(gh pr view 123 --json headRefOid --jq .headRefOid)
+gh pr diff 123 > review-out/pr.patch
 for p in requirements traceability constraints strategy language-hygiene multi-sig; do
   claude -p "Follow the persona in docs/review-personas/sections/$p.md together with
-AGENTS.md and docs/review-personas/_output-contract.md. Review review-diff.patch and the
-changed STP files. Report per the output contract." \
-    --allowedTools Read,Bash \
-    > "review-$p.md"
+AGENTS.md and docs/review-personas/_output-contract.md. Review review-out/pr.patch and the
+changed STP files. Reviewed at: $SHA. Report per the output contract." \
+    --allowedTools Read \
+    > "review-out/$p.md"
 done
+rm review-out/pr.patch                  # the reports stay; the diff need not
 ```
 
-The flag name is CLI-specific — check `claude --help` (or your tool's equivalent) before relying on
-an unattended run. Run all six section personas: a run that skips some is not a clean run, and the
-run header must name what was skipped. Do not run lenses in the same pass as section personas — a
-lens needs the author's answers to the defects first.
+`Read` is enough once the patch is on disk — grant `Bash` too only if you want the persona to run
+`git`/`gh` itself, which also lets a review write into the tree it is reviewing. The flag name is
+CLI-specific: check `claude --help` (or your tool's equivalent) before an unattended run.
+
+Run all six section personas. A run that skips some is not a clean run, and the merge owner records
+what was skipped in the `## Coverage` block.
+
+### The lens pass
+
+Lenses run **after** the author has answered the section findings — a lens asked too early re-asks
+questions QE is about to fix. Each lens needs what its role reads, and no assistant can fetch Jira:
+
+- `lenses/product-manager`: paste the feature request and its acceptance criteria
+- `lenses/development`: paste the VEP/design doc, and point it at the implementation PR
+- `lenses/test-quality`: needs only the STP and `docs/testing-tiers.md`
+
+Run them in any order, in separate contexts, and treat a lens that reports "no design source linked"
+as correct behaviour — it stops rather than guesses.
 
 ### Level 3 — a native tool adapter
 
@@ -142,9 +163,11 @@ reads:                   # files, plus any external source the persona needs
 ```
 
 `owns:` takes an `AGENTS.md` heading, optionally suffixed `(partial: ...)` naming the sub-part this
-persona owns when a heading is split. `signs:` takes a sign-off cell with the name of the person who
-fills it, never a whole section — a section is a defect area, a cell is a signature. Keep both exact:
-a mistyped heading currently fails nothing, so review is the only thing that catches it.
+persona owns when a heading is split. `signs:` takes a sign-off **cell** and who fills it — never a
+whole section, never a `(partial: ...)`: a section is a defect area, a cell is a signature. Where a
+lens vouches for a section that has no cell (scenario design in `III`), that belongs in its prose,
+not in `signs:`. Keep both exact: a mistyped heading currently fails nothing, so review is the only
+thing that catches it.
 
 3. Body order: role paragraph, `## Before you judge` when the persona needs an external source, one
    `##` per thing it hunts, `## Do NOT report`, `## Output`.

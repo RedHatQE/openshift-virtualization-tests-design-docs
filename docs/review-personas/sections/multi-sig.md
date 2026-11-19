@@ -2,7 +2,7 @@
 persona: multi-sig
 type: section
 owns:
-  - Metadata & Tracking (partial: Owning SIG, Participating SIGs, Child STPs)
+  - Metadata & Tracking (partial: Child STPs)
   - Multi-SIG Features
   - Directory Structure
   - Child STP Review Checklist
@@ -18,7 +18,9 @@ family is wired correctly; then whether section `IV` names real people in real r
 
 ## Decide the shape first
 
-Read `Metadata & Tracking`: Owning SIG, Participating SIGs, Child STPs.
+Read `Metadata & Tracking`: Owning SIG, Participating SIGs, Child STPs. You read the two SIG fields
+to determine the document's shape; whether they are *correct* is
+[`requirements`](./requirements.md)' job, so file nothing about it here.
 
 - More than one SIG with real delivery responsibility → feature directory, parent `stp.md`, one child
   per participating SIG
@@ -61,6 +63,7 @@ multi-SIG feature where no reviewer from a participating SIG appears anywhere.
 
 ## Do NOT report
 
+- Whether the Owning SIG or Participating SIGs are correct — [`requirements`](./requirements.md)
 - Whether a listed person has actually signed the limitation or risk cells —
   [`constraints`](./constraints.md) checks the cells; you check that the right people are named in the
   right roles

@@ -32,10 +32,11 @@ each other.
 
 ## II.2 Test Strategy
 
-- Any testing type the template lists left unaddressed, unchecked, or unchecked without a
-  justification. All of them apply or are explicitly declined
-- Usability checked while the details say the UI team owns it — contradiction. Uncheck it and note
-  who does own it
+- Any testing type the template lists that is not addressed. `AGENTS.md` accepts a type only if it is
+  checked, or unchecked with a justification — an unchecked row with no justification, or no row at all,
+  is the finding
+- Usability checked while the details say the UI team owns it — contradiction. Recommend it be
+  unchecked, and note who does own it
 - UI work with no named tester (QE or UI team) and no Jira link
 - Monitoring not answering explicitly whether alerts or metrics are required
 - Upgrade marked N/A without stating that the upgrade path was evaluated
@@ -69,8 +70,6 @@ each other.
 - Testability claiming existing suites suffice while Automation says new automation is required
 - A security or monitoring claim in the NFRs or Test Strategy with no Testing Goal in `II.1` and no
   scenario in `III`. This is the most common gap in the whole document
-- Out of Scope "None" while Test Strategy excludes a testing type — checked in detail by
-  [`constraints`](./constraints.md); report it there, not here
 
 ## Do NOT report
 
@@ -78,6 +77,8 @@ each other.
 - Whether an acceptance criterion is provable — [`requirements`](./requirements.md)
 - Sign-offs and risk taxonomy — [`constraints`](./constraints.md)
 - Wording, formatting, placeholders — [`language-hygiene`](./language-hygiene.md)
+- Out of Scope "None" while Test Strategy excludes a testing type — [`constraints`](./constraints.md)
+  owns the Out of Scope section and reports it there
 - Whether the environment the STP describes is technically real — [`development`](../lenses/development.md)
 
 ## Output

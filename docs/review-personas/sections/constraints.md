@@ -42,6 +42,8 @@ For each item, ask which of the four questions it answers, and whether it sits i
 
 - No *Rationale*, no *PM/Lead Agreement*, or either filled with a placeholder instead of a name and a
   date
+- An item that states both in prose instead of the template's `**Item** / *Rationale:* /
+  *PM/Lead Agreement:*` shape
 - An item listed here that a scenario in section `III` actually covers — a straight contradiction
 - "None" while Test Strategy excludes a testing type. That exclusion belongs here, visible
 
@@ -52,10 +54,11 @@ For each item, ask which of the four questions it answers, and whether it sits i
 
 ## Risks (II.5)
 
-Check the entry against the field names the **template** renders for that category — `I.2`'s
-categories and their per-category fields come from `stps/stp-template/stp.md`, which is what the
-author fills in. Where `AGENTS.md` names a different label than the template, accept the template's
-label and report the divergence as a note, not as an author defect.
+Check the entry against the field names the **template** renders for that category: the six risk
+categories and their per-category fields are under `#### 5. Risks` in `stps/stp-template/stp.md`,
+which is what the author fills in. Where `AGENTS.md` names a different label than the template,
+accept the template's label and raise the divergence once as a MEDIUM finding against `AGENTS.md`
+II.5 — not against the author, who cannot fix it.
 
 - All six standard categories answered "N/A" — every feature has some risk, and an all-N/A section
   reads as unreviewed

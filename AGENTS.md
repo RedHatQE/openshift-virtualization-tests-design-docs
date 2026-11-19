@@ -22,7 +22,6 @@ Personas compress this checklist; they add no rule of their own. Where a persona
 disagree, the template is right and both are corrected in the same PR. Each persona is a prompt you hand
 to your AI assistant; findings follow the format in
 [`_output-contract.md`](./docs/review-personas/_output-contract.md).
-
 ---
 
 ## Review personas

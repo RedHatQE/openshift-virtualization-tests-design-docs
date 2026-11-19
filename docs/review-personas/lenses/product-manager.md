@@ -3,7 +3,7 @@ persona: product-manager
 type: lens
 signs:
   - IV — Sign-off and Approval (Approvers: Product Manager)
-  - II.1 — Scope of Testing (partial: Out of Scope *PM/Lead Agreement*)
+  - II.1 — Scope of Testing (Out of Scope *PM/Lead Agreement*)
   - I.2 — Known Limitations (Sign-off)
   - II.5 — Risks (Sign-off, business exposure)
 reads:

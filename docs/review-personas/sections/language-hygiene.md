@@ -52,6 +52,12 @@ Grep-able starting points: `spec.`, `metadata.`, `kind:`, `controller`, `operato
 - An HTML comment or the template's example text left in a finished STP
 - An instruction addressed to the author ("Replace examples with your actual items")
 
+## Evidence
+
+- A claim stated as fact with nothing behind it: no Jira link, no design reference, no sign-off, no
+  date. This is Core Principle 2, and it is the only place it is checked for prose outside the
+  limitation, risk and sign-off cells that [`constraints`](./constraints.md) covers
+
 ## Concision
 
 - A wall of prose where a list of observable claims belongs

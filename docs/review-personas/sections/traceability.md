@@ -34,6 +34,7 @@ You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belo
   completes") with no mechanism explaining why X's history changes the outcome versus a baseline
 - A regression goal that does not name which SIG test suites run on the feature cluster. Regression
   goals are allowed in Testing Goals — but the suite must be named, or the goal is untraceable
+- New functional goals and regression goals not distinguished from each other
 - A goal with no matching scenario in section `III`
 
 ## Scenarios

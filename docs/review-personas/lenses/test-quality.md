@@ -3,7 +3,6 @@ persona: test-quality
 type: lens
 signs:
   - IV — Sign-off and Approval (Approvers: QE Lead)
-  - III — Test Scenarios & Traceability (scenario design this role vouches for)
 reads:
   - AGENTS.md
   - docs/testing-tiers.md
@@ -42,16 +41,19 @@ not repeat its findings.
 
 ## Cost and stability
 
-- A scenario whose runtime or setup cost dwarfs what it proves, unreflected in the tier or the plan
 - Flakiness sources unaddressed: fixed sleeps, timing windows, contention with parallel tests, an
   external network dependency
 - Duplication with an existing SIG suite, with no stated reason to re-cover it
+
+A scenario whose runtime or setup cost does not match its tier is [`traceability`](../sections/traceability.md)'s
+finding, not yours.
 
 ## What you emit
 
 - A defect row for a scenario that cannot fail, with the mutation it would survive
 - A DECISION row when accepting the gap is a leadership call rather than an author fix
-- A SIGN-OFF row for section `III` when you are prepared to vouch for the scenario design
+- A SIGN-OFF row for the QE Lead's cell in `IV` — not for `III`, which has no sign-off cell; that you
+  vouch for the scenario design is said in your report prose
 
 ## Do NOT report
 
