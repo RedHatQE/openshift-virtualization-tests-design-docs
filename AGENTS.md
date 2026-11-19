@@ -10,6 +10,19 @@ Evaluate new and edited STPs against the current template and guide. Existing ST
 with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
 rather than requiring it.
 
+## Review Personas
+
+Reviewer personas for STP pull requests live in
+[review personas](./docs/review-personas/README.md). The six `sections/` personas partition the checks
+below by review focus; the three `lenses/` personas carry the sign-off functions the template requires,
+and two of them also own a check no section persona can perform: whether an environment can be
+provisioned, and whether a scenario could fail at all or would fail only intermittently.
+
+Personas compress this checklist; they add no rule of their own. Where a persona and the template
+disagree, the template is right and both are corrected in the same PR. Each persona is a prompt you hand
+to your AI assistant; findings follow the format in
+[`_output-contract.md`](./docs/review-personas/_output-contract.md).
+
 ---
 
 ## Core Principles
