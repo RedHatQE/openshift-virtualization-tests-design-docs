@@ -64,8 +64,10 @@ owner produces template noise that buries the decision.
 
 ## Running one
 
-The YAML block at the top of each persona is metadata for humans and tooling. The prose after it is
-the prompt; `reads:` lists the files to give the assistant along with the persona.
+The YAML block at the top of each persona is metadata for humans and tooling; quote a value that
+contains a colon, or YAML reads it as a mapping. The prose after it is the prompt. `reads:` lists what
+to give the assistant: repository paths, plus any external source — feature request, VEP — that only
+a human can paste.
 
 ### Level 1 — paste it
 
@@ -154,23 +156,34 @@ persona: <file-name-without-extension>
 type: section            # or: lens
 owns:                    # section only — heading text from AGENTS.md
   - II.5 — Risks
-signs:                   # lens only — the sign-off CELLS this role completes
-  - IV — Sign-off and Approval (Approvers: QE Lead)
-  - II.5 — Risks (Sign-off)
-reads:                   # files, plus any external source the persona needs
+signs:                   # lens only — the sign-off cells this role completes
+  - "IV — Sign-off and Approval (Approvers: QE Lead)"
+  - "II.5 — Risks (Sign-off)"
+reads:                   # repository paths, plus external sources a human pastes
   - AGENTS.md
 ---
 ```
 
+Quote any value containing a colon. `- II.5 — Risks (Sign-off)` survives unquoted, but
+`- II.1 — Scope of Testing (partial: Testing Goals)` is silently parsed as a mapping rather than a
+string, so the convention is to quote them all.
+
 `owns:` takes an `AGENTS.md` heading, optionally suffixed `(partial: ...)` naming the sub-part this
-persona owns when a heading is split. `signs:` takes a sign-off **cell** and who fills it — never a
-whole section, never a `(partial: ...)`: a section is a defect area, a cell is a signature. Where a
-lens vouches for a section that has no cell (scenario design in `III`), that belongs in its prose,
-not in `signs:`. Keep both exact: a mistyped heading currently fails nothing, so review is the only
+persona owns when a heading is split. `signs:` takes a sign-off **cell** — the section whose per-item
+cells this role fills, so `II.5 — Risks (Sign-off)` means every risk's `*Sign-off:*` — or the role's
+cell in `IV`. Never a section with no cell behind it: a section with nothing to sign is a defect
+area, and defect areas are `owns:`. Where a lens vouches for a section that has no cell at all, that
+goes in its prose. Keep both exact: a mistyped heading currently fails nothing, so review is the only
 thing that catches it.
 
-3. Body order: role paragraph, `## Before you judge` when the persona needs an external source, one
-   `##` per thing it hunts, `## Do NOT report`, `## Output`.
+**Precedence, stated once:** the template renders the structure and the field names, `AGENTS.md`
+defines the checks, and a persona overrides neither. Where a persona and `AGENTS.md` disagree,
+`AGENTS.md` wins and both change in the same PR; where `AGENTS.md` and the template disagree on a
+field's name, the template wins and the divergence is a finding against `AGENTS.md`.
+
+3. Body order: role paragraph; one preamble `##` when the persona needs an external source or a
+   decision rule, named for what it establishes (`## Before you judge`, `## First: get the design`);
+   one `##` per thing it hunts; `## What you emit` for a lens; `## Do NOT report`; `## Output`.
 4. Write `Do NOT report` first. The scope boundary is what makes nine personas useful instead of nine
    copies of the same review.
 5. Compare against every other persona: if two would file the same finding, the boundary is wrong.

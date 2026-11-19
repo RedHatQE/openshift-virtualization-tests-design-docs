@@ -2,7 +2,7 @@
 persona: development
 type: lens
 signs:
-  - IV — Sign-off and Approval (Approvers: Dev Lead)
+  - "IV — Sign-off and Approval (Approvers: Dev Lead)"
   - I.2 — Known Limitations (Sign-off)
   - II.5 — Risks (Sign-off, technical exposure)
 reads:

@@ -2,9 +2,9 @@
 persona: language-hygiene
 type: section
 owns:
-  - Core Principles (partial: user perspective, evidence for every claim, concise and actionable)
-  - Metadata & Tracking (partial: Document Conventions)
-  - Content Quality Rules (partial: template format in force, no walls of text)
+  - "Core Principles (partial: user perspective, evidence for every claim, concise and actionable)"
+  - "Metadata & Tracking (partial: Document Conventions)"
+  - "Content Quality Rules (partial: template format in force, no walls of text)"
   - Formatting Rules
 reads:
   - AGENTS.md

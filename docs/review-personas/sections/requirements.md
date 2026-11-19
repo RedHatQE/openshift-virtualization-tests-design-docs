@@ -2,7 +2,9 @@
 persona: requirements
 type: section
 owns:
-  - Metadata & Tracking (partial: Enhancement, Feature Tracking, Epic Tracking, Feature Maturity, QE Owner, SIGs, following the linked request, VEP/design-doc consistency)
+  - "Metadata & Tracking (partial: Enhancement, Feature Tracking, Epic Tracking)"
+  - "Metadata & Tracking (partial: Feature Maturity, QE Owner, SIGs)"
+  - "Metadata & Tracking (partial: following the linked request, VEP/design-doc consistency)"
   - Feature Overview
   - I.1 — Requirement & User Story Review
 reads:
@@ -72,8 +74,8 @@ The template's own NFR bullet is illustrative and wider; do not demand a positio
 - Scalability answered "no new scale requirements" while the feature rides a platform mechanism that
   already has cluster-level limits — live migration parallelism is the usual one. Whether that limit
   shows up in the environment description is the [`development`](../lenses/development.md) lens
-- UI answered "no UI changes" with no indication that PM or UX was asked. Whether UI testing adds
-  customer value is their call; you check that the call is visible
+- UI answered "no UI changes" with no reason given at all. Whether that dismissal is acceptable is
+  the [`product-manager`](../lenses/product-manager.md) lens's call; report here only its absence
 - Security claimed, but nothing a user can observe is required to verify it
 
 ## Do NOT report

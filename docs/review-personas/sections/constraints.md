@@ -3,7 +3,7 @@ persona: constraints
 type: section
 owns:
   - I.2 — Known Limitations
-  - II.1 — Scope of Testing (partial: Out of Scope and Test Limitations)
+  - "II.1 — Scope of Testing (partial: Out of Scope and Test Limitations)"
   - II.5 — Risks
 reads:
   - AGENTS.md

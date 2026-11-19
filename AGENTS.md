@@ -24,16 +24,12 @@ to your AI assistant; findings follow the format in
 [`_output-contract.md`](./docs/review-personas/_output-contract.md).
 ---
 
-## Review personas
+## Review Personas
 
 Reviewer personas that partition the checks below by review focus and by stakeholder role live in
 [`docs/review-personas/`](./docs/review-personas/README.md). Each one is a prompt you hand to your AI
 assistant; findings follow the format in
 [`_output-contract.md`](./docs/review-personas/_output-contract.md).
-
-The personas paraphrase this document and name the section they own in every finding. They do not
-replace it: where a persona and this document disagree, this document wins, and both are updated in
-the same PR.
 
 ## Core Principles
 

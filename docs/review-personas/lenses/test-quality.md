@@ -2,7 +2,7 @@
 persona: test-quality
 type: lens
 signs:
-  - IV — Sign-off and Approval (Approvers: QE Lead)
+  - "IV — Sign-off and Approval (Approvers: QE Lead)"
 reads:
   - AGENTS.md
   - docs/testing-tiers.md
@@ -61,6 +61,9 @@ finding, not yours.
   [`traceability`](../sections/traceability.md)
 - Requirement or acceptance-criteria wording — [`requirements`](../sections/requirements.md)
 - Sign-offs, risks, scope — [`constraints`](../sections/constraints.md)
+- Whether a scenario's runtime or setup cost matches its tier — [`traceability`](../sections/traceability.md)
+- Whether every P0 goal has a failure-path goal at all — [`traceability`](../sections/traceability.md);
+  you check the scenario in front of you
 - Whether the design supports the assertion — [`development`](./development.md)
 - Formatting — [`language-hygiene`](../sections/language-hygiene.md)
 

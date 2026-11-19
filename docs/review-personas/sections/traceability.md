@@ -2,7 +2,7 @@
 persona: traceability
 type: section
 owns:
-  - II.1 — Scope of Testing (partial: Testing Goals)
+  - "II.1 — Scope of Testing (partial: Testing Goals)"
   - III — Test Scenarios & Traceability
 reads:
   - AGENTS.md
@@ -26,8 +26,9 @@ You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belo
 - Not verifiable as written: no observable result, no bound, no way to fail. The standard is SMART —
   Specific, Measurable, Achievable, Relevant, Verifiable
 - No negative or failure-path goal for a P0 goal: the operation fails, the VM starts mid-operation,
-  the boot source is unavailable. If negatives are out of scope, they must appear as an Out of Scope
-  entry with PM/Lead agreement — not as silence
+  the boot source is unavailable. This is the goal-level check; whether an individual scenario can
+  fail is the [`test-quality`](../lenses/test-quality.md) lens. If negatives are out of scope, they
+  must appear as an Out of Scope entry with PM/Lead agreement — not as silence
 - A goal naming one configuration dimension and leaving the others to be guessed — binding type
   without the CNI, architecture without the boot source
 - A goal about behaviour *after* the system reached a stable state ("VM is migratable once X

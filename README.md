@@ -33,7 +33,7 @@ Centralize QE documentation and test planning to ensure:
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
 | [STP Guide](./docs/stp-guide.md)               | Guide to Software Test Plans: purpose of each part, lifecycle, and best practices   |
 | [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
-| [Review Personas](./docs/review-personas/README.md) | Reviewer personas for STP pull requests — one per review focus, one per approver role |
+| [Review Personas](./docs/review-personas/README.md) | Reviewer personas for STP pull requests — one per review focus, one per approver role        |
 
 ### Templates
 
@@ -180,16 +180,17 @@ author's lead. The QE Owner(s) named in the metadata own and write the testing p
 - [Testing Tiers Guide](./docs/testing-tiers.md)
 - [STP Template](./stps/stp-template/stp.md)
 - [Child STP Template](./stps/stp-template/child-stp.md)
+- [Review Personas](./docs/review-personas/README.md)
 
 ## Contributing
 
 1. Create the STP from the [template](./stps/stp-template/stp.md), which defines structure and format
 2. Follow the [STP Guide](./docs/stp-guide.md) for purpose and process
 3. Ensure proper test tier coverage per [Testing Tiers Guide](./docs/testing-tiers.md)
-4. Get stakeholder approval before testing begins
-5. Ensure automation is merged before GA
-6. Review the PR with the [review personas](./docs/review-personas/README.md) — run the section
-   personas as the author or QE reviewer, and let each approver run their own lens
+4. Review the PR with the [review personas](./docs/review-personas/README.md) — run the section
+   personas as the author or QE reviewer, let each approver run their own lens
+5. Get stakeholder approval before testing begins
+6. Ensure automation is merged before GA
 
 ## Support
 

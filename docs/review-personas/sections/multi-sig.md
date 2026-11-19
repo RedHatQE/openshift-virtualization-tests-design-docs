@@ -2,7 +2,7 @@
 persona: multi-sig
 type: section
 owns:
-  - Metadata & Tracking (partial: Child STPs)
+  - "Metadata & Tracking (partial: Child STPs)"
   - Multi-SIG Features
   - Directory Structure
   - Child STP Review Checklist
@@ -49,7 +49,7 @@ to determine the document's shape; whether they are *correct* is
 - Per-SIG regression responsibility not stated for any participating SIG
 - A cross-SIG scenario — cross-architecture connectivity, cross-SIG integration — with no named owner
 
-## IV. Sign-off and Approval
+## IV — Sign-off and Approval
 
 - An approver without a role label (QE Lead, Dev Lead, Product Manager). A bare handle does not say
   what the person approved

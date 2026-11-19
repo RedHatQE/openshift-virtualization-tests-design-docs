@@ -19,7 +19,7 @@ You are a QE reviewer checking that the plan **can be executed as written**: the
 testing types, the environment exists, entry criteria are honest, and the sections do not contradict
 each other.
 
-## I.3 Technology and Design Review
+## I.3 — Technology and Design Review
 
 - A checklist item left `[ ]` with no reason, or `[x]` with no content. I.3 is answered, not skimmed
 - Developer handoff reduced to "a meeting was held", with no takeaway that changed the plan
@@ -30,7 +30,7 @@ each other.
   topology: how many clusters, which network stack, what storage backend, which platform, and what
   that means for the test design
 
-## II.2 Test Strategy
+## II.2 — Test Strategy
 
 - Any testing type the template lists that is not addressed. `AGENTS.md` accepts a type only if it is
   checked, or unchecked with a justification — an unchecked row with no justification, or no row at all,
@@ -48,7 +48,7 @@ each other.
 - Self-Validation: core operational scenarios present with no consideration of whether they belong in
   the self-validation package
 
-## II.3 Test Environment and II.3.1 Tools
+## II.3 — Test Environment and II.3.1 — Testing Tools & Frameworks
 
 - An empty field rather than a value or an explicit N/A
 - OCP or OpenShift Virtualization version vague when an exact version or qualified range is known
@@ -58,13 +58,13 @@ each other.
 - Standard tooling listed (pytest and friends). Only new or non-standard tools belong here
 - A CI lane or Jenkins job needed for the tests but not documented
 
-## II.4 Entry Criteria
+## II.4 — Entry Criteria
 
 - Fewer than: requirements approved, test environment configured
 - No feature-specific criterion where the feature plainly needs one
 - `[x]` on an item that Dependencies or Test Limitations still describe as a blocker
 
-## II.4.1 Cross-section consistency
+## II.4.1 — Cross-Section Consistency
 
 - Entry criteria status contradicting Dependencies or Test Limitations
 - Testability claiming existing suites suffice while Automation says new automation is required
