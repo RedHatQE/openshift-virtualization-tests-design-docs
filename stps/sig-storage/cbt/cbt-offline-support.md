@@ -24,7 +24,7 @@
 
 ### **Feature Overview**
 
-Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. This plan covers Alpha, opt-in offline backup in CNV v5.1.0, enabled through an HCO offline-backup feature gate, extending the existing backup API so backup providers can perform consistent full and incremental backups of eligible stopped (offline) VMs. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Recovered guest bootability and data checks validate backup integrity without claiming a CNV restore product API.
+Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. Offline CBT extends the existing backup API so backup providers can perform full and incremental backups of eligible stopped VMs. This plan targets GA in CNV v5.2.0 and marks checks also required at Tech Preview in CNV v5.1.0, when offline backup is enabled through an HCO feature gate. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Recovered guest bootability and data checks validate backup integrity without claiming a CNV restore product API.
 
 ---
 
@@ -77,17 +77,17 @@ technology, and testability before formal test planning.
     - Scalability: N/A for new scale dimensions — offline backup uses the same CBT mechanism; existing cluster-level backup parallelism limits apply
     - UI: No CNV console changes — per epic non-requirement; QE validates API behavior only
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following are confirmed product constraints accepted before testing begins.
 
 - **Never-started VMs cannot be backed up in CNV v5.1.0**
-  - Offline backup requires a VM that has previously started with CBT enabled. A never-started VM has no tracking overlay and its backup request returns an error. [CNV-100648](https://redhat.atlassian.net/browse/CNV-100648) tracks adding full-backup support for that case; the issue is New and targets CNV v5.2.0.
+  - In CNV v5.1.0, offline backup requires a VM that has previously started with CBT enabled. A backup of a never-started VM fails during initialization . [CNV-100648](https://redhat.atlassian.net/browse/CNV-100648) tracks full-backup support. The planned GA check applies once that support is delivered in the GA build.
   - *Sign-off:* [Name/Date]
 
 - **No incremental checkpoint baseline for never-started VMs in CNV v5.1.0**
-  - [CNV-100650](https://redhat.atlassian.net/browse/CNV-100650) depends on CNV-100648 and tracks recording a checkpoint during the future first full backup of a never-started VM, so subsequent incremental backups can identify zero changes. This dependent behavior is unavailable in CNV v5.1.0; the preceding limitation prevents a successful first backup for these VMs.
+  - CNV v5.1.0 cannot create this checkpoint because the first backup fails. [CNV-100650](https://redhat.atlassian.net/browse/CNV-100650) depends on CNV-100648 and has no confirmed GA delivery. If delivered for GA, verify that the first full backup establishes a usable checkpoint and a subsequent incremental backup of the untouched VM reports zero changes in separate push and pull runs.
   - *Sign-off:* [Name/Date]
 
 - **Repeated unchanged increments require target-build confirmation**
@@ -148,15 +148,27 @@ and schedule.
 
 **Testing Goals**
 
-- **[P0] G01 — Availability controls:** As a cluster admin, verify disabled offline backup requests remain pending without offline output.
-- **[P0] G02 — Offline backup correctness:** As a backup provider, verify full and incremental push and pull backups expose the expected data of eligible stopped VMs, and validate repeated unchanged increments against the target-build contract agreed before execution.
-- **[P0] G03 — Backup integrity:** As a backup provider, verify recovered Linux and Windows guests boot with checksums matching each backup point; incomplete chains or unavailable disks must not yield successful recovery validation.
+- **[P0] G01 — Availability controls:** As a cluster admin, verify that in CNV v5.1.0, stopped-VM backup requests remain pending without offline output when the HCO offline-backup feature gate is disabled.
+- **[P0][TP] G02 — Linux offline backup correctness:** As a backup provider, verify full and incremental push and pull backups expose the expected data of eligible stopped Linux VMs.
+- **[P0][TP] G03 — Linux recovery integrity:** As a backup provider, verify recovered Linux guests boot with checksums matching each backup point and that incomplete Linux backup chains fail recovery validation.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
-- **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while never-started VMs, overlapping requests and residual source activity cannot produce unsafe backup output.
+- **[P0] G12 — Unchanged increments:** As a backup provider, verify repeated unchanged increments follow the target-build contract agreed before execution.
+- **[P0] G13 — Extended backup integrity:** As a backup provider, verify recovered Windows guests boot with checksums matching each backup point and that incomplete Windows backup chains fail recovery validation. Verify that unavailable disks prevent successful recovery validation.
+- **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output. In CNV v5.1.0, verify that backups of never-started VMs fail safely.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
+- **[P1] G10 — Upgrade continuity:** As a backup provider, verify that an online checkpoint created before a supported upgrade into the GA release remains usable for offline incremental backup in both modes.
+- **[P1] G11 — First backup of never-started VMs:** As a backup provider, verify that a never-started VM can be backed up in both modes once CNV-100648 is delivered in the GA build.
 - **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
+
+**Priority Levels:**
+
+- **P0** — Blocks GA.
+- **P1** — Required for full feature coverage.
+- **P2** — May be deferred if time is limited.
+
+**Phase tag (optional):** Priorities refer to GA. If the same expectation must also pass at Tech Preview, use `[P0][TP]` for a goal or `P0 [TP]` on a scenario's Priority line. Use the phase names from Feature Maturity. Checks specific to an earlier release name that release in the goal or scenario.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -227,9 +239,8 @@ found will not be classified as defects for this release.
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* Validate Linux and Windows guests with QCOW2 tracking overlays on supported block/filesystem and CSI backends. Prior online backup history must remain compatible with offline increments.
 
-- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions was considered but is deferred to a more mature phase.
-  - *Details:* With beta graduation the api is not required to be backward compatible.
-
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* Validate online checkpoint continuity for offline incremental backups after a supported upgrade into the GA release.
 - [x] **Dependencies** — Blocked by deliverables from other components/products
   - *Details:* VEP 401 and KubeVirt implementation PR #19294 are merged; CNV-96536 is Closed in fresh Jira. Execution still requires a compatible downstream build exposing the HCO offline-backup feature gate and offline backup API.
 
@@ -245,7 +256,7 @@ found will not be classified as defects for this release.
 
 - **Cluster Topology:** Standard (3-master/3-worker or equivalent CI topology)
 
-- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 on the OCP release listed as compatible in the CNV v5.1 build metadata.
+- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 for release-specific checks, on a compatible OCP release. For GA upgrade testing, use the confirmed source and target CNV builds and the supported OCP versions for the upgrade path.
 
 - **CPU Virtualization:** Standard
 
@@ -261,7 +272,7 @@ found will not be classified as defects for this release.
 
 - **Platform:** Standard (bare metal or virtualized — no platform-specific offline backup behavior)
 
-- **Special Configurations:** HCO enablement and preservation of the offline feature gate in effective KubeVirt configuration are environment prerequisites. CBT and offline incremental backup (`OfflineIncrementalBackup`) are enabled for positive cases; TS-01 covers disabled offline backup. Positive VM fixtures meet the prior-start eligibility in Known Limitations; QCOW2 tracking overlays may use raw backing disks
+- **Special Configurations:** Enable CBT for positive cases. For builds that require opt-in, HCO must apply and preserve the offline backup feature gate (`OfflineIncrementalBackup`). TS-01 covers disabled offline backup. Use the prior-start eligibility in Feature Limitations for fixtures that require initialized CBT. TS-26 uses a VM that has never started. QCOW2 tracking overlays may use raw backing disks
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -296,7 +307,7 @@ The following conditions must be met before testing can begin:
   - **Residual runtime activity:** VEP fails immediately; implementation waits for source cleanup.
   - **Status reporting:** VEP proposes backup `status.offline`; implementation adds VM `status.backupInProgress` for synchronization instead.
   - **Mitigation:** Confirm target-build outcomes with Development before execution; prevent unsafe output and use only delivered status fields.
-  - *Areas with reduced coverage:* Repeat-incremental/conflict/runtime outcomes and offline reporting remain unresolved until the target-build decision is recorded; node-affinity characterization is limited to Known Limitations.
+  - *Areas with reduced coverage:* Repeat-incremental/conflict/runtime outcomes and offline reporting remain unresolved until the target-build decision is recorded; node-affinity characterization is limited to Feature Limitations.
   - *Sign-off:* [Name/Date]
 
 **Test Environment**
@@ -330,7 +341,7 @@ None — no separate dependency risk identified.
 
 Offline-specific scenarios extend the parent CBT test plan. Each scenario with push and pull variants requires two independent executions, each with its own backup requests and mode-specific assertions. Coverage requires both executions to pass.
 
-- **[CNV-96511]** — As a cluster admin, I want the disabled HCO offline-backup feature gate to keep stopped-VM backup requests pending without offline output
+- **[CNV-96511]** — As a cluster admin, I want stopped-VM backup requests in CNV v5.1.0 to remain pending without offline output when the HCO offline-backup feature gate is disabled.
   - *Test Scenario:* [Tier 1] **TS-01:** Verify disabled offline backup remains pending without output.
   - *Priority:* P0
 
@@ -338,11 +349,11 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental Linux offline backup data.
   - **Push execution** — Verify the full and incremental images written to the target PVC.
   - **Pull execution** — Retrieve and verify the full and incremental disk data over trusted HTTPS before deleting each backup request.
-  - *Priority:* P0
+  - *Priority:* P0 [TP]
 
 - **[CNV-96537]** — As a backup provider, I want successive offline backup points in push and pull modes to recover bootable Linux guests with checksums matching guest changes between checkpoints across VM restarts, while incomplete chains fail validation
   - *Test Scenario:* [Tier 2] **TS-04:** Validate bootable Linux recovery with changed data between checkpoints.
-  - *Priority:* P0
+  - *Priority:* P0 [TP]
 
 - **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline recovery in both modes to produce bootable guests with matching data checksums and preserved persistent vTPM/EFI configuration. Verify recovery from a full baseline without prior backup history and from increments based on online and offline checkpoints. Verify that incomplete chains fail recovery validation.
   - *Test Scenario:* [Tier 3] **TS-05:** Validate Windows offline recovery and startup gating.
@@ -421,6 +432,20 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
 
 - **[CNV-100648]** — As a backup provider, I want push and pull backups of never-started VMs in CNV v5.1.0 to return an error without backup output, source-data changes or blocked VM startup
   - *Test Scenario:* [Tier 1] **TS-24:** Verify never-started VM backups fail safely with clear errors.
+  - *Priority:* P1
+
+- **[CNV-96511]** — As a backup provider, I want an online CBT checkpoint created before a supported upgrade into the GA release to remain usable for an offline incremental backup afterward.
+  - *Test Scenario:* [Tier 2] **TS-25:** Verify offline increments use a pre-upgrade online checkpoint.
+  - Each execution uses its own pre-upgrade checkpoint. The backup remains incremental and contains only the changes since that checkpoint.
+  - **Push execution** — Verify the incremental image on the target PVC.
+  - **Pull execution** — Verify the incremental data available over trusted HTTPS.
+  - *Priority:* P1
+
+- **[CNV-100648]** — As a backup provider, I want a full backup of a VM that has never started to contain the expected disk data.
+  - *Test Scenario:* [Tier 1] **TS-26:** Verify full offline backups of never-started VMs.
+  - Applies to GA builds that include CNV-100648. Both modes produce a successful full backup with the expected disk data without starting the VM.
+  - **Push execution** — Verify the full image on the target PVC.
+  - **Pull execution** — Verify the full disk data available over trusted HTTPS.
   - *Priority:* P1
 
 ---
