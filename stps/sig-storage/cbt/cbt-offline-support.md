@@ -127,7 +127,7 @@ The following are confirmed product constraints accepted before testing begins.
     - VM start prevention while backup is progressing; different completion semantics for push vs pull mode
     - Bitmap validation failures and per-disk fallback to full backup
     - Hotplugged disks without prior checkpoints (full backup for new disk, incremental for others)
-    - The VEP specifies immediate failure for residual runtime activity and overlapping requests, while the inspected local implementation waits; confirm the target-build contract.
+    - The VEP specifies immediate failure for residual runtime activity, while the inspected controller waits for source cleanup. Upstream API admission rejects additional requests for the same VM while a backup is active. Confirm both behaviors on the target build.
     - Bitmap consistency after an export pod crashes and restarts during bitmap creation
     - VM deletion during backup (backup must fail cleanly)
   - *Impact on testing approach:* Scenarios derived from VEP 401 functional testing approach; prioritize online→offline transition and start-gating as P0; validate push vs pull completion paths separately
@@ -307,7 +307,7 @@ The following conditions must be met before testing can begin:
 
 - **Risk:** The implementation evolved through reviews and differs from the original VEP ([PR #19294](https://github.com/kubevirt/kubevirt/pull/19294)):
   - **Unchanged increments:** VEP rejects repeats; implementation permits empty increments and advances history in both modes.
-  - **Overlapping requests:** VEP fails immediately; implementation waits.
+  - **Overlapping requests:** Upstream API admission rejects additional requests for the same VM while a backup is active. The offline controller serializes overlapping requests that reach it.
   - **Residual runtime activity:** VEP fails immediately; implementation waits for source cleanup.
   - **Status reporting:** VEP proposes backup `status.offline`; implementation adds VM `status.backupInProgress` for synchronization instead.
   - **Mitigation:** Confirm target-build outcomes with Development before execution; prevent unsafe output and use only delivered status fields.
@@ -384,8 +384,8 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want overlapping offline backup requests rejected while the existing backup remains active
-  - *Test Scenario:* [Tier 1] **TS-12:** Confirm overlapping requests fail while existing backups continue.
-  - Candidate VEP outcome; apply the target-build decision required by Entry Criteria.
+  - *Test Scenario:* [Tier 1] **TS-12:** Verify the API rejects additional requests during an active offline backup.
+  - In separate push and pull runs, submit a second and third request with distinct names for the same stopped VM while the original backup is active. Verify that the API rejects both and that the original backup completes successfully. Verify that the API accepts a fresh full-backup request after successful push completion or after successful pull retrieval and deletion of the original request.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a backup provider, I want unchanged incremental requests to follow the agreed target-build contract while full backups remain available without another VM start in both modes
