@@ -48,14 +48,15 @@ sign-off cell is CRITICAL in every persona that touches one, stated or not.
 
 | Disposition | Meaning | Emitted by | Answered by |
 |---|---|---|---|
-| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The role named in the finding — Product Manager, Dev Lead or QE Lead — never the persona runner and never the STP author as such |
+| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The role named in the finding — Product Manager, Feature Owner or Quality Owner — never the persona runner and never the STP author as such |
 | SIGN-OFF | A sign-off cell whose owner must sign it. The row states the cell and **the question that owner has to answer** — never a claim that something was verified. Never pre-filled. | lenses only | That owner. Where two lenses sign the same cell, both names go in it |
 
 A sign-off cell left as `[Name/Date]` is CRITICAL because it is a missing signature, not HIGH because it
 is a placeholder. Where two personas could assign different levels to the same text, the owner files it
 at the higher one — one root cause has one reporter, so there is nobody to agree with.
 
-A finding carries one severity and optionally one disposition: a missing PM/Lead agreement is
+A finding carries one severity and optionally one disposition: a missing Quality Owner or Product Manager
+sign-off is
 CRITICAL **and** DECISION. There is no severity level meaning "needs a human", because severity says
 how bad it is and disposition says who acts.
 
@@ -74,15 +75,15 @@ plus one name per role in `IV`. Each cell has an owning persona for the *check* 
 | Cell | A blank cell is filed by | Signed by |
 |---|---|---|
 | I.2 limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`development`](./lenses/development.md) for the technical exposure, [`product-manager`](./lenses/product-manager.md) for the business one |
-| II.1 Out of Scope `*PM/Lead Agreement*` | [`constraints`](./sections/constraints.md) | [`product-manager`](./lenses/product-manager.md) for the PM half; [`development`](./lenses/development.md) for the Lead half of a technical gap |
+| II.1 Out of Scope `*Sign-off (Quality Owner or Product Manager)*` | [`constraints`](./sections/constraints.md) | [`test-quality`](./lenses/test-quality.md) as Quality Owner, or [`product-manager`](./lenses/product-manager.md) |
 | II.1 Test Limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`test-quality`](./lenses/test-quality.md) |
 | II.5 risk `*Sign-off:*` | [`constraints`](./sections/constraints.md) | whichever lenses carry the exposure the risk names — often both |
-| `IV` approver name | [`multi-sig`](./sections/multi-sig.md) | that role's own lens, for its own name |
+| `IV` sign-off function name | [`multi-sig`](./sections/multi-sig.md) | the lens for that function, for its own name |
 
 The table names who *may* sign a cell, not how many. A risk describing both a technical and a business
 exposure is signed by both lenses in the one cell the template renders — that is why each lens states
-which exposure it signs. A `IV` reviewer role has no lens of its own: naming it is `multi-sig`'s check,
-and only the approver roles carry a signature.
+which exposure it signs. A function with no named person is `multi-sig`'s check; only the functions
+in the template carry a signature.
 
 A cell left as a placeholder — `[Name/Date]`, `[Name / @github-handle]`, `<name>` — is CRITICAL
 wherever it appears in that table: a missing signature, not unfinished prose.
@@ -94,17 +95,19 @@ files it when it is absent or blank, and the I.2 signers sign it.
 ## Finding format
 
 Cite the rule with the exact heading text from `AGENTS.md` — `II.1 — Scope of Testing`, not `II.1`.
-The examples below are the format, so copy their citation style:
+Where the checklist is silent and the template carries the rule, cite the template instead. The examples
+below are the format, so copy their citation style:
 
 | Severity | Disposition | Rule violated | Location | Evidence | Fix | Owner |
 |---|---|---|---|---|---|---|
-| CRITICAL | DECISION | `AGENTS.md` II.1 — Scope of Testing (Out of Scope) | `II.1 Out of Scope`, item 2 | "Upgrade from 4.21 not tested this cycle" — *PM/Lead Agreement:* carries no name or date | PM confirms it, or the item moves into scope | Product Manager |
+| CRITICAL | DECISION | `AGENTS.md` II.1 — Scope of Testing (Out of Scope) | `II.1 Out of Scope`, item 2 | "Upgrade from 4.21 not tested this cycle" — *Sign-off (Quality Owner or Product Manager):* carries no name or date | Quality Owner or PM confirms it, or the item moves into scope | Product Manager |
 | HIGH | — | `AGENTS.md` II.1 — Scope of Testing (Testing Goals) | `II.1 Testing Goals`, goal 3 | "Deploy a VM from each available boot source and verify it boots" — under it, `absent:` a failure-path goal for this P0 goal | Add a P0 negative goal | QE author |
-| — | SIGN-OFF | `AGENTS.md` IV — Sign-off and Approval | `IV Approvers`, Product Manager | Is the scope this STP drops one you would defend to a customer? | PM writes their name against the row | Product Manager |
+| — | SIGN-OFF | `AGENTS.md` IV — Sign-off and Approval | `IV`, Product Manager | Is the scope this STP drops one you would defend to a customer? | PM writes their name against the row | Product Manager |
 
 **Rule violated** names the `AGENTS.md` section, using its exact heading text and optionally a
 `(partial: ...)` suffix naming the sub-part, exactly as `owns:` uses it —
-`II.1 — Scope of Testing (partial: Out of Scope)`, not `II.1`.
+`II.1 — Scope of Testing (partial: Out of Scope)`, not `II.1`. The checklist indexes the rules rather
+than holding them, so a rule the template carries unambiguously is cited from the template.
 
 A lens cites in this order: the `AGENTS.md` section it shares with the section persona; the VEP,
 design doc or feature request that contradicts the STP; and, for a check no `AGENTS.md` text covers,
@@ -112,8 +115,8 @@ its own file and heading — `lenses/test-quality.md — Falsifiability`. A lens
 STP text is a defect, so it is filed only by the lens that owns that check, under the boundary rule
 below.
 
-**Owner** is the role that answers a `DECISION` or signs a `SIGN-OFF` — Product Manager, Dev Lead or
-QE Lead — or the author for a defect. A row that is both — a CRITICAL that also needs a decision —
+**Owner** is the role that answers a `DECISION` or signs a `SIGN-OFF` — Product Manager, Feature Owner or
+Quality Owner — or the author for a defect. A row that is both — a CRITICAL that also needs a decision —
 carries the deciding role, because the author cannot resolve it by editing. It is not the persona's runner: the run matrix says who runs a
 persona, and that is a different person.
 

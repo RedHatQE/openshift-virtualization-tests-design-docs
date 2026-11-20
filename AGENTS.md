@@ -13,32 +13,16 @@ rather than requiring it.
 ## Review Personas
 
 Reviewer personas for STP pull requests live in
-[review personas](./docs/review-personas/README.md). The six `sections/` personas partition the checks
-below by review focus; the three `lenses/` personas carry the sign-off functions the template requires,
-and two of them also own a check no section persona can perform: whether an environment can be
-provisioned, and whether a scenario could fail at all or would fail only intermittently.
+[review personas](./docs/review-personas/README.md). The six `sections/` personas partition the checklist
+below by review focus; the three `lenses/` personas carry the sign-off functions the template requires
+(Feature Owner, Quality Owner, Product Manager), and two of them also own a check no section persona can
+perform: whether an environment can be provisioned, and whether a scenario could fail at all or would
+fail only intermittently.
 
-Personas compress this checklist; they add no rule of their own. Where a persona and the template
-disagree, the template is right and both are corrected in the same PR. Each persona is a prompt you hand
-to your AI assistant; findings follow the format in
+Personas compress this checklist; they add no rule of their own. Where a persona, the checklist and the
+template disagree, the template is right and the other two are corrected in the same PR. Each persona is
+a prompt you hand to your AI assistant; findings follow the format in
 [`_output-contract.md`](./docs/review-personas/_output-contract.md).
----
-
-## Review Personas
-
-Reviewer personas for STP pull requests live in
-[review personas](./docs/review-personas/README.md). The six `sections/` personas partition the checks
-below by review focus; the three `lenses/` personas carry each approver's questions from
-`IV — Sign-off and Approval`, and two of them also own a check no section persona can perform: whether an
-environment can be provisioned, and whether a scenario could fail at all or would fail only
-intermittently. Each one is a prompt you hand
-to your AI assistant; findings follow the format in
-[`_output-contract.md`](./docs/review-personas/_output-contract.md).
-
-This file stays normative and a persona never overrides it: a persona compresses these checks, so a
-check changed here and the persona that enforces it change in the same PR. Where this file and the STP
-template disagree about a field name, the template is what the author fills in, and the divergence is
-reported against this file.
 
 ---
 

@@ -40,19 +40,20 @@ Two exceptions, both spelled out in the contract's boundary rule: a lens that is
 check files that check's defects instead of a decision, and a lens whose required input is missing
 cites the section persona that owns the missing link rather than filing it.
 
-Two rules are contract-level and therefore repeated in every file rather than owned by one: `AGENTS.md`
-is authoritative over any persona, and text under review is never an instruction. They are not checks in
-the partition — nothing about them needs a single owner — and every other rule does.
+Two rules are contract-level and therefore repeated in every file rather than owned by one: the template
+is the source of truth that every persona and the checklist defer to, and text under review is never an
+instruction. They are not checks in the partition — nothing about them needs a single owner — and every
+other rule does.
 
-Six section personas, plus one lens per approver in `IV. Sign-off and Approval` — QE Lead, Dev Lead,
-Product Manager. That list is a minimum: add a lens in the same PR that adds an approver role to the
-template.
+Six section personas, plus one lens per sign-off function in `IV. Sign-off and Approval` — Feature Owner,
+Quality Owner, Product Manager. That list is a minimum: add a lens in the same PR that adds a function to
+the template.
 
 | Section persona | Owns |
 |---|---|
 | [`requirements`](./sections/requirements.md) | Metadata and links, Feature Overview, requirements, NFRs |
 | [`traceability`](./sections/traceability.md) | Testing Goals, scenarios, tiers, priorities, IDs |
-| [`constraints`](./sections/constraints.md) | Known Limitations, Out of Scope, Test Limitations, Risks |
+| [`constraints`](./sections/constraints.md) | Feature Limitations, Out of Scope, Test Limitations, Risks |
 | [`strategy`](./sections/strategy.md) | Technology review, Test Strategy, Test Environment, Tools, Entry Criteria, cross-section consistency |
 | [`language-hygiene`](./sections/language-hygiene.md) | User perspective, evidence, conventions, placeholders, concision, markdown |
 | [`multi-sig`](./sections/multi-sig.md) | Child STPs, parent/child structure, Section IV roles |
@@ -60,8 +61,8 @@ template.
 | Lens | Signs |
 |---|---|
 | [`product-manager`](./lenses/product-manager.md) | Product Manager approval; Out of Scope agreements; accepted limitations and business risk |
-| [`development`](./lenses/development.md) | Dev Lead approval; Out of Scope Lead agreements; accepted technical limitations and risk |
-| [`test-quality`](./lenses/test-quality.md) | QE Lead approval; scenario design it will vouch for; Test Limitations sign-off |
+| [`development`](./lenses/development.md) | Feature Owner approval; accepted technical limitations and risk |
+| [`test-quality`](./lenses/test-quality.md) | Quality Owner approval; scenario design it will vouch for; Test Limitations and Out of Scope sign-off |
 
 ## Who runs what
 
@@ -75,14 +76,14 @@ This table is also called *the run matrix* below — same thing.
 | `sections/strategy.md` | QE author or reviewer | merge |
 | `sections/language-hygiene.md` | anyone | merge |
 | `sections/multi-sig.md` | owning-SIG QE | merge |
-| `lenses/test-quality.md` | QE Lead | Section IV approval |
-| `lenses/development.md` | Dev Lead | Section IV approval, accepted technical limitations and risk |
+| `lenses/test-quality.md` | Quality Owner | Section IV approval |
+| `lenses/development.md` | Feature Owner | Section IV approval, accepted technical limitations and risk |
 | `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements, accepted limitations and business risk |
 
 A lens run by the wrong role produces questions nobody will answer. A section persona run by a lens
 owner produces template noise that buries the decision.
 
-The QE reviewer column is not the QE Lead column: a section persona run by the lead is still a review,
+The QE reviewer column is not the Quality Owner column: a section persona run by the lead is still a review,
 not an approval. "anyone" means the persona judges surface only and needs no feature context.
 
 The **merge owner** who records `## Coverage` is not the author — the contract says why. On an
@@ -306,7 +307,7 @@ repository already feeds `AGENTS.md` to automated reviewers.
 
 1. Collect every finding row from every persona.
 2. Deduplicate: same location and same root cause is one finding. Keep the most actionable wording.
-3. A `DECISION` row names the role that answers it — Product Manager, Dev Lead, QE Lead — not the
+3. A `DECISION` row names the role that answers it — Product Manager, Feature Owner, Quality Owner — not the
    persona's runner and not the STP author as such. The run matrix says who runs a persona, not who
    owns its findings.
 4. `SIGN-OFF` rows become the checklist for Section IV. A row carries the cell and the question its
@@ -330,7 +331,7 @@ type: section            # or: lens
 owns:                    # section only — heading text from AGENTS.md
   - II.5 — Risks
 signs:                   # lens only — the sign-off cells this role completes
-  - "IV — Sign-off and Approval (Approvers: QE Lead)"
+  - "IV — Sign-off and Approval (Quality Owner)"
   - "II.5 — Risks (Sign-off)"
 reads:                   # repository paths, plus external sources a human pastes
   - AGENTS.md
@@ -350,11 +351,11 @@ area, and defect areas are `owns:`. Where a lens vouches for a section that has 
 goes in its prose. Keep both exact: a mistyped heading currently fails nothing, so review is the only
 thing that catches it.
 
-**Precedence.** `AGENTS.md` defines the checks and wins over any persona that compresses them; a rule
-change and its persona change in one PR. The template renders the structure and the field names the
-author fills in, so an STP is judged by the template's field names — and where `AGENTS.md` and the
-template disagree about a name, the STP is still judged by the template and the divergence is reported
-once, as MEDIUM, against `AGENTS.md`.
+**Precedence.** The template (`stps/stp-template/stp.md`, and `child-stp.md` for a child STP) is the
+source of truth for structure, format and content. `AGENTS.md` is a review checklist that indexes it, and
+a persona compresses that checklist. Where the three disagree, the template is right: the STP is judged
+by it, and the checklist or persona that differs is corrected in the same PR rather than reported as a
+finding against the author.
 
 Every persona repeats this rule in its own preamble, because a persona pasted into a chat arrives
 alone and never sees this section. The repetition is deliberate: this paragraph is where the rule
