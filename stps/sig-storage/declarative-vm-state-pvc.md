@@ -50,12 +50,13 @@ QE interprets the clone and migration requirements as preserving usable guest st
     - As a cluster administrator, I want live storage conversion to move Windows guest disks and VMState to the target storage class so that the VM can continue using its saved state there.
 
 - [x] **Testability**
-  - *Note any requirements that are unclear or untestable:* The two acceptance criteria are testable. The epic does not state a performance, scale, monitoring, or UI requirement.
+  - *Note any requirements that are unclear or untestable:* The acceptance criteria are testable. The epic does not state a performance, scale, monitoring, or UI requirement.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - A clone with captured VMState can read the source VM's saved vTPM-protected data and EFI variables and uses a separate VMState PVC.
     - After storage migration, the VM uses a VMState PVC on the target storage class and reports it as the active state volume.
+    - During Windows live storage conversion, the VM stays running from start to completion without a stop or restart.
   - *Note any gaps or missing criteria:* The epic does not define expected behavior for clone or migration failure or concurrent use of the same VMState PVC. The linked implementation and bug reports inform those checks.
 
 - [x] **Non-Functional Requirements (NFRs)**
@@ -285,9 +286,12 @@ QE interprets the clone and migration requirements as preserving usable guest st
 ### **III. Test Scenarios & Traceability**
 
 - **[REQ-CNV-79308-01]** — As a VM owner, I want VM clones to work with VMState PVC.
+  - *Source and clone method for TS-001, TS-002, and TS-006:*
+    - Declarative VMState source — direct VM clone and clone from a snapshot that captured VMState.
+    - Legacy implicit VMState source — direct VM clone and clone from a snapshot that captured VMState. Run both only when the tested build meets the CNV-100645 entry criterion in II.4.
   - *Test Scenario:* **TS-001**: [Tier 2] Verify Linux clone preserves vTPM security and EFI state
     - *Priority:* P0 [DP]
-  - *Test Scenario:* **TS-002**: [Tier 2] Verify clone uses a separate VMState PVC
+  - *Test Scenario:* **TS-002**: [Tier 2] Verify Linux clone uses a separate VMState PVC
     - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-003**: [Tier 2] Verify source vTPM and EFI remain usable after clone failure
     - *Priority:* P1 [DP]
@@ -295,7 +299,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
     - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-005**: [Tier 2] Verify uncaptured-state clone warns and initializes independent fresh state
     - *Priority:* P1 [DP]
-  - *Test Scenario:* **TS-006**: [Tier 3] Verify Windows clones preserve saved vTPM and EFI state
+  - *Test Scenario:* **TS-006**: [Tier 3] Verify Windows clone preserves vTPM and EFI on a separate VMState PVC
     - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-007**: [Tier 3] Verify Windows clone changes leave source vTPM and EFI unchanged
     - *Priority:* P1 [DP]
