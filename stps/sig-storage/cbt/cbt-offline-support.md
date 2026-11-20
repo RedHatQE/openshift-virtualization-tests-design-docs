@@ -106,6 +106,10 @@ The following are confirmed product constraints accepted before testing begins.
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
   - *Sign-off:* [Name/Date]
 
+- **Shareable disks are excluded from offline CBT backups**
+  - In CNV builds that include [KubeVirt PR #19708](https://github.com/kubevirt/kubevirt/pull/19708), full and incremental offline backups omit disks configured as shareable in both push and pull modes. A backup can succeed for the VM's eligible disks while shared-disk data, such as data on a Windows Server Failover Clustering (WSFC) disk, remains unprotected by CBT.
+  - *Sign-off:* [Name/Date]
+
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
   - *Sign-off:* [Name/Date]
@@ -389,8 +393,8 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - Repeated-increment outcomes remain conditional on the target-build decision in Entry Criteria.
   - *Priority:* P1
 
-- **[CNV-96511]** — As a backup provider, I want offline backups to retain healthy increments, fully protect new disks or disks with unusable history, and report unavailable disks without false complete-guest success in both modes
-  - *Test Scenario:* [Tier 2] **TS-14:** Validate per-disk offline fallback and unavailable-disk reporting.
+- **[CNV-96511]** — As a backup provider, I want push and pull offline backups to retain healthy increments for eligible disks, fully back up eligible new disks or eligible disks with unusable history, and report unavailable eligible disks without indicating complete coverage.
+  - *Test Scenario:* [Tier 2] **TS-14:** Validate offline fallback and unavailable-disk reporting for eligible disks.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want residual VM activity to reject offline backup requests without producing output
