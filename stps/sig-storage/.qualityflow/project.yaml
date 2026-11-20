@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow/main/schemas/qualityflow.schema.json
+# Storage. Only what this SIG adds to .qualityflow/ at the repository root.
+#
+# decorator_mappings is keyed by the SIG a scenario carries (its owning_sig) and
+# names the decorator the upstream Go test uses: QualityFlow derives that lookup by
+# dropping the "sig-" prefix from these keys.
+version: 1
+project_id: "cnv"
+# Recorded for reviewers: nothing reads sig_mappings today. It documents which test
+# package this SIG's generated code lands in; the tests repository's own layer is
+# what routes it.
+sig_mappings:
+  sig-storage: "storage"
+
+decorator_mappings:
+  sig-storage: "SigStorage"

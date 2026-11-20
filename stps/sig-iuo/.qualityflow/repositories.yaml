@@ -1,0 +1,42 @@
+# Context repositories for sig-sig-iuo.
+#
+# Read together with the root .qualityflow/repositories.yaml (tests suite,
+# design-docs repository, Python client libraries) and this SIG's tier files
+# under .qualityflow/. Only the product code, tests or fixtures a sig-sig-iuo
+# scenario needs to read belong here.
+#
+# kubevirt/enhancements is declared in every SIG: the VEPs describe the feature
+# design behind any repository under the kubevirt org.
+
+additional_repos:
+  - name: "kubevirt"
+    org: "kubevirt"
+    full_name: "kubevirt/kubevirt"
+    url: "https://github.com/kubevirt/kubevirt"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "KUBEVIRT_REPO_PATH"
+
+  - name: "hyperconverged-cluster-operator"
+    org: "kubevirt"
+    full_name: "kubevirt/hyperconverged-cluster-operator"
+    url: "https://github.com/kubevirt/hyperconverged-cluster-operator"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "HCO_REPO_PATH"
+
+  - name: "virt-platform-autopilot"
+    org: "openshift-virtualization"
+    full_name: "openshift-virtualization/virt-platform-autopilot"
+    url: "https://github.com/openshift-virtualization/virt-platform-autopilot"
+    default_branch: "main"
+    language: "go"
+    local_path_env: "VIRT_PLATFORM_AUTOPILOT_REPO_PATH"
+
+  - name: "enhancements"
+    org: "kubevirt"
+    full_name: "kubevirt/enhancements"
+    url: "https://github.com/kubevirt/enhancements"
+    default_branch: "main"
+    language: "markdown"
+    local_path_env: "KUBEVIRT_ENHANCEMENTS_REPO_PATH"

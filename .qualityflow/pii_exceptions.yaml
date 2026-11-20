@@ -1,0 +1,20 @@
+# PII Sanitization Exceptions
+# Names listed here are allowed in generated documents without replacement.
+# The pii-sanitizer skill uses these to avoid masking legitimate project names.
+
+allowed_product_names:
+  - "Kubernetes"
+  - "OpenShift"
+  - "OpenShift Virtualization"
+  - "KubeVirt"
+
+allowed_project_names:
+  - "Go"
+  - "Python"
+  - "pytest"
+
+allowed_technical_standards: []
+
+vendor_replacements:
+  cloud: "Cloud Provider"
+  hardware: "Hardware Vendor"

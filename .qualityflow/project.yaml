@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow/main/schemas/qualityflow.schema.json
+# QualityFlow layer for this repository's stps/ tree.
+#
+# version and project_id assert which project this layer configures; everything
+# else here is the CNV project configuration the STP and STD work needs, kept
+# next to the STPs it applies to. The QualityFlow deployment reads its own copy
+# from config/projects/cnv/ — see .qualityflow/README.md.
+version: 1
+project_id: "cnv"
+
+description: "Container-Native Virtualization QE test planning"
+
+feature_toggles:
+  test_strategy: "tier"    # Tier 1 uses Go/Ginkgo; Tier 2 and Tier 3 use Python/pytest
+  tier1_tests: true
+  tier2_tests: true
+  stp_generation: true
+  std_generation: true
+  stp_review: true
+  std_review: true
+  lsp_analysis: true
+  pii_sanitization: true
+
+# first line of every CNV STP — the design-docs template's own header
+stp_document:
+  header: "Openshift-virtualization-tests Test plan"

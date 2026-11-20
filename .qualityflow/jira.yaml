@@ -1,0 +1,13 @@
+# Jira instance configuration.
+# Used by the jira-parser skill to fetch and parse issue data.
+
+instance:
+  url: "https://redhat.atlassian.net"
+  browse_pattern: "https://redhat.atlassian.net/browse/{key}"
+
+# Jira project prefixes that route to this QualityFlow project
+prefixes:
+  - "CNV"
+  - "VIRTSTRAT"
+
+pr_url_scan_pattern: "https://github.com/.*/pull/\\d+"

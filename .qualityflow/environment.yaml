@@ -1,0 +1,10 @@
+# Test environment for openshift-virtualization-tests: an OpenShift cluster
+# with OpenShift Virtualization installed. Cluster sizing for a feature comes
+# from its STP's Test Environment section.
+
+platform:
+  name: "OpenShift"
+  short_name: "OCP"
+  cli_tools:
+    - "oc"
+    - "virtctl"

@@ -1,0 +1,6 @@
+# Tier 3 for sig-infra.
+description: >-
+  Infrastructure scopes needing special hardware or platform: SAP, NUMA,
+  Windows instance types, Tekton pipelines.
+reference_tests:
+  - "https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/infrastructure/instance_types/test_common_vm_instancetype.py"
