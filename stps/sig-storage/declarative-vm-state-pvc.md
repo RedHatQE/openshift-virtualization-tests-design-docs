@@ -9,8 +9,8 @@
 - **Epic Tracking:** [CNV-79308](https://redhat.atlassian.net/browse/CNV-79308)
 - **Feature Maturity:**
   - DP: CNV v5.1.0
-  - TP: CNV v5.2.0
-  - GA: CNV v5.3.0
+  - TP: CNV v5.2.0 [confirm]
+  - GA: CNV v5.3.0 [confirm]
 - **QE Owner(s):** [Emanuele Prella](@ema-aka-young)
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** N/A
@@ -25,11 +25,13 @@
 
 ### **Feature Overview**
 
-OpenShift Virtualization will preserve captured vTPM and EFI state when users clone a virtual machine or migrate its storage. This matters because security and boot state can be required for guest continuity, and losing or sharing that state can make a cloned or migrated VM unusable. The feature covers independent clone storage, state relocation, and continued use of the target volume, including during Windows live storage conversion. Snapshot-based clones with uncaptured state follow the rejection or warning and fresh-state behavior in Known Limitations. This plan targets the proposed CNV v5.1.0 Developer Preview.
+OpenShift Virtualization will preserve captured vTPM and EFI state when users clone a virtual machine or migrate its storage. Guests depend on this state for security and boot continuity. The feature covers independent clone storage, state relocation, and continued use of the target volume, including during Windows live storage conversion. Feature Limitations describes what happens when a snapshot lacks captured state. The plan targets GA and marks checks also required for the CNV v5.1.0 Developer Preview with [DP].
 
 ---
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
+
+QE interprets the clone and migration requirements as preserving usable guest state across both operations. A clone needs independent state storage, and a migrated VM must continue using its relocated state when source storage becomes inaccessible.
 
 #### **1. Requirement & User Story Review Checklist**
 
@@ -67,7 +69,7 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
     - Monitoring introduces no new metrics or alerts; user-visible state and failure reporting is checked functionally.
     - OpenShift web console workflows and accessibility are proposed exclusions in II.1. Functional checks cover API status and errors.
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 - **RWO VMState PVC referenced only by source cannot live-migrate without a volume claim template**
   - *Sign-off:* [Name/Date]
@@ -80,7 +82,7 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
   - *Sign-off:* [Name/Date]
 
 - **Legacy implicit-state cloning is blocked until the CNV-100645 fix is included in the tested build**
-  - [CNV-100645](https://redhat.atlassian.net/browse/CNV-100645) tracks the implicit-source to declarative-target clone failure. [KubeVirt PR #19814](https://github.com/kubevirt/kubevirt/pull/19814) was open and unmerged in the retained November 17 review evidence; inclusion must be checked before execution.
+  - [CNV-100645](https://redhat.atlassian.net/browse/CNV-100645) tracks cloning from an implicit source into a declarative target. [KubeVirt PR #19814](https://github.com/kubevirt/kubevirt/pull/19814) remained open on November 20, 2026. Check actual build inclusion before execution.
   - *Sign-off:* [Name/Date]
 
 - **A snapshot cannot preserve state it did not capture**
@@ -113,33 +115,35 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 
 **Testing Goals**
 
-- **[P0]** As a VM owner, verify that Linux and Windows direct and snapshot clones with captured state preserve vTPM/EFI state on independent storage for declarative and supported legacy sources.
-- **[P0]** As a VM owner, verify that RWO state relocation and Windows live storage conversion use the target storage class and preserve saved vTPM and EFI state.
-- **[P1]** As a VM owner, verify that a migrated VM has no dependency on source storage.
-- **[P1]** As a VM owner, verify that failed clone or migration operations preserve original state and that uncaptured-state clones reject or warn and initialize independent fresh state according to template availability.
-- **[P1]** As a VM owner, verify that Linux and Windows can adopt released state with saved guest state and that unavailable or concurrently used state produces an actionable startup error.
+- **[P0][DP]** Verify that Linux and Windows direct and snapshot clones with captured state use independent storage and preserve vTPM and EFI state. Cover declarative sources and include legacy sources once the tested build includes the fix in I.2.
+- **[P0][DP]** Verify that native RWO relocation and Windows live storage conversion use the target storage class and preserve saved vTPM and EFI state.
+- **[P1][DP]** Verify that a failed clone leaves original state usable. A snapshot without captured state must reject the clone without a claim template or warn and initialize independent state when a template is available.
+- **[P1][DP]** Verify that failed native relocation or Windows live conversion leaves the original vTPM and EFI state usable.
+- **[P1][DP]** Verify that a VM can use relocated vTPM and EFI state when source storage is inaccessible.
+- **[P1][DP]** Verify that Windows can adopt released state and retain saved vTPM and EFI state across reboot. Run the existing Linux adoption and startup-error checks in II.2.
+- **[P1]** Verify that Linux and Windows VMs keep usable pre-upgrade vTPM and EFI state after upgrading along a supported path to GA.
+
+**Priority Levels:**
+
+- **P0** blocks GA.
+- **P1** is required for full feature coverage.
+- **P2** can be deferred if the schedule is constrained.
+
+**Phase tag (optional):** [DP] marks coverage also required for Developer Preview.
 
 **Out of Scope (Testing Scope Exclusions)**
 
 - **Performance and scale benchmarking**
-  - *Rationale:* Jira and the design evidence define no latency, throughput, or scale target for this feature.
-  - *PM/Lead Agreement:* [Name/Date]
-
-- **Broad Windows guest coverage**
-  - *Rationale:* Windows VMState cloning, clone isolation, adoption and storage conversion are included in this plan. Existing platform coverage owns the broader Windows version and application matrix.
-  - *PM/Lead Agreement:* [Name/Date]
-
-- **Platform storage-class functionality**
-  - *Rationale:* OpenShift storage-class provisioning and basic PVC binding are platform capabilities; this plan tests virtualization behavior when using those classes.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Rationale:* QE will verify functional behavior within the lab's migration and storage limits. Jira and the design define no latency, throughput, or scale target to benchmark.
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **OpenShift web console workflows and accessibility**
   - *Rationale:* The plan validates the scoped VMState workflows through the API, including active-volume status, rejection errors and warnings for uncaptured state.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **Legacy MTC storage-conversion reproduction**
   - *Rationale:* [CNV-83112](https://redhat.atlassian.net/browse/CNV-83112) was closed as Won't Do. TS-011 covers the reported split-storage failure through KubeVirt live storage conversion.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
@@ -152,13 +156,18 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 **Functional**
 
 - [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
-  - *Details:* Cover VM clone, native storage relocation, Windows live storage conversion, persistent-state usability, target-volume reference, and source-storage independence.
+  - *Details:* Cover VM clone, native storage relocation, Windows live storage conversion, persistent-state usability, target-volume reference, and source-storage independence. Exercise direct and snapshot clones with captured state from declarative sources on Linux and Windows. Repeat with legacy sources when the build includes the fix in I.2.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
-  - *Details:* Reuse Tier 1 Go/Ginkgo feature contracts in kubevirt/kubevirt for Linux adoption, exclusive use, and missing-source reporting. Automate Tier 2 Linux workflows and Tier 3 Windows workflows in RedHatQE/openshift-virtualization-tests. Execute all Tier 3 clone, isolation, live conversion success and failure, and adoption cases before final sign-off. Reuse Windows vTPM/BitLocker setup where applicable and extend existing migration tests with the missing VMState assertions. Partial-coverage tags identify existing automation to extend. All new scenarios are intended for automation.
+  - *Details:* Run the existing Tier 1 contracts listed under Regression Testing. Automate Tier 2 Linux workflows and Tier 3 Windows workflows in RedHatQE/openshift-virtualization-tests. Execute the Windows clone, isolation, live conversion success and failure, and adoption cases for Developer Preview and GA. Execute the Windows upgrade case for GA. Reuse Windows vTPM/BitLocker setup and extend existing migration tests with the missing VMState assertions. Partial-coverage tags identify automation to extend.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Extend the existing Windows vTPM storage-migration coverage with VMState PVC placement, active reference, and saved vTPM and EFI assertions. Retain existing boot-time, data-integrity, and disk storage-class checks.
+  - *Details:* Run these existing SIG Storage checks on the feature build.
+    - [KubeVirt VMState adoption](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L320-L355) starts a second Fedora VM on released storage and reads the saved TPM secret and EFI variable.
+    - [KubeVirt missing-source reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L357-L375) reports the missing PVC when the VM attempts to start.
+    - [KubeVirt exclusive-use reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L378-L414) reports that the PVC is in use when a second VM attempts to start while the first VM holds it.
+    - [Windows vTPM storage migration](https://github.com/RedHatQE/openshift-virtualization-tests/blob/7b8e0c0900f66c1d7e9415af60f1cf9126212bda/tests/storage/storage_migration/test_storage_class_migration.py#L252-L330) checks boot time, guest-file integrity, and disk placement. Extend it with the VMState assertions in III.
+    - Existing platform coverage owns the broader Windows guest-version and application matrix, storage-class provisioning, and basic PVC binding. This plan verifies VMState workflows on the selected guest images and storage classes.
 
 - [ ] **Self-Validation Testing** — Should any of the new tests be included in the self-validation test package?
   - *Details:* No new package inclusion is proposed for the multi-operation clone/relocation workflows. Tier 1 adoption and reporting reuse existing feature checks. Curated downstream self-validation package membership is a separate selection decision.
@@ -172,7 +181,7 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
   - *Details:* No new scale benchmark is specified; see II.1's benchmarking exclusion. Functional execution must respect the installed cluster's migration parallelism and available storage capacity; no new concurrency limit is invented.
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
-  - *Details:* Verify captured vTPM and EFI state remains usable after clone or relocation, uncaptured-state fallback creates independent fresh state, and concurrent VM use of the same VMState PVC is rejected.
+  - *Details:* Verify captured vTPM and EFI state remains usable after clone or relocation, and that uncaptured-state fallback creates independent fresh state. Run the existing exclusive-use check listed under Regression Testing.
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
   - *Details:* See II.1 for the proposed OpenShift web console exclusion. Functional tests verify active-volume status, missing and in-use errors, and warnings for uncaptured state through the API.
@@ -185,11 +194,11 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 - [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
   - *Details:* Validate clone, native storage relocation, and Windows live storage conversion with distinct source and target storage classes.
 
-- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
-  - *Details:* Deferred for Developer Preview. Consider Linux and Windows VMState preservation, clone, and relocation after upgrade in Technology Preview or a later phase once a supported upgrade path is defined.
+- [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* For the GA milestone, verify Linux and Windows VMs can use state saved before a supported upgrade. Select a supported source release that can create declarative VMState so the check covers existing PVCs and guest state across the version change. Qualify the release pair in II.3. Developer Preview covers the tagged functional workflows on its target build.
 
-- [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
-  - *Details:* Not applicable; no additional team delivery is required for the planned scenarios.
+- [x] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
+  - *Details:* Legacy-source cloning depends on delivery of the KubeVirt fix tracked by CNV-100645 in the tested CNV build. The other scenarios can proceed when their entry criteria are met.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
   - *Details:* Cover VMState across clone, snapshot restore, native storage relocation, and Windows live storage conversion using the KubeVirt Migration Controller.
@@ -202,7 +211,7 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 #### **3. Test Environment**
 
 - **Cluster Topology:** Planned three control-plane nodes and three worker nodes, with at least two schedulable workers for live migration.
-- **OCP & OpenShift Virtualization Version(s):** Target CNV v5.1.0 from Jira. Qualify the exact CNV build and supported OCP release before execution.
+- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 is the Developer Preview target from Jira. Qualify the exact CNV build and supported OCP release for each milestone. Confirm the supported source and target release pair for the GA upgrade cases.
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
 - **Special Hardware:** N/A - no special hardware needed.
@@ -224,25 +233,33 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 - [ ] Qualify and configure the test environment in II.3, including Windows live conversion with declarative RWO VMState.
 - [ ] Verify the build includes the CNV-100645 fix before running legacy clone cases.
 - [ ] Qualify the isolated source-storage fault before running the source-independence case.
+- [ ] Confirm the GA target and supported OCP/CNV upgrade pair before running the upgrade cases.
 
 #### **5. Risks**
 
 **Timeline/Schedule**
 
-- **Mitigation:** No risk identified — execute all scoped Tier 2 and Tier 3 cases before final sign-off; Tier 3 execution has no identified separate schedule limitation.
+- **Mitigation:** No risk identified for the required Tier 2 and Tier 3 runs. See Dependencies for the legacy-clone fix.
 
 **Test Coverage**
 
 - **Risk:** Existing Windows vTPM migration tests can pass while VMState remains on source storage or saved guest state is lost.
-  - **Mitigation:** Verify placement and active reference in TS-008, TS-009 and TS-011. Compare saved vTPM and EFI state after relocation and during failure recovery. Prove source independence in TS-010 using the qualified isolated fault.
-  - *Areas with reduced coverage:* Existing automation lacks VMState-specific assertions. Add and execute native and Windows live conversion success and failure checks, including TS-011 and TS-014, and the Windows clone and adoption checks before final sign-off.
+  - **Mitigation:** Verify VMState placement and the active reference in TS-008 and TS-009. Compare saved vTPM and EFI state after relocation and during failure recovery. Prove source independence in TS-010 using the qualified isolated fault.
+
+    In TS-011, observe the VM stay running through conversion and confirm the guest boot time is unchanged. Verify target placement for the guest disks and VMState, the active target state volume in VM status, and continued access to saved vTPM and EFI state. Fail the case if disk conversion completes with active VMState on source storage. TS-013 covers failure before handoff and verifies the original VM can still use its saved state.
+  - *Areas with reduced coverage:* Existing automation lacks VMState-specific assertions and may miss offline fallback. Execute the native and Windows conversion success and failure cases plus the Windows clone and adoption checks before sign-off.
   - *Sign-off:* [Name/Date]
 
 **Test Environment**
 
 - **Risk:** Differences in storage and snapshot capabilities across the selected configurations could produce unsupported clone or migration results.
-  - **Mitigation:** Qualify the source/target storage capabilities and guest images listed in II.3 before executing the planned Tier 2 and Tier 3 cases.
-  - *Missing resources or infrastructure:* No Tier 3 capacity shortage has been identified; concrete environment selections still require qualification as listed in II.3.
+  - **Mitigation:** Qualify snapshot capture and RWO cross-class relocation before execution. Use separate qualified storage pairs for those workflows if a single pair cannot meet both needs.
+  - *Missing resources or infrastructure:* The lab, storage pairs, and guest images still require qualification as listed in II.3.
+  - *Sign-off:* [Name/Date]
+
+- **Risk:** The GA target or a supported upgrade path may remain unconfirmed when the lab is scheduled.
+  - **Mitigation:** Confirm the supported OCP/CNV release pair before provisioning the upgrade lab. Keep TS-015 and TS-016 open until a supported pair is available.
+  - *Missing resources or infrastructure:* A qualified source and target release pair for GA.
   - *Sign-off:* [Name/Date]
 
 **Untestable Aspects**
@@ -254,17 +271,12 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 
 **Resource Constraints**
 
-- **Mitigation:** No risk identified — the planned Tier 3 coverage has no identified resource constraint. Execute the Windows live conversion success and failure scenarios before final sign-off.
+- **Mitigation:** No risk identified. No capacity gap has been identified for the required Tier 3 runs.
 
 **Dependencies**
 
-- **Risk:** A selected build may finish Windows disk conversion without moving VMState if the operation falls back to offline disk migration or the state volume configuration differs from the live RWO path.
-  - **Mitigation:** In TS-011, observe the VM stay running from the start of live conversion through completion and confirm the Windows guest boot time is unchanged. Verify that the guest disks and VMState are on the target class, VM status shows the active target state volume, and saved vTPM and EFI state remains usable. Fail TS-011 if conversion completes with VMState still active on source storage. In TS-014, exercise failure before handoff and verify that the original VM can use its saved state.
-  - *Dependent teams or components:* KubeVirt Migration Controller and OpenShift Virtualization live migration
-  - *Sign-off:* [Name/Date]
-
-- **Risk:** The legacy-clone fix may not be present in the selected CNV v5.1.0 build in time for validation; see Known Limitations for the current product constraint.
-  - **Mitigation:** Check the CNV-100645 fix inclusion before legacy-source clone execution. Keep its build entry criterion open until delivered; if delivery misses execution approval, agree a documented scope/priority change with PM/Lead rather than count the variant as covered.
+- **Risk:** The legacy-clone fix may miss the CNV v5.1.0 build selected for validation. See the product constraint in I.2.
+  - **Mitigation:** Confirm fix inclusion before legacy-source clone execution. If delivery misses the selected build, record the variant as unexecuted and obtain a scope or priority decision from the Quality Owner or Product Manager.
   - *Dependent teams or components:* CNV-100645 delivery in the selected build
   - *Sign-off:* [Name/Date]
 
@@ -274,55 +286,48 @@ OpenShift Virtualization will preserve captured vTPM and EFI state when users cl
 
 - **[REQ-CNV-79308-01]** — As a VM owner, I want VM clones to work with VMState PVC.
   - *Test Scenario:* **TS-001**: [Tier 2] Verify Linux clone preserves vTPM security and EFI state
-    - *Priority:* P0
+    - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-002**: [Tier 2] Verify clone uses a separate VMState PVC
-    - *Priority:* P0
+    - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-003**: [Tier 2] Verify source vTPM and EFI remain usable after clone failure
-    - *Priority:* P1
+    - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-004**: [Tier 2] Verify uncaptured-state clone rejects without a template
-    - *Priority:* P1
+    - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-005**: [Tier 2] Verify uncaptured-state clone warns and initializes independent fresh state
-    - *Priority:* P1
+    - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-006**: [Tier 3] Verify Windows clones preserve saved vTPM and EFI state
-    - *Priority:* P0
+    - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-007**: [Tier 3] Verify Windows clone changes leave source vTPM and EFI unchanged
-    - *Priority:* P1
+    - *Priority:* P1 [DP]
 
 - **[REQ-CNV-79308-02]** — As a VM owner, I want to migrate storage of VMState PVC.
   - *Test Scenario:* **TS-008**: [Tier 2] [PARTIAL_COVERAGE] Verify RWO VMState reaches target storage with saved vTPM and EFI
-    - *Priority:* P0
+    - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-009**: [Tier 2] [PARTIAL_COVERAGE] Verify VM references migrated VMState PVC
-    - *Priority:* P0
+    - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-010**: [Tier 2] Verify relocated vTPM and EFI remain usable with source storage inaccessible
-    - *Priority:* P1
+    - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-011**: [Tier 3] Verify Windows live conversion preserves vTPM and EFI without stopping or restarting the VM
-    - *Priority:* P0
-  - *Test Scenario:* **TS-012**: [Tier 1] [EXISTING_COVERAGE] Verify concurrent startup reports VMState PVC in-use rejection
-    - *Priority:* P1
-  - *Test Scenario:* **TS-013**: [Tier 2] Verify failed migration keeps original vTPM and EFI usable
-    - *Priority:* P1
-  - *Test Scenario:* **TS-014**: [Tier 3] Verify failed Windows conversion keeps original vTPM and EFI usable
-    - *Priority:* P1
+    - *Priority:* P0 [DP]
+  - *Test Scenario:* **TS-012**: [Tier 2] Verify failed migration keeps original vTPM and EFI usable
+    - *Priority:* P1 [DP]
+  - *Test Scenario:* **TS-013**: [Tier 3] Verify failed Windows conversion keeps original vTPM and EFI usable
+    - *Priority:* P1 [DP]
 
-- **[REQ-CNV-79308-04]** — As a VM owner, I want to reuse released VMState PVC data and identify unavailable state.
-  - *Test Scenario:* **TS-019**: [Tier 1] [EXISTING_COVERAGE] Verify Linux VMState adoption preserves saved vTPM and EFI
+- **[REQ-CNV-79308-04]** — As a VM owner, I want to keep using saved vTPM and EFI state when I adopt released storage or the cluster is upgraded.
+  - *Test Scenario:* **TS-014**: [Tier 3] Verify adopted Windows preserves vTPM and EFI across reboot
+    - *Priority:* P1 [DP]
+  - *Test Scenario:* **TS-015**: [Tier 2] Verify Linux VM reads pre-upgrade vTPM and EFI state
     - *Priority:* P1
-  - *Test Scenario:* **TS-020**: [Tier 1] [EXISTING_COVERAGE] Verify missing VMState prevents startup with an error
-    - *Priority:* P1
-  - *Test Scenario:* **TS-021**: [Tier 3] Verify adopted Windows preserves vTPM and EFI across reboot
+  - *Test Scenario:* **TS-016**: [Tier 3] Verify Windows VM reads pre-upgrade vTPM and EFI state
     - *Priority:* P1
 
 ---
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This plan requires sign-off from at least one person per function.
 
-- **Reviewers:**
-  - QE: [Dalia Frank](@dalia-frank), [Kateryna Shvaika](@kshvaika), [Jose Manuel Castano](@josemacassan), [Ahmad Hafe](@Ahmad-Hafe), [Jenia Peimer](@jpeimer), [Adam Cinko](@acinko-rh)
-  - Development: [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus), [Adam Litke](@aglitke)
-  - QE Architect: [Ruth Netser](@rnetser)
-- **Approvers:**
-  - QE Lead: [Name / @github-handle]
-  - Dev Lead: [Name / @github-handle]
-  - Product Manager: [Peter Lauterbach](@peterclauterbach)
+- Feature Owner: [Alvaro Romero](@alromeros)
+- Quality Owner: [Dalia Frank](@dalia-frank), [Jenia Peimer](@jpeimer) ,[Ruth Netser](@rnetser)
+- Product Manager: [Peter Lauterbach](@peterclauterbach)
