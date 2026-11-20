@@ -31,7 +31,7 @@ Centralize QE documentation and test planning to ensure:
 
 | Guide                                          | Description                                                                        |
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
-| [STP Guide](./docs/stp-guide.md)               | Complete guide to Software Test Plans: structure, lifecycle, and best practices    |
+| [STP Guide](./docs/stp-guide.md)               | Guide to Software Test Plans: purpose of each part, lifecycle, and best practices   |
 | [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
 
 ### Templates
@@ -39,6 +39,7 @@ Centralize QE documentation and test planning to ensure:
 | Template                                   | Purpose                                         |
 |:-------------------------------------------|:------------------------------------------------|
 | [STP Template](./stps/stp-template/stp.md) | Software Test Plan template for feature testing |
+| [Child STP Template](./stps/stp-template/child-stp.md)      | Per-SIG child STP for multi-SIG features        |
 
 ## Key Concepts
 
@@ -146,16 +147,18 @@ The move validator and its tests use pre-commit-managed Python environments and 
 
 ### QE Owner
 
+The Quality Owner is the QE sign-off function, and must be someone other than the STP author — normally the
+author's lead. The QE Owner(s) named in the metadata own and write the testing plan; they do not sign it off.
+
 - Write and maintain STP
 - Review design and identify testing challenges
 - Ensure NFRs are addressed
 - Manage risks and document untestable aspects
 - Ensure automation runs in release checklist jobs
-- Provide formal feature sign-off
 
-### Stakeholders (SIGs/Approvers)
+### Stakeholders (Feature Owner, Quality Owner, Product Manager)
 
-- Approve STP
+- Sign off the STP per the sign-off functions in the [STP Guide](./docs/stp-guide.md)
 - Agree to risks associated with untestable aspects
 - Coordinate feature enhancement and STP reviews
 
@@ -163,7 +166,7 @@ The move validator and its tests use pre-commit-managed Python environments and 
 
 | Question                                      | Answer                                                                                    |
 |:----------------------------------------------|:------------------------------------------------------------------------------------------|
-| **Do PRs need STP approver sign-off?**        | No, the whole SIG is responsible for code approval. Approvers should be aware of the STP. |
+| **Do PRs need STP sign-off?**                 | No. Code PRs are approved by the SIG as usual; the STP itself is signed off by the Feature Owner, Quality Owner and Product Manager (see the [STP Guide](./docs/stp-guide.md)). |
 | **What if PRs miss the deadline?**            | STP author files for an exception; maintainers decide based on context.                   |
 | **How to raise attention for my STP?**        | Join bi-weekly QE recurring meetings to introduce your STP.                               |
 | **What if feature relates to multiple SIGs?** | One SIG must own it. Reach out to other relevant SIGs for review.                         |
@@ -175,11 +178,12 @@ The move validator and its tests use pre-commit-managed Python environments and 
 - [STP Guide](./docs/stp-guide.md)
 - [Testing Tiers Guide](./docs/testing-tiers.md)
 - [STP Template](./stps/stp-template/stp.md)
+- [Child STP Template](./stps/stp-template/child-stp.md)
 
 ## Contributing
 
-1. Create STP using the [template](./stps/stp-template/stp.md)
-2. Follow the [STP Guide](./docs/stp-guide.md) for structure and content
+1. Create the STP from the [template](./stps/stp-template/stp.md), which defines structure and format
+2. Follow the [STP Guide](./docs/stp-guide.md) for purpose and process
 3. Ensure proper test tier coverage per [Testing Tiers Guide](./docs/testing-tiers.md)
 4. Get stakeholder approval before testing begins
 5. Ensure automation is merged before GA

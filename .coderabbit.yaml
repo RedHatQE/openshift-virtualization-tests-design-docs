@@ -8,7 +8,8 @@ tone_instructions: >
   Review STPs for content quality and template compliance.
   Be direct. Explain WHY. Use severity: CRITICAL (blocks approval),
   HIGH (must fix), MEDIUM (should fix), LOW (suggestion).
-  See AGENTS.md for detailed rules.
+  See AGENTS.md for the review checklist; stps/stp-template/stp.md is authoritative for structure,
+  format and content requirements, docs/stp-guide.md for purpose and process.
 
 early_access: true
 enable_free_tier: true
@@ -40,7 +41,7 @@ reviews:
         is **meaningful** (affects test implementation) or **cosmetic** (no test impact).
 
         **Meaningful changes** (flag for test update):
-        - Test scenarios added, removed, or modified in Section III (table rows changed)
+        - Test scenarios added, removed, or modified in Section III (scenario entries changed)
         - Testing goals added, removed, or reprioritized in Section II.1
         - Requirements added, removed, or modified in Section I.1
         - Acceptance criteria added, removed, or changed in Section I.1
@@ -54,7 +55,7 @@ reviews:
         - Typo fixes, grammar corrections, punctuation changes
         - Formatting or whitespace adjustments
         - Rewording that preserves the same test intent and pass/fail criteria
-        - Sign-off updates, reviewer list changes
+        - Sign-off updates, sign-off function changes
         - Metadata-only changes (dates, version bumps, document conventions)
         - Risk section updates that do not change test scope
 
@@ -135,6 +136,9 @@ knowledge_base:
     filePatterns:
       - "CLAUDE.md"
       - "AGENTS.md"
+      - "docs/stp-guide.md"
+      - "stps/stp-template/stp.md"
+      - "stps/stp-template/child-stp.md"
 
   learnings:
     scope: auto

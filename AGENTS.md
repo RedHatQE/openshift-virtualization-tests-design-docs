@@ -1,22 +1,27 @@
 # AI Review Guide for STP Pull Requests
 
-This document defines the review standards for Software Test Plans (STPs) in this repository.
-It is used by AI review tools (CodeRabbit, Claude Code) and human reviewers.
+This document is a review checklist for AI review tools (CodeRabbit, Claude Code) working on STPs
+in this repository. It is an index and a review workflow, not a source of rules: the STP structure, format
+and content requirements are defined by the template (`stps/stp-template/stp.md`), and purpose and process
+are described in `docs/stp-guide.md`. When this checklist and the template differ, the template is right and
+this checklist needs fixing.
 
-For template structure and STP lifecycle, see `docs/stp-guide.md` and `stps/stp-template/stp.md`.
-
-Assisted-by: Claude <noreply@anthropic.com>
+Evaluate new and edited STPs against the current template and guide. Existing STPs do not have to comply
+with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
+rather than requiring it.
 
 ---
 
 ## Core Principles
 
 1. **User perspective only** — STPs describe what users experience, not how the system works internally.
-   No API field names, CRD names, internal component references, or implementation mechanisms.
+   No internal API field names, internal component references, or implementation mechanisms.
+   User-facing objects that the user must create or edit (for example a resource kind or feature gate
+   named in the feature's documentation) may be named; explain them in Document Conventions.
 2. **Every claim needs evidence** — sign-offs, Jira links, dates. No empty placeholders in approved STPs.
 3. **Distinguish constraint categories** — Feature Limitations, Test Limitations, Out of Scope, and Risks
-   are four distinct concepts. Never mix them.
-   See `docs/stp-guide.md` Section II.8 (Constraints Summary) for definitions.
+   are distinct concepts. Never mix them.
+   See the "Constraint Categories" section of `docs/stp-guide.md` for definitions.
 4. **Traceability is mandatory** — every test scenario must map to a Jira requirement ID with tier and priority.
 5. **Concise and actionable** — no walls of text, no template boilerplate left in, no vague statements.
 
@@ -33,7 +38,7 @@ Assisted-by: Claude <noreply@anthropic.com>
   `DP: [version or N/A]`, `TP: [version or N/A]`, `GA: [version]`.
   Standard maturity phases: **Dev Preview (DP)**, **Tech Preview (TP)**, **General Availability (GA)**.
   A typical progression is DP → TP → GA across releases (e.g., DP in 4.22, TP in 4.23, GA in 5.0).
-  For multi-phase features, the STP scope must clearly state which phase it covers.
+  The STP always targets GA; it must clearly state which intermediate phases (DP/TP), if any, its phase tags refer to.
 - [ ] QE Owner(s) listed with name and contact
 - [ ] Owning SIG and Participating SIGs are correct
 - [ ] Document Conventions defines only feature-specific terms, not standard ones
@@ -51,19 +56,20 @@ Assisted-by: Claude <noreply@anthropic.com>
 - [ ] 2-8 sentences maximum
 - [ ] Describes what the feature does from the user's perspective
 - [ ] Explains why it matters to customers
-- [ ] No implementation details (no API names, no internal component names)
-- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states the current
-  phase and which phase this STP covers
+- [ ] No implementation details (no internal API fields, no internal component names); documented
+  user-facing objects the user must create or edit may be named (see Core Principle 1)
+- [ ] For multi-phase features (Dev Preview → Tech Preview → GA), states how the test
+  scope relates to the phases
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
   "seamless") must have matching acceptance criteria and test scenarios. If the feature
   doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
-  with Rationale and PM/Lead Agreement (name/date), or reference existing coverage
+  with Rationale and Sign-off (Quality Owner or Product Manager, name/date), or reference existing coverage
   elsewhere (do not use Out of Scope for work already covered by other teams/suites).
 
 **Common rejection reasons:**
 - Feature Overview makes claims ("hardware-isolated," "safe multi-tenant") with no matching
   acceptance criteria or test scenarios, and without documenting the gap in Out of Scope
-  with Rationale and PM/Lead Agreement
+  with Rationale and Sign-off (Quality Owner or Product Manager)
 - Feature Overview describes internal system changes instead of user capabilities
 
 ### I.1 — Requirement & User Story Review
@@ -78,7 +84,8 @@ Assisted-by: Claude <noreply@anthropic.com>
   end-state alone (e.g., "X is present after the operation") is insufficient — it would also pass
   after a disruptive stop-and-restart cycle. The criterion must be one that *would fail* if a
   disrupt-then-restore sequence happened instead of the claimed seamless path.
-- [ ] NFRs explicitly address: Monitoring, Observability, UI, Documentation, Performance, Security, Scalability
+- [ ] NFRs explicitly address every NFR the template lists, including monitoring and observability, Usability,
+  Downtime, Connectivity and Portability
 - [ ] NFRs not covered have justification
 - [ ] Scalability NFR: if the feature relies on a platform mechanism (e.g., live migration) that
   has existing scale constraints (e.g., cluster-level parallelism limits), those constraints must
@@ -99,7 +106,7 @@ Assisted-by: Claude <noreply@anthropic.com>
   existing cluster-level scale limits
 - UI NFR dismissed with "no UI changes" without PM/UX input on whether testing adds customer value
 
-### I.2 — Known Limitations
+### I.2 — Feature Limitations
 
 - [ ] Each limitation has a sign-off: `*Sign-off:* [Name/Date]`
 - [ ] Limitations are constraints (not scope decisions)
@@ -129,17 +136,18 @@ Assisted-by: Claude <noreply@anthropic.com>
 
 **Testing Goals:**
 - [ ] Written from end-user perspective ("Deploy a VM from..." not "Verify DataImportCron creates...")
-- [ ] Each goal has priority: P0 (blocks GA), P1 (required for coverage), P2 (nice-to-have)
+- [ ] Each goal has priority: P0 (blocks GA), P1 (required for coverage), P2 (nice-to-have);
+  an optional phase tag (e.g. `[P0][TP]`) is allowed when a goal must also pass at an intermediate phase
 - [ ] Goals are SMART: Specific, Measurable, Achievable, Relevant, Verifiable
 - [ ] Distinguish between new functional tests and regression tests
 - [ ] If regression goals are included in Testing Goals, they identify which SIG test suites
   run on the feature cluster. Regression testing is primarily documented in Test Strategy (II.2),
-  and regression tests are NOT included in the Test Scenarios table (III).
+  and regression tests are NOT included in the Test Scenarios section (III).
 - [ ] At least one negative or failure-path Testing Goal exists for each P0 functional goal
   (e.g., "what happens if migration fails?", "what if the VM starts during the operation?",
   "what about error handling?"). If negative scenarios are out of scope, they must be
-  documented in Out of Scope with PM/Lead agreement — "considered" alone is insufficient.
-- [ ] Goals are ordered by priority (P0 first, then P1, then P2)
+  documented in Out of Scope with Quality Owner or Product Manager sign-off — "considered" alone is insufficient.
+- [ ] Goals are ordered by priority (P0 first, then P1, then P2); phase tags do not change the ordering
 - [ ] Testing goals are fully actionable: they name all configuration dimensions needed to implement
   the test (e.g., for networking: both the binding type and the CNI in use). A goal that names
   only one dimension leaves test authors to guess the rest.
@@ -150,9 +158,9 @@ Assisted-by: Claude <noreply@anthropic.com>
   feature's prior execution would produce a different outcome than a baseline reaching the same state.
 
 **Out of Scope:**
-- [ ] Each item has Rationale and PM/Lead Agreement with name and date
+- [ ] Each item has Rationale and a Quality Owner or Product Manager Sign-off with name and date
 - [ ] Items are decisions QE made (not constraints imposed on QE — those are Test Limitations)
-- [ ] Format per template: `- **Item** / *Rationale:* / *PM/Lead Agreement:*`
+- [ ] Format per template: `- **Item** / *Rationale:* / *Sign-off (Quality Owner or Product Manager):*`
 - [ ] Items are genuinely out of scope — if already tested elsewhere,
   document as existing coverage, not out of scope
 
@@ -170,12 +178,12 @@ Assisted-by: Claude <noreply@anthropic.com>
   (e.g., CNI) to make the goal implementable
 - Test scenario added for post-stable-state behavior without justifying why the feature's
   execution history would produce a different outcome than baseline
-- No negative or failure-path Testing Goal (with matching Section III scenario) for P0 goals — only happy-path coverage
+- No negative or failure-path Testing Goal (with matching Section III scenario) for P0 functional goals — only happy-path coverage, and no Out of Scope entry with Quality Owner or Product Manager sign-off
 
 ### II.2 — Test Strategy
 
 - [ ] All testing types are addressed (checked or unchecked with justification)
-- [ ] All 14 testing types from the template are present (Functional, Automation, Regression, Self-Validation,
+- [ ] Every testing type from the template's Test Strategy section is present (Functional, Automation, Regression, Self-Validation,
   Performance, Scale, Security, Usability, Monitoring, Compatibility, Upgrade, Dependencies,
   Cross Integrations, Cloud Testing)
 - [ ] Unchecked items without details = incomplete review — flag this
@@ -243,18 +251,19 @@ Reviewers must verify these cross-references between sections:
 
 ### II.5 — Risks
 
-- [ ] ALL 6 standard risk categories are addressed (even if no risk, include Mitigation with brief justification):
+- [ ] ALL standard risk categories are addressed — parent STPs only; child STPs follow the Risk bullet under
+  "Multi-SIG Features and Child STPs" in `docs/stp-guide.md` (even if no risk, include Mitigation with brief justification):
   Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
   Resource Constraints, Dependencies
-- [ ] "Other" category is included only if risks exist that don't fit the 6 standard categories above
+- [ ] "Other" category is included only if risks exist that don't fit the standard categories above
 - [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
   and the category-specific supplemental field:
   *Estimated impact on schedule* (Timeline/Schedule),
   *Areas with reduced coverage* (Test Coverage),
-  *Missing or unavailable environments* (Test Environment),
-  *Missing resources or infrastructure* (Resource Constraints),
-  *Third-party services or blockers* (Dependencies),
-  *Reason untestable and mitigation approach* (Untestable Aspects)
+  *Missing resources or infrastructure* (Test Environment),
+  *Current capacity gaps* (Resource Constraints),
+  *Dependent teams or components* (Dependencies),
+  *Alternative validation approach* (Untestable Aspects)
 - [ ] When no risk exists: only a short justification in the Mitigation field is needed
   (not just "N/A"); no Sign-off or category-specific supplemental fields are required
 - [ ] Mitigations are specific and actionable (not "we will address this")
@@ -269,12 +278,15 @@ Reviewers must verify these cross-references between sections:
 ### III — Test Scenarios & Traceability
 
 - [ ] Every scenario has a Jira Requirement ID (not "[TBD]").
-  In the scenarios table, multiple test scenarios mapped to the same requirement
-  may leave the Requirement ID cell blank in continuation rows.
+  Multiple scenarios may reference the same requirement ID, but the Section III structure must follow
+  the template.
 - [ ] Requirement summaries use user story format ("As a [role], I want...")
-- [ ] Each scenario has Tier (1, 2, or 3) and Priority (P0/P1/P2)
-- [ ] Every Testing Goal from Section II.1 has a matching scenario here
-- [ ] Every Acceptance Criterion from Section I.1 is traceable to a scenario
+- [ ] Each scenario states its Tier (1, 2, or 3) in the scenario line, as in the template, and a Priority
+  (P0/P1/P2, optionally with a phase tag)
+- [ ] Every non-regression Testing Goal from Section II.1 has a matching scenario here; regression goals
+  refer to their coverage in Test Strategy (II.2)
+- [ ] Every Acceptance Criterion from Section I.1 is covered by a scenario here, or by named existing
+  regression coverage in Test Strategy (II.2)
 - [ ] Granularity: if one scenario can fail while another passes, they are separate items
 - [ ] Scenario descriptions include observable pass criteria — not just "verify X works correctly."
   Define what "correctly" means (e.g., "metrics are non-zero and consistent with the observed
@@ -303,10 +315,8 @@ Reviewers must verify these cross-references between sections:
 
 ### IV — Sign-off and Approval
 
-- [ ] Reviewers listed with names and GitHub handles
-- [ ] Approvers listed with explicit role labels (QE Lead, Dev Lead, PM at minimum)
-  — each approver must include their role, name, and GitHub handle
-- [ ] Reviewers listed with role context (QE, Development, SIG representatives)
+- [ ] Sign-off lists at least one person per function required by the template
+  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle
 - [ ] No placeholder text remaining
 
 ---
@@ -355,6 +365,13 @@ stps/sig-iuo/multiarch/
 
 ### Child STP Review Checklist
 
+Intentional differences from the parent STP are listed under "Multi-SIG Features and Child STPs" in
+`docs/stp-guide.md`. Review the child STP against that list instead of re-deriving it here.
+
+Test Environment (II.3) and Entry Criteria (II.4) are owned by the parent: the field-filled and
+completion-status checks do not apply to a child STP. In Metadata, the child's own `SIG` field must name the
+SIG the child covers.
+
 - [ ] Parent STP lists all child STPs in the feature directory with links
 - [ ] Child STP follows the child STP template (`stps/stp-template/child-stp.md`)
 - [ ] Child STP does NOT duplicate Feature Overview, requirements, or acceptance criteria from parent
@@ -378,12 +395,13 @@ stps/sig-iuo/multiarch/
   (do not retroactively enforce on already-merged STPs)
 - Remove all template HTML comments and example text before submitting
 - Include at least one negative or failure-path Testing Goal for each P0 functional goal,
-  with a matching Section III scenario — or document the omission in Out of Scope with PM/Lead agreement
+  with a matching Section III scenario — or document the omission in Out of Scope with Quality Owner or Product Manager sign-off
 - Document what is NOT tested with explicit sign-off — anything untested must be visible
 - Order testing goals by priority (P0 first)
 
 ### DON'T
-- Use implementation terms (API field names, CRD names, internal component names)
+- Use implementation terms (internal API field names, internal component names), other than documented
+  user-facing objects the user must create or edit
 - Leave template placeholder text ("[Add details]", "[Name/Date]", "[TBD]")
 - Mark all risks as N/A
 - Mix constraint categories (limitations vs. out-of-scope vs. risks)

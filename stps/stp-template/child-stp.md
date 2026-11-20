@@ -22,27 +22,30 @@ Do NOT repeat the parent's Feature Overview. -->
 
 ### **I. Motivation and Requirements Review (QE Review Guidelines)**
 
+*This section records the quality interpretation of the SIG's part of the feature. Its purpose is to expose
+misunderstandings before testing starts, so reviewers should check it against their own understanding.*
+
 <!-- In child STPs: this section covers only SIG-specific review items.
 Feature-wide requirements, acceptance criteria, and NFRs are defined in the parent STP. -->
 
 #### **1. Requirement & User Story Review Checklist**
 
-- [x] **Review Requirements**
+- [ ] **Review Requirements**
   - *SIG-specific requirements:* [List requirements this SIG owns, or "None — all requirements are in the parent STP"]
 
-- [x] **Acceptance Criteria**
+- [ ] **Acceptance Criteria**
   <!-- Only list acceptance criteria specific to this SIG's scope. -->
   - [List SIG-specific acceptance criteria, or "None — all acceptance criteria are in the parent STP"]
 
-- [x] **Testability**
+- [ ] **Testability**
   - *Note any SIG-specific requirements that are unclear or untestable:* [List or "None"]
 
-- [x] **Non-Functional Requirements (NFRs)**
+- [ ] **Non-Functional Requirements (NFRs)**
   <!-- Only list NFRs specific to this SIG's scope. If all NFRs are covered by the parent, state that. -->
   - *SIG-specific NFRs:* [List or "None — all NFRs are covered by the parent STP"]
   - *NFRs not covered and why:* [List with justification]
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 <!-- List only SIG-specific limitations. Feature-wide limitations belong in the parent STP.
 If none, state: "None — reviewed and confirmed with [Name/Date]." -->
@@ -52,23 +55,23 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
 
 #### **3. Technology and Design Review**
 
-- [x] **Developer Handoff/QE Kickoff**
+- [ ] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:* [SIG-specific technical concerns]
 
-- [x] **Technology Challenges**
+- [ ] **Technology Challenges**
   - *List identified challenges:* [SIG-specific challenges]
   - *Impact on testing approach:* [Impact on this SIG's tests]
 
-- [x] **API Extensions**
+- [ ] **API Extensions**
   <!-- New APIs belong in the parent STP. List here only if this SIG tests existing APIs
   in a SIG-specific way, otherwise state "N/A — see parent STP". -->
   - *List new or modified user-facing APIs:* [SIG-specific, or "N/A — see parent STP"]
   - *Testing impact:* [Impact]
 
-- [x] **Test Environment Needs**
+- [ ] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
-- [x] **Topology Considerations**
+- [ ] **Topology Considerations**
   - *Describe topology requirements:* [SIG-specific topology needs]
   - *Impact on test design:* [Impact]
 
@@ -79,7 +82,10 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
 **Testing Goals**
 
 <!-- List only this SIG's testing goals. Feature-wide goals belong in the parent STP.
-Order by priority: P0 first, then P1, then P2. -->
+Order by priority: P0 first, then P1, then P2. Priorities refer to GA. As in the parent STP, an optional phase tag
+(e.g. `[P0][TP]`) marks goals that must also pass at an intermediate phase; phase names come from the parent STP.
+As in the parent STP, each P0 functional goal has a negative or failure-path Testing Goal, or an Out of Scope entry
+with Quality Owner or Product Manager sign-off. -->
 
 - **[P0]** [SIG-specific testing goal]
 - **[P1]** [SIG-specific testing goal]
@@ -92,7 +98,7 @@ entire feature, it belongs in the parent STP — not here. -->
 
 - **[Item]**
   - *Rationale:* [Why this SIG won't test it]
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
@@ -158,7 +164,10 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 
 #### **3. Test Environment**
 
-<!-- Covered in the parent STP; make sure it includes the SIG's specific requirements. -->
+<!-- Only what this SIG needs beyond the parent STP's Test Environment (topology, versions, hardware, storage,
+network, operators, platform, special configurations); the parent's environment applies as-is. -->
+
+- [SIG-specific environment needs, or "Covered by the parent STP"]
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -170,12 +179,17 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 
 #### **4. Entry Criteria**
 
-<!-- Covered by the parent STP. Add SIG-specific entry criteria only if needed. -->
+<!-- Only entry criteria specific to this SIG; the parent STP's criteria apply as-is. -->
+
+- [SIG-specific entry criteria, or "Covered by the parent STP"]
 
 #### **5. Risks**
 
-<!-- List only SIG-specific risks. Feature-wide risks belong in the parent STP.
-Include only categories where this SIG has a specific risk — omit categories with no SIG-specific risk. -->
+Feature-wide risks are stated in the parent STP ([Risks](./stp.md#5-risks)) and are not repeated here.
+
+<!-- List only risks specific to this SIG, grouped under the same categories as the parent
+(Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects, Resource Constraints,
+Dependencies, plus Other if needed). Omit categories with no SIG-specific risk. If there are none, state: "None beyond the parent STP." -->
 
 **[Risk Category]**
 
@@ -189,22 +203,20 @@ Include only categories where this SIG has a specific risk — omit categories w
 ### **III. Test Scenarios & Traceability**
 
 <!-- List only this SIG's NEW test scenarios. Each scenario must trace to a Jira requirement.
-Regression tests are documented in Test Strategy (II.2), not in this table. -->
+Every non-regression Testing Goal above has a matching scenario here. Every SIG-specific Acceptance Criterion is
+covered by a scenario here, or by named existing regression coverage in Test Strategy (II.2). Regression tests are
+documented in Test Strategy (II.2), not in this section. -->
 
 - **[Jira-ID]** — As a [role], I want [action] so that [benefit]
-  - *Test Scenario:* [Description]
-  - *Tier:* [1, 2, or 3]
-  - *Priority:* [P0/P1/P2]
+  - *Test Scenario:* [Tier 1/2/3] [Description]
+  - *Priority:* [P0/P1/P2, with an optional phase tag as in the parent STP]
 
 ---
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This Software Test Plan requires sign-off from at least one person per function:
 
-* **Reviewers:**
-  - [Name / @github-handle]
-* **Approvers:**
-  - [QE Lead Name / @github-handle]
-  - [PM Name / @github-handle]
-  - [Dev Lead Name / @github-handle]
+- Feature Owner: [Name / @github-handle]
+- Quality Owner: [Name / @github-handle]
+- Product Manager: [Name / @github-handle]
