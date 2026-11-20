@@ -452,15 +452,8 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This Software Test Plan requires sign-off from at least one person per function:
 
-- **Reviewers:**
-
-  - QE: [Dalia Frank](@dafrank), [Kateryna Shvaika](@kshvaika), [Jose Manuel Castano](@josemacassan), [Ahmad Hafe](@Ahmad-Hafe), [Jenia Peimer](@jpeimer), [Adam Cinko](@acinko-rh)
-  - Development: [Alvaro Romero](@alromeros), [Adi Aloni](@Acedus)
-
-- **Approvers:**
-
-  - QE Lead: [Ruth Netser](@rnetser)
-  - Dev Lead: [Adam Litke](@aglitke)
-  - Product Manager: [Peter Lauterbach](@peterclauterbach)
+- Feature Owner: [Alvaro Romero](@alromeros)
+- Quality Owner: [Dalia Frank](@dalia-frank), [Ruth Netser](@rnetser)
+- Product Manager: [Peter Lauterbach](@peterclauterbach)
