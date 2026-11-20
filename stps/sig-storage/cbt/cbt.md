@@ -18,13 +18,13 @@
 
 | Term        | Definition |
 |:------------|:-----------|
-| **CBT**     | Changed Block Tracking |
+| **CBT**     | QEMU Changed Block Tracking |
 | **Push mode** | Backup mode where the hypervisor writes backup data to a user-provided PVC. |
 | **Pull mode** | Backup mode where the hypervisor exposes an NBD export and the client pulls backup data. Scratch space on a PVC is used during the backup. |
 
 ### **Feature Overview**
 
-CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs, saving only changed blocks since the last backup. The main consumers are backup vendors and cluster admins. Backups can run in push mode, where the user provides a PVC to store backup data, or in pull mode, where the user provides a PVC for scratch space and backup data is exposed via an export endpoint that external backup tools can connect to and pull data from.
+QEMU CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs, saving only changed blocks since the last backup. The main consumers are backup vendors and cluster admins. Backups can run in push mode, where the user provides a PVC to store backup data, or in pull mode, where the user provides a PVC for scratch space and backup data is exposed via an export endpoint that external backup tools can connect to and pull data from.
 
 
 ---

@@ -24,7 +24,7 @@
 
 ### **Feature Overview**
 
-Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. Offline CBT extends the existing backup API so backup providers can perform full and incremental backups of eligible stopped VMs. This plan targets GA in CNV v5.2.0 and marks checks also required at Tech Preview in CNV v5.1.0, when offline backup is enabled through an HCO feature gate. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Recovered guest bootability and data checks validate backup integrity without claiming a CNV restore product API.
+QEMU Changed Block Tracking (CBT) incremental backup previously supported only running virtual machines. Offline CBT extends the existing backup API so backup providers can perform full and incremental backups of eligible stopped VMs. This plan targets GA in CNV v5.2.0 and marks checks also required at Tech Preview in CNV v5.1.0, when offline backup is enabled through an HCO feature gate. Offline mode is selected automatically when the source VM is stopped. This plan validates offline backup behavior, exported disk coverage, and prior backup history continuity while retaining the existing running-VM backup scope in the parent CBT plan. Recovered guest bootability and data checks validate backup integrity without claiming a CNV restore product API.
 
 ---
 
