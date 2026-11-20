@@ -32,6 +32,94 @@ reviews:
   path_instructions:
     - path: "stps/**"
       instructions: |
+        ## Fixed template structure (CRITICAL — blocks approval)
+
+        The section structure and the field set of an STP are defined by the templates only:
+        `stps/stp-template/stp.md` for feature STPs and `stps/stp-template/child-stp.md` for
+        child STPs. A feature STP fills the template — it must never extend it. Full definition:
+        the "Template Structure Compliance" section of AGENTS.md.
+
+        Flag as CRITICAL any change to a feature STP that adds, renames, or reorders a section,
+        numbered subsection, checklist item, metadata field, a field inside a checklist item, or a
+        Section III key — or that removes one which is not conditional, or that splits one field
+        into several or nests new keys inside an existing field.
+
+        Also CRITICAL: field-shaped content inside an existing field — a bold or italic label
+        followed by `:` and a value (e.g. an invented `*Upstream coverage:*`), a `Key: value` line, a
+        standalone bold/italic group heading that introduces a group, or a table column that behaves
+        like a field. Emphasis inside a sentence (`**Note:**`) is prose. Inside a field, only plain
+        sentences and the template's own lines repeated are allowed — nested, or at the same level for
+        the `Document Conventions` term line; any other nested list
+        item, ordered list, table, or content-bearing HTML element inside a field is a new field
+        (HTML comments excepted). The bracketed labels the template itself defines stay in a filled
+        field — `[Jira-ID]` on a Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the
+        optional phase tag on a goal as `[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and
+        `[Tier N]` at the start of `Test Scenario`; so do markdown link labels, the checklist
+        markers `[ ]`/`[x]`, the `Document Conventions` term line, and bracketed placeholders such
+        as `[1, 2, or 3]`, which are replaced when the field is filled. Any other bracketed *token
+        acting as a key or label* is a new field.
+
+        Concrete additions this repo has had to block: metadata fields `Implementation PR` and
+        `Upstream e2e PR`; an invented `III.1` numbered subsection; the per-scenario key `Tier`; the
+        Section III keys `Test ID`, `Upstream coverage`, `Downstream required`, `Covered upstream`,
+        `Pending (Tier 2 downstream)` and `Gap resolution`; and renamed risk fields such as
+        `PM/DEV Sign-off` or `Missing or unavailable environments`.
+
+        Repeating a template line is content, not structure: extra entry criteria, extra risk
+        entries inside one category, extra scenarios, requirements, criteria, NFRs, or limitations
+        are all allowed.
+
+        Conditional items — the only permitted omissions in a feature STP: `Document Conventions
+        (if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that
+        has no risk. Template wording like "if applicable", "if needed", or "if separate" never
+        licenses deleting a labelled field: `Child STPs` is always present (single-SIG features
+        write `None — single-SIG feature`), and every risk category is present (a no-risk category
+        keeps its `Mitigation` line).
+
+        Child STPs are graded against `child-stp.md`'s own field set, which has no `Enhancement(s)`,
+        `Feature Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only
+        its own `SIG` — and no `Value`/`Use cases`; they may not extend it either. A child STP keeps
+        every risk category too: one with no SIG-specific risk reads `None — [why]`.
+
+        Section III shape: a bullet with the Jira ID bold, the requirement summary as a user story,
+        then `Test Scenario` and `Priority` — tier inline as the first token of `Test Scenario`
+        (`*Test Scenario:* [Tier N] [scenario]`). A child STP uses the same shape; a separate `Tier`
+        key in any STP is a new field, as are the other keys listed above.
+
+        In a filled STP, HTML comments are not part of the document: a comment carrying a field, key,
+        or value is CRITICAL structure smuggling, and any other surviving comment is HIGH. This does
+        not apply under `stps/stp-template/`, to AGENTS.md or to `docs/*.md` — that is the guidance
+        material rather than a filled STP, so a comment there is never a finding.
+
+        Where that content belongs instead: free prose in an existing field, or outside the STP
+        (design doc, VEP, tests repository). A structural change must come as a separate PR that
+        updates the template it changes, the `Template Structure Compliance` section of AGENTS.md,
+        `docs/stp-guide.md`, this block, and the `extra_instructions` in `.pr_agent.toml` — the five
+        copies; until that PR merges, the field does not exist and must not appear in any STP. Do not
+        suggest adding a field to the template as a fix for one STP.
+
+        A PR must not bundle a dependency: flag CRITICAL when a feature-STP change uses a field,
+        key, or section that the same PR adds, renames, or removes in a template, `AGENTS.md`,
+        `docs/stp-guide.md`, `.pr_agent.toml`, or this file — equivalently, any PR that changes a
+        rule source and an STP in the same diff must be split so the rule cannot be rewritten under
+        cover of the STP that benefits from it. An unrelated typo fix in a template is fine.
+
+        For files under `stps/stp-template/`, replace the feature-STP shape check and the comment
+        check above with the template-PR gate: the PR must not silently remove a required section or
+        field — a rename or a documented replacement is allowed, an unexplained deletion is not.
+        When it changes structure or shared rule guidance, it must update the template it changes,
+        AGENTS.md, `docs/stp-guide.md`, this block, and `.pr_agent.toml` together — so the five
+        copies cannot drift — and apply the change to both templates where the item exists in both.
+        A typo, wording, or comment-only template edit that leaves fields and rules unchanged is
+        exempt — do not flag it for a missing rule-copy update.
+
+        Already-merged STPs keep the shape they were approved with: template rules are not
+        retroactively enforced. The exemption is per entry: entries a PR adds or modifies follow the
+        current template, and legacy entries the PR leaves alone are not flagged. Re-shaping a legacy
+        entry onto the current template — renaming its fields to the current names — is that required
+        update, not a structure change, so do not flag it. Only divergence from the current template
+        counts.
+
         ## Test implementation cross-reference (STP → tests)
 
         Skip this check entirely for files under `stps/stp-template/` — those are
