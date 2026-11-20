@@ -116,12 +116,12 @@ QE interprets the clone and migration requirements as preserving usable guest st
 
 **Testing Goals**
 
-- **[P0][DP]** Verify that Linux and Windows direct and snapshot clones with captured state use independent storage and preserve vTPM and EFI state. Cover declarative sources and include legacy sources once the tested build includes the fix in I.2.
-- **[P0][DP]** Verify that native RWO relocation and Windows live storage conversion use the target storage class and preserve saved vTPM and EFI state.
-- **[P1][DP]** Verify that a failed clone leaves original state usable. A snapshot without captured state must reject the clone without a claim template or warn and initialize independent state when a template is available.
-- **[P1][DP]** Verify that failed native relocation or Windows live conversion leaves the original vTPM and EFI state usable.
-- **[P1][DP]** Verify that a VM can use relocated vTPM and EFI state when source storage is inaccessible.
-- **[P1][DP]** Verify that Windows can adopt released state and retain saved vTPM and EFI state across reboot. Run the existing Linux adoption and startup-error checks in II.2.
+- **[P0] [DP]** Verify that Linux and Windows direct and snapshot clones with captured state use independent storage and preserve vTPM and EFI state. Cover declarative sources and include legacy sources once the tested build includes the fix in I.2.
+- **[P0] [DP]** Verify that native RWO relocation and Windows live storage conversion use the target storage class and preserve saved vTPM and EFI state.
+- **[P1] [DP]** Verify that a failed clone leaves original state usable. A snapshot without captured state must reject the clone without a claim template or warn and initialize independent state when a template is available.
+- **[P1] [DP]** Verify that failed native relocation or Windows live conversion leaves the original vTPM and EFI state usable.
+- **[P1] [DP]** Verify that a VM can use relocated vTPM and EFI state when source storage is inaccessible.
+- **[P1] [DP]** Verify that Windows can adopt released state and retain saved vTPM and EFI state across reboot. Run the existing Linux adoption and startup-error checks in II.2.
 - **[P1]** Verify that Linux and Windows VMs keep usable pre-upgrade vTPM and EFI state after upgrading along a supported path to GA.
 
 **Priority Levels:**
@@ -164,8 +164,8 @@ QE interprets the clone and migration requirements as preserving usable guest st
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
   - *Details:* Run these existing SIG Storage checks on the feature build.
-    - [KubeVirt VMState adoption](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L320-L355) starts a second Fedora VM on released storage and reads the saved TPM secret and EFI variable.
-    - [KubeVirt missing-source reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L357-L375) reports the missing PVC when the VM attempts to start.
+    - [KubeVirt VMState adoption](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L321-L353) starts a second Fedora VM on released storage and reads the saved TPM secret and EFI variable.
+    - [KubeVirt missing-source reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L355-L376) reports the missing PVC when the VM attempts to start.
     - [KubeVirt exclusive-use reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L378-L414) reports that the PVC is in use when a second VM attempts to start while the first VM holds it.
     - [Windows vTPM storage migration](https://github.com/RedHatQE/openshift-virtualization-tests/blob/7b8e0c0900f66c1d7e9415af60f1cf9126212bda/tests/storage/storage_migration/test_storage_class_migration.py#L252-L330) checks boot time, guest-file integrity, and disk placement. Extend it with the VMState assertions in III.
     - Existing platform coverage owns the broader Windows guest-version and application matrix, storage-class provisioning, and basic PVC binding. This plan verifies VMState workflows on the selected guest images and storage classes.
