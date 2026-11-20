@@ -25,13 +25,92 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 
 ## STP Structure
 
-The STP template includes the following main sections:
+**The template is the source of truth for the structure and format of an STP:**
+[`stps/stp-template/stp.md`](../stps/stp-template/stp.md) (child STPs:
+[`child-stp.md`](../stps/stp-template/child-stp.md)). It contains inline instructions for most fields.
+This guide does not restate those instructions; it maps the template's parts and explains their purpose and the
+process around them.
+If this guide and the template ever disagree, the template wins and the guide must be fixed.
+
+| Template part | Purpose |
+|:--------------|:--------|
+| Metadata & Tracking, Feature Overview | Identify the feature (links, maturity, owners) and explain it to a reader who has not seen it before |
+| I. Motivation and Requirements Review | The quality interpretation of the feature: requirements, customer value, testability, acceptance criteria, Feature Limitations and the outcome of the design review (Developer Handoff / QE Kickoff). Sign-off confirms that this interpretation is correct and shared |
+| II.1 Scope of Testing | Testing Goals (with priority), Out of Scope, Test Limitations |
+| II.2 Test Strategy | Which of the listed testing types apply and the high-level approach for each |
+| II.3 / II.3.1 Environment, Tools | What the tests need to run; only new or non-standard tools |
+| II.4 Entry Criteria | What must be true before testing starts |
+| II.5 Risks | Uncertainties, grouped by the template's risk categories, each with mitigation and sign-off |
+| III. Test Scenarios & Traceability | Each new scenario traced to a Jira requirement, with tier and priority |
+| IV. Sign-off and Approval | Sign-off by at least one person per function (Feature Owner, Quality Owner, Product Manager) |
+
+### Purpose of Each Part
+
+The template says what to fill in. This section explains why each part exists and when it happens.
+
+**Feature Overview and metadata.** Let a reader who has never seen the feature understand what it is,
+why customers need it and how its maturity phases map to releases, and find the tracking links.
+
+**I. Motivation and Requirements Review.** Happens before test planning. It makes sure the requirements are
+understood, testable and unambiguous, that acceptance criteria are verifiable, and that the non-functional
+requirements listed in the template are considered. Feature Limitations are recorded here as confirmed
+product constraints. The critical checkpoint is the Developer Handoff / QE Kickoff meeting, where development
+and architecture walk through the design. Its purpose is to find untestable aspects and ambiguous
+requirements early, while they are cheap to fix.
+
+**II.1 Scope of Testing.** States what testing is meant to achieve: verify that the feature meets its
+requirements, find defects, and assess quality and release readiness. The scope must cover functional and
+non-functional requirements and trace back to the user stories from Section I; the user stories drive the
+testing priorities. Testing Goals are specific and measurable so that completion can be judged objectively.
+Out of Scope and Test Limitations make the gap between what the product can do and what QE verifies visible.
+
+**II.2 Test Strategy.** Decides which testing types apply and the high-level approach for each, including
+dependencies on other components, monitoring, impact on other features and UI. Goals say *what* must be
+verified; the strategy says *how* and with which types of testing.
+
+**II.3 Test Environment and Tools.** States the virtualization-specific needs up front, so the environment can
+be prepared in time; the template lists the fields to fill. Tools are listed only when they are new or
+different from standard test infrastructure.
+
+**II.4 Entry Criteria.** The conditions that must hold before test execution starts, such as approved
+requirements and design and an environment that can be set up. Feature-specific conditions are added as needed.
+
+**II.5 Risks.** Uncertainties that might affect testing, each with a mitigation, grouped by the template's
+risk categories. See Constraint Categories below for how risks differ from limitations and Out of Scope.
+
+**III. Test Scenarios & Traceability.** Links the plan to concrete tests: each requirement is traced to its
+scenarios so that coverage can be verified. Scenarios stay brief; the test cases themselves live in the test
+code or the test management system (for example Jira or Polarion), linked from here where one is used.
+Traceability is kept current as tests are implemented, so that Section III is accurate at sign-off.
+
+**IV. Sign-off and Approval.** Records who accepted the plan. Stakeholders approve the STP before test
+implementation starts. Feature sign-off is a later milestone, given only when Tier 1 and Tier 2 tests are
+defined (Tier 3 where applicable), automation is merged for GA, tests run in the release checklist jobs, and
+the documentation is reviewed.
+
+The sign-off functions are:
+
+- **Feature Owner**: the person accountable for the feature from the moment the requirement arrives until GA.
+  They don't necessarily do all the work, but they make sure the right work happens, in the right order, by the
+  right people, with nothing falling between teams and phases.
+- **Quality Owner**: the person accountable for the quality of the feature, both the processes that build quality
+  in and the verification that confirms it. They define what "good" means (test strategy, coverage, acceptance
+  criteria), design quality in from the start instead of inspecting it at the end, and give the authoritative
+  assessment of whether the feature is fit to ship.
+- **Product Manager**: the person accountable for defining what gets built and why. They own the product vision
+  and roadmap, gather and prioritize requirements from customers, stakeholders and market signals, translate them
+  into clear problem statements for the delivery teams, and represent the customer and the business throughout
+  the development lifecycle, adjusting priorities and scope as new information emerges; they are the primary
+  source of requirements flowing to Feature Owners.
 
 ### Multi-SIG Features and Child STPs
 
 When a feature spans multiple SIGs, use a **feature directory** under the owning SIG.
 The parent STP defines the overall scope, and each participating SIG contributes a child STP
-that covers their specific test scope.
+that covers its specific test scope.
+
+- Start from the child template: [`stps/stp-template/child-stp.md`](../stps/stp-template/child-stp.md)
+- Place the child beside the parent, as `stps/<owning-sig>/<feature-name>/<sig-name>.md`
 
 ```text
 stps/<owning-sig>/<feature-name>/
@@ -42,138 +121,50 @@ stps/<owning-sig>/<feature-name>/
 
 **Parent STP** — defines Feature Overview, requirements, acceptance criteria, and overall coordination.
 **Child STPs** — define SIG-specific testing goals, scenarios, strategy, and risks. They reference
-the parent for shared context and do NOT duplicate it.
+the parent for shared context and do NOT duplicate it. A child STP differs from the parent in these ways:
 
-For child STPs, use the dedicated template: [`stps/stp-template/child-stp.md`](../stps/stp-template/child-stp.md).
-The child template omits sections owned by the parent (Feature Overview, Feature Maturity, Enhancement links)
-and references the parent STP from the SIG Scope section for traceability.
+- It omits Enhancement(s), Feature Maturity, Owning/Participating SIGs and the customer value and use cases of
+  the feature; it names only its own SIG.
+- Its Feature Overview describes only the SIG's scope.
+- Test Environment and Entry Criteria are covered by the parent; the child adds only SIG-specific needs.
+- It lists only SIG-specific risks and links to the parent for the rest. Risk categories with no
+  SIG-specific risk are omitted; if there are none, it states "None beyond the parent STP", and the rule that
+  every risk category is addressed applies to the parent STP.
+
+All other rules in this guide apply to child STPs unchanged.
 
 Single-SIG features place the STP directly under `stps/<sig>/` without a feature directory.
 
-### I. Motivation and Requirements Review
+## Constraint Categories
 
-**Purpose:** Ensure QE understands the feature value and testability before planning begins.
+An STP keeps the following kinds of constraints apart. Never mix them.
 
-**Key Activities:**
-- Review feature requirements (KubeVirt and OCP enhancements)
-- Confirm requirements are **testable and unambiguous**
-- Verify acceptance criteria are clearly defined
-- Ensure Non-Functional Requirements (NFRs) are covered:
-  - Performance
-  - Security
-  - Usability
-  - Monitoring (metrics/alerts)
-  - Scalability
-  - Portability
-- Document **known feature limitations** — confirmed product constraints; each limitation requires per-item sign-off (name/date)
+| Category | Template location | Meaning | Example |
+|:---------|:------------------|:--------|:--------|
+| **Feature Limitations** | I.2 | Known product constraint: the product does not support it | "Feature only supports IPv4" |
+| **Out of Scope** | II.1 | The product works, but QE decided not to test it | "Windows guests are not tested" |
+| **Test Limitations** | II.1 | Constraint imposed on QE that prevents testing something QE wants to test | "No dual-stack cluster available" |
+| **Risks** | II.5 | Uncertainty that might affect testing, with a mitigation | "Cluster may not be ready in time" |
 
-**Critical Checkpoint:** Developer Handoff/QE Kickoff meeting where Dev/Arch walks QE through design and architecture.
+Rule of thumb: Feature Limitations and Test Limitations are *known facts* (about the product and about what QE
+can test), risks are *uncertainties*, Out of Scope is a *decision*.
+Every entry that states a limitation, an exclusion or a risk is signed off; a risk category marked "N/A"
+needs only a justification in the Mitigation field. The template shows where each sign-off goes.
 
-### II. Software Test Plan (STP)
+## Priority and Tier
 
-#### 1. Introduction and Scope
-- **Purpose:** High-level overview of testing approach
-- **Scope of Testing:** What will be tested (functional and non-functional)
-- **Document Conventions:** Acronyms and definitions
+**Priority** — the priority levels and the optional phase tag are defined in the template's Testing Goals
+section; they apply to testing goals and scenarios alike. See "Phase tag" there before tagging a goal.
 
-#### 2. Test Objectives
-Primary goals:
-- Verify software meets all requirements
-- Identify and report defects
-- Ensure software performs as expected
-- Assess overall quality and release readiness
+**Tier** — see [Testing Tiers](./testing-tiers.md). Every scenario in Section III states its tier.
 
-#### 3. Motivation
-QE perspective on testing priorities:
-- **User Stories:** Key scenarios driving test priorities
-- **Testing Goals:** Specific, measurable objectives (coverage targets, performance SLAs, etc.)
-- **Out of Scope:** Items the product supports but QE **chooses not to test** — requires PM/Lead sign-off
-- **Test Limitations:** Constraints **imposed on QE** that limit what can be tested (e.g., hardware unavailability); each limitation requires per-item sign-off (name/date)
+## Checklist Before Requesting Review
 
-#### 4. Test Strategy
-**Types of Testing:**
-- Functional Testing
-- Automation Testing
-- Performance Testing
-- Security Testing
-- Usability Testing
-- Compatibility Testing
-- Regression Testing
-- Self-Validation Testing
-- Upgrade Testing
-- Backward Compatibility Testing
-
-**Potential Areas:**
-- Dependencies on other components
-- Monitoring requirements (metrics/alerts)
-- Cross-integration impacts
-- UI requirements
-
-#### 5. Test Environment
-Virtualization-specific requirements:
-- Cluster topology (bare metal, SNO, compact cluster, etc.)
-- OCP & OpenShift Virtualization versions
-- Hardware requirements (CPU virtualization, compute resources, special hardware)
-- Storage configuration (ODF, LSO, CSI drivers)
-- Network configuration (CNI, secondary networks, network plugins)
-- Required operators
-- Platform (bare metal, AWS, Azure, GCP, etc.)
-- Special configurations (disconnected, proxy, FIPS)
-
-#### 6. Entry Criteria
-
-**Entry Criteria:**
-- Requirements and design documents approved and stable
-- Test environment set up and configured
-- Test cases reviewed and approved
-
-#### 7. Risk Management
-Document risks and mitigation strategies with sign-off:
-- Timeline/Schedule Risk
-- Insufficient test coverage
-- Unstable test environment
-- Untestable aspects
-- Resource constraints
-- Dependencies
-
-**Note:** Risks are *uncertainties* — things that might happen. Each risk requires a mitigation plan and stakeholder sign-off.
-Do not confuse risks with:
-- **Feature Limitations** (Section I) — known product constraints, not uncertain
-- **Test Limitations** (Section II.1) — known constraints on QE's ability to test
-- **Out of Scope** (Section II.1) — deliberate decisions not to test
-
-#### 8. Constraints Summary
-
-The STP template uses four distinct categories for constraints. Refer to the template for detailed guidance:
-
-- **Feature Limitations** (Section I.2) — Product doesn't support it (e.g., "Feature only supports IPv4")
-- **Out of Scope** (Section II.1) — QE chose not to test it (e.g., "Windows guests won't be tested")
-- **Test Limitations** (Section II.1) — QE can't test it due to constraints (e.g., "No dual-stack cluster available")
-- **Risks** (Section II.5) — Uncertain, might impact testing (e.g., "Cluster may not be ready in time")
-
-### III. Test Case Descriptions & Traceability
-
-**Purpose:** Link strategic plan to tactical test cases.
-
-**Key Components:**
-1. **Test Case Repository:** Links to Jira, Polarion, or test management system
-2. **Traceability Matrix:** Maps requirements to high-level test scenarios
-3. **Test Scenario Descriptions:** Brief descriptions of key scenarios
-4. **Traceability Maintenance:** Process for keeping traceability current
-
-### IV. Sign-off and Approval
-
-**Final Sign-off Checklist:**
-- Tier 1 / Tier 2 tests defined (Tier 3 where applicable)
-- **Automation merged** (mandatory for GA)
-- Tests running in release checklist jobs
-- Documentation reviewed
-- Feature sign-off by QE
-
-**Approvers:**
-- QE Lead
-- Product Manager
-- Development Lead
+- Template HTML comments and example text removed; no template placeholder text is left (`[Add details]`,
+  `[Name/Date]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
+- Traceability holds: every non-regression Testing Goal has a Section III scenario, and every acceptance
+  criterion is covered by a scenario or by named existing regression coverage in Test Strategy
+- Every limitation, exclusion and risk entry is signed off (see Constraint Categories)
 
 ## Moving an STP
 

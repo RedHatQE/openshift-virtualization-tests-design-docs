@@ -15,7 +15,7 @@ OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive 
      /__________\  - Full system workflows
     /            \
    /    Tier 1    \   Tier 1 (Functional)
-  /________________\  - More tests, feature integration
+  /________________\  - Single-feature tests on a cluster
  /                  \
 /     Unit Tests     \  Unit Tests
 /____________________\  - Most tests, isolated components
@@ -206,4 +206,5 @@ OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive 
 
 - [STP Guide](./stp-guide.md)
 - [STP Template](../stps/stp-template/stp.md)
+- [Child STP Template](../stps/stp-template/child-stp.md)
 - [OpenShift Virtualization Test Repository](https://github.com/kubevirt/kubevirt/tree/main/tests)

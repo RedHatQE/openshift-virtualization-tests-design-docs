@@ -16,7 +16,9 @@
   Example:
   - DP: N/A
   - TP: 4.22
-  - GA: 5.0 -->
+  - GA: 5.0
+
+  If goals or scenarios must also pass at an intermediate phase, see the optional phase tag under Testing Goals priority levels. -->
 
   - DP: [version or N/A]
   - TP: [version or N/A]
@@ -39,8 +41,8 @@
 
 <!-- Provide a brief (2-8 sentences) description of the feature being tested.
 Include: what it does, why it matters to customers, and the user-visible lifecycle context.
-If the feature spans multiple releases (e.g., Tech Preview → GA), state the current phase
-and how the test scope for this STP relates to that phase. -->
+If the feature spans multiple releases (e.g., Tech Preview → GA), describe how the test scope
+for this STP relates to those phases; the STP always targets GA. -->
 
 [Brief description of the feature and its purpose]
 
@@ -50,6 +52,9 @@ and how the test scope for this STP relates to that phase. -->
 
 This section documents the mandatory QE review process. The goal is to understand the feature's value,
 technology, and testability before formal test planning.
+
+*This section records the quality interpretation of the feature. Its purpose is to expose misunderstandings
+before testing starts, so reviewers should check it against their own understanding of the feature.*
 
 #### **1. Requirement & User Story Review Checklist**
 
@@ -83,7 +88,7 @@ technology, and testability before formal test planning.
   - *List applicable NFRs and their targets:* [e.g., Resource Efficiency: < 5% CPU overhead on host during feature operation, Security: RBAC enforced, Scalability: supports 500 VMs]
   - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
 
-#### **2. Known Limitations**
+#### **2. Feature Limitations**
 
 The limitations are documented to ensure alignment between development, QA, and product teams.
 The following are confirmed product constraints accepted before testing begins.
@@ -164,10 +169,19 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **Relevant**: Directly supports feature acceptance criteria and user stories
 - **Verifiable**: Can be objectively confirmed as complete
 
+**Negative paths:** Each P0 functional goal has a negative or failure-path Testing Goal (e.g., "what happens if
+migration fails?", "what if the VM starts during the operation?"), or an Out of Scope entry with Quality Owner or
+Product Manager sign-off — "considered" alone is insufficient. A negative path that is also an Acceptance Criterion
+cannot be moved to Out of Scope: Section III covers it. -->
+
 **Priority Levels:**
-- **P0**: Blocking GA - must be complete before release
+- **P0**: Blocks GA - must be complete before release
 - **P1**: High priority - required for full feature coverage
-- **P2**: Nice-to-have - can be deferred if timeline constraints exist -->
+- **P2**: Nice-to-have - can be deferred if timeline constraints exist
+
+**Phase tag (optional):** Priorities refer to GA. If a goal or scenario must also pass at an intermediate phase
+(e.g. Tech Preview), add a phase tag: `[P0][TP]` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
+phase names from Feature Maturity (from the parent STP for a child STP).
 
 <!-- **Example - Functional Goals**:
 - **[P0]** Verify VM live migration completes successfully with new network binding plugin across
@@ -191,7 +205,7 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
   alerts fire correctly in Alertmanager -->
 
-- **[P0]** [List key functional areas to be tested with priority]
+- **[P0]** [List key functional areas to be tested with priority; add a phase tag such as `[P0][TP]` only if needed]
 - **[P1]** [List non-functional requirements to be tested with priority]
 - **[P2]** [Reference specific user stories from Section I with priority]
 
@@ -203,22 +217,25 @@ No verification activities will be performed for these items, and any related is
 <!-- **What does Out of Scope mean?**
 Out of Scope items are areas where the product works, but QE has decided not to test them this cycle.
 This is the most critical section in the STP — it explicitly documents the gap between what the product can do and what QE will verify.
-Every item here is a conscious risk accepted by PM/Lead. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
-Each item requires PM/Lead sign-off.
+Every item here is a conscious decision accepted by the Quality Owner or Product Manager. If an untested area breaks in production, this section proves the decision was deliberate and agreed upon.
+Each item requires Quality Owner or Product Manager sign-off.
 
 **Difference from Risks:** A risk is something that *might* prevent testing — you plan to test it but it could be blocked and you provide a mitigation plan.
 Out of Scope means you have *decided not to test it* — the decision is final and accepted by stakeholders.
 Example: "MultiArch cluster might not be available" is a **risk**. "We will not test on bare-metal MultiArch clusters" is **out of scope**.
 
+**Difference from existing coverage:** Areas already covered by existing regression suites or other teams are
+not Out of Scope; record them under Regression Testing in Test Strategy (II.2).
+
 **Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
 
-- **[e.g., Core OCP network functionality]**
-  - *Rationale:* The core functionality is already covered by the OCP Network team; no duplication of their test effort
-  - *PM/Lead Agreement:* [Name/Date]
+- **[e.g., Interface settings that are independent of the new network binding (e.g., NIC model)]**
+  - *Rationale:* The feature is expected to work with any interface setting. These settings affect the vNIC emulation towards the guest and are agnostic to the binding choice, so no feature-specific test is planned
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
@@ -436,6 +453,9 @@ justification in mitigation strategy. -->
 - Different conditions (VMs with feature X vs without) → separate scenarios
 - Feature Gate enable/disable → separate scenarios (different expected behavior)
 - Multiple alerts → separate if different trigger conditions, group if same flow
+**Traceability:** Every non-regression Testing Goal (II.1) has a matching scenario here; regression goals refer
+to their coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here, or by
+named existing regression coverage in Test Strategy (II.2).
 **What does NOT go here:** Regression tests (covered in Test Strategy). -->
 
 <!-- **Requirement ID:**
@@ -448,7 +468,7 @@ justification in mitigation strategy. -->
   - *Priority:* P0
 
 - **[Jira-124]** — As an admin...
-  - *Test Scenario:* [Tier 2] Verify API for feature X is backward-compatible
+  - *Test Scenario:* [Tier 1] Verify API for feature X rejects invalid field values
   - *Priority:* P0
 
 - **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
@@ -467,13 +487,8 @@ justification in mitigation strategy. -->
 
 ### **IV. Sign-off and Approval**
 
-This Software Test Plan requires approval from the following stakeholders:
+This Software Test Plan requires sign-off from at least one person per function:
 
-* **Reviewers:**
-  - QE: [Name / @github-handle]
-  - Development: [Name / @github-handle]
-  - [Additional reviewers as needed]
-* **Approvers:**
-  - QE Lead: [Name / @github-handle]
-  - Dev Lead: [Name / @github-handle]
-  - Product Manager: [Name / @github-handle]
+- Feature Owner: [Name / @github-handle]
+- Quality Owner: [Name / @github-handle]
+- Product Manager: [Name / @github-handle]
