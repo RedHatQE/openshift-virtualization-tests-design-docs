@@ -70,11 +70,11 @@ technology, and testability before formal test planning.
     - Documentation: Downstream docs updated for offline backup API usage and feature gate (verified by docs team, not duplicated in QE functional scope)
     - Compatibility: QCOW2 tracking overlays are required and may use raw backing disks; RAW-only tracking is unsupported. Supported storage remains storage-agnostic.
     - Backward Compatibility: Prior online backup history remains compatible with offline CBT; rollback fails in-progress offline backups without blocking VM operations
+    - Scalability: Verify concurrent CBT backups on a five-VM ODF fleet in all-stopped and mixed running/stopped configurations. Production-scale coverage and behavior at the cluster's backup parallelism limit are tracked in [CNV-89381](https://redhat.atlassian.net/browse/CNV-89381).
   - *Note any NFRs not covered and why:*
     - Performance: N/A — no performance targets defined for offline backup in the epic or VEP
     - Monitoring: N/A — no new metrics or alerts specified
     - Observability: N/A — offline mode uses existing backup status and events; no new observability contract is defined
-    - Scalability: N/A for new scale dimensions — offline backup uses the same CBT mechanism; existing cluster-level backup parallelism limits apply
     - UI: No CNV console changes — per epic non-requirement; QE validates API behavior only
 
 #### **2. Feature Limitations**
@@ -164,7 +164,7 @@ and schedule.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify hotplugged disks and per-disk fallback preserve eligible incremental data, and rollback leaves later VM operations available.
 - **[P1] G10 — Upgrade continuity:** As a backup provider, verify that an online checkpoint created before a supported upgrade into the GA release remains usable for offline incremental backup in both modes.
 - **[P1] G11 — First backup of never-started VMs:** As a backup provider, verify that a never-started VM can be backed up in both modes once CNV-100648 is delivered in the GA build.
-- **[P2] G09 — Extended validation:** As a cluster admin, verify simultaneous offline backups keep per-VM data separate and offline-created checkpoints remain usable across restart and migration, within existing backup parallelism limits.
+- **[P2] G09 — Extended validation:** As a cluster admin, verify that concurrent backups of all-stopped and mixed running/stopped VM fleets preserve each VM's backup data, and that offline-created checkpoints remain usable across restart and migration.
 
 **Priority Levels:**
 
@@ -227,7 +227,7 @@ found will not be classified as defects for this release.
   - *Details:* N/A — no performance targets defined for offline backup in this release.
 
 - [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
-  - *Details:* Validate concurrent offline backups within existing CBT parallelism limits, checking that each VM retains its own backup data.
+  - *Details:* Run the scheduled five-VM concurrency check in TS-18. Track larger workloads and verify how requests beyond the cluster's active-backup capacity are handled under [CNV-89381](https://redhat.atlassian.net/browse/CNV-89381).
 
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* Verify trusted offline pull retrieval over TLS; reject invalid credentials and untrusted server certificates before reading data. Retain existing CBT transport regression coverage.
@@ -410,8 +410,9 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - *Test Scenario:* [Tier 1] **TS-17:** Verify unauthorized clients cannot retrieve offline pull disk data.
   - *Priority:* P1
 
-- **[CNV-96511]** — As a cluster admin, I want five simultaneous stopped-VM backups, including three Windows guests and two Linux guests on ODF storage, to produce data matching their source backup points in push and pull modes
-  - *Test Scenario:* [Tier 3] **TS-18:** Verify concurrent Windows and Linux backups preserve per-VM data.
+- **[CNV-96511]** — As a cluster admin, I want concurrent backups of running and stopped VMs to preserve each VM's data.
+  - *Test Scenario:* [Tier 3] **TS-18:** Verify concurrent backups preserve per-VM data.
+  - Use five VMs on ODF, three Windows and two Linux. Run an all-stopped variant and a mixed variant with three stopped and two running VMs. Execute each variant separately in push and pull modes. Submit all five backup requests concurrently and verify that each completes with the expected data for its source VM.
   - *Priority:* P2
 
 - **[CNV-96511]** — As a backup provider, I want expiry to fail an offline pull without advancing history or leaving VM startup blocked
