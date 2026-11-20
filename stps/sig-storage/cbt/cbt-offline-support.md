@@ -70,9 +70,9 @@ technology, and testability before formal test planning.
     - Documentation: Downstream docs updated for offline backup API usage and feature gate (verified by docs team, not duplicated in QE functional scope)
     - Compatibility: QCOW2 tracking overlays are required and may use raw backing disks; RAW-only tracking is unsupported. Supported storage remains storage-agnostic.
     - Backward Compatibility: Prior online backup history remains compatible with offline CBT; rollback fails in-progress offline backups without blocking VM operations
+    - Performance: Offline incremental backups are expected to complete in comparable or less time than online incremental backups. See the benchmarking scope in II.1.
     - Scalability: Verify concurrent CBT backups on a five-VM ODF fleet in all-stopped and mixed running/stopped configurations. Production-scale coverage and behavior at the cluster's backup parallelism limit are tracked in [CNV-89381](https://redhat.atlassian.net/browse/CNV-89381).
   - *Note any NFRs not covered and why:*
-    - Performance: N/A — no performance targets defined for offline backup in the epic or VEP
     - Monitoring: N/A — no new metrics or alerts specified
     - Observability: N/A — offline mode uses existing backup status and events; no new observability contract is defined
     - UI: No CNV console changes — per epic non-requirement; QE validates API behavior only
@@ -188,8 +188,8 @@ found will not be classified as defects for this release.
   - *Rationale:* The feature is API-only with no UI components. PM/Lead confirmed no UI coverage is needed based on customer value assessment.
   - *PM/Lead Agreement:* [Name/Date]
 
-- **Performance and throughput benchmarking of offline backup**
-  - *Rationale:* No performance requirements defined; consistent with parent CBT STP deferral
+- **Execution of online-versus-offline incremental backup benchmarking**
+  - *Rationale:* We'll work with the Performance & Scale team to define the comparison, agree on what counts as comparable before setting a pass criterion, and run and report the benchmark under a proposed CNV 5.1 Jira ticket.
   - *PM/Lead Agreement:* [Name/Date]
 
 - **Certified backup partner validation**
@@ -224,7 +224,7 @@ found will not be classified as defects for this release.
 **Non-Functional**
 
 - [ ] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
-  - *Details:* N/A — no performance targets defined for offline backup in this release.
+  - *Details:* See the benchmarking scope in II.1. Compare online and offline incremental backup durations separately for push and pull using equivalent source disks, storage, and changed data. Measure from request submission to successful backup completion for push, and from request submission through data retrieval and backup finalization for pull.
 
 - [x] **Scale Testing** — Validates feature behavior under increased load and at production-like scale
   - *Details:* Run the scheduled five-VM concurrency check in TS-18. Track larger workloads and verify how requests beyond the cluster's active-backup capacity are handled under [CNV-89381](https://redhat.atlassian.net/browse/CNV-89381).
