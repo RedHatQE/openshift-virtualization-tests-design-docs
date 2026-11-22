@@ -63,7 +63,7 @@ rather than requiring it.
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
   "seamless") must have matching acceptance criteria and test scenarios. If the feature
   doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
-  with Rationale and Sign-off (Quality Owner or Product Manager, name/date), or reference existing coverage
+  with Rationale and Sign-off (Quality Owner or Product Manager, name), or reference existing coverage
   elsewhere (do not use Out of Scope for work already covered by other teams/suites).
 
 **Common rejection reasons:**

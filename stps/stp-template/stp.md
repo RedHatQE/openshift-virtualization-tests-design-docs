@@ -11,7 +11,8 @@
 - **Feature Maturity:**
   <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
   Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
-  For features already GA with no prior phases, only list GA.
+  All three lines stay: a feature already GA with no prior phases writes `DP: N/A` and `TP: N/A`
+  rather than dropping the lines.
 
   Example:
   - DP: N/A
@@ -25,17 +26,21 @@
   - GA: [version]
 - **QE Owner(s):** [Name(s)]
 - **Owning SIG:** [sig-xyz]
-- **Participating SIGs:** [List of participating SIGs]
-- **Child STPs:** [List child STPs with links, or remove this field for single-SIG features]
+- **Participating SIGs:** [sig-abc, sig-def]
+- **Child STPs:** [child STP links, or "None — single-SIG feature"]
   <!-- For parent STPs in multi-SIG features only: list all child STPs in the feature directory.
-  Remove this field for single-SIG features and child STPs.
+  A single-SIG feature keeps this field and writes "None — single-SIG feature" — do not delete the
+  field. Child STPs have no such field in their own template.
 
   Example:
   - [sig-network](./network.md)
   - [sig-storage](./storage.md)
   - [sig-virt](./virt.md) -->
 
-**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+**Document Conventions (if applicable):**
+<!-- One term per line — keep this label and its bullet, and repeat the bullet once per term. Both
+lines are the template's own shape, so neither is a new field. -->
+- **[term]** — [define a term specific to this document]
 
 ### **Feature Overview**
 

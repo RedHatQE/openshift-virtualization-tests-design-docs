@@ -5,11 +5,14 @@
 ### **Metadata & Tracking**
 
 - **Feature Tracking:** [Link to the relevant feature in Jira]
-- **Epic Tracking:** [Link to the SIG-specific tracking Jira Epic, if separate from the parent]
+- **Epic Tracking:** [Link to the SIG-specific tracking Jira Epic, or "Same as parent"]
 - **QE Owner(s):** [Name (@github-handle, email)]
 - **SIG:** [This SIG — the one this child STP covers]
 
-**Document Conventions (if applicable):** [Define terms specific to this SIG's scope only]
+**Document Conventions (if applicable):**
+<!-- One term per line — keep this label and its bullet, and repeat the bullet once per term. Both
+lines are the template's own shape, so neither is a new field. -->
+- **[term]** — [define a term specific to this SIG's scope only]
 
 ### **Feature Overview**
 
