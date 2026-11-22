@@ -6,11 +6,11 @@
 [config]
 # Feed repo guidance into Qodo's review context (read from the default branch).
 # repo_context_max_lines applies to the COMBINED rendered context of all files,
-# not per-file — 2200 covers AGENTS.md (438) + docs/stp-guide.md (269) + docs/testing-tiers.md (210)
-# + stps/stp-template/stp.md (486) + stps/stp-template/child-stp.md (218) = ~1620 today, with room to grow.
-# The authoritative templates are listed first so an overflow truncates them last.
+# not per-file. The five files total about 2170 lines today, and 2400 keeps a margin over that so
+# nothing is silently truncated. The authoritative templates are listed first, so if the combined
+# size ever does overflow, the rules truncate before they do.
 repo_context_files = ["stps/stp-template/stp.md", "stps/stp-template/child-stp.md", "AGENTS.md", "docs/stp-guide.md", "docs/testing-tiers.md"]
-repo_context_max_lines = 2200
+repo_context_max_lines = 2400
 
 [pr_reviewer]
 # Docs-only repo — no code to test or scan for code-level security practices
@@ -25,25 +25,73 @@ Be direct. Explain WHY. Use severity: CRITICAL (blocks approval), HIGH (must fix
 MEDIUM (should fix), LOW (suggestion).
 
 Core principles:
+- The template structure is fixed: a feature STP fills stps/stp-template/stp.md (child STPs:
+  stps/stp-template/child-stp.md) and never extends it. An added, renamed, reordered, or
+  non-conditional removed section, checklist item, field, or Section III key is CRITICAL and blocks
+  approval; so is field-shaped content inside a field (an extra bold or italic label, a
+  `Key: value` line, a group heading, a table). The labels the template itself defines stay in a
+  filled field — `[Jira-ID]` on a Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the
+  optional phase tag on a goal as `[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and
+  `[Tier N]` at the start of `Test Scenario`; so do markdown link labels, the checklist markers
+  `[ ]`/`[x]`, the Document Conventions term line, and bracketed placeholders. Any other bracketed
+  token acting as a key or label is a new field. Inside a field only plain sentences and the template's own lines
+  repeated (nested, or at the same level for the Document Conventions term line) are allowed; any
+  other nested list item, ordered list, table, or content-bearing HTML element inside a field is a new
+  field.
+  See AGENTS.md "Template Structure Compliance".
+  A structure change belongs in a separate template PR.
+- Repeating a template line is content, not structure: extra entry criteria, extra risk entries
+  inside one category, extra scenarios, requirements, criteria, NFRs, or limitations are allowed.
+- Conditional items — the only omissions in a feature STP: `Document Conventions (if applicable)`,
+  and the supplemental field plus `Sign-off` line of a risk category with no risk. "if applicable"
+  or "if needed" never licenses deleting a labelled field: `Child STPs` is always present, every risk
+  category is present, and a child STP keeps every risk category too (one with no SIG-specific risk
+  reads `None — [why]`).
+- A child STP is graded against child-stp.md's own field set: no `Enhancement(s)`, `Feature Maturity`,
+  `Owning SIG`/`Participating SIGs`, `Child STPs`, `Value` or `Use cases` field, and it may not add
+  fields either.
+- In a filled STP, an HTML comment carrying a field, key, or value is CRITICAL structure smuggling;
+  any other surviving comment is HIGH. In the templates the comments are the document, and in
+  AGENTS.md and `docs/*.md` they are guidance too — comments there are never a finding.
+- A PR must not bundle a dependency: flag CRITICAL when an STP change uses a field, key, or section
+  the same PR adds, renames, or removes in a template or any rule source (AGENTS.md,
+  docs/stp-guide.md, .coderabbit.yaml, these instructions). Equivalently, any PR that changes a rule
+  source and an STP in the same diff must be split, so the rule cannot be rewritten under cover of
+  the STP that benefits from it.
+- Template rules are not retroactively enforced: a merged STP keeps the shape it was approved with,
+  and re-shaping a legacy entry onto the current template is not a structure change. The exemption is
+  per entry; only divergence from the current template counts.
 - STPs describe what users experience, not internal implementation. Flag internal API
   field names, internal component references, and implementation mechanisms as findings.
   Documented user-facing objects the user must create or edit (e.g. a resource kind)
   may be named.
-- Every claim needs evidence — sign-offs, Jira links, dates. No empty placeholders
-  ("[TBD]", "[Name/Date]", "[Add details]") in approved STPs.
+- Every claim needs evidence — sign-offs and Jira links. No empty placeholders
+  ("[TBD]", "[Name]", "[Add details]") in approved STPs.
 - Distinguish constraint categories: Feature Limitations, Test Limitations, Out of
   Scope, and Risks are distinct concepts — flag any mixing.
 - Traceability is mandatory — every test scenario must map to a Jira requirement ID
-  with tier and priority.
+  with tier and priority. Section III scenarios are required for non-regression Testing
+  Goals; a regression goal and an acceptance criterion may be satisfied by named existing
+  regression coverage in Test Strategy.
 - Testing goals must be written from the end-user perspective with priorities
   (P0 first), and each P0 functional goal needs a negative/failure-path Testing Goal with a matching
   scenario (or an Out of Scope entry with Quality Owner or Product Manager sign-off); regression goals are covered by Test Strategy.
 - Test scenarios need observable pass criteria, not "verify X works correctly".
 
-For files under stps/stp-template/ — those are templates, not feature STPs. Skip the
-STP-to-tests cross-reference check for them, but review the template content as documentation:
-check that the instructions are self-consistent, and report any place where docs/stp-guide.md or AGENTS.md
-disagrees with the template so the other document can be corrected.
+For files under stps/stp-template/ — those are templates, not feature STPs. Skip
+feature-STP content review for them (no requirements, acceptance-criteria, or scenario
+checks) and check markdown formatting, but apply the template-PR gate from AGENTS.md
+"Template Structure Compliance": the PR must not silently remove a section, field,
+checklist item, or Section III key that is not listed as conditional — a rename or a
+documented replacement is allowed, an unexplained deletion is not. When a template PR
+changes structure or shared rule guidance it must update the template it changes, AGENTS.md,
+docs/stp-guide.md, the .coderabbit.yaml structure block, and these extra_instructions
+together — so the five copies cannot drift — and apply the change to both templates where the
+item exists in both; flag a PR that leaves one of those copies behind. A typo, wording, or
+comment-only template edit that leaves fields and rules unchanged is exempt — do not
+flag it for a missing rule-copy update. Check the template instructions are self-consistent, and
+report any place where docs/stp-guide.md or AGENTS.md disagrees with the template so the other
+document can be corrected.
 
 Follow stps/stp-template/stp.md (child STPs: stps/stp-template/child-stp.md) as the
 authoritative reference for STP structure, format and content requirements; docs/stp-guide.md explains the purpose
