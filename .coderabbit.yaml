@@ -118,8 +118,7 @@ reviews:
         current template, and legacy entries the PR leaves alone are not flagged. Re-shaping a legacy
         entry onto the current template — renaming its fields to the current names — is that required
         update, not a structure change, so do not flag it. Only divergence from the current template
-        counts. The labels the current templates retired, and the line that replaces each, are listed
-        under "Renamed Template Lines" in `docs/stp-guide.md` — cite it when re-shaping a legacy entry.
+        counts.
 
         ## Test implementation cross-reference (STP → tests)
 

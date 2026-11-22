@@ -24,9 +24,8 @@ key, or value of their own, and every comment is deleted before submitting. Repl
 with real content — never delete the field it sits in. When a field does not apply, write "None" or
 "N/A" plus the reason in it.
 
-Labels this template retired are listed under "Renamed Template Lines" in docs/stp-guide.md, with the
-line that replaced each — an older STP is re-shaped onto these lines in the entries it edits, and the
-entries a PR leaves alone keep their approved shape. -->
+An older STP is re-shaped onto these lines in the entries it edits; the entries a PR leaves alone keep
+their approved shape. -->
 
 ## **[Feature Title/Name] - Quality Engineering Plan**
 

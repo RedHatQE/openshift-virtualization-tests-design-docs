@@ -161,9 +161,7 @@ retroactively enforced. The exemption is per entry, not per section: entries a P
 follow the current template, and legacy entries the PR leaves alone keep the shape they were
 approved with. Re-shaping a legacy entry onto the current template is exactly that required update —
 renaming its fields to the current names is the re-shape, not a structure change, and is not
-CRITICAL. Only divergence from the **current** template counts. The labels the current templates
-retired, and the line that replaces each, are listed under "Renamed Template Lines" in
-`docs/stp-guide.md` — cite it when re-shaping a legacy entry.
+CRITICAL. Only divergence from the **current** template counts.
 
 ---
 

@@ -14,9 +14,8 @@ block, the `.pr_agent.toml` instructions) — see Template Structure Compliance 
 Comments carry guidance only — never a field, key, or value — and are deleted before submitting.
 Replace every placeholder; never delete the field it sits in.
 
-Labels this template retired are listed under "Renamed Template Lines" in docs/stp-guide.md, with the
-line that replaced each — an older child STP is re-shaped onto these lines in the entries it edits, and
-the entries a PR leaves alone keep their approved shape. -->
+An older child STP is re-shaped onto these lines in the entries it edits; the entries a PR leaves
+alone keep their approved shape. -->
 
 ## **[Feature Title — SIG-Specific Scope] - Quality Engineering Plan**
 

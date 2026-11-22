@@ -60,8 +60,7 @@ Core principles:
   the STP that benefits from it.
 - Template rules are not retroactively enforced: a merged STP keeps the shape it was approved with,
   and re-shaping a legacy entry onto the current template is not a structure change. The exemption is
-  per entry; only divergence from the current template counts. The retired labels and their
-  replacements are listed under "Renamed Template Lines" in docs/stp-guide.md.
+  per entry; only divergence from the current template counts.
 - STPs describe what users experience, not internal implementation. Flag internal API
   field names, internal component references, and implementation mechanisms as findings.
   Documented user-facing objects the user must create or edit (e.g. a resource kind)

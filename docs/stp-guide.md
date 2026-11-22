@@ -162,36 +162,6 @@ what an author fills in, and these are the kinds. Placeholders are square-bracke
   wording exactly as it is. The box is not wording: it becomes `[x]` when the item applies, and stays
   `[ ]` with a justification when it does not.
 
-### Renamed Template Lines
-
-Labels retired by the current templates, and the line that replaces each. A stored STP built from an
-older template is re-shaped onto the current lines when it is next edited; none of this is enforced
-retroactively (see "The Template Is Fixed").
-
-| Retired label (feature template) | Replaced by |
-|:---------------------------------|:------------|
-| `*List the key D/S requirements reviewed:*` | `- [Requirement — behavior and the condition it must hold under]` |
-| `*Describe the feature's value to customers:*` | `- *Value:*` |
-| `*List the customer use cases identified:*` | `- *Use cases:*` |
-| `*Note any requirements that are unclear or untestable:*` | `- [Unclear or untestable requirement and why, or "None"]` |
-| `*List the acceptance criteria:*` | `- [Acceptance criterion — observable, falsifiable pass/fail condition]` |
-| `*Note any gaps or missing criteria:*` | `- *Gaps or missing criteria:*` |
-| `*List applicable NFRs and their targets:*` | `- [Applicable NFR and its target]` |
-| `*Note any NFRs not covered and why:*` | `- [NFR not covered and why, or "None"]` |
-| `*List identified challenges:*` | `- [Testing challenge]` |
-| `*List new or modified APIs:*` | `- [New or modified user-facing API]` |
-| `*Describe topology requirements:*` | `- [Cluster and network topology required]` |
-
-| Retired label (child template) | Replaced by |
-|:-------------------------------|:------------|
-| `*SIG-specific requirements:*` | `- [SIG-specific requirement, or "None — all requirements are in the parent STP"]` |
-| `*Note any SIG-specific requirements that are unclear or untestable:*` | `- [Unclear or untestable SIG-specific requirement, or "None"]` |
-| `*SIG-specific NFRs:*` | `- [SIG-specific NFR and its target, or "None — all NFRs are covered by the parent STP"]` |
-| `*NFRs not covered and why:*` | `- [SIG-specific NFR not covered and why, or "None"]` |
-| `*List identified challenges:*` | `- [SIG-specific testing challenge]` |
-| `*List new or modified user-facing APIs:*` | `- [SIG-specific testing of an existing user-facing API, or "N/A — see parent STP"]` |
-| `*Describe topology requirements:*` | `- [SIG-specific topology requirement]` |
-
 ### Purpose of Each Part
 
 The template says what to fill in. This section explains why each part exists and when it happens.
