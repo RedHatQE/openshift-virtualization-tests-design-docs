@@ -25,7 +25,7 @@ rather than requiring it.
    No internal API field names, internal component references, or implementation mechanisms.
    User-facing objects that the user must create or edit (for example a resource kind or feature gate
    named in the feature's documentation) may be named; explain them in Document Conventions.
-2. **Every claim needs evidence** — sign-offs, Jira links, dates. No empty placeholders in approved STPs.
+2. **Every claim needs evidence** — sign-offs and Jira links. No empty placeholders in approved STPs.
 3. **Distinguish constraint categories** — Feature Limitations, Test Limitations, Out of Scope, and Risks
    are distinct concepts. Never mix them.
    See the "Constraint Categories" section of `docs/stp-guide.md` for definitions.
@@ -66,7 +66,7 @@ Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the optional phase ta
 `Test Scenario`. Also sanctioned, because the template itself writes them: markdown link labels
 (`[sig-network](./network.md)`, `([Risks](./stp.md#5-risks))`), the checklist markers `[ ]`/`[x]`,
 the `Document Conventions` term line, and bracketed placeholders such as `[version or N/A]` or
-`[Name/Date]`, which are replaced when the field is filled. Any other bracketed *token acting as a
+`[Name]`, which are replaced when the field is filled. Any other bracketed *token acting as a
 key or label* is a new field.
 
 **Repeating a template line is content, not structure.** Extra entry criteria, extra risk entries
@@ -203,7 +203,7 @@ retired, and the line that replaces each, are listed under "Renamed Template Lin
 - [ ] Claims made in the Feature Overview (e.g., "isolated," "secure," "non-disruptive,"
   "seamless") must have matching acceptance criteria and test scenarios. If the feature
   doesn't test a claim: remove the claim from the Overview, document it in Out of Scope
-  with Rationale and Sign-off (Quality Owner or Product Manager, name/date), or reference existing coverage
+  with Rationale and Sign-off (Quality Owner or Product Manager, name), or reference existing coverage
   elsewhere (do not use Out of Scope for work already covered by other teams/suites).
 
 **Common rejection reasons:**
@@ -258,9 +258,9 @@ retired, and the line that replaces each, are listed under "Renamed Template Lin
 
 ### I.2 — Feature Limitations
 
-- [ ] Each limitation has a sign-off: `*Sign-off:* [Name/Date]`
+- [ ] Each limitation has a sign-off: `*Sign-off:* [Name]`
 - [ ] Limitations are constraints (not scope decisions)
-- [ ] If no limitations: "None — reviewed and confirmed with [Name/Date]"
+- [ ] If no limitations: "None — reviewed and confirmed with [Name]"
 - [ ] Open bugs that affect the feature are listed with Jira links
 
 **Common rejection reasons:**
@@ -308,20 +308,20 @@ retired, and the line that replaces each, are listed under "Renamed Template Lin
   feature's prior execution would produce a different outcome than a baseline reaching the same state.
 
 **Out of Scope:**
-- [ ] Each item has Rationale and a Quality Owner or Product Manager Sign-off with name and date
+- [ ] Each item has Rationale and a Quality Owner or Product Manager Sign-off with a name
 - [ ] Items are decisions QE made (not constraints imposed on QE — those are Test Limitations)
 - [ ] Format per template: `- **Item** / *Rationale:* / *Sign-off (Quality Owner or Product Manager):*`
 - [ ] Items are genuinely out of scope — if already tested elsewhere,
   document as existing coverage, not out of scope
 
 **Test Limitations:**
-- [ ] Each limitation has sign-off: `*Sign-off:* [Name/Date]`
+- [ ] Each limitation has sign-off: `*Sign-off:* [Name]`
 - [ ] Items are constraints imposed on QE (not decisions QE made — those are Out of Scope)
 
 **Common rejection reasons:**
 - Testing goals use implementation language ("verify boot sources are provisioned")
   instead of user language ("deploy a VM from each available boot source")
-- Out of Scope items have `[Name/Date]` placeholder instead of actual sign-offs
+- Out of Scope items have `[Name]` placeholder instead of actual sign-offs
 - Regression tests mixed with new functional tests in Testing Goals
 - Missing priority levels on goals
 - Testing goal names only one configuration dimension (e.g., binding type) when others are required
@@ -561,7 +561,7 @@ SIG the child covers.
 ### DON'T
 - Use implementation terms (internal API field names, internal component names), other than documented
   user-facing objects the user must create or edit
-- Leave template placeholder text ("[Add details]", "[Name/Date]", "[TBD]")
+- Leave template placeholder text ("[Add details]", "[Name]", "[TBD]")
 - Mark all risks as N/A
 - Mix constraint categories (limitations vs. out-of-scope vs. risks)
 - List standard tools in Testing Tools section

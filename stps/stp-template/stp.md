@@ -181,14 +181,14 @@ Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, 
 - The feature is incompatible with ZZZ feature
 
 If there are no feature limitations, replace the placeholder item below with "None — reviewed and
-confirmed with [Name/Date] that no feature limitations apply for this release." and keep its
+confirmed with [Name] that no feature limitations apply for this release." and keep its
 `*Sign-off:*` line — only a risk category's supplemental and `Sign-off` lines may be dropped. -->
 
 - **[Feature Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 - **[Feature Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **3. Technology and Design Review**
 
@@ -256,8 +256,9 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **P2**: Nice-to-have - can be deferred if timeline constraints exist
 
 **Phase tag (optional):** Priorities refer to GA. If a goal or scenario must also pass at an intermediate phase
-(e.g. Tech Preview), add a phase tag: `[P0][TP]` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
-phase names from Feature Maturity (from the parent STP for a child STP).
+(e.g. Tech Preview), add a phase tag: `**[P0][TP]**` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
+phase names from Feature Maturity (from the parent STP for a child STP). Add it only when the goal really has to
+pass at that earlier phase — a phase tag is not required for a goal that follows the feature to GA.
 
 **Write one goal per bullet, P0 first.** Each P0 functional goal needs a negative or failure-path
 goal next to it — with a matching Section III scenario — covering what happens if the operation
@@ -288,11 +289,9 @@ moved to Out of Scope: Section III covers it, or named existing regression cover
 - **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
   alerts fire correctly in Alertmanager -->
 
-- **[P0]** [Functional goal — what is verified and how success is measured]
+- **[P0]** [Functional goal — what is verified and how success is measured; add a phase tag such as `[P0][TP]` only if needed]
 - **[P1]** [Non-functional goal — what is verified and how success is measured]
 - **[P2]** [User-story goal from Section I — what is verified and how success is measured]
-
-<!-- A goal that must also pass at an intermediate phase carries the tag, e.g. `**[P0][TP]**`. -->
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -318,11 +317,11 @@ be tested this cycle." and keep its `*Rationale:*` and `*Sign-off (Quality Owner
 
 - **[e.g., Interface settings that are independent of the new network binding (e.g., NIC model)]**
   - *Rationale:* The feature is expected to work with any interface setting. These settings affect the vNIC emulation towards the guest and are agnostic to the binding choice, so no feature-specific test is planned
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 - **[e.g., Special guest OS coverage (e.g., Windows)]**
   - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 **Test Limitations**
 
@@ -344,10 +343,10 @@ If there are no test limitations, replace the placeholder item below with "None 
 confirmed that no test limitations apply for this release." and keep its `*Sign-off:*` line. -->
 
 - **[Test Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 - **[Test Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **2. Test Strategy**
 
@@ -493,7 +492,7 @@ the question was answered, and "None" is a complete answer. -->
 prevent planned testing. A constraint that is already true is a Test Limitation, and a testing
 decision already taken is Out of Scope; neither belongs here. A risk category with no risk keeps its
 Mitigation line plus a one-line justification (not just "N/A") — no Sign-off or supplemental field
-is needed. A category with a real risk needs the full entry, including Sign-off (name/date). Repeat
+is needed. A category with a real risk needs the full entry, including Sign-off (name). Repeat
 the entry for each risk inside a category.
 
 No-risk form:
@@ -508,7 +507,7 @@ resources, or the timeline will be adjusted in response. -->
 - **Risk:** [Scheduling or deadline risk]
   - **Mitigation:** [How scope, priorities, or resources adjust to meet the timeline]
   - *Estimated impact on schedule:* [Delay or schedule impact]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Test Coverage**
 
@@ -519,7 +518,7 @@ Scope. -->
 - **Risk:** [Coverage gap and which areas remain unverified]
   - **Mitigation:** [Alternative testing strategy, or the accepted reduced coverage]
   - *Areas with reduced coverage:* [Affected areas]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Test Environment**
 
@@ -530,7 +529,7 @@ Limitation. -->
 - **Risk:** [Environment constraint that limits testing]
   - **Mitigation:** [How the required resources are secured, or how the plan adapts]
   - *Missing resources or infrastructure:* [What is unavailable]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Untestable Aspects**
 
@@ -541,7 +540,7 @@ confirmed untestable is a Test Limitation. -->
 - **Risk:** [Scenario or condition that cannot be reproduced in a test environment]
   - **Mitigation:** [Alternative validation method]
   - *Alternative validation approach:* [The fallback validation method]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Resource Constraints**
 
@@ -551,7 +550,7 @@ cross-trained, or coordinated. A shortfall already confirmed is a Test Limitatio
 - **Risk:** [Staffing, skill, or capacity limitation affecting test execution]
   - **Mitigation:** [How work is prioritized, cross-trained, or coordinated]
   - *Current capacity gaps:* [Staffing or skill gaps]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Dependencies**
 
@@ -561,7 +560,7 @@ fallback strategy, or stub implementation. -->
 - **Risk:** [External team or component dependency that could block testing]
   - **Mitigation:** [Coordination plan, fallback strategy, or stub implementation]
   - *Dependent teams or components:* [External dependencies]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Other**
 
@@ -571,7 +570,7 @@ not delete the category. Add any context the entry needs. -->
 
 - **Risk:** [Risk not covered by the categories above, or "None — [why]"]
   - **Mitigation:** [Specific plan to reduce or eliminate this risk]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 ---
 

@@ -191,7 +191,6 @@ retroactively (see "The Template Is Fixed").
 | `*List identified challenges:*` | `- [SIG-specific testing challenge]` |
 | `*List new or modified user-facing APIs:*` | `- [SIG-specific testing of an existing user-facing API, or "N/A — see parent STP"]` |
 | `*Describe topology requirements:*` | `- [SIG-specific topology requirement]` |
-| `**[Risk Category]**` with `*[Category-specific field]:*` | the seven named categories (`Timeline/Schedule`, `Test Coverage`, `Test Environment`, `Untestable Aspects`, `Resource Constraints`, `Dependencies`, `Other`), each keeping the supplemental field the feature template defines for that category — a no-risk category omits it, and `Other` has none |
 
 ### Purpose of Each Part
 
@@ -315,7 +314,7 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
 ## Checklist Before Requesting Review
 
 - Template HTML comments and example text removed; no template placeholder text is left (`[Add details]`,
-  `[Name/Date]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
+  `[Name]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
 - Traceability holds: every non-regression Testing Goal has a Section III scenario, and every acceptance
   criterion is covered by a scenario or by named existing regression coverage in Test Strategy
 - Every limitation, exclusion and risk entry is signed off (see Constraint Categories)

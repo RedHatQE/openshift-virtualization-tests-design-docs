@@ -76,10 +76,10 @@ Feature-wide requirements, acceptance criteria, and NFRs are defined in the pare
 #### **2. Feature Limitations**
 
 <!-- List only SIG-specific limitations. Feature-wide limitations belong in the parent STP.
-If none, state "None — reviewed and confirmed with [Name/Date]." and keep the `*Sign-off:*` line. -->
+If none, state "None — reviewed and confirmed with [Name]." and keep the `*Sign-off:*` line. -->
 
 - **[SIG-specific limitation]**
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 #### **3. Technology and Design Review**
 
@@ -131,7 +131,7 @@ entire feature, it belongs in the parent STP — not here. If none, state "None 
 
 - **[Item]**
   - *Rationale:* [Why this SIG won't test it]
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 **Test Limitations**
 
@@ -139,7 +139,7 @@ entire feature, it belongs in the parent STP — not here. If none, state "None 
 `*Sign-off:*` line. -->
 
 - **[Test Limitation]**
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 #### **2. Test Strategy**
 
@@ -237,42 +237,42 @@ Sign-off line is needed. -->
 - **Risk:** [SIG-specific schedule risk, or "None — [why]"]
   - **Mitigation:** [Mitigation plan, or the one-line no-risk justification]
   - *Estimated impact on schedule:* [Delay or schedule impact]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Test Coverage**
 
 - **Risk:** [SIG-specific coverage risk, or "None — [why]"]
   - **Mitigation:** [Mitigation plan, or the one-line no-risk justification]
   - *Areas with reduced coverage:* [Affected areas]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Test Environment**
 
 - **Risk:** [SIG-specific environment risk, or "None — [why]"]
   - **Mitigation:** [Mitigation plan, or the one-line no-risk justification]
   - *Missing resources or infrastructure:* [What is unavailable]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Untestable Aspects**
 
 - **Risk:** [Untestable aspect for this SIG, or "None — [why]"]
   - **Mitigation:** [Alternative validation, or the one-line no-risk justification]
   - *Alternative validation approach:* [Fallback validation]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Resource Constraints**
 
 - **Risk:** [SIG-specific resource constraint, or "None — [why]"]
   - **Mitigation:** [Prioritization plan, or the one-line no-risk justification]
   - *Current capacity gaps:* [Staffing or skill gaps]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Dependencies**
 
 - **Risk:** [SIG-specific dependency, or "None — [why]"]
   - **Mitigation:** [Coordination plan, or the one-line no-risk justification]
   - *Dependent teams or components:* [External dependencies]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 **Other**
 
@@ -281,7 +281,7 @@ Sign-off line is needed. -->
 
 - **Risk:** [Risk not covered above, or "None — [why]"]
   - **Mitigation:** [Plan, or the one-line no-risk justification]
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 ---
 
