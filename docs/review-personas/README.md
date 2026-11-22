@@ -164,6 +164,7 @@ nobody is there to answer a permission prompt:
 ```bash
 set -euo pipefail
 BASE=${BASE:-upstream/main}          # the rulebook comes from here, never from the PR head
+PR=${PR:?set PR to the pull request number}
 PHASE=${PHASE:-sections}            # sections first; roles run after the author answers them
 SOURCE=${SOURCE:-}                  # path to a pasted feature request, when you have one
 DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the feature-owner role
@@ -182,7 +183,7 @@ case "$(git -C "$ROOT" rev-parse --symbolic-full-name "$BASE")" in
   *) echo "$BASE is not a remote-tracking branch — a commit on the PR branch is not a base" >&2; exit 1 ;;
 esac
 
-SHA=$(gh pr view 123 --json headRefOid --jq .headRefOid || true)
+SHA=$(gh pr view "$PR" --json headRefOid --jq .headRefOid || true)
 [ -n "$SHA" ] || { echo "no head SHA — is gh authenticated?" >&2; exit 1; }
 [ "$(git -C "$ROOT" rev-parse HEAD)" = "$SHA" ] \
   || { echo "HEAD is not $SHA — check the PR out first" >&2; exit 1; }
@@ -219,8 +220,7 @@ snapshot() {
     git -C "$ROOT" show "$SHA:$1" > "$SCRATCH/base/$1"
     echo "note: $1 is new in this PR — read from $SHA" >&2
   else
-    cp "$ROOT/$1" "$SCRATCH/base/$1"
-    echo "warning: $1 is in neither $BASE nor $SHA — read from the working tree" >&2
+    echo "$1 is in neither $BASE nor $SHA — a rulebook file must be committed" >&2; exit 1
   fi
 }
 
@@ -242,7 +242,7 @@ safe_read() {
   echo docs/review-personas/_output-contract.md
 } | sort -u | while read -r f; do safe_read "$f"; snapshot "$f"; done
 
-gh pr diff 123 > "$SCRATCH/pr.patch"
+gh pr diff "$PR" > "$SCRATCH/pr.patch"
 
 # Stage the changed files as of $SHA, so a persona reads the commit and not the working tree.
 # The merge base, not $BASE: once upstream moves past the branch point, a two-dot diff stages every
@@ -279,7 +279,7 @@ if [ "$PHASE" = roles ]; then
     name=$(basename "$f" .md)
     [ -s "$ROOT/review-out/$name.md" ] \
       || { echo "PHASE=roles needs the section reports: $name.md is missing" >&2; exit 1; }
-    grep -q "Reviewed at: $SHA" "$ROOT/review-out/$name.md" \
+    grep -qx -- "- Reviewed at: $SHA" "$ROOT/review-out/$name.md" \
       || { echo "section report $name.md is from a different commit" >&2; exit 1; }
     cp "$ROOT/review-out/$name.md" "$SCRATCH/reports/"
   done < "$SCRATCH/base-sections"
@@ -300,7 +300,7 @@ base/docs/review-personas/_output-contract.md and the rest of its reads: under b
 pr.patch and the changed files staged under head/, naming the STP's own path in your header. $prior $src
 Reviewed at: $SHA. Report per the output contract." \
         --allowedTools Read --add-dir "$SCRATCH" \
-        > "reports/$name.md" ); then
+        < /dev/null > "reports/$name.md" ); then
     :
   else
     failed="$failed $name"
@@ -308,11 +308,20 @@ Reviewed at: $SHA. Report per the output contract." \
 done < "$SCRATCH/base-$PHASE"
 
 [ -z "$failed" ] || { echo "no report from:$failed" >&2; exit 1; }
+# A report is the contract's run header, not any text containing the SHA: a CLI that echoed its own
+# invocation would otherwise pass.
 while read -r p; do
   name=$(basename "$p" .md)
-  [ -s "$SCRATCH/reports/$name.md" ] || { echo "$name wrote an empty report" >&2; exit 1; }
-  grep -q "Reviewed at: $SHA" "$SCRATCH/reports/$name.md" \
+  report="$SCRATCH/reports/$name.md"
+  [ -s "$report" ] || { echo "$name wrote an empty report" >&2; exit 1; }
+  grep -qx '## Persona run' "$report" \
+    || { echo "$name has no '## Persona run' header" >&2; exit 1; }
+  grep -qE -- "^- Persona: .*/$name(\.md)?$" "$report" \
+    || { echo "$name reports as a different persona" >&2; exit 1; }
+  grep -qx -- "- Reviewed at: $SHA" "$report" \
     || { echo "$name is not stamped with $SHA" >&2; exit 1; }
+  grep -qE -- '^- Findings: [0-9]+$' "$report" \
+    || { echo "$name reports no numeric findings count" >&2; exit 1; }
 done < "$SCRATCH/base-$PHASE"
 
 cp "$SCRATCH/reports"/*.md "$ROOT/review-out/"
@@ -332,8 +341,10 @@ Level 1 by hand for that file and get a reviewer who is not its author. A PR tha
 the one case that does not exit — it bootstraps from the head copy with a note, and that is why such a PR
 needs a reviewer who is not its author. The rulebook is read from the personas' own `reads:` rather than
 from a list in this file, which lost two entries before it was derived — so an entry a persona forgets is a
-file its reviewer never sees. `--allowedTools Read` is enough once the inputs are on disk; granting `Bash` too lets a
-review write into the tree it is reviewing. And `--add-dir` **widens** the readable set rather than
+file its reviewer never sees. `< /dev/null` on the persona invocation is not decoration: the loop feeds names on stdin, and a CLI
+that reads stdin as prompt content would swallow the rest of the list and end the run after one persona.
+`--allowedTools Read` is enough once the inputs are on disk; granting `Bash` too lets a review write into
+the tree it is reviewing. And `--add-dir` **widens** the readable set rather than
 restricting it: `Read` can still open the checkout, which is why the `base/` layout and the second
 reviewer are the controls, not a sandbox. The flag name is CLI-specific — check `claude --help` before
 an unattended run.

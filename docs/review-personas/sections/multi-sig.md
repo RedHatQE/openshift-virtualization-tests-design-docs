@@ -76,7 +76,8 @@ to determine the document's shape; whether they are *correct* is
 - A function from the template's list — Feature Owner, Quality Owner, Product Manager — with no named
   person. A bare handle does not say what the person approved
 - A named person with no GitHub handle
-- One function represented and another missing, or one function listed twice
+- One function represented and another with nobody named. The template asks for at least one person
+  per function, so two people on the same function is not a finding
 - Placeholder text anywhere in the section — and a blank function name is CRITICAL, not HIGH: it is
   a missing signature, which the contract puts in the same class as an empty sign-off cell
 

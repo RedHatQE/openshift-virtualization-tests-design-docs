@@ -41,8 +41,10 @@ not repeat its findings.
 
 ## Negative and failure paths
 
-- A P0 scenario with no sibling failure scenario: forced failure mid-operation, missing dependency,
-  permission denied, quota exhausted, concurrent conflicting operation
+- A P0 goal whose failure path nothing covers: forced failure mid-operation, missing dependency,
+  permission denied, quota exhausted, concurrent conflicting operation. That one-per-P0-goal check is
+  [`traceability`](../sections/traceability.md)'s; you judge whether the failure scenario that *does*
+  exist would catch the defect, rather than only observing that "an error occurs"
 - An error-path scenario asserting only "an error occurs", not which error and where the user sees it
 - No scenario for the "operation while something else is happening" case, which is where these
   features usually break
@@ -73,15 +75,17 @@ production-like environment `docs/testing-tiers.md` specifies — not because Ti
 - Two scenarios differing only in an input the feature treats identically
 - Setup the coverage does not need: a dedicated cluster, a second cluster, a special platform, a
   privileged configuration, where a single-cluster single-namespace scenario catches the same defect
-- An upgrade or migration path re-tested here when an existing suite already covers it and the plan does
-  not say what is different about this feature's case
+- An upgrade or migration path this feature does not change, re-run from scratch when a named existing
+  suite already covers it and the plan does not say which distinct defect class this run adds
 - A dependency's own behaviour re-tested. You are not the owner of storage's or the network stack's
   correctness
 
 **Not over-testing.** `docs/testing-tiers.md` assigns upgrade and migration paths, disaster recovery,
 performance under realistic load, and security/RBAC workflows to Tier 2, and puts them out of Tier 1
-entirely. Coverage of those is what the tier exists for: never reject it here, at any cost. This section
-demotes a *single-feature assertion that Tier 1 already covers*, and nothing else.
+entirely. Coverage of those is what the tier exists for — so the question is never *whether* to have it,
+but whether this run adds anything. Re-testing the path for this feature's own change is required; a fresh
+run over an unchanged path that a named suite already covers is not. This section demotes a single-feature
+assertion Tier 1 already covers, and a re-run that adds no defect class. Nothing else.
 
 This is the mirror of the rest of this file: elsewhere you reject tests that would pass with the bug
 present; here you reject tests that would pass without it ever being possible. Both are waste, and

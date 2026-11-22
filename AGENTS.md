@@ -26,7 +26,8 @@ and one judgement that is a decision rather than a check: whether a requirement 
 built, which the section personas cannot see because they only read the feature request.
 
 Personas compress this checklist. The section personas add no check of their own; those four are the
-roles' additions, and the second and third are the only ones they file as defects rather than decisions.
+roles' additions. The three checks are filed as defects; the fourth, requirement-versus-reality, is filed
+as a decision, because only the product side can settle what a requirement should say.
 
 **Who does what.** The automated reviewers configured in `.coderabbit.yaml` and `.pr_agent.toml` apply the
 checklist below to the diff, and are not expected to run the personas. A human reviewer runs them: the
@@ -342,7 +343,8 @@ Reviewers must verify these cross-references between sections:
 - [ ] Sign-off lists at least one person per function required by the template
   (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle
 - [ ] No placeholder text remaining
-- [ ] Each function appears once: a function listed twice means another is missing
+- [ ] Every function the template lists has at least one named person: a function with nobody named
+  means the sign-off is incomplete. Two people on one function is allowed
 
 ---
 
