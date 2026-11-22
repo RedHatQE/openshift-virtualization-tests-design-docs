@@ -114,7 +114,7 @@ linter rejects. Flag only what one of them would reject, or what a reader trips 
   [`traceability`](./traceability.md) owns a goal that names one. You report the term, they report the
   reading; do not do both
 - Any content decision
-- Whether the design is correct — [`feature-owner`](../lenses/feature-owner.md)
+- Whether the design is correct — [`feature-owner`](../roles/feature-owner.md)
 
 ## Output
 

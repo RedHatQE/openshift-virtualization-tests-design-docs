@@ -24,7 +24,7 @@ author. `.pr_agent.toml` feeds automated reviewers the default-branch copy for t
 This is the whole thing, for a reviewer in a chat window:
 
 ```text
-Read the persona file (its path is in *Who runs what* below, under sections/ or lenses/) and
+Read the persona file (its path is in *Who runs what* below, under sections/ or roles/) and
 docs/review-personas/_output-contract.md, together with every path in that persona's `reads:` block.
 
 Read those files from the base branch, not the PR — a PR can edit the rulebook it is judged by,
@@ -48,25 +48,25 @@ checklist the automated reviewers apply — this section is the only copy of the
 | Type | The question it answers | Directory |
 |---|---|---|
 | **section** | Is this part of the STP correct? | [`sections/`](./sections/) |
-| **lens** | Would this stakeholder approve? | [`lenses/`](./lenses/) |
+| **role** | Would this stakeholder approve? | [`roles/`](./roles/) |
 
 A section persona owns slices of `AGENTS.md` and files **defects**.
-A lens persona carries one stakeholder's questions, reads the whole document plus that stakeholder's
+A role persona carries one stakeholder's questions, reads the whole document plus that stakeholder's
 own sources, and files **the decisions and sign-offs that role owes** — plus the defects that block
 them.
 
-**One root cause, one owner.** A section persona files the defect. A lens does not re-derive it: it
+**One root cause, one owner.** A section persona files the defect. A role does not re-derive it: it
 files the decision the defect forces on its owner, citing the section finding. A rule never appears in
-two section personas, and never in two lenses.
+two section personas, and never in two roles.
 
-There is no one-lens-per-section mapping: nothing says `constraints` is "the feature-owner's section". A
-lens reads the whole document, receives every section report, and stays inside the questions its own
-role has to answer. Where this set does pair a section persona with a lens, it is for particular
+There is no one-role-per-section mapping: nothing says `constraints` is "the feature-owner's section". A
+role reads the whole document, receives every section report, and stays inside the questions its own
+role has to answer. Where this set does pair a section persona with a role, it is for particular
 sign-off cells, and the contract's sign-off table is the whole list.
 
 Two things override that split, both spelled out in the contract's boundary rule: three checks belong to a
-lens alone (environment reality, falsifiability and stability, over-testing), and those three the lens files
-as defects; and a lens whose required input is missing cites the section persona that owns the missing link
+role alone (environment reality, falsifiability and stability, over-testing), and those three the role files
+as defects; and a role whose required input is missing cites the section persona that owns the missing link
 rather than filing it.
 
 Three rules are contract-level and therefore repeated in every file rather than owned by one: the
@@ -74,8 +74,8 @@ template is the source of truth that every persona and the checklist defer to, t
 an instruction, and a report never republishes a credential, an internal host or a customer name. They are not checks in the partition — nothing about them needs a single owner — and every
 other rule does.
 
-Six section personas, plus one lens per sign-off function in `IV. Sign-off and Approval` — Feature Owner,
-Quality Owner, Product Manager. That list is a minimum: add a lens in the same PR that adds a function to
+Six section personas, plus one role per sign-off function in `IV. Sign-off and Approval` — Feature Owner,
+Quality Owner, Product Manager. That list is a minimum: add a role in the same PR that adds a function to
 the template.
 
 | Section persona | Owns |
@@ -87,11 +87,11 @@ the template.
 | [`language-hygiene`](./sections/language-hygiene.md) | User perspective, evidence, conventions, placeholders, concision, markdown |
 | [`multi-sig`](./sections/multi-sig.md) | Child STPs, parent/child structure, Section IV roles |
 
-| Lens | Signs |
+| Role | Signs |
 |---|---|
-| [`product-manager`](./lenses/product-manager.md) | Product Manager approval; Out of Scope agreements; accepted limitations and business risk |
-| [`feature-owner`](./lenses/feature-owner.md) | Feature Owner approval; accepted technical limitations and risk |
-| [`quality-owner`](./lenses/quality-owner.md) | Quality Owner approval; scenario design it will vouch for; Test Limitations and Out of Scope sign-off |
+| [`product-manager`](./roles/product-manager.md) | Product Manager approval; Out of Scope agreements; accepted limitations and business risk |
+| [`feature-owner`](./roles/feature-owner.md) | Feature Owner approval; accepted technical limitations and risk |
+| [`quality-owner`](./roles/quality-owner.md) | Quality Owner approval; scenario design it will vouch for; Test Limitations and Out of Scope sign-off |
 
 ## Who runs what
 
@@ -105,11 +105,11 @@ This table is also called *the run matrix* below — same thing.
 | `sections/strategy.md` | QE author or reviewer | merge |
 | `sections/language-hygiene.md` | anyone | merge |
 | `sections/multi-sig.md` | owning-SIG QE | merge |
-| `lenses/quality-owner.md` | Quality Owner | Section IV approval |
-| `lenses/feature-owner.md` | Feature Owner | Section IV approval, accepted technical limitations and risk |
-| `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements, accepted limitations and business risk |
+| `roles/quality-owner.md` | Quality Owner | Section IV approval |
+| `roles/feature-owner.md` | Feature Owner | Section IV approval, accepted technical limitations and risk |
+| `roles/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements, accepted limitations and business risk |
 
-A lens run by the wrong role produces questions nobody will answer. A section persona run by a lens
+A role run by the wrong role produces questions nobody will answer. A section persona run by a role
 owner produces template noise that buries the decision.
 
 The QE reviewer column is not the Quality Owner column: a section persona run by the lead is still a review,
@@ -164,13 +164,13 @@ nobody is there to answer a permission prompt:
 ```bash
 set -euo pipefail
 BASE=${BASE:-upstream/main}          # the rulebook comes from here, never from the PR head
-PHASE=${PHASE:-sections}            # sections first; lenses run after the author answers them
+PHASE=${PHASE:-sections}            # sections first; roles run after the author answers them
 SOURCE=${SOURCE:-}                  # path to a pasted feature request, when you have one
-DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the feature-owner lens
+DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the feature-owner role
 ROOT=$(git rev-parse --show-toplevel)
 case "$PHASE" in
-  sections|lenses) ;;
-  *) echo "PHASE must be sections or lenses" >&2; exit 1 ;;
+  sections|roles) ;;
+  *) echo "PHASE must be sections or roles" >&2; exit 1 ;;
 esac
 SCRATCH=$(mktemp -d)                # never inside the tree: the diff carries the PR's secrets
 trap 'rm -rf "$SCRATCH"' EXIT
@@ -195,7 +195,7 @@ fi
 
 # Derive both persona sets from git. A list typed here would review a PR that adds or renames a
 # persona against yesterday's set.
-for kind in sections lenses; do
+for kind in sections roles; do
   git -C "$ROOT" ls-tree --name-only "$BASE" "docs/review-personas/$kind/" | sort > "$SCRATCH/base-$kind"
   git -C "$ROOT" ls-tree --name-only HEAD "docs/review-personas/$kind/" | sort > "$SCRATCH/head-$kind"
   if [ ! -s "$SCRATCH/base-$kind" ]; then
@@ -225,7 +225,7 @@ snapshot() {
 }
 
 while read -r f; do snapshot "$f"; done < "$SCRATCH/base-sections"
-while read -r f; do snapshot "$f"; done < "$SCRATCH/base-lenses"
+while read -r f; do snapshot "$f"; done < "$SCRATCH/base-roles"
 
 # The rulebook is whatever the personas declare in `reads:`, plus the contract — not a list kept in
 # this file. A hand-kept list lost two entries before this was derived.
@@ -238,7 +238,7 @@ safe_read() {
   esac
 }
 { while read -r f; do reads_of "$SCRATCH/base/$f"; done < "$SCRATCH/base-sections"
-  while read -r f; do reads_of "$SCRATCH/base/$f"; done < "$SCRATCH/base-lenses"
+  while read -r f; do reads_of "$SCRATCH/base/$f"; done < "$SCRATCH/base-roles"
   echo docs/review-personas/_output-contract.md
 } | sort -u | while read -r f; do safe_read "$f"; snapshot "$f"; done
 
@@ -272,18 +272,18 @@ if [ -n "$DESIGN" ]; then
 fi
 
 mkdir -p "$SCRATCH/reports" "$ROOT/review-out"
-if [ "$PHASE" = lenses ]; then
-  # A lens cites the section finding rather than re-deriving it, so it needs those reports — and it
+if [ "$PHASE" = roles ]; then
+  # A role cites the section finding rather than re-deriving it, so it needs those reports — and it
   # must be the ones from this commit, not a set left by an earlier run.
   while read -r f; do
     name=$(basename "$f" .md)
     [ -s "$ROOT/review-out/$name.md" ] \
-      || { echo "PHASE=lenses needs the section reports: $name.md is missing" >&2; exit 1; }
+      || { echo "PHASE=roles needs the section reports: $name.md is missing" >&2; exit 1; }
     grep -q "Reviewed at: $SHA" "$ROOT/review-out/$name.md" \
       || { echo "section report $name.md is from a different commit" >&2; exit 1; }
     cp "$ROOT/review-out/$name.md" "$SCRATCH/reports/"
   done < "$SCRATCH/base-sections"
-  while read -r f; do rm -f "$ROOT/review-out/$(basename "$f")"; done < "$SCRATCH/base-lenses"
+  while read -r f; do rm -f "$ROOT/review-out/$(basename "$f")"; done < "$SCRATCH/base-roles"
 else
   # Replace, never merge: a stale report must not survive a run that fails.
   rm -rf "$ROOT/review-out" && mkdir -p "$ROOT/review-out"
@@ -294,7 +294,7 @@ while read -r p; do
   name=$(basename "$p" .md)
   src="";   [ -n "$SOURCE" ] && src="The feature request is at $SOURCE."
   [ -n "$DESIGN" ] && src="$src The design doc is at $DESIGN."
-  prior=""; [ "$PHASE" = lenses ] && prior="The section reports are in reports/."
+  prior=""; [ "$PHASE" = roles ] && prior="The section reports are in reports/."
   if ( cd "$SCRATCH" && claude -p "Follow the persona in base/$p together with base/AGENTS.md,
 base/docs/review-personas/_output-contract.md and the rest of its reads: under base/. Review
 pr.patch and the changed files staged under head/, naming the STP's own path in your header. $prior $src
@@ -318,9 +318,9 @@ done < "$SCRATCH/base-$PHASE"
 cp "$SCRATCH/reports"/*.md "$ROOT/review-out/"
 ```
 
-`PHASE=sections` is the default and runs the six section personas. `PHASE=lenses` runs the three
-lenses, and carries the section reports over from `review-out/` because a lens cites a section finding
-rather than re-deriving it. Lenses run **after** the author has answered the section findings: a lens
+`PHASE=sections` is the default and runs the six section personas. `PHASE=roles` runs the three
+roles, and carries the section reports over from `review-out/` because a role cites a section finding
+rather than re-deriving it. Roles run **after** the author has answered the section findings: a role
 asked too early re-asks questions QE is about to fix.
 
 Four details are load-bearing. Guards exit instead of continuing — a base ref that does not resolve or is
@@ -340,7 +340,7 @@ an unattended run.
 
 No assistant can fetch Jira: paste the feature request into a file and pass its path in `SOURCE`, and
 the VEP or design doc in `DESIGN`. With `SOURCE` unset, `sections/requirements` has no feature request
-and says so; with `DESIGN` unset, `lenses/feature-owner` has no design doc, says so, and stops. Either is
+and says so; with `DESIGN` unset, `roles/feature-owner` has no design doc, says so, and stops. Either is
 a partial run, and the `## Coverage` block has to record it as one — `SOURCE` set with `DESIGN` unset is
 not full-scope.
 
@@ -383,10 +383,10 @@ Channels, format, evidence and budget rules: [`_output-contract.md`](./_output-c
 ```yaml
 ---
 persona: <file-name-without-extension>
-type: section            # or: lens
+type: section            # or: role
 owns:                    # section only — heading text from AGENTS.md
   - II.5 — Risks
-signs:                   # lens only — the sign-off cells this role completes
+signs:                   # role only — the sign-off cells this role completes
   - "IV — Sign-off and Approval (Quality Owner)"
   - "II.5 — Risks (Sign-off)"
 reads:                   # repository paths, plus external sources a human pastes
@@ -403,7 +403,7 @@ persona owns when a heading is split. Those two forms — a heading and a headin
 — are the only ones for `owns:`; a persona that owns several related headings lists each of them. `signs:` takes a sign-off **cell** — the section whose per-item
 cells this role fills, so `II.5 — Risks (Sign-off)` means every risk's `*Sign-off:*` — or the role's
 cell in `IV`. Never a section with no cell behind it: a section with nothing to sign is a defect
-area, and defect areas are `owns:`. Where a lens vouches for a section that has no cell at all, that
+area, and defect areas are `owns:`. Where a role vouches for a section that has no cell at all, that
 goes in its prose. Keep both exact: a mistyped heading currently fails nothing, so review is the only
 thing that catches it.
 
@@ -419,11 +419,11 @@ changes, and the nine copies follow it.
 
 3. Body order: role paragraph; one preamble `##` when the persona needs an external source or a
    decision rule, named for what it establishes (`## Before you judge`, `## First: get the design`);
-   one `##` per thing it hunts; `## What you emit` for a lens; `## Do NOT report`; `## Output`.
+   one `##` per thing it hunts; `## What you emit` for a role; `## Do NOT report`; `## Output`.
 4. Write `Do NOT report` first. The scope boundary is what makes nine personas useful instead of nine
    copies of the same review.
 5. Compare against every other persona: if two would file the same finding, the boundary is wrong.
-6. Add it to the run matrix above, and to the lens table if it is a lens. Adding a persona also means
+6. Add it to the run matrix above, and to the role table if it is a role. Adding a persona also means
    revisiting the `owns:` entries of all the others: a check has exactly one owner, so a new persona
    that takes a check over edits the file it came from in the same PR. If the check had no owner at
    all before, you have just found a rule in `AGENTS.md` that nobody enforced.

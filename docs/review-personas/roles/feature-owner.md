@@ -1,6 +1,6 @@
 ---
 persona: feature-owner
-type: lens
+type: role
 signs:
   - "IV — Sign-off and Approval (Feature Owner)"
   - I.2 — Feature Limitations (Sign-off)

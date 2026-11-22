@@ -45,13 +45,13 @@ You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belo
   Specific, Measurable, Achievable, Relevant, Verifiable
 - No negative or failure-path goal for a P0 goal: the operation fails, the VM starts mid-operation,
   the boot source is unavailable. This is the goal-level check; whether an individual scenario can
-  fail is the [`quality-owner`](../lenses/quality-owner.md) lens. If negatives are out of scope, they
+  fail is the [`quality-owner`](../roles/quality-owner.md) role. If negatives are out of scope, they
   must appear as an Out of Scope entry with a Quality Owner or Product Manager sign-off — not as silence
 - A goal naming one configuration dimension and leaving the others to be guessed — binding type
   without the CNI, architecture without the boot source
 - A goal about behaviour *after* the system reached a stable state ("VM is migratable once X
   completes") with no mechanism explaining why X's history changes the outcome versus a baseline. The
-  same rule at scenario level is the [`quality-owner`](../lenses/quality-owner.md) lens's — cite it there
+  same rule at scenario level is the [`quality-owner`](../roles/quality-owner.md) role's — cite it there
   rather than filing it twice
 - A regression goal that does not name which SIG test suites run on the feature cluster. Regression
   goals are allowed in Testing Goals — but the suite must be named, or the goal is untraceable
@@ -74,7 +74,7 @@ You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belo
 - A pass criterion with no observable at all: "verify X works correctly", "metrics are reported
   correctly". Demand the observable — which metric, expected value or range, compared against what.
   Whether that observable would actually catch a broken implementation is the
-  [`quality-owner`](../lenses/quality-owner.md) lens, as is whether re-covering an existing SIG suite is
+  [`quality-owner`](../roles/quality-owner.md) role, as is whether re-covering an existing SIG suite is
   worth its runtime
 - An expected outcome that is wrong for a security-sensitive input — a path traversal or injection
   payload expected to succeed validates a vulnerability as a feature
@@ -87,11 +87,11 @@ You own the Testing Goals half of `II.1`. Out of Scope and Test Limitations belo
 ## Do NOT report
 
 - Whether the scenario can actually fail, or whether the test is worth its runtime —
-  [`quality-owner`](../lenses/quality-owner.md)
+  [`quality-owner`](../roles/quality-owner.md)
 - Requirement content itself — [`requirements`](./requirements.md)
 - Sign-offs, out of scope, risks — [`constraints`](./constraints.md)
 - Wording, formatting — [`language-hygiene`](./language-hygiene.md)
-- Whether the scenario's expectation matches the design — [`feature-owner`](../lenses/feature-owner.md)
+- Whether the scenario's expectation matches the design — [`feature-owner`](../roles/feature-owner.md)
 
 ## Output
 

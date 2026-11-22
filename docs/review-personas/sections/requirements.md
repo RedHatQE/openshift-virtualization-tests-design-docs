@@ -85,14 +85,14 @@ You do not review tests, risks, environment, wording, or formatting. Other perso
 ## Requirements and acceptance criteria
 
 - The STP's reading of the VEP or design doc contradicts the source — a plan built on a misreading of the
-  requirement. What that misreading would cost in reality is [`feature-owner`](../lenses/feature-owner.md)'s
+  requirement. What that misreading would cost in reality is [`feature-owner`](../roles/feature-owner.md)'s
 - Requirements that restate the Feature Overview instead of listing D/S Jira requirements
 - Acceptance criteria merged into a paragraph or one combined bullet instead of individual list
   items — each needs to be a separate pass/fail condition
 - A criterion phrased as "feature works" instead of a specific pass/fail condition
 - A criterion that can only be checked by inspecting internal state, or whose pass/fail you cannot
-  state at all. Whether the test would actually catch the defect is the [`quality-owner`](../lenses/quality-owner.md)
-  lens; you judge only whether a user could see the result
+  state at all. Whether the test would actually catch the defect is the [`quality-owner`](../roles/quality-owner.md)
+  role; you judge only whether a user could see the result
 - A seamless or non-disruptive claim whose criteria check only the end state — a stop-and-restart
   would pass the same test. Demand a criterion that fails if disruption happened
 - Use cases not in "As a [role], I want to [action]" form
@@ -108,10 +108,10 @@ that an uncovered NFR needs its justification.
 - "N/A" with no reason
 - Scalability answered "no new scale requirements" while the feature rides a platform mechanism that
   already has cluster-level limits — live migration parallelism is the usual one. Whether that limit
-  shows up in the environment description is the [`feature-owner`](../lenses/feature-owner.md) lens
+  shows up in the environment description is the [`feature-owner`](../roles/feature-owner.md) role
 - UI answered "no UI changes" with no reason given at all. Two separate questions: that the
   dismissal is unjustified is yours; whether UI testing adds customer value is the
-  [`product-manager`](../lenses/product-manager.md) lens's, and no amount of QE judgement settles it
+  [`product-manager`](../roles/product-manager.md) role's, and no amount of QE judgement settles it
 - Security claimed, but nothing a user can observe is required to verify it. Whether the claim reaches
   a Testing Goal and a scenario is [`strategy`](./strategy.md)'s `II.4.1` check; you own the NFR
   position itself
@@ -122,7 +122,7 @@ that an uncovered NFR needs its justification.
 - Sign-offs, out of scope, limitations, risks — [`constraints`](./constraints.md)
 - Environment, test strategy, testing types — [`strategy`](./strategy.md)
 - Word choice, implementation-name leakage, formatting, markdown — [`language-hygiene`](./language-hygiene.md)
-- Whether a claimed promise is one the PM would defend — that is their lens, not yours
+- Whether a claimed promise is one the PM would defend — that is their role, not yours
 
 ## Output
 

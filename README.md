@@ -190,7 +190,7 @@ author's lead. The QE Owner(s) named in the metadata own and write the testing p
 4. Review the PR with the [review personas](./docs/review-personas/README.md) — hand the
    [prompt there](./docs/review-personas/README.md#tell-your-assistant-to-use-them) to your AI
    assistant, run the section personas its run matrix assigns to you, and let each sign-off function
-   run its own lens
+   run its own role
 5. Get stakeholder approval before testing begins
 6. Ensure automation is merged before GA
 

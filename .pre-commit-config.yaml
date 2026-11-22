@@ -16,6 +16,18 @@ repos:
         language: python
         pass_filenames: false
         files: ^(stps/.*\.md|tools/check_stp_moves\.py|tools/test_check_stp_moves\.py|\.pre-commit-config\.yaml)$
+      - id: check-personas
+        name: Check reviewer personas
+        entry: tools/check_personas.py
+        language: python
+        pass_filenames: false
+        files: ^(docs/review-personas/.*\.md|AGENTS\.md|tools/check_personas\.py|tools/test_check_personas\.py|\.pre-commit-config\.yaml)$
+      - id: test-check-personas
+        name: Test persona validator
+        entry: tools/test_check_personas.py
+        language: python
+        pass_filenames: false
+        files: ^(docs/review-personas/.*\.md|tools/check_personas\.py|tools/test_check_personas\.py|\.pre-commit-config\.yaml)$
 
   # Markdownlint for Markdown file linting
   - repo: https://github.com/igorshubovych/markdownlint-cli

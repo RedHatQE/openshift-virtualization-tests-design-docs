@@ -26,7 +26,7 @@ records it once, for the whole review, by copying each report's own header into 
 ```text
 ## Coverage
 - Ran: sections/requirements @ 4f2a1c9, 4 findings · sections/traceability @ 4f2a1c9, 9 findings
-- Partial: sections/requirements — no feature request supplied; lenses/feature-owner — no design doc
+- Partial: sections/requirements — no feature request supplied; roles/feature-owner — no design doc
 - Not run: sections/constraints — the persona errored and wrote no report
 - Reason: author pass before requesting review
 - Recorded by: <name — not the author>
@@ -49,8 +49,8 @@ sign-off cell is CRITICAL in every persona that touches one, stated or not.
 
 | Disposition | Meaning | Emitted by | Answered by |
 |---|---|---|---|
-| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and lenses | The role named in the finding — Product Manager, Feature Owner or Quality Owner — never the persona runner and never the STP author as such |
-| SIGN-OFF | A sign-off cell whose owner must sign it. The row states the cell and **the question that owner has to answer** — never a claim that something was verified. Never pre-filled. | lenses only | That owner. Where two lenses sign the same cell, both names go in it |
+| DECISION | A named human must answer before approval. Not resolved by editing text. | section personas and roles | The role named in the finding — Product Manager, Feature Owner or Quality Owner — never the persona runner and never the STP author as such |
+| SIGN-OFF | A sign-off cell whose owner must sign it. The row states the cell and **the question that owner has to answer** — never a claim that something was verified. Never pre-filled. | roles only | That owner. Where two roles sign the same cell, both names go in it |
 
 A sign-off cell left as `[Name/Date]` is CRITICAL because it is a missing signature, not HIGH because it
 is a placeholder. Where two personas could assign different levels to the same text, the owner files it
@@ -65,7 +65,7 @@ persona run by the QE author routinely files a DECISION that only the Product Ma
 every DECISION row names its answering role in the Owner column.
 
 A section persona never emits SIGN-OFF: sign-off cells belong to the people whose names go in them,
-and those are the lenses.
+and those are the roles.
 
 ### Sign-off cells
 
@@ -74,15 +74,15 @@ plus one name per sign-off function in `IV`. Each cell has an owning persona for
 
 | Cell | A blank cell is filed by | Signed by |
 |---|---|---|
-| I.2 limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`feature-owner`](./lenses/feature-owner.md) for the technical exposure, [`product-manager`](./lenses/product-manager.md) for the business one |
-| II.1 Out of Scope `*Sign-off (Quality Owner or Product Manager)*` | [`constraints`](./sections/constraints.md) | one of them, never both: [`quality-owner`](./lenses/quality-owner.md) when it is a coverage call QE makes, [`product-manager`](./lenses/product-manager.md) when it is a product decision |
-| II.1 Test Limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`quality-owner`](./lenses/quality-owner.md) |
-| II.5 risk `*Sign-off:*` | [`constraints`](./sections/constraints.md) | whichever lenses carry the exposure the risk names — often both |
-| `IV` sign-off function name | [`multi-sig`](./sections/multi-sig.md) | the lens for that function, for its own name |
+| I.2 limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`feature-owner`](./roles/feature-owner.md) for the technical exposure, [`product-manager`](./roles/product-manager.md) for the business one |
+| II.1 Out of Scope `*Sign-off (Quality Owner or Product Manager)*` | [`constraints`](./sections/constraints.md) | one of them, never both: [`quality-owner`](./roles/quality-owner.md) when it is a coverage call QE makes, [`product-manager`](./roles/product-manager.md) when it is a product decision |
+| II.1 Test Limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`quality-owner`](./roles/quality-owner.md) |
+| II.5 risk `*Sign-off:*` | [`constraints`](./sections/constraints.md) | whichever roles carry the exposure the risk names — often both |
+| `IV` sign-off function name | [`multi-sig`](./sections/multi-sig.md) | the role for that function, for its own name |
 
 The `or` in the template's Out of Scope label is exclusive: one signer per item, chosen by whose decision it is.
 For every other cell the table names who *may* sign, not how many. A risk describing both a technical and a business
-exposure is signed by both lenses in the one cell the template renders — that is why each lens states
+exposure is signed by both roles in the one cell the template renders — that is why each role states
 which exposure it signs. A function with no named person is `multi-sig`'s check; only the functions
 in the template carry a signature.
 
@@ -110,10 +110,10 @@ below are the format, so copy their citation style:
 `II.1 — Scope of Testing (partial: Out of Scope)`, not `II.1`. The checklist indexes the rules rather
 than holding them, so a rule the template carries unambiguously is cited from the template.
 
-A lens cites in the same order: the `AGENTS.md` section it shares with the section persona, else the
+A role cites in the same order: the `AGENTS.md` section it shares with the section persona, else the
 template; then the VEP, design doc or feature request that contradicts the STP; and, for a check neither
-covers, its own file and heading — `lenses/quality-owner.md — Falsifiability`. A lens finding based only on the
-STP text is a defect, so it is filed only by the lens that owns that check, under the boundary rule
+covers, its own file and heading — `roles/quality-owner.md — Falsifiability`. A role finding based only on the
+STP text is a defect, so it is filed only by the role that owns that check, under the boundary rule
 below.
 
 **Owner** is the role that answers a `DECISION` or signs a `SIGN-OFF` — Product Manager, Feature Owner or
@@ -130,35 +130,35 @@ nothing for the author to find.
 
 ## Boundary rule
 
-A section persona files defects about the document. A lens files the decision its role has to answer,
-and cites the section finding (`see: sections/traceability`) instead of re-deriving it. Every lens
+A section persona files defects about the document. A role files the decision its role has to answer,
+and cites the section finding (`see: sections/traceability`) instead of re-deriving it. Every role
 receives the six section reports — it cannot cite a finding it was never given, so handing them over
-is part of the run (README, *Level 2*, `PHASE=lenses`).
+is part of the run (README, *Level 2*, `PHASE=roles`).
 
-A lens files a defect only for a check it owns alone. There are three, listed here rather than left to
+A role files a defect only for a check it owns alone. There are three, listed here rather than left to
 judgement:
 
-- [`quality-owner`](./lenses/quality-owner.md) — falsifiability and stability: a scenario that could not
+- [`quality-owner`](./roles/quality-owner.md) — falsifiability and stability: a scenario that could not
   fail, a criterion that reads the state the feature writes, and a scenario whose fixed sleeps, timing
   windows or external dependencies make its result meaningless. Tier, priority and traceability stay
   with [`traceability`](./sections/traceability.md), as does whether a *tier* matches its cost
-- [`feature-owner`](./lenses/feature-owner.md) — environment reality: an environment, storage class,
+- [`feature-owner`](./roles/feature-owner.md) — environment reality: an environment, storage class,
   topology or platform the feature cannot actually run on. That it is missing from `II.3` is
-  [`strategy`](./sections/strategy.md)'s finding; that it cannot exist is this lens's
-- [`quality-owner`](./lenses/quality-owner.md) — over-testing: coverage that is surplus at its tier,
+  [`strategy`](./sections/strategy.md)'s finding; that it cannot exist is this role's
+- [`quality-owner`](./roles/quality-owner.md) — over-testing: coverage that is surplus at its tier,
   Tier 2 first. Missing coverage stays with [`traceability`](./sections/traceability.md), and a declared
   tier that does not match a scenario's runtime is also traceability's
 
-For those three checks a lens cites the nearest `AGENTS.md` heading it shares with the section persona —
+For those three checks a role cites the nearest `AGENTS.md` heading it shares with the section persona —
 `III — Test Scenarios & Traceability`, `II.3 — Test Environment` — or, where the rule belongs to another
 authority, that authority: over-testing cites `docs/testing-tiers.md` and its tier definitions. Where no
 text outside the persona covers the check, it cites its own file and heading.
 
-A lens whose required input is missing — no feature request, no design doc — states once that it
+A role whose required input is missing — no feature request, no design doc — states once that it
 cannot review, cites the section persona that owns the missing link, and stops. It files no defect for
 it: that defect has an owner already.
 
-If a lens spots a defect no persona covers, it files it once, as DECISION, and names the persona that
+If a role spots a defect no persona covers, it files it once, as DECISION, and names the persona that
 should own it.
 
 ## Where the report goes

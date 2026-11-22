@@ -92,7 +92,7 @@ is a repository defect to report once — not something to hold against the auth
 - Testing goal content or scenario mapping — [`traceability`](./traceability.md)
 - Requirement and NFR quality — [`requirements`](./requirements.md)
 - Whether the described environment actually exists — [`strategy`](./strategy.md) and the
-  [`feature-owner`](../lenses/feature-owner.md) lens
+  [`feature-owner`](../roles/feature-owner.md) role
 - Wording, and placeholders outside these sections — [`language-hygiene`](./language-hygiene.md)
 - Whether a placeholder inside a risk, limitation or Out of Scope cell is acceptable: it is not, and you
   own that call. A blank `IV` sign-off function cell is [`multi-sig`](./multi-sig.md)'s

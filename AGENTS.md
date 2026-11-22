@@ -13,9 +13,9 @@ rather than requiring it.
 ## Review Personas
 
 Reviewer personas for STP pull requests live in [review personas](./docs/review-personas/README.md).
-The six `sections/` personas partition the checklist below by review focus; the three `lenses/` personas
+The six `sections/` personas partition the checklist below by review focus; the three `roles/` personas
 carry the sign-off functions the template requires (Feature Owner, Quality Owner, Product Manager), and
-each lens also owns one check no section persona can perform:
+each role also owns one check no section persona can perform:
 
 - **environment reality** — whether what `II.3` plans can actually be provisioned
 - **falsifiability and stability** — whether a scenario could fail at all, or would fail only by flaking
@@ -26,7 +26,7 @@ and one judgement that is a decision rather than a check: whether a requirement 
 built, which the section personas cannot see because they only read the feature request.
 
 Personas compress this checklist. The section personas add no check of their own; those four are the
-lenses' additions, and the second and third are the only ones they file as defects rather than decisions.
+roles' additions, and the second and third are the only ones they file as defects rather than decisions.
 
 **Who does what.** The automated reviewers configured in `.coderabbit.yaml` and `.pr_agent.toml` apply the
 checklist below to the diff, and are not expected to run the personas. A human reviewer runs them: the
