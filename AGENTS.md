@@ -214,7 +214,8 @@ retired, and the line that replaces each, are listed under "Renamed Template Lin
 
 ### I.1 — Requirement & User Story Review
 
-- [ ] All checklist items have checkboxes marked `[x]` with content filled in
+- [ ] All checklist items have checkboxes marked `[x]` with content filled in, or are left `[ ]`
+  with the reason recorded in the item's own lines (as the template instructs)
 - [ ] Requirements are specific and testable — each names a behavior **and** the condition it must
   hold under, and does not repeat the Feature Overview ("Support migration" is not a requirement)
 - [ ] *Value* states the customer cost of *not* having the feature (broken workflow, unmet SLA,

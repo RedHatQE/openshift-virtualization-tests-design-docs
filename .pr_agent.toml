@@ -55,7 +55,9 @@ Core principles:
   AGENTS.md and `docs/*.md` they are guidance too — comments there are never a finding.
 - A PR must not bundle a dependency: flag CRITICAL when an STP change uses a field, key, or section
   the same PR adds, renames, or removes in a template or any rule source (AGENTS.md,
-  docs/stp-guide.md, .coderabbit.yaml, these instructions).
+  docs/stp-guide.md, .coderabbit.yaml, these instructions). Equivalently, any PR that changes a rule
+  source and an STP in the same diff must be split, so the rule cannot be rewritten under cover of
+  the STP that benefits from it.
 - Template rules are not retroactively enforced: a merged STP keeps the shape it was approved with,
   and re-shaping a legacy entry onto the current template is not a structure change. The exemption is
   per entry; only divergence from the current template counts. The retired labels and their

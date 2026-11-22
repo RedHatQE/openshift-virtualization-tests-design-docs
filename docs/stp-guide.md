@@ -191,7 +191,7 @@ retroactively (see "The Template Is Fixed").
 | `*List identified challenges:*` | `- [SIG-specific testing challenge]` |
 | `*List new or modified user-facing APIs:*` | `- [SIG-specific testing of an existing user-facing API, or "N/A — see parent STP"]` |
 | `*Describe topology requirements:*` | `- [SIG-specific topology requirement]` |
-| `**[Risk Category]**` with `*[Category-specific field]:*` | the seven named categories (`Timeline/Schedule`, `Test Coverage`, `Test Environment`, `Untestable Aspects`, `Resource Constraints`, `Dependencies`, `Other`), each keeping the supplemental field the feature template defines for it |
+| `**[Risk Category]**` with `*[Category-specific field]:*` | the seven named categories (`Timeline/Schedule`, `Test Coverage`, `Test Environment`, `Untestable Aspects`, `Resource Constraints`, `Dependencies`, `Other`), each keeping the supplemental field the feature template defines for that category — a no-risk category omits it, and `Other` has none |
 
 ### Purpose of Each Part
 
@@ -320,8 +320,9 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
   criterion is covered by a scenario or by named existing regression coverage in Test Strategy
 - Every limitation, exclusion and risk entry is signed off (see Constraint Categories)
 - Structure matches the template: no section, checklist item, metadata field, field inside a
-  checklist item, Section III key, or risk field added, renamed, reordered, or removed — the
-  bracketed labels the template defines are the only ones left (see "The Template Is Fixed")
+  checklist item, Section III key, or risk field added, renamed, reordered, or removed, and the only
+  bracketed tokens are the ones the template sanctions — its own labels, markdown link labels, the
+  checklist markers and placeholders (see "The Template Is Fixed")
 
 ## Moving an STP
 

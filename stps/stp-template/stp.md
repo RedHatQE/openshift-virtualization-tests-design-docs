@@ -125,8 +125,8 @@ before testing starts, so reviewers should check it against their own understand
   - Name a concrete role a customer would recognize (VM owner, cluster admin, SRE running a
     fleet) — never a generic "user".
   - Name the action and the outcome, not the mechanism.
-  - Each use case must trace to a Section III scenario. If no scenario covers it, either add the
-    scenario or drop the use case.
+  - Each use case must trace to a Section III scenario, or to named existing regression coverage in
+    Test Strategy. If neither covers it, either add the scenario or drop the use case.
   Example: "As a cluster admin draining a node during business hours, I want running VMs to keep
   serving traffic, so that planned maintenance does not need a maintenance window." -->
   - *Value:* [The customer cost of not having this feature]

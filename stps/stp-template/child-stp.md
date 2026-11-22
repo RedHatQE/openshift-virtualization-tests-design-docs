@@ -228,8 +228,9 @@ Keep every category below — the field names are the ones the parent template d
 A risk is an uncertainty: a constraint that is already true is a Test Limitation, and a testing
 decision already taken is Out of Scope; neither belongs here.
 A category with no SIG-specific risk keeps its Mitigation line, reads "None — [why]", and drops only
-the supplemental and Sign-off lines. When the SIG has no specific risk anywhere, every category says
-"None — no SIG-specific risk" and no Sign-off line is needed. -->
+the supplemental and Sign-off lines. When the SIG has no specific risk anywhere, each category still
+gives its own reason in place of [why] — "None — no SIG-specific risk" is not a reason — and no
+Sign-off line is needed. -->
 
 **Timeline/Schedule**
 
