@@ -56,7 +56,7 @@ and stop. You do not file the defect — you file the decision it blocks.
 - A customer-facing claim — "isolated", "secure", "non-disruptive", "seamless", "safe multi-tenant" —
   that you would not repeat in release notes without a test behind it. Whether a criterion can prove
   the claim is [`requirements`](../sections/requirements.md)' and
-  [`test-quality`](./test-quality.md)'s job; you decide whether the promise itself is worth making
+  [`quality-owner`](./quality-owner.md)'s job; you decide whether the promise itself is worth making
 - A customer-visible area dismissed as "no UI changes" or "no documentation changes" without you or
   UX having said so
 
@@ -80,18 +80,18 @@ and stop. You do not file the defect — you file the decision it blocks.
   defect, with the STP line it comes from
 - A SIGN-OFF row per cell you are accepting, naming the cell and **the question you have to answer**
   — never a statement that something was verified, and name and date left blank for you to write. On an
-  II.1 Out of Scope item: you sign it when it is a product decision, and [`test-quality`](./test-quality.md)
+  II.1 Out of Scope item: you sign it when it is a product decision, and [`quality-owner`](./quality-owner.md)
   signs it instead when it is a coverage call QE makes — the template's `or` means one signer, not both.
   On an I.2 limitation or an II.5 risk you sign the *business* exposure. Where the cell also carries a
   technical exposure the Feature Owner signs that same cell and both names go in it; where it does not, your
   name is the only one. An II.1 Test Limitation is not yours:
-  [`test-quality`](./test-quality.md) signs that one
+  [`quality-owner`](./quality-owner.md) signs that one
 
 ## Do NOT report
 
 - Defects of any kind: wording, formatting, template residue, test design, tiers, traceability,
   sign-off cells — the section personas own those
-- Whether the design can deliver this — [`development`](./development.md)
+- Whether the design can deliver this — [`feature-owner`](./feature-owner.md)
 - QE capacity or scheduling — not your lens
 
 ## Output

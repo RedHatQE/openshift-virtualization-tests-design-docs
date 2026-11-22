@@ -26,7 +26,7 @@ records it once, for the whole review, by copying each report's own header into 
 ```text
 ## Coverage
 - Ran: sections/requirements @ 4f2a1c9, 4 findings · sections/traceability @ 4f2a1c9, 9 findings
-- Partial: sections/requirements — no feature request supplied; lenses/development — no design doc
+- Partial: sections/requirements — no feature request supplied; lenses/feature-owner — no design doc
 - Not run: sections/constraints — the persona errored and wrote no report
 - Reason: author pass before requesting review
 - Recorded by: <name — not the author>
@@ -74,9 +74,9 @@ plus one name per sign-off function in `IV`. Each cell has an owning persona for
 
 | Cell | A blank cell is filed by | Signed by |
 |---|---|---|
-| I.2 limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`development`](./lenses/development.md) for the technical exposure, [`product-manager`](./lenses/product-manager.md) for the business one |
-| II.1 Out of Scope `*Sign-off (Quality Owner or Product Manager)*` | [`constraints`](./sections/constraints.md) | one of them, never both: [`test-quality`](./lenses/test-quality.md) when it is a coverage call QE makes, [`product-manager`](./lenses/product-manager.md) when it is a product decision |
-| II.1 Test Limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`test-quality`](./lenses/test-quality.md) |
+| I.2 limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`feature-owner`](./lenses/feature-owner.md) for the technical exposure, [`product-manager`](./lenses/product-manager.md) for the business one |
+| II.1 Out of Scope `*Sign-off (Quality Owner or Product Manager)*` | [`constraints`](./sections/constraints.md) | one of them, never both: [`quality-owner`](./lenses/quality-owner.md) when it is a coverage call QE makes, [`product-manager`](./lenses/product-manager.md) when it is a product decision |
+| II.1 Test Limitation `*Sign-off:*` | [`constraints`](./sections/constraints.md) | [`quality-owner`](./lenses/quality-owner.md) |
 | II.5 risk `*Sign-off:*` | [`constraints`](./sections/constraints.md) | whichever lenses carry the exposure the risk names — often both |
 | `IV` sign-off function name | [`multi-sig`](./sections/multi-sig.md) | the lens for that function, for its own name |
 
@@ -112,7 +112,7 @@ than holding them, so a rule the template carries unambiguously is cited from th
 
 A lens cites in the same order: the `AGENTS.md` section it shares with the section persona, else the
 template; then the VEP, design doc or feature request that contradicts the STP; and, for a check neither
-covers, its own file and heading — `lenses/test-quality.md — Falsifiability`. A lens finding based only on the
+covers, its own file and heading — `lenses/quality-owner.md — Falsifiability`. A lens finding based only on the
 STP text is a defect, so it is filed only by the lens that owns that check, under the boundary rule
 below.
 
@@ -138,11 +138,11 @@ is part of the run (README, *Level 2*, `PHASE=lenses`).
 A lens files a defect only for a check it owns alone. There are exactly two, and they are listed here
 rather than left to judgement:
 
-- [`test-quality`](./lenses/test-quality.md) — falsifiability and stability: a scenario that could not
+- [`quality-owner`](./lenses/quality-owner.md) — falsifiability and stability: a scenario that could not
   fail, a criterion that reads the state the feature writes, and a scenario whose fixed sleeps, timing
   windows or external dependencies make its result meaningless. Tier, priority and traceability stay
   with [`traceability`](./sections/traceability.md), as does whether a *tier* matches its cost
-- [`development`](./lenses/development.md) — environment reality: an environment, storage class,
+- [`feature-owner`](./lenses/feature-owner.md) — environment reality: an environment, storage class,
   topology or platform the feature cannot actually run on. That it is missing from `II.3` is
   [`strategy`](./sections/strategy.md)'s finding; that it cannot exist is this lens's
 

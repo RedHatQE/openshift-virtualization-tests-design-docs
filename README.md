@@ -187,8 +187,10 @@ author's lead. The QE Owner(s) named in the metadata own and write the testing p
 1. Create the STP from the [template](./stps/stp-template/stp.md), which defines structure and format
 2. Follow the [STP Guide](./docs/stp-guide.md) for purpose and process
 3. Ensure proper test tier coverage per [Testing Tiers Guide](./docs/testing-tiers.md)
-4. Review the PR with the [review personas](./docs/review-personas/README.md) — run the section
-   personas its run matrix assigns to you, and let each sign-off function run its own lens
+4. Review the PR with the [review personas](./docs/review-personas/README.md) — hand the
+   [prompt there](./docs/review-personas/README.md#tell-your-assistant-to-use-them) to your AI
+   assistant, run the section personas its run matrix assigns to you, and let each sign-off function
+   run its own lens
 5. Get stakeholder approval before testing begins
 6. Ensure automation is merged before GA
 

@@ -99,7 +99,7 @@ completion-status checks below do not apply to one — `AGENTS.md` *Child STP Re
 - Wording, formatting, placeholders — [`language-hygiene`](./language-hygiene.md)
 - Out of Scope "None" while Test Strategy excludes a testing type — [`constraints`](./constraints.md)
   owns the Out of Scope section and reports it there
-- Whether the environment the STP describes is technically real — [`development`](../lenses/development.md)
+- Whether the environment the STP describes is technically real — [`feature-owner`](../lenses/feature-owner.md)
 
 ## Output
 

@@ -4,6 +4,13 @@ Project guidance for AI coding assistants.
 
 > **Using a different AI tool?** Copy this file's content into your tool's config file (e.g.: `.cursorrules` for Cursor)
 
+## Reviewing an STP pull request
+
+Follow [`AGENTS.md`](./AGENTS.md) → `## Review Personas`, which is the single source for how to run a
+review: which personas, what they read, the base-branch rule, the report format, and the rule that an
+assistant never approves or fills a sign-off. Do not restate the procedure here — two copies of one
+instruction drift, which is the failure this repository keeps fixing.
+
 ## Key References
 
 - `README.md` — Project overview, structure, and contributing guidelines

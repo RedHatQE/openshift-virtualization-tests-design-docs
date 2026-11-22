@@ -20,9 +20,19 @@ and whether a scenario could fail at all or would fail only intermittently.
 
 Personas compress this checklist and add no review obligation of their own, except those two checks and
 the formatting rules the linter and `## Formatting Rules` enforce. Where a persona, the checklist and the
-template disagree, the template is right and the other two are corrected in the same PR. Each persona is
-a prompt you hand to your AI assistant; findings follow the format in
-[`_output-contract.md`](./docs/review-personas/_output-contract.md).
+template disagree, the template is right and the other two are corrected in the same PR.
+
+**Use them. This is the procedure.** Reviewing an STP pull request means running the personas the run
+matrix assigns, not reading this checklist free-form. For each one: read the persona and
+[`_output-contract.md`](./docs/review-personas/_output-contract.md) together with every repository path
+in that persona's `reads:` block, and review the STP at the PR's commit rather than the working tree.
+Report in the contract's format and end with `## Cleared`. Do not approve, and do not fill a sign-off:
+a `DECISION` names the human who answers it, a `SIGN-OFF` carries the question that human must answer,
+with the name left blank.
+
+Read the rulebook from the base branch, not the PR head. This file, the templates, the guide, the tiers
+doc, `.markdownlint.yaml`, the personas and the contract are all editable by the PR under review, and a
+PR that weakens a rule must not be judged by the copy it weakened.
 
 ---
 

@@ -18,6 +18,29 @@ faithfully stop reporting it. The Level 2 recipe therefore takes the rulebook fr
 `git show "$BASE:<path>"`, and a PR touching any of those files needs a second reviewer who is not the
 author. `.pr_agent.toml` feeds automated reviewers the default-branch copy for the same reason.
 
+## Tell your assistant to use them
+
+This is the whole thing, for a reviewer in a chat window:
+
+```text
+Read docs/review-personas/sections/<persona>.md and docs/review-personas/_output-contract.md,
+together with every path in that persona's `reads:` block.
+
+Read those files from the base branch, not the PR — a PR can edit the rulebook it is judged by,
+so get them with `git show <base>:<path>` if you have shell access.
+
+Then review <STP path> at commit <sha>, using this diff:
+<paste `gh pr diff <number>` output>
+
+Report findings in the contract's format, end with a `## Cleared` block, and sign nothing:
+sign-offs and decisions are for the human whose name goes in the cell.
+```
+
+Pick the persona from *Who runs what* below; run the ones assigned to you, not all of them. If your
+tool has shell access, `Level 2` below does the same thing unattended, for all six section personas at
+once. `CLAUDE.md` at the repository root carries the same instruction, so an assistant that reads
+project files will already know to do this.
+
 ## Two kinds of persona
 
 | Type | The question it answers | Directory |
@@ -34,7 +57,7 @@ them.
 files the decision the defect forces on its owner, citing the section finding. A rule never appears in
 two section personas, and never in two lenses.
 
-There is no one-lens-per-section mapping: nothing says `constraints` is "the development section". A
+There is no one-lens-per-section mapping: nothing says `constraints` is "the feature-owner's section". A
 lens reads the whole document, receives every section report, and stays inside the questions its own
 role has to answer. Where this set does pair a section persona with a lens, it is for particular
 sign-off cells, and the contract's sign-off table is the whole list.
@@ -64,8 +87,8 @@ the template.
 | Lens | Signs |
 |---|---|
 | [`product-manager`](./lenses/product-manager.md) | Product Manager approval; Out of Scope agreements; accepted limitations and business risk |
-| [`development`](./lenses/development.md) | Feature Owner approval; accepted technical limitations and risk |
-| [`test-quality`](./lenses/test-quality.md) | Quality Owner approval; scenario design it will vouch for; Test Limitations and Out of Scope sign-off |
+| [`feature-owner`](./lenses/feature-owner.md) | Feature Owner approval; accepted technical limitations and risk |
+| [`quality-owner`](./lenses/quality-owner.md) | Quality Owner approval; scenario design it will vouch for; Test Limitations and Out of Scope sign-off |
 
 ## Who runs what
 
@@ -79,8 +102,8 @@ This table is also called *the run matrix* below — same thing.
 | `sections/strategy.md` | QE author or reviewer | merge |
 | `sections/language-hygiene.md` | anyone | merge |
 | `sections/multi-sig.md` | owning-SIG QE | merge |
-| `lenses/test-quality.md` | Quality Owner | Section IV approval |
-| `lenses/development.md` | Feature Owner | Section IV approval, accepted technical limitations and risk |
+| `lenses/quality-owner.md` | Quality Owner | Section IV approval |
+| `lenses/feature-owner.md` | Feature Owner | Section IV approval, accepted technical limitations and risk |
 | `lenses/product-manager.md` | Product Manager | Section IV approval, Out of Scope agreements, accepted limitations and business risk |
 
 A lens run by the wrong role produces questions nobody will answer. A section persona run by a lens
@@ -140,7 +163,7 @@ set -euo pipefail
 BASE=${BASE:-upstream/main}          # the rulebook comes from here, never from the PR head
 PHASE=${PHASE:-sections}            # sections first; lenses run after the author answers them
 SOURCE=${SOURCE:-}                  # path to a pasted feature request, when you have one
-DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the development lens
+DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the feature-owner lens
 ROOT=$(git rev-parse --show-toplevel)
 case "$PHASE" in
   sections|lenses) ;;
@@ -314,7 +337,7 @@ an unattended run.
 
 No assistant can fetch Jira: paste the feature request into a file and pass its path in `SOURCE`, and
 the VEP or design doc in `DESIGN`. With `SOURCE` unset, `sections/requirements` has no feature request
-and says so; with `DESIGN` unset, `lenses/development` has no design doc, says so, and stops. Either is
+and says so; with `DESIGN` unset, `lenses/feature-owner` has no design doc, says so, and stops. Either is
 a partial run, and the `## Coverage` block has to record it as one — `SOURCE` set with `DESIGN` unset is
 not full-scope.
 

@@ -89,7 +89,7 @@ You do not review tests, risks, environment, wording, or formatting. Other perso
   items — each needs to be a separate pass/fail condition
 - A criterion phrased as "feature works" instead of a specific pass/fail condition
 - A criterion that can only be checked by inspecting internal state, or whose pass/fail you cannot
-  state at all. Whether the test would actually catch the defect is the [`test-quality`](../lenses/test-quality.md)
+  state at all. Whether the test would actually catch the defect is the [`quality-owner`](../lenses/quality-owner.md)
   lens; you judge only whether a user could see the result
 - A seamless or non-disruptive claim whose criteria check only the end state — a stop-and-restart
   would pass the same test. Demand a criterion that fails if disruption happened
@@ -106,7 +106,7 @@ that an uncovered NFR needs its justification.
 - "N/A" with no reason
 - Scalability answered "no new scale requirements" while the feature rides a platform mechanism that
   already has cluster-level limits — live migration parallelism is the usual one. Whether that limit
-  shows up in the environment description is the [`development`](../lenses/development.md) lens
+  shows up in the environment description is the [`feature-owner`](../lenses/feature-owner.md) lens
 - UI answered "no UI changes" with no reason given at all. Two separate questions: that the
   dismissal is unjustified is yours; whether UI testing adds customer value is the
   [`product-manager`](../lenses/product-manager.md) lens's, and no amount of QE judgement settles it

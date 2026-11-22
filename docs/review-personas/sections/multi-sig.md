@@ -90,7 +90,7 @@ multi-SIG feature where nobody from a participating SIG appears anywhere.
   [`constraints`](./constraints.md) checks the cells; you check that the right people are named in the
   right roles
 - Whether each role's questions were answered — the
-  [`product-manager`](../lenses/product-manager.md) and [`development`](../lenses/development.md) lenses
+  [`product-manager`](../lenses/product-manager.md) and [`feature-owner`](../lenses/feature-owner.md) lenses
 - Wording, formatting — [`language-hygiene`](./language-hygiene.md)
 
 ## Output
