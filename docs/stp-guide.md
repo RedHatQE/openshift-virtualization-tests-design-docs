@@ -31,7 +31,9 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 This guide does not restate those instructions; it maps the template's parts and explains their purpose and the
 process around them. The one exception is the fixed structure below, which is a shared rule: it is stated
 in full here as well so this guide can be read on its own, and it is kept in sync with the four other copies.
-If this guide and the template ever disagree, the template wins and the guide must be fixed.
+If this guide and the template ever disagree, the template wins and the guide must be fixed. The one
+exception is the structure rule below: a disagreement between it and a template is a copy-sync defect to
+fix in all copies, not an STP finding.
 
 | Template part | Purpose |
 |:--------------|:--------|

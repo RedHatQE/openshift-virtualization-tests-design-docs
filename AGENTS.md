@@ -15,7 +15,8 @@ not an STP finding.
 
 Evaluate new and edited STPs against the current template and guide. Existing STPs do not have to comply
 with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
-rather than requiring it.
+for the entries a PR does not touch; an entry a PR adds or modifies follows the current template, and
+divergence there is CRITICAL (see Template Structure Compliance).
 
 ---
 
@@ -130,8 +131,8 @@ section of `AGENTS.md`, `docs/stp-guide.md`, the structure block in `.coderabbit
 a new field only after that template PR is merged.
 
 **A PR must not bundle a dependency.** If an STP change uses a field, key, or section that the same
-PR adds, renames, or removes in a template or in `docs/stp-guide.md`, flag it CRITICAL and ask for a
-split: the structure change must be reviewed alone. The same applies to any PR that changes a rule
+PR adds, renames, or removes in a template, `AGENTS.md`, `docs/stp-guide.md`, `.coderabbit.yaml` or
+`.pr_agent.toml`, flag it CRITICAL and ask for a split: the structure change must be reviewed alone. The same applies to any PR that changes a rule
 source — `AGENTS.md`, `docs/stp-guide.md`, `.coderabbit.yaml`, `.pr_agent.toml`, or a template — and
 an STP in the same diff: split it, so the rule cannot be rewritten under cover of the STP that
 benefits from it. An unrelated typo fix in a template is fine.

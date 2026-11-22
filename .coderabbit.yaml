@@ -98,7 +98,7 @@ reviews:
         copies; until that PR merges, the field does not exist and must not appear in any STP. Do not
         suggest adding a field to the template as a fix for one STP.
 
-        A PR must not bundle a dependency: flag CRITICAL when a feature-STP change uses a field,
+        A PR must not bundle a dependency: flag CRITICAL when an STP change (feature or child) uses a field,
         key, or section that the same PR adds, renames, or removes in a template, `AGENTS.md`,
         `docs/stp-guide.md`, `.pr_agent.toml`, or this file — equivalently, any PR that changes a
         rule source and an STP in the same diff must be split so the rule cannot be rewritten under
