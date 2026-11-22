@@ -222,10 +222,9 @@ own `SIG`), `Child STPs`, and the `Value` and `Use cases` items of the feature.
 - Its Feature Overview describes only the SIG's scope.
 - Test Environment and Entry Criteria are covered by the parent; the child adds only SIG-specific needs
   and carries no completion status for them.
-- It lists only SIG-specific risks and links to the parent for the rest. Every risk category is
-  present: one with no SIG-specific risk keeps its `Mitigation` line, reads `None — [why]`, and drops
-  only the supplemental and `Sign-off` lines. The rule that every risk category is addressed applies
-  to the parent STP too.
+- It lists only SIG-specific risks and links to the parent for the rest; feature-wide risks belong to
+  the parent. The child template defines which risk categories a child STP carries and the form a
+  category takes when the SIG has no risk in it — follow the template, not a second list here.
 
 All other rules in this guide apply to child STPs unchanged.
 
