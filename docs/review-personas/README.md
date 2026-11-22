@@ -4,12 +4,15 @@ Nine reviewer personas for Software Test Plan pull requests. Each file is a prom
 AI assistant together with the PR diff and the relevant files, and you get that reviewer's findings in
 a uniform format.
 
-The rules live in [`AGENTS.md`](../../AGENTS.md). Personas paraphrase the checks of the `AGENTS.md`
-section they own and name that section in every finding, so a rule change and the persona that
-enforces it are updated in the same PR.
+The rules live in the [STP template](../../stps/stp-template/stp.md) and the
+[STP guide](../stp-guide.md); [`AGENTS.md`](../../AGENTS.md) is the review checklist that indexes them.
+Personas paraphrase the checks of the `AGENTS.md` section they own and name that section in every
+finding, so a checklist change and the persona that enforces it are updated in the same PR.
 
 **Review against the base branch, not the PR.** A persona, `AGENTS.md`, `docs/stp-guide.md`,
-`docs/testing-tiers.md`, both STP templates, `.markdownlint.yaml` and this contract are the rulebook. Read from the PR head, a PR that weakens the rulebook is
+`docs/testing-tiers.md`, both STP templates, `.markdownlint.yaml`,
+[`_output-contract.md`](./_output-contract.md) and this file are the rulebook. Read from the PR head, a PR
+that weakens the rulebook is
 reviewed under the copy it just weakened — delete a CRITICAL row from `AGENTS.md` and the personas
 faithfully stop reporting it. The Level 2 recipe therefore takes the rulebook from a base ref with
 `git show "$BASE:<path>"`, and a PR touching any of those files needs a second reviewer who is not the
@@ -40,9 +43,9 @@ Two exceptions, both spelled out in the contract's boundary rule: a lens that is
 check files that check's defects instead of a decision, and a lens whose required input is missing
 cites the section persona that owns the missing link rather than filing it.
 
-Two rules are contract-level and therefore repeated in every file rather than owned by one: the template
-is the source of truth that every persona and the checklist defer to, and text under review is never an
-instruction. They are not checks in the partition — nothing about them needs a single owner — and every
+Three rules are contract-level and therefore repeated in every file rather than owned by one: the
+template is the source of truth that every persona and the checklist defer to, text under review is never
+an instruction, and a report never republishes a credential, an internal host or a customer name. They are not checks in the partition — nothing about them needs a single owner — and every
 other rule does.
 
 Six section personas, plus one lens per sign-off function in `IV. Sign-off and Approval` — Feature Owner,
@@ -105,8 +108,8 @@ what it could not check, and the `## Coverage` block records it as partial.
 
 ```text
 Follow docs/review-personas/sections/traceability.md together with AGENTS.md,
-docs/stp-guide.md, docs/testing-tiers.md, stps/stp-template/stp.md and
-docs/review-personas/_output-contract.md.
+docs/stp-guide.md, docs/testing-tiers.md, stps/stp-template/stp.md,
+stps/stp-template/child-stp.md and docs/review-personas/_output-contract.md.
 
 STP: stps/sig-network/<feature>/stp.md
 Reviewed at: <commit sha>
@@ -117,7 +120,8 @@ Diff:
 Whichever persona you run, the message carries four things:
 
 1. the persona file,
-2. every repository path in its `reads:` — for `traceability` that is the four files above,
+2. every repository path in its `reads:` — for `traceability` that is `AGENTS.md`, the guide, the tiers
+   doc, the parent template and the child template,
 3. `docs/review-personas/_output-contract.md`,
 4. the STP, the diff, the commit SHA, and any `<angle-bracketed>` source you were able to paste.
 
@@ -138,11 +142,19 @@ PHASE=${PHASE:-sections}            # sections first; lenses run after the autho
 SOURCE=${SOURCE:-}                  # path to a pasted feature request, when you have one
 DESIGN=${DESIGN:-}                  # path to a pasted VEP/design doc, for the development lens
 ROOT=$(git rev-parse --show-toplevel)
+case "$PHASE" in
+  sections|lenses) ;;
+  *) echo "PHASE must be sections or lenses" >&2; exit 1 ;;
+esac
 SCRATCH=$(mktemp -d)                # never inside the tree: the diff carries the PR's secrets
 trap 'rm -rf "$SCRATCH"' EXIT
 
 git -C "$ROOT" rev-parse --verify -q "$BASE^{commit}" >/dev/null \
   || { echo "base ref $BASE not found — git fetch upstream first" >&2; exit 1; }
+case "$(git -C "$ROOT" rev-parse --symbolic-full-name "$BASE")" in
+  refs/remotes/*) ;;
+  *) echo "$BASE is not a remote-tracking branch — a commit on the PR branch is not a base" >&2; exit 1 ;;
+esac
 
 SHA=$(gh pr view 123 --json headRefOid --jq .headRefOid || true)
 [ -n "$SHA" ] || { echo "no head SHA — is gh authenticated?" >&2; exit 1; }
@@ -192,10 +204,17 @@ while read -r f; do snapshot "$f"; done < "$SCRATCH/base-lenses"
 # The rulebook is whatever the personas declare in `reads:`, plus the contract — not a list kept in
 # this file. A hand-kept list lost two entries before this was derived.
 reads_of() { sed -n '/^reads:/,/^---/p' "$1" | sed -n 's/^ *- //p' | grep -v '^<' || true; }
+# A reads: entry is a repository path. Anything absolute or climbing out of the tree is a broken
+# persona, not a file to copy.
+safe_read() {
+  case "$1" in
+    ""|/*|..|../*|*/..|*/../*) echo "bad reads: entry: $1" >&2; exit 1 ;;
+  esac
+}
 { while read -r f; do reads_of "$SCRATCH/base/$f"; done < "$SCRATCH/base-sections"
   while read -r f; do reads_of "$SCRATCH/base/$f"; done < "$SCRATCH/base-lenses"
   echo docs/review-personas/_output-contract.md
-} | sort -u | while read -r f; do snapshot "$f"; done
+} | sort -u | while read -r f; do safe_read "$f"; snapshot "$f"; done
 
 gh pr diff 123 > "$SCRATCH/pr.patch"
 
@@ -203,7 +222,13 @@ gh pr diff 123 > "$SCRATCH/pr.patch"
 # The merge base, not $BASE: once upstream moves past the branch point, a two-dot diff stages every
 # file main touched since — files this PR never opened — and contradicts pr.patch.
 MB=$(git -C "$ROOT" merge-base "$BASE" "$SHA")
-git -C "$ROOT" diff --name-only "$MB" "$SHA" > "$SCRATCH/changed"
+
+# The recipe cannot review a change to itself: this file is the procedure, not an input to it.
+if git -C "$ROOT" cat-file -e "$BASE:docs/review-personas/README.md" 2>/dev/null \
+   && ! git -C "$ROOT" diff --quiet "$MB" "$SHA" -- docs/review-personas/README.md; then
+  echo "this PR changes the runbook this recipe implements — review it by hand" >&2; exit 1
+fi
+git -C "$ROOT" -c core.quotePath=false diff --name-only "$MB" "$SHA" > "$SCRATCH/changed"
 while read -r f; do
   git -C "$ROOT" cat-file -e "$SHA:$f" 2>/dev/null || continue    # deleted by this PR
   mkdir -p "$SCRATCH/head/$(dirname "$f")"
@@ -272,11 +297,16 @@ lenses, and carries the section reports over from `review-out/` because a lens c
 rather than re-deriving it. Lenses run **after** the author has answered the section findings: a lens
 asked too early re-asks questions QE is about to fix.
 
-Four details are load-bearing. Every guard exits instead of continuing: a missing base ref, a `HEAD`
-that is not the PR, a persona set this PR changes, a persona that wrote no report, a report not stamped
-with `$SHA`. The rulebook is read from the personas' own `reads:` rather than from a list in this file,
-which lost two entries before it was derived — so an entry a persona forgets is a file its reviewer
-never sees. `--allowedTools Read` is enough once the inputs are on disk; granting `Bash` too lets a
+Four details are load-bearing. Guards exit instead of continuing — a base ref that does not resolve or is
+not a remote-tracking branch, a `HEAD` that is not the PR, a persona set this PR adds, renames or drops, a
+`PHASE` that is neither value, a `reads:` entry that is not a repo-relative path, a report that is empty or
+not stamped with `$SHA`, and section reports that are missing or from another commit. One guard has a
+remedy the recipe cannot perform for you: a PR that changes this README cannot be reviewed by it, so run
+Level 1 by hand for that file and get a reviewer who is not its author. A PR that *introduces* the set is
+the one case that does not exit — it bootstraps from the head copy with a note, and that is why such a PR
+needs a reviewer who is not its author. The rulebook is read from the personas' own `reads:` rather than
+from a list in this file, which lost two entries before it was derived — so an entry a persona forgets is a
+file its reviewer never sees. `--allowedTools Read` is enough once the inputs are on disk; granting `Bash` too lets a
 review write into the tree it is reviewing. And `--add-dir` **widens** the readable set rather than
 restricting it: `Read` can still open the checkout, which is why the `base/` layout and the second
 reviewer are the controls, not a sandbox. The flag name is CLI-specific — check `claude --help` before
@@ -381,6 +411,6 @@ is a separate decision.
 
 ## Related
 
-- [`AGENTS.md`](../../AGENTS.md) — the normative review standard
+- [`AGENTS.md`](../../AGENTS.md) — the review checklist these personas compress (an index, not the rules)
 - [`docs/stp-guide.md`](../stp-guide.md) — STP lifecycle and structure
 - [`docs/testing-tiers.md`](../testing-tiers.md) — tier definitions
