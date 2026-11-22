@@ -15,24 +15,24 @@ rather than requiring it.
 Reviewer personas for STP pull requests live in [review personas](./docs/review-personas/README.md).
 The six `sections/` personas partition the checklist below by review focus; the three `lenses/` personas
 carry the sign-off functions the template requires (Feature Owner, Quality Owner, Product Manager), and
-two of them also own a check no section persona can perform: whether an environment can be provisioned,
-and whether a scenario could fail at all or would fail only intermittently.
+each lens also owns one check no section persona can perform:
 
-Personas compress this checklist and add no review obligation of their own, except those two checks and
-the formatting rules the linter and `## Formatting Rules` enforce. Where a persona, the checklist and the
-template disagree, the template is right and the other two are corrected in the same PR.
+- **environment reality** — whether what `II.3` plans can actually be provisioned
+- **falsifiability and stability** — whether a scenario could fail at all, or would fail only by flaking
+- **over-testing** — whether coverage is surplus, Tier 2 first, where a production-like run makes it the
+  most expensive kind
 
-**Use them. This is the procedure.** Reviewing an STP pull request means running the personas the run
-matrix assigns, not reading this checklist free-form. For each one: read the persona and
-[`_output-contract.md`](./docs/review-personas/_output-contract.md) together with every repository path
-in that persona's `reads:` block, and review the STP at the PR's commit rather than the working tree.
-Report in the contract's format and end with `## Cleared`. Do not approve, and do not fill a sign-off:
-a `DECISION` names the human who answers it, a `SIGN-OFF` carries the question that human must answer,
-with the name left blank.
+and one judgement that is a decision rather than a check: whether a requirement is *true* of what is being
+built, which the section personas cannot see because they only read the feature request.
 
-Read the rulebook from the base branch, not the PR head. This file, the templates, the guide, the tiers
-doc, `.markdownlint.yaml`, the personas and the contract are all editable by the PR under review, and a
-PR that weakens a rule must not be judged by the copy it weakened.
+Personas compress this checklist. The section personas add no check of their own; those four are the
+lenses' additions, and the second and third are the only ones they file as defects rather than decisions.
+
+**Who does what.** The automated reviewers configured in `.coderabbit.yaml` and `.pr_agent.toml` apply the
+checklist below to the diff, and are not expected to run the personas. A human reviewer runs them: the
+procedure, the base-branch rule, the report format and the run matrix are all in the
+[review personas README](./docs/review-personas/README.md#tell-your-assistant-to-use-them). Nothing about
+how to run a review is restated here, because a second copy is a second thing to drift.
 
 ---
 

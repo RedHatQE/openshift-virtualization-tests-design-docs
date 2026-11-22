@@ -11,7 +11,8 @@ finding, so a checklist change and the persona that enforces it are updated in t
 
 **Review against the base branch, not the PR.** A persona, `AGENTS.md`, `docs/stp-guide.md`,
 `docs/testing-tiers.md`, both STP templates, `.markdownlint.yaml`,
-[`_output-contract.md`](./_output-contract.md) and this file are the rulebook. Read from the PR head, a PR
+[`_output-contract.md`](./_output-contract.md), this file and [`CLAUDE.md`](../../CLAUDE.md) — which routes
+readers to this procedure — are the rulebook. Read from the PR head, a PR
 that weakens the rulebook is
 reviewed under the copy it just weakened — delete a CRITICAL row from `AGENTS.md` and the personas
 faithfully stop reporting it. The Level 2 recipe therefore takes the rulebook from a base ref with
@@ -23,8 +24,8 @@ author. `.pr_agent.toml` feeds automated reviewers the default-branch copy for t
 This is the whole thing, for a reviewer in a chat window:
 
 ```text
-Read docs/review-personas/sections/<persona>.md and docs/review-personas/_output-contract.md,
-together with every path in that persona's `reads:` block.
+Read the persona file (its path is in *Who runs what* below, under sections/ or lenses/) and
+docs/review-personas/_output-contract.md, together with every path in that persona's `reads:` block.
 
 Read those files from the base branch, not the PR — a PR can edit the rulebook it is judged by,
 so get them with `git show <base>:<path>` if you have shell access.
@@ -36,10 +37,11 @@ Report findings in the contract's format, end with a `## Cleared` block, and sig
 sign-offs and decisions are for the human whose name goes in the cell.
 ```
 
-Pick the persona from *Who runs what* below; run the ones assigned to you, not all of them. If your
-tool has shell access, `Level 2` below does the same thing unattended, for all six section personas at
-once. `CLAUDE.md` at the repository root carries the same instruction, so an assistant that reads
-project files will already know to do this.
+Pick the personas *Who runs what* below assigns to you — you are not expected to run all nine, but
+within a phase a run that skips one of your own personas is not a clean run, and `## Coverage` says which
+you did not run. If your tool has shell access, `Level 2` below does the same thing unattended for a whole
+phase at once. `CLAUDE.md` at the repository root routes an assistant here, and `AGENTS.md` says which
+checklist the automated reviewers apply — this section is the only copy of the procedure.
 
 ## Two kinds of persona
 
@@ -62,9 +64,10 @@ lens reads the whole document, receives every section report, and stays inside t
 role has to answer. Where this set does pair a section persona with a lens, it is for particular
 sign-off cells, and the contract's sign-off table is the whole list.
 
-Two exceptions, both spelled out in the contract's boundary rule: a lens that is the sole owner of a
-check files that check's defects instead of a decision, and a lens whose required input is missing
-cites the section persona that owns the missing link rather than filing it.
+Two things override that split, both spelled out in the contract's boundary rule: three checks belong to a
+lens alone (environment reality, falsifiability and stability, over-testing), and those three the lens files
+as defects; and a lens whose required input is missing cites the section persona that owns the missing link
+rather than filing it.
 
 Three rules are contract-level and therefore repeated in every file rather than owned by one: the
 template is the source of truth that every persona and the checklist defer to, text under review is never

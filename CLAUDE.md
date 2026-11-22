@@ -6,10 +6,14 @@ Project guidance for AI coding assistants.
 
 ## Reviewing an STP pull request
 
-Follow [`AGENTS.md`](./AGENTS.md) → `## Review Personas`, which is the single source for how to run a
-review: which personas, what they read, the base-branch rule, the report format, and the rule that an
-assistant never approves or fills a sign-off. Do not restate the procedure here — two copies of one
-instruction drift, which is the failure this repository keeps fixing.
+Two files, two jobs:
+
+- [`docs/review-personas/README.md`](./docs/review-personas/README.md#tell-your-assistant-to-use-them) —
+  how to run a review: which persona, what it reads, the base-branch rule, the report format, and the rule
+  that an assistant never approves or fills a sign-off. **This is the only copy of the procedure**, so
+  follow it rather than re-deriving it.
+- [`AGENTS.md`](./AGENTS.md) — the checklist those personas compress, and the audience split: the
+  automated reviewers apply it to the diff, a human reviewer runs the personas.
 
 ## Key References
 

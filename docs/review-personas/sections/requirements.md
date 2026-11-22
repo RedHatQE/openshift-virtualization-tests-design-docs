@@ -84,6 +84,8 @@ You do not review tests, risks, environment, wording, or formatting. Other perso
 
 ## Requirements and acceptance criteria
 
+- The STP's reading of the VEP or design doc contradicts the source — a plan built on a misreading of the
+  requirement. What that misreading would cost in reality is [`feature-owner`](../lenses/feature-owner.md)'s
 - Requirements that restate the Feature Overview instead of listing D/S Jira requirements
 - Acceptance criteria merged into a paragraph or one combined bullet instead of individual list
   items — each needs to be a separate pass/fail condition

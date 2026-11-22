@@ -135,8 +135,8 @@ and cites the section finding (`see: sections/traceability`) instead of re-deriv
 receives the six section reports — it cannot cite a finding it was never given, so handing them over
 is part of the run (README, *Level 2*, `PHASE=lenses`).
 
-A lens files a defect only for a check it owns alone. There are exactly two, and they are listed here
-rather than left to judgement:
+A lens files a defect only for a check it owns alone. There are three, listed here rather than left to
+judgement:
 
 - [`quality-owner`](./lenses/quality-owner.md) — falsifiability and stability: a scenario that could not
   fail, a criterion that reads the state the feature writes, and a scenario whose fixed sleeps, timing
@@ -145,10 +145,14 @@ rather than left to judgement:
 - [`feature-owner`](./lenses/feature-owner.md) — environment reality: an environment, storage class,
   topology or platform the feature cannot actually run on. That it is missing from `II.3` is
   [`strategy`](./sections/strategy.md)'s finding; that it cannot exist is this lens's
+- [`quality-owner`](./lenses/quality-owner.md) — over-testing: coverage that is surplus at its tier,
+  Tier 2 first. Missing coverage stays with [`traceability`](./sections/traceability.md), and a declared
+  tier that does not match a scenario's runtime is also traceability's
 
-For those two checks a lens cites the nearest `AGENTS.md` heading it shares with the section persona —
-`III — Test Scenarios & Traceability`, `II.3 — Test Environment` — or its own file when no `AGENTS.md`
-text covers the check.
+For those three checks a lens cites the nearest `AGENTS.md` heading it shares with the section persona —
+`III — Test Scenarios & Traceability`, `II.3 — Test Environment` — or, where the rule belongs to another
+authority, that authority: over-testing cites `docs/testing-tiers.md` and its tier definitions. Where no
+text outside the persona covers the check, it cites its own file and heading.
 
 A lens whose required input is missing — no feature request, no design doc — states once that it
 cannot review, cites the section persona that owns the missing link, and stops. It files no defect for

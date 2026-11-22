@@ -57,18 +57,17 @@ not repeat its findings.
 
 ## Over-testing, Tier 2 first
 
-A test that cannot fail is decoration; a test that fails for the wrong reason, or re-proves what a
-cheaper tier already proves, is debt. `docs/testing-tiers.md` puts Tier 2 on a production-like
-environment running complete user workflows, so it is the tier where surplus costs the most. The
-question is not "is this covered" but **"is this the cheapest tier that would catch this defect"**.
+A test that cannot fail is decoration; a test that re-proves what a cheaper tier already proves is debt.
+The question is not "is this covered" but **"is this the cheapest tier that would catch this defect"**.
+Start at Tier 2 because that is where a redundant scenario is most expensive — each run needs the
+production-like environment `docs/testing-tiers.md` specifies — not because Tier 2 has less to prove.
 
 - A Tier 2 scenario re-proving what a Tier 1 single-feature test already proves. Name the Tier 1 test it
   duplicates: `docs/testing-tiers.md` keeps Tier 1 for single-feature behaviour on a cluster
 - A Tier 2 scenario whose assertion is one feature's behaviour rather than a workflow or an integration
-  point (VM↔Storage, VM↔Network, VM↔Migration, Storage↔Snapshots, multiple VMs↔Networks). That
-  interaction is what Tier 2 exists for; without it the scenario belongs at Tier 1
-- A scenario asserting internal state or logs. `docs/testing-tiers.md` is explicit that Tier 2 verifies
-  observable user outcomes only
+  point — the tier doc's examples are illustrations, not a closed list: VM↔Storage, VM↔Network,
+  VM↔Migration, Storage↔Snapshots, multiple VMs↔Networks, Operator↔components. Without such an
+  interaction the scenario usually belongs at Tier 1
 - A combinatorial matrix multiplied out with no distinct defect class behind each cell. For each cell ask
   which bug it would catch that its neighbours would not, and drop the ones with no answer
 - Two scenarios differing only in an input the feature treats identically
@@ -78,6 +77,11 @@ question is not "is this covered" but **"is this the cheapest tier that would ca
   not say what is different about this feature's case
 - A dependency's own behaviour re-tested. You are not the owner of storage's or the network stack's
   correctness
+
+**Not over-testing.** `docs/testing-tiers.md` assigns upgrade and migration paths, disaster recovery,
+performance under realistic load, and security/RBAC workflows to Tier 2, and puts them out of Tier 1
+entirely. Coverage of those is what the tier exists for: never reject it here, at any cost. This section
+demotes a *single-feature assertion that Tier 1 already covers*, and nothing else.
 
 This is the mirror of the rest of this file: elsewhere you reject tests that would pass with the bug
 present; here you reject tests that would pass without it ever being possible. Both are waste, and
@@ -103,6 +107,8 @@ or setup cost is that persona's finding. Whether the scenario should exist at al
   `AGENTS.md` III — Test Scenarios & Traceability where it covers the check, and your own
   `Falsifiability` heading where it does not: mutation survival and flakiness are lens rules, and the
   contract allows a lens to cite its own file for a check no `AGENTS.md` text covers
+- A defect row for surplus coverage, naming the cheaper tier and the test that already proves it — the
+  side of this lens that removes work rather than adding it
 - A DECISION row when accepting the gap is a leadership call rather than an author fix
 - A SIGN-OFF row for the Quality Owner's cell in `IV`, for each `II.1` Test Limitation, and for an
   `II.1` Out of Scope item whose sign-off is the Quality Owner's rather than the Product Manager's — you

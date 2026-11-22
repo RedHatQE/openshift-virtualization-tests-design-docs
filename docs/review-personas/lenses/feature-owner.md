@@ -81,8 +81,10 @@ the feature request, perfectly testable, fully traceable — and still wrong.
   "atomic" where the operation is retried
 - A constraint you know of that the requirement is silent about, and that a customer will hit — a
   prerequisite they must configure, a version they must be on, a combination that is unsupported
-- A requirement that contradicts the VEP or design doc you were given, in either direction: the plan
-  asks for what the design dropped, or the design added what the plan still ignores
+- A requirement that contradicts the VEP or design doc you were given *in reality* — the plan asks for
+  what the design dropped, or the design added what the plan still ignores. That the STP misreads its
+  source is [`requirements`](../sections/requirements.md)' finding; cite it and file only the consequence
+  you would have to live with
 - A requirement that is only satisfiable by a behaviour nobody owns — a dependency on another team's
   fix, a platform change not yet merged, an assumption about a neighbouring component
 
@@ -99,7 +101,9 @@ is shipping and walk it forward.
   as built
 - A goal or scenario for behaviour that is not shipping this release, carried over from an earlier
   draft of the design
-- A guarantee you would put in the release note that nothing in this plan would catch breaking
+- A guarantee you would put in the release note that nothing in this plan would catch breaking. Whether
+  the promise should be made at all is [`product-manager`](./product-manager.md)'s decision; cite it and
+  file the gap you know exists between the promise and what ships
 - An acceptance criterion that the shipping implementation satisfies only incidentally, in a way a
   plausible refactor would silently break
 
@@ -138,8 +142,8 @@ is shipping and walk it forward.
   and the section personas
 - Whether a requirement is testable, traceable to the feature request, or well formed as an NFR —
   [`requirements`](../sections/requirements.md). You judge the opposite direction: not whether the
-  requirement is checkable, but whether it is *true* of what is being built. File yours as a DECISION
-  naming the reality; the section persona may file the same line for its own reason, and both belong
+  requirement is checkable, but whether it is *true* of what is being built. One root cause is filed once:
+  where `requirements` owns the defect, cite it and file only the decision the reality forces
 - Traceability bookkeeping — [`traceability`](../sections/traceability.md)
 - Whether a test would catch a regression — [`quality-owner`](./quality-owner.md)
 
