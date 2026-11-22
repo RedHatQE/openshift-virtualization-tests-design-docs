@@ -80,9 +80,8 @@ repeat an item the template already defines — that is allowed and expected.
 - the supplemental field and `Sign-off` line of a risk category that has no risk
 
 Nothing else is optional. Template wording such as "if applicable", "if needed", or "if separate"
-never licenses deleting a labelled field: `Child STPs` is always present (single-SIG features write
-`None — single-SIG feature`), and every risk category is present (a category with no risk keeps its
-`Mitigation` line and drops only the supplemental/`Sign-off` lines).
+never licenses deleting a labelled field — every field the template shows stays; what the template
+shows for a field that does not apply is the template's own business, not a licence to delete it.
 
 Child STPs are held to their own field set — `child-stp.md` has no `Enhancement(s)`, `Feature
 Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only its own `SIG` —

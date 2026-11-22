@@ -44,9 +44,7 @@ Core principles:
   inside one category, extra scenarios, requirements, criteria, NFRs, or limitations are allowed.
 - Conditional items — the only omissions in a feature STP: `Document Conventions (if applicable)`,
   and the supplemental field plus `Sign-off` line of a risk category with no risk. "if applicable"
-  or "if needed" never licenses deleting a labelled field: `Child STPs` is always present, every risk
-  category is present, and a child STP keeps every risk category too (one with no SIG-specific risk
-  reads `None — [why]`).
+  or "if needed" never licenses deleting a labelled field — every field the template shows stays.
 - A child STP is graded against child-stp.md's own field set: no `Enhancement(s)`, `Feature Maturity`,
   `Owning SIG`/`Participating SIGs`, `Child STPs`, `Value` or `Use cases` field, and it may not add
   fields either.

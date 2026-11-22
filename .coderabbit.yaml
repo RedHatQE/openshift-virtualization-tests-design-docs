@@ -72,9 +72,7 @@ reviews:
         Conditional items — the only permitted omissions in a feature STP: `Document Conventions
         (if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that
         has no risk. Template wording like "if applicable", "if needed", or "if separate" never
-        licenses deleting a labelled field: `Child STPs` is always present (single-SIG features
-        write `None — single-SIG feature`), and every risk category is present (a no-risk category
-        keeps its `Mitigation` line).
+        licenses deleting a labelled field — every field the template shows stays.
 
         Child STPs are graded against `child-stp.md`'s own field set, which has no `Enhancement(s)`,
         `Feature Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only

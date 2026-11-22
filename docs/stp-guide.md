@@ -99,8 +99,7 @@ entries, extra scenarios, requirements, criteria, NFRs, or limitations are all a
 **Conditional items — the only permitted omissions in a feature STP:** `Document Conventions
 (if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that has no
 risk. Nothing else is optional there: template wording like "if applicable" or "if needed" never
-licenses deleting a labelled field. `Child STPs` is always present (single-SIG features write
-`None — single-SIG feature`), and every risk category is present.
+licenses deleting a labelled field — every field the template shows stays.
 
 Child STPs are held to `child-stp.md`'s own field set, which legitimately has no `Enhancement(s)`,
 `Feature Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only its own
