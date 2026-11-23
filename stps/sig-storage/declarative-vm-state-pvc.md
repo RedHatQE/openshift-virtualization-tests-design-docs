@@ -20,12 +20,13 @@
 - **VMState PVC:** A persistent storage volume that holds virtual machine state such as vTPM, EFI, and change-tracking data.
 - **vTPM:** Virtual Trusted Platform Module.
 - **EFI:** Extensible Firmware Interface.
+- **CBT:** QEMU Changed Block Tracking, which enables incremental backups of VM disks.
 - **MTC:** Migration Toolkit for Containers.
 - **Source storage:** The storage class or volume used before a clone or migration operation.
 
 ### **Feature Overview**
 
-OpenShift Virtualization will preserve captured vTPM and EFI state when users clone a virtual machine or migrate its storage. Guests depend on this state for security and boot continuity. The feature covers independent clone storage, state relocation, and continued use of the target volume, including during Windows live storage conversion. Feature Limitations describes what happens when a snapshot lacks captured state. The plan targets GA and marks checks also required for the CNV v5.1.0 Developer Preview with [DP].
+OpenShift Virtualization will preserve captured vTPM and EFI state when users clone a virtual machine or migrate its storage. Guests depend on this state for security and boot continuity. The feature covers independent clone storage, state relocation, and continued use of the target volume, including during Windows live storage conversion. CBT history follows the same VM when its VMState PVC moves and is cleared when a different VM adopts the PVC. Feature Limitations describes what happens when a snapshot lacks captured state. The plan targets GA and marks checks also required for the CNV v5.1.0 Developer Preview with [DP].
 
 ---
 
@@ -63,6 +64,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
   - *List applicable NFRs and their targets:*
     - Security and integrity: captured vTPM and EFI state remains usable after clone or relocation; concurrent writers cannot share the same VMState PVC.
     - Compatibility and reliability: source adoption, clone and relocation preserve saved guest state. Failed operations preserve the original volume and state.
+    - Backup integrity requires preserving CBT history during same-VM VMState migration and clearing it on adoption by a different VM.
     - Observability: users can identify the active state volume and distinguish unavailable state, exclusive-use rejection and fresh-state fallback through VM status or warning events.
     - Documentation: review release notes and existing clone/migration caveats against delivered behavior, including legacy-source, uncaptured-state, and storage-conversion boundaries. Complete the review tracked by CNV-79311 and CNV-79315 before final sign-off.
   - *Note any NFRs not covered and why:*
@@ -122,6 +124,8 @@ QE interprets the clone and migration requirements as preserving usable guest st
 - **[P1] [DP]** Verify that failed native relocation or Windows live conversion leaves the original vTPM and EFI state usable.
 - **[P1] [DP]** Verify that a VM can use relocated vTPM and EFI state when source storage is inaccessible.
 - **[P1] [DP]** Verify that Windows can adopt released state and retain saved vTPM and EFI state across reboot. Run the existing Linux adoption and startup-error checks in II.2.
+- **[P1]** Verify that a different VM adopting a released VMState PVC starts with fresh CBT state and takes a new full backup.
+- **[P1]** Verify that the same VM retains its CBT checkpoint and can continue incremental backups after its RWO VMState PVC moves to the target storage class.
 - **[P1]** Verify that Linux and Windows VMs keep usable pre-upgrade vTPM and EFI state after upgrading along a supported path to GA.
 
 **Priority Levels:**
@@ -167,6 +171,8 @@ QE interprets the clone and migration requirements as preserving usable guest st
     - [KubeVirt VMState adoption](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L321-L353) starts a second Fedora VM on released storage and reads the saved TPM secret and EFI variable.
     - [KubeVirt missing-source reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L355-L376) reports the missing PVC when the VM attempts to start.
     - [KubeVirt exclusive-use reporting](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/tests/storage/vmstate.go#L378-L414) reports that the PVC is in use when a second VM attempts to start while the first VM holds it.
+    - The [KubeVirt CBT ownership unit test](https://github.com/kubevirt/kubevirt/blob/a9a239a1058dbdb0cd75709c6ba3a5b55d62e75b/pkg/virt-launcher/virtwrap/manager_test.go#L5719-L5731) checks that a change of VM ownership clears the PVC's previous CBT data. TS-017 covers adoption and the backup outcome end to end.
+    - The existing test verifies that a backup remains incremental after the VM moves to another node. Reuse its backup setup and assertions in TS-018 with declarative RWO VMState relocated across storage classes. [Incremental backup after live migration](https://github.com/RedHatQE/openshift-virtualization-tests/blob/7b8e0c0900f66c1d7e9415af60f1cf9126212bda/tests/storage/cbt/test_cbt.py#L389-L439)
     - [Windows vTPM storage migration](https://github.com/RedHatQE/openshift-virtualization-tests/blob/7b8e0c0900f66c1d7e9415af60f1cf9126212bda/tests/storage/storage_migration/test_storage_class_migration.py#L252-L330) checks boot time, guest-file integrity, and disk placement. Extend it with the VMState assertions in III.
     - Existing platform coverage owns the broader Windows guest-version and application matrix, storage-class provisioning, and basic PVC binding. This plan verifies VMState workflows on the selected guest images and storage classes.
 
@@ -202,7 +208,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
   - *Details:* Legacy-source cloning depends on delivery of the KubeVirt fix tracked by CNV-100645 in the tested CNV build. The other scenarios can proceed when their entry criteria are met.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
-  - *Details:* Cover VMState across clone, snapshot restore, native storage relocation, and Windows live storage conversion using the KubeVirt Migration Controller.
+  - *Details:* Cover VMState across clone, snapshot restore, native storage relocation, and Windows live storage conversion using the KubeVirt Migration Controller. Verify incremental backup behavior after VMState adoption and relocation.
 
 **Infrastructure**
 
@@ -221,6 +227,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 - **Required Operators:** OpenShift Virtualization with the KubeVirt Migration Operator and its controller available for Windows live storage conversion.
 - **Platform:** Bare metal or virtualized. Qualify the selected cluster for the planned storage and migration workflows.
 - **Special Configurations:** Enable DeclarativeVMState and use Linux and Windows guests with persistent vTPM and EFI. For RWO relocation, adopt a VMState PVC from the source class and set the target class in the volume claim template. Use a [KubeVirt migration plan](https://github.com/kubevirt/kubevirt-migration-controller/blob/main/api/migrationcontroller/v1alpha1/virtualmachinestoragemigrationplan_types.go) for Windows guest disks.
+- **CBT Configurations:** Enable IncrementalBackup and CBT on the test VMs. Use a CBT-eligible guest disk on a PVC that remains available across adoption and migration, and provision backup destination storage.
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -285,7 +292,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 
 ### **III. Test Scenarios & Traceability**
 
-- **[REQ-CNV-79308-01]** — As a VM owner, I want VM clones to work with VMState PVC.
+- **[CNV-79308]** — As a VM owner, I want VM clones to work with VMState PVC.
   - *Source and clone method for TS-001, TS-002, and TS-006:*
     - Declarative VMState source — direct VM clone and clone from a snapshot that captured VMState.
     - Legacy implicit VMState source — direct VM clone and clone from a snapshot that captured VMState. Run both only when the tested build meets the CNV-100645 entry criterion in II.4.
@@ -304,7 +311,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
   - *Test Scenario:* **TS-007**: [Tier 3] Verify Windows clone changes leave source vTPM and EFI unchanged
     - *Priority:* P1 [DP]
 
-- **[REQ-CNV-79308-02]** — As a VM owner, I want to migrate storage of VMState PVC.
+- **[CNV-79308]** — As a VM owner, I want to migrate storage of VMState PVC.
   - *Test Scenario:* **TS-008**: [Tier 2] [PARTIAL_COVERAGE] Verify RWO VMState reaches target storage with saved vTPM and EFI
     - *Priority:* P0 [DP]
   - *Test Scenario:* **TS-009**: [Tier 2] [PARTIAL_COVERAGE] Verify VM references migrated VMState PVC
@@ -318,12 +325,19 @@ QE interprets the clone and migration requirements as preserving usable guest st
   - *Test Scenario:* **TS-013**: [Tier 3] Verify failed Windows conversion keeps original vTPM and EFI usable
     - *Priority:* P1 [DP]
 
-- **[REQ-CNV-79308-04]** — As a VM owner, I want to keep using saved vTPM and EFI state when I adopt released storage or the cluster is upgraded.
+- **[CNV-79308]** — As a VM owner, I want to keep using saved vTPM and EFI state when I adopt released storage or the cluster is upgraded.
   - *Test Scenario:* **TS-014**: [Tier 3] Verify adopted Windows preserves vTPM and EFI across reboot
     - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-015**: [Tier 2] Verify Linux VM reads pre-upgrade vTPM and EFI state
     - *Priority:* P1
   - *Test Scenario:* **TS-016**: [Tier 3] Verify Windows VM reads pre-upgrade vTPM and EFI state
+    - *Priority:* P1
+
+- **[CNV-79308]** — As a VM owner, I want my incremental backup history to follow my VM when its VMState storage moves or is reused.
+  - *Coverage notes:* Establish a backup checkpoint before each operation and retain the tracked guest disk PVC and volume name. For TS-017, verify that the adopter uses the released VMState PVC, the previous VM's checkpoint bitmap is gone before the first backup, and that backup is full. For TS-018, verify that the same VM uses the new VMState PVC on the target storage class and that the next backup of the tracked disk succeeds incrementally from its pre-migration checkpoint.
+  - *Test Scenario:* **TS-017**: [Tier 2] Verify VMState adoption by another VM resets CBT
+    - *Priority:* P1
+  - *Test Scenario:* **TS-018**: [Tier 2] [PARTIAL_COVERAGE] Verify incremental backup continues after same-VM VMState migration
     - *Priority:* P1
 
 ---
