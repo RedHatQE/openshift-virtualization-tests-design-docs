@@ -111,7 +111,7 @@ The following are confirmed product constraints accepted before testing begins.
 - [x] **Developer Handoff/QE Kickoff**
   - *Key takeaways and concerns:*
     - Feature builds on VEP #143's VMStatsCollector pipeline
-    - Three repos involved: kubevirt/kubevirt (data path), kubevirt/kubevirt-observability-controller (metrics/alerts), kubevirt/monitoring (runbook)
+    - Four repos involved: kubevirt/kubevirt (data path), kubevirt/kubevirt-observability-controller (metrics/alerts), kubevirt/monitoring (runbook), kubevirt/hyperconverged-cluster-operator (ConfigMap creation/loader, feature gate enablement)
     - HCO enables VMStatsCollector via `kvExposedAlphaFGs` and adds `--enable-vmstats` to the observability controller deployment
     - ConfigMap `kubevirt-guest-device-drivers-config` is optional and typically distributor-supplied
 
@@ -195,7 +195,7 @@ The following items are explicitly Out of Scope for this test cycle and represen
   - *Details:* Core functional testing covers: metric emission from Windows VM guest agent data, ConfigMap lifecycle (create/update/delete), recording rule evaluation, alert firing and resolution. Linux VM regression ensures no impact on existing metrics.
 
 - [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage
-  - *Details:* All Tier 2 tests automated. Tier 3 Windows VM tests automated in dedicated Windows CI lane.
+  - *Details:* All Tier 2 tests automated, including Windows VM scenarios.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
   - *Details:* Verify existing VMStatsCollector metrics are unaffected by the new `guest-get-devices` category. Verify unsupported agent commands (Linux VMs) do not fail entire VMI stats responses.
@@ -229,7 +229,7 @@ The following items are explicitly Out of Scope for this test cycle and represen
   - *Details:* VMs running during upgrade report no device data until live-migrated or restarted. Verify no regressions in existing metrics post-upgrade. HCO feature gate activation happens automatically on upgrade.
 
 - [x] **Dependencies** — Blocked by deliverables from other components/products
-  - *Details:* Blocked on CNV-93708 (VMStatsCollector/VEP #143) being available by default. Three repos involved: kubevirt/kubevirt, kubevirt/kubevirt-observability-controller, kubevirt/monitoring.
+  - *Details:* Blocked on CNV-93708 (VMStatsCollector/VEP #143) being available by default. Four repos involved: kubevirt/kubevirt, kubevirt/kubevirt-observability-controller, kubevirt/monitoring, kubevirt/hyperconverged-cluster-operator.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
   - *Details:* UI team (CNV-92050) depends on these metrics for banner/notification feature. Doc team (CNV-97845, CNV-97849) documents metrics, alert, and runbook.
@@ -265,7 +265,7 @@ The following items are explicitly Out of Scope for this test cycle and represen
 
 - **Test Framework:** Standard
 
-- **CI/CD:** Windows CI lane for Tier 3 Windows VM tests
+- **CI/CD:** N/A
 
 - **Other Tools:** `promtool` for recording rule and alert unit tests
 
@@ -319,9 +319,9 @@ The following conditions must be met before testing can begin:
 
 **Dependencies**
 
-- **Risk:** Three repos must deliver changes (kubevirt/kubevirt, kubevirt/kubevirt-observability-controller, kubevirt/monitoring). Late delivery from any repo delays testing.
+- **Risk:** Four repos must deliver changes (kubevirt/kubevirt, kubevirt/kubevirt-observability-controller, kubevirt/monitoring, kubevirt/hyperconverged-cluster-operator). Late delivery from any repo delays testing.
   - **Mitigation:** Stories across repos are tracked under CNV-97975. Multiple stories already Closed (CNV-97834, CNV-98903, CNV-99456, CNV-95504, CNV-97833). CNV-97832 (ConfigMap loader) is Release Pending.
-  - *Dependent teams or components:* kubevirt/kubevirt (data path), kubevirt/kubevirt-observability-controller (metrics/alerts), kubevirt/monitoring (runbook), HCO (feature gate enablement)
+  - *Dependent teams or components:* kubevirt/kubevirt (data path), kubevirt/kubevirt-observability-controller (metrics/alerts), kubevirt/monitoring (runbook), kubevirt/hyperconverged-cluster-operator (ConfigMap creation/loader, feature gate enablement)
   - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
 
 **Other**
@@ -335,7 +335,7 @@ The following conditions must be met before testing can begin:
 ### **III. Test Scenarios & Traceability**
 
 - **[CNV-95504](https://redhat.atlassian.net/browse/CNV-95504)** — As a cluster admin, I want to see the VirtIO driver version per device for each Windows VM via a Prometheus metric
-  - *Test Scenario:* [Tier 3] Verify `kubevirt_vmi_guest_device_driver_date_seconds` metric is emitted for each VirtIO device on a running Windows VM with guest agent, with correct labels (driver_name, driver_version, device_id, guest_os_version_id) and value (Unix epoch seconds from driver date)
+  - *Test Scenario:* [Tier 2] Verify `kubevirt_vmi_guest_device_driver_date_seconds` metric is emitted for each VirtIO device on a running Windows VM with guest agent, with correct labels (driver_name, driver_version, device_id, guest_os_version_id) and value (Unix epoch seconds from driver date)
   - *Priority:* P0
 
 - **[CNV-95504](https://redhat.atlassian.net/browse/CNV-95504)** — As a cluster admin running Linux VMs, I want driver monitoring to have no impact on my existing metrics
@@ -355,7 +355,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P1
 
 - **[CNV-97833](https://redhat.atlassian.net/browse/CNV-97833)** — As a VM owner, I want to receive an alert when any of my VMs have outdated VirtIO drivers
-  - *Test Scenario:* [Tier 3] Verify `OutdatedGuestDeviceDrivers` alert fires (severity: warning, for: 1h) when a Windows VM device's driver version does not match the ConfigMap reference for the VM's guest_os_version_id
+  - *Test Scenario:* [Tier 2] Verify `OutdatedGuestDeviceDrivers` alert fires (severity: warning, for: 1h) when a Windows VM device's driver version does not match the ConfigMap reference for the VM's guest_os_version_id
   - *Priority:* P0
 
 - **[CNV-97833](https://redhat.atlassian.net/browse/CNV-97833)** — As a cluster admin, I want the system to be silent by default when no driver version definitions are configured
@@ -379,7 +379,7 @@ The following conditions must be met before testing can begin:
   - *Priority:* P1
 
 - **[CNV-95504](https://redhat.atlassian.net/browse/CNV-95504)** — As a cluster admin, I want driver monitoring to degrade gracefully when the guest agent is not running
-  - *Test Scenario:* [Tier 3] Verify no device metric series are produced for a Windows VM when the guest agent is not running, and existing VMStatsCollector metrics for that VM are unaffected
+  - *Test Scenario:* [Tier 2] Verify no device metric series are produced for a Windows VM when the guest agent is not running, and existing VMStatsCollector metrics for that VM are unaffected
   - *Priority:* P1
 
 - **[CNV-97975](https://redhat.atlassian.net/browse/CNV-97975)** — As a cluster admin, I want driver data to appear for VMs that were running during a cluster upgrade
