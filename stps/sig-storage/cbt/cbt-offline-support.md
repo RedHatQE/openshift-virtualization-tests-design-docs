@@ -59,7 +59,7 @@ technology, and testability before formal test planning.
 
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
-    - A backup provider can create incremental backups of stopped VMs through the CNV backup API when the offline backup feature gate is enabled.
+    - With the offline backup feature gate enabled, a backup provider can back up an eligible stopped VM incrementally using a standard CNV backup request without selecting offline operation. The VM stays stopped throughout the backup.
     - The HCO feature gate enables offline backup and preserves the enabled setting across operator restart/configuration updates; leaving the feature gate disabled produces no offline output.
     - A backup provider can reconstruct bootable Linux and Windows guests from offline push and pull backups with guest-data checksums matching each recovered backup point.
     - Recovery validation rejects incomplete Linux and Windows backup chains.
@@ -347,7 +347,7 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
 
 - **[CNV-96511]** — As a backup provider, I want Linux offline backups in both modes to capture complete disk data in the first full backup and only changed data in subsequent increments.
   - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental Linux offline backup data.
-  - **Push execution** — Verify the full and incremental images written to the target PVC.
+  - **Push execution** — With the VM stopped, omit the output mode to use default Push. Verify the full and incremental images on the target PVC and confirm the VM stays stopped throughout each backup, verify that the default Push backup reports offline.
   - **Pull execution** — Retrieve and verify the full and incremental disk data over trusted HTTPS before deleting each backup request.
   - *Priority:* P0 [TP]
 
