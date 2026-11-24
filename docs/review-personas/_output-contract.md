@@ -8,24 +8,28 @@ Each persona starts its own report with this block:
 
 ```text
 ## Persona run
-- Persona: sections/traceability          # the file's path under docs/review-personas/
-                                          # (frontmatter `persona:` is only the file stem)
+- Persona: sections/traceability
 - STP: stps/sig-network/<feature>/stp.md
-- Reviewed at: <commit sha the review was made against>
+- Reviewed at: <full 40-char commit SHA>
 - Sources: <Jira key(s), VEP, feature request — or "not linked">
 - Findings: <count>
 ```
 
-`Reviewed at` must be a commit SHA, not "the working tree": supply it when you invoke the persona,
-because a review against a stale head is worthless and the persona cannot discover it reliably on its
-own.
+`Persona:` is the file's path under `docs/review-personas/` — the frontmatter `persona:` is only the file
+stem. Copy the block above exactly: a trailing comment inside it, however helpful, breaks the Level 2
+recipe's exact-match validation of these lines.
+
+`Reviewed at` must be the **full 40-character commit SHA**, not an abbreviation and not "the working
+tree". Supply it when you invoke the persona, because a review against a stale head is worthless and the
+persona cannot discover it reliably on its own. A 7-character SHA is a different string to the recipe's
+`grep -qx` and counts as not stamped.
 
 Coverage is not part of a persona's own header — no persona knows which others ran. The merge owner
 records it once, for the whole review, by copying each report's own header into it:
 
 ```text
 ## Coverage
-- Ran: sections/requirements @ 4f2a1c9, 4 findings · sections/traceability @ 4f2a1c9, 9 findings
+- Ran: sections/requirements @ 4f2a1c9e8b3d5a6c7e0f1a2b3c4d5e6f7a8b9c0d, 4 findings · sections/traceability @ 4f2a1c9e8b3d5a6c7e0f1a2b3c4d5e6f7a8b9c0d, 9 findings
 - Partial: sections/requirements — no feature request supplied; roles/feature-owner — no design doc
 - Not run: sections/constraints — the persona errored and wrote no report
 - Reason: author pass before requesting review
@@ -101,14 +105,21 @@ below are the format, so copy their citation style:
 
 | Severity | Disposition | Rule violated | Location | Evidence | Fix | Owner |
 |---|---|---|---|---|---|---|
-| CRITICAL | DECISION | `AGENTS.md` II.1 — Scope of Testing (Out of Scope) | `II.1 Out of Scope`, item 2 | "Upgrade from 4.21 not tested this cycle" — *Sign-off (Quality Owner or Product Manager):* carries no name or date | The Quality Owner or the PM confirms it, or the item moves into scope | Quality Owner or Product Manager — whoever owns the decision |
-| HIGH | — | `AGENTS.md` II.1 — Scope of Testing (Testing Goals) | `II.1 Testing Goals`, goal 3 | "Deploy a VM from each available boot source and verify it boots" — under it, `absent:` a failure-path goal for this P0 goal | Add a P0 negative goal | QE author |
+| CRITICAL | DECISION | `AGENTS.md` II.1 — Scope of Testing (partial: Out of Scope) | `II.1 Out of Scope`, item 2 | "Upgrade from 4.21 not tested this cycle" — *Sign-off (Quality Owner or Product Manager):* carries no name or date | The Quality Owner or the PM confirms it, or the item moves into scope | Quality Owner or Product Manager — whoever owns the decision |
+| HIGH | — | `AGENTS.md` II.1 — Scope of Testing (partial: Testing Goals) | `II.1 Testing Goals`, goal 3 | "Deploy a VM from each available boot source and verify it boots" — under it, `absent:` a failure-path goal for this P0 goal | Add a P0 negative goal | QE author |
 | — | SIGN-OFF | `AGENTS.md` IV — Sign-off and Approval | `IV`, Product Manager | Is the scope this STP drops one you would defend to a customer? | PM writes their name against the row | Product Manager |
 
 **Rule violated** names the `AGENTS.md` section, using its exact heading text and optionally a
 `(partial: ...)` suffix naming the sub-part, exactly as `owns:` uses it —
 `II.1 — Scope of Testing (partial: Out of Scope)`, not `II.1`. The checklist indexes the rules rather
 than holding them, so a rule the template carries unambiguously is cited from the template.
+
+When a role cites a section finding under the boundary rule, **Evidence** ends with the quoted anchor
+followed by `(see: sections/<name>)` naming the section persona whose finding this row is. A role that
+files a decision the section persona's defect forces writes `absent: an II.5 mitigation that says more
+than "monitor" (see: sections/constraints)` — the citation lives in **Evidence**, because that column
+already holds the anchor the reader needs, and a role row without it re-derives a finding someone else
+owns. Section personas do not add `(see: ...)` citations to their own findings.
 
 A role cites in the same order: the `AGENTS.md` section it shares with the section persona, else the
 template; then the VEP, design doc or feature request that contradicts the STP; and, for a check neither
@@ -131,7 +142,8 @@ nothing for the author to find.
 ## Boundary rule
 
 A section persona files defects about the document. A role files the decision its role has to answer,
-and cites the section finding (`see: sections/traceability`) instead of re-deriving it. Every role
+and cites the section finding (`see: sections/traceability`, in the **Evidence** column — see *Finding
+format*) instead of re-deriving it. Every role
 receives the six section reports — it cannot cite a finding it was never given, so handing them over
 is part of the run (README, *Level 2*, `PHASE=roles`).
 
@@ -154,9 +166,11 @@ For those three checks a role cites the nearest `AGENTS.md` heading it shares wi
 authority, that authority: over-testing cites `docs/testing-tiers.md` and its tier definitions. Where no
 text outside the persona covers the check, it cites its own file and heading.
 
-A role whose required input is missing — no feature request, no design doc — states once that it
-cannot review, cites the section persona that owns the missing link, and stops. It files no defect for
-it: that defect has an owner already.
+A role whose required input is missing — no feature request, no design doc — states once in prose
+that it cannot review and stops, emitting no finding rows (`- Findings: 0`). When the link itself is
+missing or an unjustified "N/A" in the STP, it notes that the section persona owns the missing-link
+defect; when the link exists in the STP and the pasted source was merely omitted from the run, it
+does not cite a defect.
 
 If a role spots a defect no persona covers, it files it once, as DECISION, and names the persona that
 should own it.
@@ -191,6 +205,11 @@ End every run with what **you** checked and found acceptable:
 Only clear sections you own. Clearing another persona's section is reporting on it, which the Never
 rules below forbid. Silence is not evidence of a clean document: a run that lists nothing cleared is
 indistinguishable from a run that skipped the section.
+
+When a role stops early because a required external source is missing (`DESIGN` or `SOURCE`), it still
+emits the full `## Persona run` header (with `- Sources: missing — <what>` and `- Findings: 0`) and a
+`## Cleared` block reading `- None — stopped before review: <missing source>` so partial runs remain
+valid reports.
 
 ## Budget
 

@@ -14,16 +14,20 @@ rather than requiring it.
 
 Reviewer personas for STP pull requests live in [review personas](./docs/review-personas/README.md).
 The six `sections/` personas partition the checklist below by review focus; the three `roles/` personas
-carry the sign-off functions the template requires (Feature Owner, Quality Owner, Product Manager), and
-each role also owns one check no section persona can perform:
+carry the sign-off functions the template requires (Feature Owner, Quality Owner, Product Manager) and,
+between them, the four rules no section persona can perform — three checks filed as defects, plus one
+judgement filed as a decision:
 
-- **environment reality** — whether what `II.3` plans can actually be provisioned
-- **falsifiability and stability** — whether a scenario could fail at all, or would fail only by flaking
+- **environment reality** — whether what `II.3` plans can actually be provisioned. Feature Owner alone
+- **falsifiability and stability** — whether a scenario could fail at all, or would fail only by flaking.
+  Quality Owner alone
 - **over-testing** — whether coverage is surplus, Tier 2 first, where a production-like run makes it the
-  most expensive kind
+  most expensive kind. Quality Owner alone
 
 and one judgement that is a decision rather than a check: whether a requirement is *true* of what is being
-built, which the section personas cannot see because they only read the feature request.
+built, which the section personas cannot see because they only read the feature request. That one is the
+Feature Owner's as well. The Product Manager owns no rule of its own: it owns the product-commitment,
+waiver and accepted-risk decisions the other findings force on it.
 
 Personas compress this checklist. The section personas add no check of their own; those four are the
 roles' additions. The three checks are filed as defects; the fourth, requirement-versus-reality, is filed
@@ -341,10 +345,9 @@ Reviewers must verify these cross-references between sections:
 ### IV — Sign-off and Approval
 
 - [ ] Sign-off lists at least one person per function required by the template
-  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle
+  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle. Two people on one
+  function is allowed
 - [ ] No placeholder text remaining
-- [ ] Every function the template lists has at least one named person: a function with nobody named
-  means the sign-off is incomplete. Two people on one function is allowed
 
 ---
 
