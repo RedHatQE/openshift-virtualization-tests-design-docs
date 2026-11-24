@@ -11,16 +11,18 @@
   - DP: N/A
   - TP: CNV 5.1.0
   - GA: CNV 5.2.0
-- **QE Owner(s):** Emanuele Prella
+- **QE Owner(s):** Emanuele Prella / @ema-aka-young
 - **Owning SIG:** sig-storage
 - **Participating SIGs:** sig-storage
 - **Related STP:** This plan extends the [CBT STP](cbt.md) with offline VM backup scenarios.
 
 **Document Conventions (if applicable):**
 
-- **Offline backup:** A backup of a stopped VM; the VEP reporting expectation requires a delivered API contract before validation.
-- **Push mode:** Backup mode that writes backup files to a provider-supplied PVC.
-- **Pull mode:** Backup mode that lets the provider retrieve disk data over HTTPS and finalize the backup by deleting its request.
+- **Offline backup:** A backup of a stopped VM produced through the CNV backup API.
+- **Offline push mode:** Backup mode that writes backup files to a provider-supplied PVC; in offline mode the export pod performs the write. See the parent plan for the online definition.
+- **Offline pull mode:** Backup mode that lets the provider retrieve disk data over HTTPS and finalize by deleting its request; offline pull completes on request deletion. See the parent plan for the online definition.
+- **Offline backup feature gate (`OfflineIncrementalBackup`):** cluster-level opt-in for offline backup;
+  required on builds where the feature is gated, and absent where it is enabled by default.
 
 ### **Feature Overview**
 
@@ -38,7 +40,7 @@ technology, and testability before formal test planning.
 - [x] **Review Requirements**
   - *List the key D/S requirements reviewed:*
     - VEP-401 merged upstream ([PR #402](https://github.com/kubevirt/enhancements/pull/402)) — offline incremental backup for stopped VMs
-    - Alpha, opt-in incremental backup of stopped VMs through the CNV v5.1 backup API
+    - Incremental backup of stopped VMs is opt-in at Tech Preview in CNV 5.1.0. GA is targeted for CNV 5.2.0.
     - HCO feature-gate enablement and preservation in effective KubeVirt configuration as environment prerequisites
     - Automated offline backup and recovery validation (CNV-96537); STD and automation delivery tracked by CNV-100769 and CNV-100770
     - STP updated to include offline VM backup scenarios (CNV-96538)
@@ -59,7 +61,8 @@ technology, and testability before formal test planning.
   - *List the acceptance criteria:*
     - A backup provider can create incremental backups of stopped VMs through the CNV backup API when the offline backup feature gate is enabled.
     - The HCO feature gate enables offline backup and preserves the enabled setting across operator restart/configuration updates; leaving the feature gate disabled produces no offline output.
-    - Automated e2e coverage reconstructs Linux and Windows backup points, verifies recovered bootability and matching guest-data checksums, and rejects incomplete recovery chains (CNV-96537).
+    - A backup provider can reconstruct bootable Linux and Windows guests from offline push and pull backups with guest-data checksums matching each recovered backup point.
+    - Recovery validation rejects incomplete Linux and Windows backup chains.
     - External epic acceptance: [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511) requires at least one certified backup partner to confirm offline workflows through the CBT API; this is outside this STP’s test coverage (II.1).
   - *Note any gaps or missing criteria:* HCO configuration is a prerequisite; operator restart/configuration-update preservation is explicitly out of scope (II.1). TS-01 retains the disabled-gate backup check. VEP merge, the STP update, release note, and documentation are tracked delivery criteria (CNV-92883, CNV-96538, CNV-96539, CNV-96540 and CNV-100450), not functional scenarios.
 
@@ -165,17 +168,11 @@ and schedule.
 - **P1** — Required for full feature coverage.
 - **P2** — May be deferred if time is limited.
 
-**Phase tag (optional):** Priorities refer to GA. If the same expectation must also pass at Tech Preview, use `[P0][TP]` for a goal or `P0 [TP]` on a scenario's Priority line. Use the phase names from Feature Maturity. Checks specific to an earlier release name that release in the goal or scenario.
-
 **Out of Scope (Testing Scope Exclusions)**
 
 The following items are explicitly Out of Scope for this test cycle and represent intentional
 exclusions. No verification activities will be performed for these items, and any related issues
 found will not be classified as defects for this release.
-
-- **New running-VM-only functional scenarios**
-  - *Rationale:* The parent CBT STP and CNV-67413 own existing online coverage. This plan adds offline cases and retains the online regression commitment in II.2; the exclusion does not waive regressions detected by that campaign.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **UI testing**
   - *Rationale:* The feature is API-only with no UI components.
@@ -209,7 +206,7 @@ found will not be classified as defects for this release.
   - *Details:* Automate offline API and Linux/Windows recovery under CNV-96537 (design/automation: CNV-100769/100770). Recovery requires bootability and matching checkpoint checksums; incomplete chains must fail validation.
 
 - [x] **Regression Testing** — Verifies that new changes do not break existing functionality
-  - *Details:* Run the existing [CBT tests](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/storage/cbt/test_cbt.py) for online full/incremental chains, multi-disk and Windows backups, concurrency and migration on the feature cluster. Current automation checks running-VM backup status and disk lists; extend these workflows for offline data validation. Retain client certificate-trust checks from the [parent CBT plan](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/blob/main/stps/sig-storage/cbt.md) as regression coverage; their execution is not established by this review.
+  - *Details:* The [online CBT STP](cbt.md) and [CNV-67413](https://redhat.atlassian.net/browse/CNV-67413) own running-VM coverage. Run the existing [CBT tests](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/storage/cbt/test_cbt.py) for online full/incremental chains, multi-disk and Windows backups, concurrency and migration on the feature cluster. Current automation checks running-VM backup status and disk lists. Extend these workflows for offline data validation. Retain the online pull mutual TLS check from the online CBT STP as regression coverage. Execution of that check is unverified.
 
 - [ ] **Self-Validation Testing** — Should any of the new tests be included in the self-validation test package?
   - *Details:* No — multi-stage backup and recovery workflows are unsuitable for the fast product-health package.
@@ -239,7 +236,7 @@ found will not be classified as defects for this release.
 - [x] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
   - *Details:* Validate online checkpoint continuity for offline incremental backups after a supported upgrade into the GA release.
 - [x] **Dependencies** — Blocked by deliverables from other components/products
-  - *Details:* VEP 401 and KubeVirt implementation PR #19294 are merged; CNV-96536 is Closed in fresh Jira. Execution still requires a compatible downstream build exposing the HCO offline-backup feature gate and offline backup API.
+  - *Details:* VEP 401 and KubeVirt implementation PR #19294 are merged. Downstream tracking [CNV-96536](https://redhat.atlassian.net/browse/CNV-96536) is Closed. Execution still requires a compatible downstream build exposing the HCO offline-backup feature gate and offline backup API.
 
 - [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams?
   - *Details:* Extends existing CBT backup flows; must not break online backup (parent STP). VM start gating during offline backup uses the same pattern as migration gating. Hotplug disk scenarios intersect with storage hotplug coverage.
@@ -261,7 +258,7 @@ found will not be classified as defects for this release.
 
 - **Special Hardware:** N/A - no special hardware needed
 
-- **Storage:** Standard. CBT is storage-agnostic. Any StorageClass for VMs and PVCs, sufficient capacity for backup PVCs.
+- **Storage:** CBT itself is storage-agnostic; the plan's coverage is not. TS-18 requires a five-VM ODF fleet; TS-22 requires a supported non-default CSI backend. Everything else runs on any StorageClass, with sufficient capacity for backup PVCs.
 
 - **Network:** Standard (OVN-Kubernetes)
 
@@ -314,9 +311,10 @@ The following conditions must be met before testing can begin:
 
 **Test Environment**
 
-None — no separate environment risk.
-
-*Mitigation:* Build/HCO availability is a Test Limitation and Entry Criterion; its schedule consequence is under Timeline/Schedule.
+- **Risk:** P0 testing is blocked until a compatible CNV v5.1 build is available.
+  - **Mitigation:** Track build and HCO availability in Test Limitations and Entry Criteria. See Timeline/Schedule for the schedule impact.
+  - *Missing resources or infrastructure:* A confirmed CNV v5.1 build exposing the HCO offline-backup feature gate and the offline backup API.
+  - *Sign-off:* [Name/Date]
 
 **Untestable Aspects**
 
@@ -354,45 +352,70 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - *Priority:* P0 [TP]
 
 - **[CNV-96537]** — As a backup provider, I want successive offline backup points in push and pull modes to recover bootable Linux guests with checksums matching guest changes between checkpoints across VM restarts, while incomplete chains fail validation
-  - *Test Scenario:* [Tier 2] **TS-04:** Validate bootable Linux recovery with changed data between checkpoints.
+  - *Test Scenario:* [Tier 2] **TS-03:** Validate bootable Linux recovery with changed data between checkpoints.
   - *Priority:* P0 [TP]
 
 - **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline recovery in both modes to produce bootable guests with matching data checksums and preserved persistent vTPM/EFI configuration. Verify recovery from a full baseline without prior backup history and from increments based on online and offline checkpoints. Verify that incomplete chains fail recovery validation.
-  - *Test Scenario:* [Tier 3] **TS-05:** Validate Windows offline recovery and startup gating.
-  - **Push execution** — Run the recovery checks using push backups and verify the Windows VM follows the push startup rules in TS-08.
-  - **Pull execution** — Run the recovery checks using pull backups and verify the Windows VM follows the pull startup rules in TS-08.
+  - *Test Scenario:* [Tier 3] **TS-04:** Validate Windows offline recovery integrity.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want Linux online history to support Linux offline increments and subsequent VM startup in push and pull modes
-  - *Test Scenario:* [Tier 2] **TS-07:** Verify online checkpoints support offline increments across backup modes.
+  - *Test Scenario:* [Tier 2] **TS-05:** Verify online checkpoints support offline increments across backup modes.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want Linux VM startup blocked while an offline backup is active and allowed when it completes according to its mode.
-  - *Test Scenario:* [Tier 2] **TS-08:** Verify VM startup waits for offline backup completion.
+  - *Test Scenario:* [Tier 2] **TS-06:** Verify Linux startup waits for offline backup completion.
   - **Push execution** — Attempt startup while the backup is writing and verify it stays blocked. Verify startup is allowed after writing succeeds and the backup completes.
   - **Pull execution** — Attempt startup while the backup is active and verify it stays blocked, including after successful retrieval. Verify startup is allowed after deleting the backup request.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want interrupted preparation in either mode to resume the original request without corruption, and failed or cancelled pushes to preserve history, release startup and permit retry
-  - *Test Scenario:* [Tier 2] **TS-10:** Validate offline preparation recovery and failed-push retry safety.
+- **[CNV-96511]** — As a backup provider, I want the original offline backup request to resume after interrupted preparation in either mode.
+  - *Test Scenario:* [Tier 2] **TS-07:** Verify offline backups recover from interrupted preparation.
+  - Interrupt backup preparation and let it resume.
+  - **Push execution** — Verify that the original request completes and the target PVC contains the expected backup data.
+  - **Pull execution** — Retrieve and verify the expected data from the original request. Verify that deleting the request after retrieval completes the backup.
+  - *Priority:* P1
+
+- **[CNV-96511]** — As a backup provider, I want failed or cancelled offline push backups to preserve backup history and allow VM startup and retry.
+  - *Test Scenario:* [Tier 2] **TS-08:** Verify safe retry after interrupted offline push backups.
+  - In separate runs, fail the push during writing or cancel it while it is writing. Verify that the previous checkpoint remains current, VM startup is allowed, and a new request can use the preserved checkpoint.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want source deletion to abort offline backups without blocking VM deletion in push and pull modes
-  - *Test Scenario:* [Tier 2] **TS-11:** Verify source deletion aborts offline backups without blocking removal.
+  - *Test Scenario:* [Tier 2] **TS-09:** Verify source deletion aborts offline backups without blocking removal.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want overlapping offline backup requests rejected while the existing backup remains active
-  - *Test Scenario:* [Tier 1] **TS-12:** Verify the API rejects additional requests during an active offline backup.
-  - In separate push and pull runs, submit a second and third request with distinct names for the same stopped VM while the original backup is active. Verify that the API rejects both and that the original backup completes successfully. Verify that the API accepts a fresh full-backup request after successful push completion or after successful pull retrieval and deletion of the original request.
+  - *Test Scenario:* [Tier 1] **TS-10:** Verify the API rejects additional requests during an active offline backup.
+  - For each execution, submit a second and third request with distinct names for the same stopped VM while the original backup is active. Verify that the API rejects both and that the original backup completes successfully.
+  - **Push execution** — Verify that the API accepts a fresh full-backup request after the original push backup completes.
+  - **Pull execution** — Verify that the API accepts a fresh full-backup request after successful retrieval and deletion of the original pull request.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a backup provider, I want to know whether a repeat incremental backup succeeds when no disk data has changed. If the disk configuration is unchanged, I also want to take a full backup in push or pull mode without starting the VM again.
-  - *Test Scenario:* [Tier 1] **TS-13:** Validate offline backup requests between VM starts.
+  - *Test Scenario:* [Tier 1] **TS-11:** Validate offline backup requests between VM starts.
   - For repeat incremental backups, verify the expected result confirmed with Development under Test Coverage (Section II.5).
   - *Priority:* P1
 
-- **[CNV-96511]** — As a backup provider, I want push and pull offline backups to retain healthy increments for eligible disks, fully back up eligible new disks or eligible disks with unusable history, and report unavailable eligible disks without indicating complete coverage.
-  - *Test Scenario:* [Tier 2] **TS-14:** Validate offline fallback and unavailable-disk reporting for eligible disks.
+- **[CNV-96511]** — As a backup provider, I want eligible disks with usable history to remain incremental when another disk needs a full backup.
+  - *Test Scenario:* [Tier 2] **TS-12:** Verify disks with usable history remain incremental.
+  - When another disk requires a full copy, verify that eligible disks with usable history contain only data changed since their previous checkpoint.
+  - **Push execution** — Check the incremental images on the target PVC.
+  - **Pull execution** — Check the retrieved incremental disk data.
+  - *Priority:* P1
+
+- **[CNV-96511]** — As a backup provider, I want a full copy of eligible new disks and eligible disks with unusable history in an offline backup.
+  - *Test Scenario:* [Tier 2] **TS-13:** Verify full fallback for eligible disks without usable history.
+  - Verify that each eligible new disk or eligible disk with unusable history is backed up in full and contains the expected data.
+  - **Push execution** — Check the full images on the target PVC.
+  - **Pull execution** — Check the retrieved full disk data.
+  - *Priority:* P1
+
+- **[CNV-96511]** — As a backup provider, I want offline backups to identify eligible disks they could not read.
+  - *Test Scenario:* [Tier 2] **TS-14:** Verify offline backups identify unavailable eligible disks.
+  - Verify that each unavailable eligible disk is reported and that recovery validation rejects the backup as incomplete.
+  - **Push execution** — Check disk reporting and validate recovery using the backup on the target PVC.
+  - **Pull execution** — Check disk reporting and validate recovery using the retrieved backup data.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want VM shutdown to finish before an offline backup produces data.
@@ -410,7 +433,9 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
 
 - **[CNV-96511]** — As a cluster admin, I want concurrent backups of running and stopped VMs to preserve each VM's data.
   - *Test Scenario:* [Tier 3] **TS-18:** Verify concurrent backups preserve per-VM data.
-  - Use five VMs on ODF, three Windows and two Linux. Run an all-stopped variant and a mixed variant with three stopped and two running VMs. Execute each variant separately in push and pull modes. Submit all five backup requests concurrently and verify that each completes with the expected data for its source VM.
+  - Use five VMs on ODF, three Windows and two Linux. Run an all-stopped variant and a mixed variant with three stopped and two running VMs. For each run, submit all five backup requests concurrently and verify that they all complete.
+  - **Push execution** — Run both fleet variants in push mode and verify each VM's expected data on its target PVC.
+  - **Pull execution** — Run both fleet variants in pull mode and verify that the retrieved data matches the expected data for each VM.
   - *Priority:* P2
 
 - **[CNV-96511]** — As a backup provider, I want expiry to fail an offline pull without advancing history or leaving VM startup blocked
@@ -456,12 +481,18 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - *Test Scenario:* [Tier 2] **TS-28:** Verify offline backup fails after switching an untracked disk from read-only to read-write on a stopped VM and succeeds after a CBT-enabled start and stop.
   - *Priority:* P1
 
+- **[CNV-96511]** — As a cluster admin, I want Windows Server 2022 VM startup blocked while an offline backup is active and allowed when it completes according to its mode.
+  - *Test Scenario:* [Tier 3] **TS-29:** Verify Windows startup waits for offline backup completion.
+  - **Push execution** — Run the TS-06 push startup checks on a Windows Server 2022 VM.
+  - **Pull execution** — Run the TS-06 pull startup checks on a Windows Server 2022 VM.
+  - *Priority:* P0
+
 ---
 
 ### **IV. Sign-off and Approval**
 
 This Software Test Plan requires sign-off from at least one person per function:
 
-- Feature Owner: [Alvaro Romero](@alromeros)
-- Quality Owner: [Dalia Frank](@dalia-frank), [Ruth Netser](@rnetser)
-- Product Manager: [Peter Lauterbach](@peterclauterbach)
+- Feature Owner: Alvaro Romero / @alromeros
+- Quality Owner: Dalia Frank / @dalia-frank, Ruth Netser / @rnetser
+- Product Manager: Peter Lauterbach / @peterclauterbach
