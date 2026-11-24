@@ -6,7 +6,7 @@
 
 | Field                  | Details                                                                |
 |:-----------------------|:-----------------------------------------------------------------------|
-| **Enhancement(s)**     | [VEP #25: Storage agnostic incremental backup using qemu (CBT)](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/incremental-backup.md) |
+| **Enhancement(s)**     | [VEP #25: Storage agnostic incremental backup using qemu (CBT)](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/vep.md) |
 | **Feature in Jira**    | [CNV-61530](https://issues.redhat.com/browse/CNV-61530)               |
 | **Jira Tracking**      | [CNV-61552](https://redhat.atlassian.net/browse/CNV-61552) |
 | **QE Owner(s)**        | Dalia Frank                                                            |
@@ -26,6 +26,7 @@
 
 QEMU CBT (Changed Block Tracking) enables storage-agnostic incremental backup of VMs, saving only changed blocks since the last backup. The main consumers are backup vendors and cluster admins. Backups can run in push mode, where the user provides a PVC to store backup data, or in pull mode, where the user provides a PVC for scratch space and backup data is exposed via an export endpoint that external backup tools can connect to and pull data from.
 
+The [CBT offline STP](cbt-offline-support.md) covers backups of stopped VMs.
 
 ---
 
@@ -153,9 +154,6 @@ The following are confirmed product constraints accepted before testing begins.
 | Known Limitation                                                    | Rationale/Details              | PM/ Lead Agreement |
 |:--------------------------------------------------------------------|:-------------------------------|:-------------------|
 | Restore as a feature is not supported                               | There is no restore API, restore workflows, or restore UX. Restore is used only to validate that backup was done properly (backup integrity), not as a product feature. | [x] Peter Lauterbach / May 7, 2026 |
-| ~~Offline backup is not supported~~                                     | ~~Only online backup is supported in initial implementation per VEP.~~    | ~~[x] Peter Lauterbach / May 7, 2026~~|
-
- Edit: Offline backup is now supported and documented in [CBT offline STP](./cbt-offline-support.md).
 
 ---
 
