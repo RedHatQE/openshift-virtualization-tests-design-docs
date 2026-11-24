@@ -41,7 +41,7 @@ technology, and testability before formal test planning.
   - *List the key D/S requirements reviewed:*
     - VEP-401 merged upstream ([PR #402](https://github.com/kubevirt/enhancements/pull/402)) — offline incremental backup for stopped VMs
     - Incremental backup of stopped VMs is opt-in at Tech Preview in CNV 5.1.0. GA is targeted for CNV 5.2.0.
-    - HCO feature-gate enablement and preservation in effective KubeVirt configuration as environment prerequisites
+    - HCO configuration of the offline backup feature gate is an environment prerequisite on gated builds.
     - Automated offline backup and recovery validation (CNV-96537); STD and automation delivery tracked by CNV-100769 and CNV-100770
     - STP updated to include offline VM backup scenarios (CNV-96538)
     - Same backup API as online CBT ([VEP #25](https://github.com/kubevirt/enhancements/blob/main/veps/sig-storage/25-incremental-backup/vep.md)); the VEP expects offline-mode reporting, pending target-build API confirmation
@@ -60,7 +60,7 @@ technology, and testability before formal test planning.
 - [x] **Acceptance Criteria**
   - *List the acceptance criteria:*
     - With the offline backup feature gate enabled, a backup provider can back up an eligible stopped VM incrementally using a standard CNV backup request without selecting offline operation. The VM stays stopped throughout the backup.
-    - The HCO feature gate enables offline backup and preserves the enabled setting across operator restart/configuration updates; leaving the feature gate disabled produces no offline output.
+    - In CNV v5.1.0, stopped-VM backup requests remain pending without offline output when the offline backup feature gate is disabled.
     - A backup provider can reconstruct bootable Linux and Windows guests from offline push and pull backups with guest-data checksums matching each recovered backup point.
     - Recovery validation rejects incomplete Linux and Windows backup chains.
     - External epic acceptance: [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511) requires at least one certified backup partner to confirm offline workflows through the CBT API; this is outside this STP’s test coverage (II.1).
@@ -137,7 +137,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - [x] **Topology Considerations**
   - *Describe topology requirements:* Standard single-cluster topology; QCOW2 tracking overlays required for offline CBT scenarios
-  - *Impact on test design:* No multi-cluster requirements; tests run on standard CNV CI clusters with both CBT and offline backup feature gates enabled
+  - *Impact on test design:* Use a standard CNV CI cluster with CBT enabled. On gated builds, apply the offline backup setting required by each scenario.
 
 ### **II. Software Test Plan (STP)**
 
@@ -186,8 +186,8 @@ found will not be classified as defects for this release.
   - *Rationale:* Partner integration and workflow validation are not covered by this STP; the epic’s external acceptance requirement remains separate.
   - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
-- **HCO feature-gate enablement and operator lifecycle validation**
-  - *Rationale:* This plan tests offline backup behavior, including the disabled-gate check in TS-01. HCO enablement and persistence across operator restarts/configuration updates, including backup checks after those transitions, are not covered by this STP; the epic acceptance requirement remains separate.
+- **Offline backup feature-gate persistence across operator restarts or configuration updates**
+  - *Rationale:* The plan relies on standard operator configuration handling. TS-01 and TS-02 cover backup behavior with the gate disabled and enabled, respectively.
   - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
@@ -266,7 +266,7 @@ found will not be classified as defects for this release.
 
 - **Platform:** Standard (bare metal or virtualized — no platform-specific offline backup behavior)
 
-- **Special Configurations:** Enable CBT for positive cases. For builds that require opt-in, HCO must apply and preserve the offline backup feature gate (`OfflineIncrementalBackup`). TS-01 covers disabled offline backup. Use the prior-start eligibility in Feature Limitations for fixtures that require initialized CBT. TS-26 uses a VM that has never started. QCOW2 tracking overlays may use raw backing disks
+- **Special Configurations:** Enable CBT for positive cases. On gated builds, set the HCO offline backup feature gate (`OfflineIncrementalBackup`) as required by each scenario. TS-01 covers disabled offline backup. Use the prior-start eligibility in Feature Limitations for fixtures that require initialized CBT. TS-26 uses a VM that has never started. QCOW2 tracking overlays may use raw backing disks
 
 #### **3.1. Testing Tools & Frameworks**
 
