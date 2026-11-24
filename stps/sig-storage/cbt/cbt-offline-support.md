@@ -348,11 +348,13 @@ None — no in-scope requirement is omitted as untestable.
 
 Offline-specific scenarios extend the parent CBT test plan. Each scenario with push and pull variants requires two independent executions, each with its own backup requests and mode-specific assertions. Coverage requires both executions to pass.
 
-- **[CNV-96511]** — As a cluster admin, I want stopped-VM backup requests in CNV v5.1.0 to remain pending without offline output when the HCO offline-backup feature gate is disabled.
+Scenarios use the applicable child Jira story or trace to CNV-96511 for the offline backup requirements. VEP 401 describes offline behavior, and VEP 25 covers shared CBT behavior.
+
+- **[CNV-96536]** — As a cluster admin, I want stopped-VM backup requests in CNV v5.1.0 to remain pending without offline output when the HCO offline-backup feature gate is disabled.
   - *Test Scenario:* [Tier 1] **TS-01:** Verify disabled offline backup remains pending without output.
   - *Priority:* P0
 
-- **[CNV-96511]** — As a backup provider, I want Linux offline backups in both modes to capture complete disk data in the first full backup and only changed data in subsequent increments.
+- **[CNV-96536]** — As a backup provider, I want Linux offline backups in both modes to capture complete disk data in the first full backup and only changed data in subsequent increments.
   - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental Linux offline backup data.
   - **Push execution** — With the VM stopped, omit the output mode to use default Push. Verify the full and incremental images on the target PVC and confirm the VM stays stopped throughout each backup, verify that the default Push backup reports offline.
   - **Pull execution** — Retrieve and verify the full and incremental disk data over trusted HTTPS before deleting each backup request.
