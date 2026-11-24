@@ -33,6 +33,7 @@ Centralize QE documentation and test planning to ensure:
 |:-----------------------------------------------|:-----------------------------------------------------------------------------------|
 | [STP Guide](./docs/stp-guide.md)               | Guide to Software Test Plans: purpose of each part, lifecycle, and best practices   |
 | [Testing Tiers Guide](./docs/testing-tiers.md) | Differences between Unit Tests, Tier 1 (Functional), Tier 2 (End-to-End), and Tier 3 (Extended) tests |
+| [Testing by Feature Maturity](./docs/testing-maturity-guide.md) | What must be covered at Dev Preview, Tech Preview and General Availability |
 
 ### Templates
 
@@ -177,6 +178,7 @@ author's lead. The QE Owner(s) named in the metadata own and write the testing p
 
 - [STP Guide](./docs/stp-guide.md)
 - [Testing Tiers Guide](./docs/testing-tiers.md)
+- [Testing by Feature Maturity](./docs/testing-maturity-guide.md)
 - [STP Template](./stps/stp-template/stp.md)
 - [Child STP Template](./stps/stp-template/child-stp.md)
 
