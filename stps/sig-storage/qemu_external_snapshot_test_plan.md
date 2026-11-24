@@ -80,15 +80,15 @@ This review records the source requirements and the decisions requiring confirma
 
 - **Alpha captures VM disks at the freeze point**
   - Persistent TPM and EFI state and virtiofs data are captured while the guest is running, rather than at the disk freeze point. A fix is planned for Beta.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
 
 - **Disk snapshots do not capture running memory state**
   - Restoring disk data does not resume CPU, memory or device execution at the capture point. Offline snapshot changes, incremental backups, scheduling and cross-cluster replication are outside the feature's stated scope.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
 
 - **Conflicting disk operations cannot run during active snapshot capture**
   - Migration, backup, disk removal, storage migration and disk expansion must not invalidate an active snapshot. Delayed operations must become usable again after completion or recovery.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
 
 #### **3. Technology and Design Review**
 
@@ -389,7 +389,7 @@ This Software Test Plan requires approval from the following stakeholders:
 * **Reviewers:**
   - QE Architect (OCP-V): Ruth Netser / @rnetser
   - QE: Jenia Peimer / @jpeimer, Dalia Frank / @dalia-frank, Adam Cinko / @acinko-rh (OCP-V members)
-  - Development: Noam Assouline / @noamasu
+  - Development: Noam Assouline / @noamasu — [LGTM, 2026-11-24](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666)
 * **Approvers:**
   - QE Lead: Ruth Netser / @rnetser
   - Dev Lead: Krzysztof Majcher / @kmajcher-rh
