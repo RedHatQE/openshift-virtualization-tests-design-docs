@@ -369,7 +369,7 @@ None identified from the supplied lab information; environment readiness must be
     - *Priority:* P1
   - *Test Scenario:* **TS-34**: [Tier 2] Verify deleting the VM during capture reports the outcome and preserves acknowledged writes on retained disks before and after temporary storage cleanup completes
     - *Priority:* P1
-  - *Test Scenario:* **TS-35**: [Tier 3] Verify sustained guest writes during merge back preserve acknowledged data, the merge completes with a convergence pause, and the VM resumes guest I/O afterward
+  - *Test Scenario:* **TS-35**: [Tier 3] Verify sustained guest writes during merge back preserve acknowledged data, the merge completes with a convergence pause if needed, and guest I/O continues afterward
     - *Priority:* P1
 
 - **[VIRTSTRAT-758]** — As a Windows application owner, I want VSS writers to remain healthy
