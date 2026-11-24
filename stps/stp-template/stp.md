@@ -5,11 +5,13 @@ This template defines both the section structure and the field set of an STP. Wh
 from this file, fill each field as it appears: do NOT add, remove, rename, or reorder sections,
 checklist items, metadata fields, fields inside a checklist item, or Section III keys.
 
-The only items you may omit are `Document Conventions (if applicable)` and, in a risk category with
-no risk, the supplemental and `Sign-off` lines. Everything else stays: `Child STPs` is always present
+The only required-structure fields you may omit are `Document Conventions (if applicable)` and, in a
+risk category with no risk, the supplemental and `Sign-off` lines (unused example goal priority rows
+are repeatable content, not required fields). Everything else stays: `Child STPs` is always present
 (single-SIG features write `None — single-SIG feature`) and every risk category is present. Repeating
-a line — another entry criterion, risk entry, scenario, requirement, or criterion — is content, not a
-new field.
+a line — another requirement, use case, acceptance criterion, NFR, feature or test limitation,
+out-of-scope exclusion, technology challenge, API extension, topology item, testing goal, entry
+criterion, risk entry, scenario, or Document Conventions term — is content, not a new field.
 
 If a field is missing or badly shaped, that is a template change and needs a separate PR to this
 repository that updates the template it changes, docs/stp-guide.md, the `Template Structure Compliance`
@@ -21,8 +23,9 @@ field, label, `Key: value` line, or table invented for one STP.
 
 Guidance lives in the HTML comments; the visible lines are what you fill in. Comments carry no field,
 key, or value of their own, and every comment is deleted before submitting. Replace each placeholder
-with real content — never delete the field it sits in. When a field does not apply, write "None" or
-"N/A" plus the reason in it.
+with real content — never delete a required field (only the omissions listed above and unused example
+goal priorities may be dropped). When a field does not apply, write "None" or "N/A" plus the reason
+in it.
 
 An older STP is re-shaped onto these lines in the entries it edits; the entries a PR leaves alone keep
 their approved shape. -->
@@ -55,7 +58,7 @@ their approved shape. -->
 - **Owning SIG:** [sig-xyz]
 - **Participating SIGs:** [sig-abc, sig-def]
 - **Child STPs:** [child STP links, or "None — single-SIG feature"]
-  <!-- For parent STPs in multi-SIG features only: list all child STPs in the feature directory.
+  <!-- In multi-SIG features, list all child STPs in the feature directory.
   A single-SIG feature keeps this field and writes "None — single-SIG feature" — do not delete the
   field. Child STPs have no such field in their own template.
 
@@ -65,8 +68,8 @@ their approved shape. -->
   - [sig-virt](./virt.md) -->
 
 **Document Conventions (if applicable):**
-<!-- One term per line — keep this label and its bullet, and repeat the bullet once per term. Both
-lines are the template's own shape, so neither is a new field. -->
+<!-- If no feature-specific terms apply, omit both the label and its bullet. Otherwise keep the label
+and repeat the bullet once per term — both lines are the template's own shape, not new fields. -->
 - **[term]** — [define a term specific to this document]
 
 ### **Feature Overview**
@@ -133,8 +136,9 @@ before testing starts, so reviewers should check it against their own understand
     - As a [role], I want to [action], so that [benefit]
 
 - [ ] **Testability**
-  <!-- List requirements that are unclear, ambiguous, or untestable and say why — or "None". -->
-  - [Unclear or untestable requirement and why, or "None"]
+  <!-- Confirm requirements are testable and unambiguous. List any that are unclear, ambiguous, or
+  untestable and say why — or write "None — all requirements are testable and unambiguous". -->
+  - *Unclear or untestable requirements:* [Requirement and why, or "None — all requirements are testable and unambiguous"]
 
 - [ ] **Acceptance Criteria**
   <!-- The specific, verifiable conditions that must be met for the feature to be considered
@@ -148,18 +152,20 @@ before testing starts, so reviewers should check it against their own understand
   non-admin users."
   Repeat the first bullet per criterion — these are content lines, not new fields. -->
   - [Acceptance criterion — observable, falsifiable pass/fail condition]
-  - *Gaps or missing criteria:* [Gap or missing criterion, or "None"]
+  - *Gaps or missing criteria:* [Gap or missing criterion, or "None — acceptance criteria cover all requirements and value claims"]
 
 - [ ] **Non-Functional Requirements (NFRs)**
-  <!-- One bullet per NFR and its target. Cover at minimum: Monitoring, Observability, UI, Usability,
-  Documentation, Performance, Security, Scalability, Portability, Downtime/Connectivity.
-  State explicitly which NFRs do not apply and why — "N/A" alone is not a reason.
+  <!-- Cover at minimum: Monitoring, Observability, UI, Usability, Documentation, Performance,
+  Security, Scalability, Portability, Downtime/Connectivity.
+  State explicitly which NFRs do not apply or are not covered and why — "N/A" alone is not a reason.
   Example: "Host CPU overhead stays under 5% during the feature operation", "RBAC prevents
   non-admin users from deleting VMs", "A single cluster supports 500 VMs".
-  Repeat the first line once per NFR, and fill the second once — these are content lines, not new
-  fields. -->
-  - [Applicable NFR and its target]
-  - [NFR not covered and why, or "None"]
+  Keep both labels below and repeat the nested bullet under either as needed — these are the
+  template's own nested lines, not new fields. -->
+  - *Applicable NFRs:*
+    - [Applicable NFR and its measurable target]
+  - *Non-applicable or uncovered NFRs:*
+    - [Non-applicable or uncovered NFR and its reason, or "None — all listed NFRs apply and are covered"]
 
 #### **2. Feature Limitations**
 
@@ -179,14 +185,12 @@ Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, 
 - No support for ARM64 architecture in this release
 - The feature is incompatible with ZZZ feature
 
-If there are no feature limitations, replace the placeholder item below with "None — reviewed and
-confirmed with [Name] that no feature limitations apply for this release." and keep its
-`*Sign-off:*` line — only a risk category's supplemental and `Sign-off` lines may be dropped. -->
+If there are no feature limitations, replace the placeholder item below with
+"None — reviewed and confirmed with [Name] that no feature limitations apply for this release." and
+keep its `*Sign-off:*` line — only a risk category's supplemental and `Sign-off` lines may be
+dropped. Repeat the two-line entry once per limitation. -->
 
-- **[Feature Limitation 1]**
-  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
-
-- **[Feature Limitation 2]**
+- **[Feature Limitation]**
   - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **3. Technology and Design Review**
@@ -202,7 +206,8 @@ confirmed with [Name] that no feature limitations apply for this release." and k
 
 - [ ] **Technology Challenges**
   <!-- Identify the potential testing challenges related to the underlying technology, and their
-  impact on how the feature will be tested. -->
+  impact on how the feature will be tested. Repeat the first bullet per challenge, and the impact
+  bullet per challenge if the impacts differ. -->
   - [Testing challenge]
   - *Impact on testing approach:* [How the challenge changes the test approach]
 
@@ -210,7 +215,8 @@ confirmed with [Name] that no feature limitations apply for this release." and k
   <!-- Review new or modified user-facing APIs and their impact on testing. Covers both new tests
   for new APIs and updates to existing tests for modified APIs. No internal component APIs.
   Example: "New VirtualMachineSnapshot API v1beta2 — 3 new endpoints, 1 modified endpoint.
-  Existing snapshot tests need updating." -->
+  Existing snapshot tests need updating."
+  Repeat the first bullet per API, and the testing-impact bullet per API. -->
   - [New or modified user-facing API]
   - *Testing impact:* [How the API change affects existing and new tests]
 
@@ -220,7 +226,9 @@ confirmed with [Name] that no feature limitations apply for this release." and k
 
 - [ ] **Topology Considerations**
   <!-- Cluster and network topology only — not internal resource creation.
-  State the cluster requirements and their impact on test design. -->
+  State the cluster requirements and their impact on test design.
+  Evaluated multi-cluster, network topology, and architectural impacts.
+  Repeat the first bullet per topology item, and the impact bullet per item. -->
   - [Cluster and network topology required]
   - *Impact on test design:* [How the topology shapes the test design]
 
@@ -260,37 +268,39 @@ phase names from Feature Maturity (from the parent STP for a child STP). Add it 
 pass at that earlier phase — a phase tag is not required for a goal that follows the feature to GA.
 
 **Write one goal per bullet, P0 first.** Each P0 functional goal needs a negative or failure-path
-goal next to it — with a matching Section III scenario — covering what happens if the operation
-fails, if the VM starts mid-operation, or if the input is invalid — or, if that negative-path coverage
-is genuinely out of scope, an Out of Scope entry with Quality Owner or Product Manager sign-off
-("considered" alone is insufficient). A negative path that is also an Acceptance Criterion cannot be
-moved to Out of Scope: Section III covers it, or named existing regression coverage in Test Strategy. -->
+goal next to it — with a matching Section III scenario (or named existing regression coverage in
+Test Strategy) — covering what happens if the operation fails, if the VM starts mid-operation, or if
+the input is invalid — or, if that negative-path coverage is genuinely out of scope, an Out of Scope
+entry with Quality Owner or Product Manager sign-off ("considered" alone is insufficient). A negative
+path that is also an Acceptance Criterion cannot be moved to Out of Scope: Section III covers it, or
+named existing regression coverage in Test Strategy. The `[P0]`/`[P1]`/`[P2]` lines below are
+repeatable goal examples: keep only the priority levels that apply (omit `[P1]` or `[P2]` if none
+apply, and omit a negative `[P0]` line if it was waived in Out of Scope). -->
 
-<!-- **Example - Functional Goals**:
+<!-- **Examples (flat list, P0 first — do not add category subheadings to an STP):**
 - **[P0]** Verify VM live migration completes successfully with new network binding plugin across
   OVN-Kubernetes and secondary networks
-- **[P1]** Validate hotplug/hotunplug operations work with new storage class without VM restart
+- **[P0]** Verify live migration with an invalid network binding configuration fails cleanly with an
+  actionable error and leaves the running VM unaffected
 - **[P0]** Confirm RBAC permissions model correctly restricts non-admin users from accessing
   cluster-wide configuration API
-- **[P2]** Validate new metrics with real-time VM performance data (CPU, memory, network, disk I/O)
-
-**Example - Quality Goals**:
 - **[P0]** Verify VM live migration completes in <30 seconds for VMs with <8GB memory
   (performance baseline from VEP-XXXX)
-- **[P1]** Confirm feature operates correctly in disconnected/air-gapped environments with local
-  image registry
 - **[P0]** Validate zero data loss during live migration under network latency up to 100ms
-
-**Example - Integration Goals**:
 - **[P0]** Verify backward compatibility: upgrade from OCP 4.19 to 4.20 preserves existing VM
   configurations without manual intervention
 - **[P0]** Confirm interoperability with OpenShift Service Mesh when VMs use Istio sidecar injection
+- **[P1]** Validate hotplug/hotunplug operations work with new storage class without VM restart
+- **[P1]** Confirm feature operates correctly in disconnected/air-gapped environments with local
+  image registry
 - **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
-  alerts fire correctly in Alertmanager -->
+  alerts fire correctly in Alertmanager
+- **[P2]** Validate new metrics with real-time VM performance data (CPU, memory, network, disk I/O) -->
 
 - **[P0]** [Functional goal — what is verified and how success is measured; add a phase tag such as `[P0][TP]` only if needed]
-- **[P1]** [Non-functional goal — what is verified and how success is measured]
-- **[P2]** [User-story goal from Section I — what is verified and how success is measured]
+- **[P0]** [Negative / failure-path goal for the P0 functional goal above — expected error or recovery behaviour]
+- **[P1]** [High-priority functional, non-functional, or integration goal — what is verified and how success is measured]
+- **[P2]** [Nice-to-have goal — what is verified and how success is measured]
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -310,16 +320,18 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 **Difference from existing coverage:** Areas already covered by existing regression suites or other teams are
 not Out of Scope; record them under Regression Testing in Test Strategy (II.2).
 
-**Note:** Replace the placeholders below with your actual out-of-scope items. If there are none,
-replace the item with "None — reviewed and confirmed that all supported product functionality will
+**Examples:**
+- **Interface settings independent of the new network binding (e.g., NIC model)** — Rationale: feature
+  is agnostic to vNIC emulation towards the guest, so no feature-specific test is planned.
+- **Special guest OS coverage (e.g., Windows)** — Rationale: feature is expected to work with Windows
+  guests, but validation uses Fedora-based guests this cycle.
+
+**Note:** Repeat the three-line entry below once per out-of-scope item. If there are none, replace the
+placeholder item with "None — reviewed and confirmed that all supported product functionality will
 be tested this cycle." and keep its `*Rationale:*` and `*Sign-off (Quality Owner or Product Manager):*` lines. -->
 
-- **[e.g., Interface settings that are independent of the new network binding (e.g., NIC model)]**
-  - *Rationale:* The feature is expected to work with any interface setting. These settings affect the vNIC emulation towards the guest and are agnostic to the binding choice, so no feature-specific test is planned
-  - *Sign-off (Quality Owner or Product Manager):* [Name]
-
-- **[e.g., Special guest OS coverage (e.g., Windows)]**
-  - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
+- **[Out-of-scope item]**
+  - *Rationale:* [Why QE decided not to test this item this cycle]
   - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 **Test Limitations**
@@ -338,13 +350,11 @@ Example: "No bare-metal MultiArch cluster available" is a **test limitation** (Q
 - Performance testing limited to 100 VMs due to lab capacity
 - IPv6 testing constrained to single-stack due to dual-stack cluster unavailability
 
-If there are no test limitations, replace the placeholder item below with "None — reviewed and
-confirmed that no test limitations apply for this release." and keep its `*Sign-off:*` line. -->
+Repeat the two-line entry below once per limitation. If there are no test limitations, replace the
+placeholder item with "None — reviewed and confirmed that no test limitations apply for this release."
+and keep its `*Sign-off:*` line. -->
 
-- **[Test Limitation 1]**
-  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
-
-- **[Test Limitation 2]**
+- **[Test Limitation]**
   - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **2. Test Strategy**
@@ -425,7 +435,10 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 #### **3. Test Environment**
 
-<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
+<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A.
+Keep every field below — none may be added, removed, or renamed. Replace each value with the actual
+value for this feature, or write the value followed by how it differs from the default shown.
+A field that truly does not apply keeps its line and reads `N/A` plus the reason. -->
 
 - **Cluster Topology:** 3-master/3-worker bare-metal
   <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
@@ -439,8 +452,7 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
   <!-- Adjust based on feature requirements -->
 
-- **Special Hardware:** N/A
-  <!-- Fill if needed, e.g., SR-IOV NICs, GPUs -->
+- **Special Hardware:** [Special hardware required, e.g., SR-IOV NICs, GPUs, or "N/A — standard hardware only"]
 
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization
   <!-- Change if specific StorageClass(es) required -->
@@ -448,28 +460,28 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 - **Network:** OVN-Kubernetes, IPv4
   <!-- Change if needed, e.g., Secondary Networks, IPv6, dual-stack -->
 
-- **Required Operators:** N/A
-  <!-- Add if needed, e.g., NMState Operator -->
+- **Required Operators:** [Additional operators required, e.g., NMState Operator, or "N/A — standard OpenShift Virtualization operators only"]
 
 - **Platform:** Bare metal
   <!-- Change if needed, e.g., AWS, Azure, GCP -->
 
-- **Special Configurations:** N/A
-  <!-- Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode -->
+- **Special Configurations:** [Special cluster configs, e.g., Disconnected/air-gapped, Proxy, FIPS mode, or "N/A — standard connected cluster"]
 
 #### **3.1. Testing Tools & Frameworks**
 
 <!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
-for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure. -->
+for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
+
+Keep every field below — none may be added, removed, or renamed. Keep `Standard` for `Test Framework`
+when no custom framework is needed; for `CI/CD` and `Other Tools`, replace the placeholder with the
+required lane/tool or `N/A` plus the reason. -->
 
 - **Test Framework:** Standard
-  <!-- Change if needed, e.g., new framework, custom test harness, significant changes in tests infrastructure code etc  -->
+  <!-- Change if needed, e.g., new framework, custom test harness, significant changes in tests infrastructure code etc -->
 
-- **CI/CD:** N/A
-  <!-- Change if needed, e.g., special test lane, custom pipeline config -->
+- **CI/CD:** [Special test lane or custom pipeline config, or "N/A — standard CI lanes cover this feature"]
 
-- **Other Tools:** N/A
-  <!-- Fill if needed, e.g., special monitoring, performance tools -->
+- **Other Tools:** [Additional monitoring/performance tools, or "N/A — no extra tooling needed"]
 
 #### **4. Entry Criteria**
 
@@ -494,13 +506,15 @@ Mitigation line plus a one-line justification (not just "N/A") — no Sign-off o
 is needed. A category with a real risk needs the full entry, including Sign-off (name). Repeat
 the entry for each risk inside a category.
 
-No-risk form:
+No-risk form — for a category with no risk, write `None — [reason]` in `Risk` and
+`Not applicable — [same reason]` in `Mitigation`, and drop the category-specific field and the
+`Sign-off` line (the `Other` category has no category-specific field):
 - **Risk:** None — [why no risk applies]
   - **Mitigation:** Not applicable — [same reason] -->
 
 **Timeline/Schedule**
 
-<!-- The specific scheduling or deadline risk that could delay testing, and how scope, priorities,
+<!-- The specific scheduling or deadline risk that might delay testing, and how scope, priorities,
 resources, or the timeline will be adjusted in response. -->
 
 - **Risk:** [Scheduling or deadline risk]
@@ -525,7 +539,7 @@ Scope. -->
 will be secured or the plan adapted. A resource already confirmed unavailable is a Test
 Limitation. -->
 
-- **Risk:** [Environment constraint that limits testing]
+- **Risk:** [Environment resource or infrastructure that might be unavailable during testing]
   - **Mitigation:** [How the required resources are secured, or how the plan adapts]
   - *Missing resources or infrastructure:* [What is unavailable]
   - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
@@ -536,7 +550,7 @@ Limitation. -->
 validation method (smaller-scale test, unit test, production monitoring). An aspect already
 confirmed untestable is a Test Limitation. -->
 
-- **Risk:** [Scenario or condition that cannot be reproduced in a test environment]
+- **Risk:** [Scenario or condition that may not be reproducible in a test environment]
   - **Mitigation:** [Alternative validation method]
   - *Alternative validation approach:* [The fallback validation method]
   - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
@@ -546,7 +560,7 @@ confirmed untestable is a Test Limitation. -->
 <!-- Staffing, skill, or capacity that may limit test execution, and how work will be prioritized,
 cross-trained, or coordinated. A shortfall already confirmed is a Test Limitation. -->
 
-- **Risk:** [Staffing, skill, or capacity limitation affecting test execution]
+- **Risk:** [Staffing, skill, or capacity shortfall that could affect test execution]
   - **Mitigation:** [How work is prioritized, cross-trained, or coordinated]
   - *Current capacity gaps:* [Staffing or skill gaps]
   - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
@@ -564,11 +578,11 @@ fallback strategy, or stub implementation. -->
 **Other**
 
 <!-- Only for risks that do not fit the six categories above. If none apply, keep this category,
-write `None — [why]` in the `Risk` line, keep the `Mitigation` line, and drop the `Sign-off` line — do
-not delete the category. Add any context the entry needs. -->
+write `None — [why]` in the `Risk` line, write `Not applicable — [same reason]` in the `Mitigation`
+line, and drop the `Sign-off` line — do not delete the category. Add any context the entry needs. -->
 
-- **Risk:** [Risk not covered by the categories above, or "None — [why]"]
-  - **Mitigation:** [Specific plan to reduce or eliminate this risk]
+- **Risk:** [Risk not covered above — or write: None — <reason>]
+  - **Mitigation:** [Specific plan to reduce or eliminate this risk, or "Not applicable — <same reason>"]
   - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 ---
@@ -585,7 +599,11 @@ conditions). **What does NOT go here:** regression tests (covered in Test Strate
 
 The entry shape is fixed — the Jira key in bold, the requirement as a user story with a concrete
 role and a benefit, then exactly two keys: `Test Scenario` (tier inline as `[Tier N]`) and
-`Priority`. No generic "user". The same inline tier is used in a child STP.
+`Priority`. The role must be one a customer would recognize (VM owner, cluster admin, SRE running a
+fleet — never a generic "user") and the benefit must state the outcome, matching the use-case rules
+in Section I.1. The same inline tier is used in a child STP. Tier definitions are in
+`docs/testing-tiers.md` — Tier 1 is a functional test on a cluster, Tier 2 an end-to-end workflow
+test, Tier 3 an extended validation test; use it rather than guessing a tier.
 
 Every non-regression Testing Goal (II.1) has a matching scenario here; a regression goal refers to
 its coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here,
