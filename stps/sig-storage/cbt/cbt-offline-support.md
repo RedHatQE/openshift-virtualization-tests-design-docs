@@ -19,6 +19,8 @@
 **Document Conventions (if applicable):**
 
 - **Offline backup:** A backup of a stopped VM produced through the CNV backup API.
+- **Eligible VM:** A stopped VM with CBT enabled and at least one eligible disk. In CNV v5.1.0, the VM must have started with CBT enabled. See [Feature Limitations](#2-feature-limitations) for never-started VMs.
+- **Eligible disk:** A writable PVC-backed disk that meets the target build's CBT initialization requirements. CNV v5.1.0 requires a QCOW2 tracking overlay, which can use a raw backing disk. An initialized disk without a usable checkpoint can be backed up in full, including a hotplugged disk. See [Risks](#5-risks) for shareable-disk coverage.
 - **Offline push mode:** Backup mode that writes backup files to a provider-supplied PVC; in offline mode the export pod performs the write. See the parent plan for the online definition.
 - **Offline pull mode:** Backup mode that lets the provider retrieve disk data over HTTPS and finalize by deleting its request; offline pull completes on request deletion. See the parent plan for the online definition.
 - **Offline backup feature gate (`OfflineIncrementalBackup`):** cluster-level opt-in for offline backup;
@@ -61,8 +63,8 @@ technology, and testability before formal test planning.
   - *List the acceptance criteria:*
     - With the offline backup feature gate enabled, a backup provider can back up an eligible stopped VM incrementally using a standard CNV backup request without selecting offline operation. The VM stays stopped throughout the backup.
     - In CNV v5.1.0, stopped-VM backup requests remain pending without offline output when the offline backup feature gate is disabled.
-    - A backup provider can reconstruct bootable Linux and Windows guests from offline push and pull backups with guest-data checksums matching each recovered backup point.
-    - Recovery validation rejects incomplete Linux and Windows backup chains.
+    - In both push and pull modes, a backup provider can recover each offline backup point in a complete chain to a bootable Linux or Windows VM whose guest data matches that point in time.
+    - Recovery validation reports incomplete Linux and Windows backup chains as invalid.
     - External epic acceptance: [CNV-96511](https://redhat.atlassian.net/browse/CNV-96511) requires at least one certified backup partner to confirm offline workflows through the CBT API; this is outside this STP’s test coverage (II.1).
   - *Note any gaps or missing criteria:* HCO configuration is a prerequisite; operator restart/configuration-update preservation is explicitly out of scope (II.1). TS-01 retains the disabled-gate backup check. VEP merge, the STP update, release note, and documentation are tracked delivery criteria (CNV-92883, CNV-96538, CNV-96539, CNV-96540 and CNV-100450), not functional scenarios.
 
@@ -108,8 +110,7 @@ The following are confirmed product constraints accepted before testing begins.
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
-  - *Sign-off:* Alvaro Romero, 2026-11-24
-
+  - *Sign-off:* Peter Lauterbach, 2026-05-07 — as accepted in the parent
 #### **3. Technology and Design Review**
 
 - [x] **Developer Handoff/QE Kickoff**
@@ -123,7 +124,7 @@ The following are confirmed product constraints accepted before testing begins.
     - VM start prevention while backup is progressing; different completion semantics for push vs pull mode
     - Bitmap validation failures and per-disk fallback to full backup
     - Hotplugged disks without prior checkpoints (full backup for new disk, incremental for others)
-    - The VEP specifies immediate failure for residual runtime activity, while the inspected controller waits for source cleanup. Upstream API admission rejects additional requests for the same VM while a backup is active. Confirm both behaviors on the target build.
+    - A second backup request for the same VM while a backup is active is rejected with a clear error, and a request made while the previous backup's resources are still being cleaned up is either rejected immediately or queued. The plan asserts the behaviour Development confirms for the target build, recorded under Technology Challenges (I.3).
     - Bitmap consistency after an export pod crashes and restarts during bitmap creation
     - VM deletion during backup (backup must fail cleanly)
   - *Impact on testing approach:* Scenarios derived from VEP 401 functional testing approach; prioritize online→offline transition and start-gating as P0; validate push vs pull completion paths separately
@@ -154,7 +155,7 @@ and schedule.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
 - **[P0] G12 — Unchanged increments:** As a backup provider, verify the expected result of repeating an incremental backup when no disk data has changed.
-- **[P0] G13 — Extended backup integrity:** As a backup provider, verify recovered Windows guests boot with checksums matching each backup point and that incomplete Windows backup chains fail recovery validation. Verify that unavailable disks prevent successful recovery validation.
+- **[P0] [TP] G13 — Extended backup integrity:** As a backup provider, verify recovered Windows guests boot with checksums matching each backup point and that incomplete Windows backup chains fail recovery validation. Verify that unavailable disks prevent successful recovery validation.
 - **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output. In CNV v5.1.0, verify that backups of never-started VMs fail safely.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
 - **[P1] G08 — Lifecycle compatibility:** As a cluster admin, verify that offline backup fails safely when a disk needs CBT initialization after a stopped-VM configuration change. Verify that after a start and stop, the affected disk is backed up in full and other eligible disks remain incremental. Verify that per-disk fallback preserves eligible incremental data and rollback leaves later VM operations available.
@@ -395,7 +396,7 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
 - **[CNV-96511]** — As a backup provider, I want to know whether a repeat incremental backup succeeds when no disk data has changed. If the disk configuration is unchanged, I also want to take a full backup in push or pull mode without starting the VM again.
   - *Test Scenario:* [Tier 1] **TS-11:** Validate offline backup requests between VM starts.
   - For repeat incremental backups, verify the expected result confirmed with Development under Test Coverage (Section II.5).
-  - *Priority:* P1
+  - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want eligible disks with usable history to remain incremental when another disk needs a full backup.
   - *Test Scenario:* [Tier 2] **TS-12:** Verify disks with usable history remain incremental.
