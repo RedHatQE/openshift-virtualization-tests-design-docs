@@ -251,7 +251,7 @@ found will not be classified as defects for this release.
 
 - **Cluster Topology:** Standard (3-master/3-worker or equivalent CI topology)
 
-- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 for release-specific checks, on a compatible OCP release. For GA upgrade testing, use the confirmed source and target CNV builds and the supported OCP versions for the upgrade path.
+- **OCP & OpenShift Virtualization Version(s):** CNV v5.1.0 for release-specific checks. TS-25 targets an upgrade from CNV v5.1.0 (Tech Preview) to CNV v5.2.0 (GA). See the Test Environment risk in II.5 for build selection. [TP tracking](https://redhat.atlassian.net/browse/CNV-96536) · [GA tracking](https://redhat.atlassian.net/browse/CNV-94345)
 
 - **CPU Virtualization:** Standard
 
@@ -315,6 +315,11 @@ The following conditions must be met before testing can begin:
 - **Risk:** P0 testing is blocked until a compatible CNV v5.1 build is available.
   - **Mitigation:** Track build and HCO availability in Test Limitations and Entry Criteria. See Timeline/Schedule for the schedule impact.
   - *Missing resources or infrastructure:* A confirmed CNV v5.1 build exposing the HCO offline-backup feature gate and the offline backup API.
+  - *Sign-off:* [Name/Date]
+
+- **Risk:** TS-25 execution depends on a confirmed OCP and CNV upgrade build pair.
+  - **Mitigation:** Emanuele Prella (QE owner) confirms the supported OCP source and target releases and the exact CNV builds with the Virtualization release team before scheduling TS-25.
+  - *Missing resources or infrastructure:* Supported source and target OCP releases and corresponding CNV build IDs for the planned upgrade.
   - *Sign-off:* [Name/Date]
 
 **Untestable Aspects**
