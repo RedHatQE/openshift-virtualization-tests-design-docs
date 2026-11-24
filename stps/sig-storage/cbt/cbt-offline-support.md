@@ -223,8 +223,8 @@ found will not be classified as defects for this release.
 - [x] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
   - *Details:* Verify trusted offline pull retrieval over TLS; reject invalid credentials and untrusted server certificates before reading data. Retain existing CBT transport regression coverage.
 
-- [ ] **Usability Testing** — Validates user experience and accessibility requirements
-  - *Details:* N/A — Jira specifies no-ux and no CNV console changes. API pending/failure feedback remains Functional Testing.
+- [x] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* In TS-01 and TS-24, assess whether backup providers can tell from the API status and error messages when to wait, retry, or correct the problem.
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
   - *Details:* N/A — no new metrics or alerts specified for offline backup.
@@ -332,9 +332,10 @@ None — no in-scope requirement is omitted as untestable.
 
 **Dependencies**
 
-None — no separate dependency risk identified.
-
-*Mitigation:* Product build dependencies are tracked in II.2 and Entry Criteria.
+- **Risk:** P1 coverage for full offline backups of never-started VMs (G11 and TS-26) depends on CNV-100648 landing in the CNV v5.2.0 GA build. A delay leaves this path unverified at GA.
+  - **Mitigation:** Confirm that the target build includes the change before running TS-26. If delivery slips, record the P1 coverage gap and run TS-26 on the first build that includes the change.
+  - *Dependent teams or components:* Full offline backup support for never-started VMs. [CNV-100648](https://redhat.atlassian.net/browse/CNV-100648)
+  - *Sign-off:* [Name/Date]
 
 ---
 
