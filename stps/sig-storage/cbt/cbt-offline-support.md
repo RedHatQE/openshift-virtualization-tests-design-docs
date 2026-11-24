@@ -85,35 +85,27 @@ The following are confirmed product constraints accepted before testing begins.
 - **Offline backup requires prior CBT initialization in CNV v5.1.0**
   - In CNV v5.1.0, offline backup requires a VM that has previously started with CBT enabled. A backup of a never-started VM fails during initialization. [CNV-100648](https://redhat.atlassian.net/browse/CNV-100648) tracks full-backup support. The planned GA check applies once that support is delivered in the GA build.
   - The same requirement applies to an otherwise eligible disk added or changed from read-only to read-write while the VM is stopped if the disk has never been initialized for CBT. The backup fails until the VM starts with CBT enabled and the disk writable. After the VM stops again, the next offline backup backs up that disk in full.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **No incremental checkpoint baseline for never-started VMs in CNV v5.1.0**
   - CNV v5.1.0 cannot create this checkpoint because the first backup fails. [CNV-100650](https://redhat.atlassian.net/browse/CNV-100650) depends on CNV-100648 and has no confirmed GA delivery. If delivered for GA, verify that the first full backup establishes a usable checkpoint and a subsequent incremental backup of the untouched VM reports zero changes in separate push and pull runs.
-  - *Sign-off:* [Name/Date]
-
-- **Repeated unchanged increments require target-build confirmation**
-  - VEP 401 rejects repeated unchanged increments; merged PR #19294 permits empty increments and advances history in both modes. Full backups remain planned.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **Automatic VM stop/start orchestration is not supported**
   - VEP-401 non-goal - Offline backup does not automatically stop or start the source VM.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **Pull-mode trust boundary: deleting a completed backup request advances the checkpoint even if the provider did not retrieve all data**
   - VEP-401 known limitation — external backup chain gap not detected by the platform
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **Node affinity window**
   - VEP 401 known limitation - Until backup volume mounts are released, a VM can be restricted to the export node; immediate placement on a different node is not promised.
-  - *Sign-off:* [Name/Date]
-
-- **Shareable disks are excluded from offline CBT backups**
-  - In CNV builds that include [KubeVirt PR #19708](https://github.com/kubevirt/kubevirt/pull/19708), full and incremental offline backups omit disks configured as shareable in both push and pull modes. A backup can succeed for the VM's eligible disks while shared-disk data, such as data on a Windows Server Failover Clustering (WSFC) disk, remains unprotected by CBT.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **Restore as a product feature is not supported**
   - Inherited from the parent CBT STP — there is no restore API, workflow, or UX; restore may be used only as a method to validate backup integrity, not as a product capability under test
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 #### **3. Technology and Design Review**
 
@@ -158,7 +150,7 @@ and schedule.
 - **[P0] [TP] G03 — Linux recovery integrity:** As a backup provider, verify recovered Linux guests boot with checksums matching each backup point and that incomplete Linux backup chains fail recovery validation.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
-- **[P0] G12 — Unchanged increments:** As a backup provider, verify repeated unchanged increments follow the target-build contract agreed before execution.
+- **[P0] G12 — Unchanged increments:** As a backup provider, verify the expected result of repeating an incremental backup when no disk data has changed.
 - **[P0] G13 — Extended backup integrity:** As a backup provider, verify recovered Windows guests boot with checksums matching each backup point and that incomplete Windows backup chains fail recovery validation. Verify that unavailable disks prevent successful recovery validation.
 - **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output. In CNV v5.1.0, verify that backups of never-started VMs fail safely.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
@@ -183,28 +175,28 @@ found will not be classified as defects for this release.
 
 - **New running-VM-only functional scenarios**
   - *Rationale:* The parent CBT STP and CNV-67413 own existing online coverage. This plan adds offline cases and retains the online regression commitment in II.2; the exclusion does not waive regressions detected by that campaign.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **UI testing**
-  - *Rationale:* The feature is API-only with no UI components. PM/Lead confirmed no UI coverage is needed based on customer value assessment.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Rationale:* The feature is API-only with no UI components.
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **Execution of online-versus-offline incremental backup benchmarking**
   - *Rationale:* We'll work with the Performance & Scale team to define the comparison, agree on what counts as comparable before setting a pass criterion, and run and report the benchmark under a proposed CNV 5.1 Jira ticket.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **Certified backup partner validation**
   - *Rationale:* Partner integration and workflow validation are not covered by this STP; the epic’s external acceptance requirement remains separate.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 - **HCO feature-gate enablement and operator lifecycle validation**
   - *Rationale:* This plan tests offline backup behavior, including the disabled-gate check in TS-01. HCO enablement and persistence across operator restarts/configuration updates, including backup checks after those transitions, are not covered by this STP; the epic acceptance requirement remains separate.
-  - *PM/Lead Agreement:* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
 **Test Limitations**
 
 - **A runnable CNV v5.1 build including the HCO offline-backup feature gate is not yet confirmed**
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 #### **2. Test Strategy**
 
@@ -302,7 +294,7 @@ The following conditions must be met before testing can begin:
 - **Risk:** Late confirmation of a runnable downstream/HCO build could compress the P1/P2 execution window.
   - **Mitigation:** Confirm build readiness with Storage Ecosystem and execute P0 coverage first after Entry Criteria are met.
   - *Estimated impact on schedule:* A late runnable build reduces the time for subsequent coverage before release readiness.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 **Test Coverage**
 
@@ -313,6 +305,11 @@ The following conditions must be met before testing can begin:
   - **Status reporting:** VEP proposes backup `status.offline`; implementation adds VM `status.backupInProgress` for synchronization instead.
   - **Mitigation:** Confirm target-build outcomes with Development before execution; prevent unsafe output and use only delivered status fields.
   - *Areas with reduced coverage:* Repeat-incremental/conflict/runtime outcomes and offline reporting remain unresolved until the target-build decision is recorded; node-affinity characterization is limited to Feature Limitations.
+  - *Sign-off:* Alvaro Romero, 2026-11-24
+
+- **Risk:** Shareable-disk coverage depends on whether the target CNV build includes [KubeVirt PR #19708](https://github.com/kubevirt/kubevirt/pull/19708). With the change, full and incremental offline backups omit shareable disks in both modes. A backup can succeed while shared data, such as data on a Windows Server Failover Clustering (WSFC) disk, remains unprotected.
+  - **Mitigation:** Confirm with Development whether the target CNV build includes the change before assessing backup coverage for shareable disks.
+  - *Areas with reduced coverage:* Offline backup of shareable disks on the target build remains unverified.
   - *Sign-off:* [Name/Date]
 
 **Test Environment**
@@ -332,7 +329,7 @@ None — no in-scope requirement is omitted as untestable.
 - **Risk:** QE capacity shared with parent CBT GA work and multiple CNV-96511 child stories.
   - **Mitigation:** Prioritize P0 automation, then P1 coverage; defer P2 only if the timeline compresses.
   - *Current capacity gaps:* Parallel P1/P2 implementation and execution alongside parent CBT GA work.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 **Dependencies**
 
@@ -389,18 +386,18 @@ Offline-specific scenarios extend the parent CBT test plan. Each scenario with p
   - In separate push and pull runs, submit a second and third request with distinct names for the same stopped VM while the original backup is active. Verify that the API rejects both and that the original backup completes successfully. Verify that the API accepts a fresh full-backup request after successful push completion or after successful pull retrieval and deletion of the original request.
   - *Priority:* P1
 
-- **[CNV-96511]** — As a backup provider, I want unchanged incremental requests to follow the agreed target-build contract while full push and pull backups remain available without another VM start when the disk configuration is unchanged
+- **[CNV-96511]** — As a backup provider, I want to know whether a repeat incremental backup succeeds when no disk data has changed. If the disk configuration is unchanged, I also want to take a full backup in push or pull mode without starting the VM again.
   - *Test Scenario:* [Tier 1] **TS-13:** Validate offline backup requests between VM starts.
-  - Repeated-increment outcomes remain conditional on the target-build decision in Entry Criteria.
+  - For repeat incremental backups, verify the expected result confirmed with Development under Test Coverage (Section II.5).
   - *Priority:* P1
 
 - **[CNV-96511]** — As a backup provider, I want push and pull offline backups to retain healthy increments for eligible disks, fully back up eligible new disks or eligible disks with unusable history, and report unavailable eligible disks without indicating complete coverage.
   - *Test Scenario:* [Tier 2] **TS-14:** Validate offline fallback and unavailable-disk reporting for eligible disks.
   - *Priority:* P1
 
-- **[CNV-96511]** — As a cluster admin, I want residual VM activity to reject offline backup requests without producing output
-  - *Test Scenario:* [Tier 1] **TS-15:** Verify residual source activity rejects requests without output.
-  - Candidate VEP outcome; apply the target-build decision required by Entry Criteria.
+- **[CNV-96511]** — As a cluster admin, I want VM shutdown to finish before an offline backup produces data.
+  - *Test Scenario:* [Tier 1] **TS-15:** Verify offline backup produces no data during shutdown cleanup.
+  - Submit the request after the VM stops while its launcher pod is still shutting down. Verify the behavior confirmed with Development under Test Coverage (Section II.5).
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want rollback to fail active offline backups without blocking later VM operations or backup requests in push and pull modes
