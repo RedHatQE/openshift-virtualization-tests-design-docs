@@ -70,7 +70,7 @@ technology, and testability before formal test planning.
     - A service account with snapshot permissions can create a ready snapshot of the bound test disk; an account without snapshot-create permission receives a permission-denied error and creates no snapshot
     - A trusted administrative service account can restore a VM with its expected power state and readable data; a read-only account cannot submit the restore and creates no restored VM or storage
     - A trusted administrative service account can restore a stopped VM from test namespace A into test namespace B and start it with readable data, leaving the source unchanged; a workload-only account without backup-administration access receives a permission-denied error when submitting the same restore and creates nothing in B
-  - _Gaps or missing criteria:_ The Jira description is minimal ("Add stopped VM and WFFC to velero tests plan and automate the tests"). Section II.3 defines the OCS and HPP storage classes and the snapshot-capable OCS WFFC test class. Compatible OADP/Velero/DataMover versions and dated Storage Ecosystem confirmation of the topology configuration remain required before execution.
+  - _Gaps or missing criteria:_ The Jira description is minimal ("Add stopped VM and WFFC to velero tests plan and automate the tests"). Section II.3 identifies the OCS and HPP storage classes and the OCS WFFC class observed on the test cluster. Snapshot-based backup/restore validation, compatible OADP/Velero/DataMover versions, and dated Storage Ecosystem confirmation of the topology configuration remain required before execution.
 
 - [x] **Non-Functional Requirements (NFRs)**
   - _Applicable NFRs and their targets:_
@@ -97,7 +97,7 @@ technology, and testability before formal test planning.
 - [x] **Technology Challenges**
   - _Identified challenges:_
     - OADP operator compatibility with the target versions remains unverified. CNV-44308 records an OADP testing block on main on 2025-08-27; this is historical evidence, not confirmation of a current block.
-    - WFFC DataMover testing requires storage that supports both deferred binding and snapshots. The common HPP classes provide deferred binding but lack snapshot support; use the OCS WFFC test class specified in Section II.3 for these backup/restore scenarios.
+    - WFFC DataMover testing requires storage that supports both deferred binding and snapshots. The common HPP classes provide deferred binding but lack snapshot support; use the existing OCS WFFC class specified in Section II.3 for these backup/restore scenarios.
   - _Impact on testing approach:_ Confirm snapshot support and binding mode for the selected class before executing the scenarios. Availability of an HPP WFFC class alone does not satisfy the DataMover prerequisites.
 
 - [x] **API Extensions**
@@ -120,11 +120,11 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 This test plan covers the addition of two new VM configuration categories to the existing Velero/OADP backup and restore test suite:
 
 1. **Stopped VM backup/restore** -- Covering powered-off VMs with block and filesystem volumes; restored VMs remain powered off until an administrator starts them, and retain their configuration and data.
-2. **WFFC StorageClass backup/restore** -- Covering running and stopped VMs with block and filesystem volumes using the OCS WFFC test class; restored volumes bind successfully, and the P2 scenario checks placement against the scheduled worker's zone.
+2. **WFFC StorageClass backup/restore** -- Covering running and stopped VMs with block and filesystem volumes using the OCS WFFC class; restored volumes bind successfully, and the P2 scenario checks placement against the scheduled worker's zone.
 
 Both categories are tested using the DataMover backup path (Velero with CSI DataMover) which is the primary backup mechanism for OpenShift Virtualization.
 
-_Storage coverage:_ Run stopped-VM block and filesystem scenarios on `ocs-storagecluster-ceph-rbd-virtualization`. Run the running- and stopped-VM WFFC scenarios on `ocs-storagecluster-ceph-rbd-virtualization-wffc`, the test class defined in Section II.3, in both supported volume modes. The common HPP classes are documented in the environment matrix with their snapshot limitation.
+_Storage coverage:_ Run stopped-VM block and filesystem scenarios on `ocs-storagecluster-ceph-rbd-virtualization`. Run the running- and stopped-VM WFFC scenarios on the existing `ocs-storagecluster-ceph-rbd-wffc` class in both supported volume modes, after verifying its configuration on the selected cluster. The common HPP classes are documented in the environment matrix with their snapshot limitation.
 
 _Startup policy:_ Configure running WFFC sources for automatic startup. Stop stopped-source VMs before backup and retain their powered-off startup setting. Preserve the saved startup policy during restore, without a restore-time override: running WFFC sources must start automatically, while stopped sources must remain off until explicitly started. A manual start must not mask a failure of the running-source automatic-start check.
 
@@ -234,7 +234,7 @@ No verification activities will be performed for these items during this test cy
 **Integration & Compatibility**
 
 - [x] **Compatibility Testing** -- Ensures feature works across supported platforms, versions, and configurations
-  - _Details:_ Tests validate block and filesystem volume modes on OCS using the standard and WFFC test classes in Section II.3. HPP is part of the common storage inventory but lacks the snapshots required by this DataMover path. Backward compatibility is maintained by preserving existing test parameterization unchanged.
+  - _Details:_ Tests validate block and filesystem volume modes on OCS using the standard and existing WFFC classes in Section II.3. HPP is part of the common storage inventory but lacks the snapshots required by this DataMover path. Backward compatibility is maintained by preserving existing test parameterization unchanged.
 
 - [ ] **Upgrade Testing** -- Validates upgrade paths from previous versions, data migration, and configuration preservation
   - _Details:_ N/A. The OCP upgrade path was evaluated; this task adds test coverage for existing backup/restore behavior without changing product upgrade behavior.
@@ -258,15 +258,17 @@ No verification activities will be performed for these items during this test cy
 - **CPU Virtualization:** Standard (Intel VT-x / AMD-V)
 - **Compute Resources:** Default (2 worker nodes with sufficient memory for RHEL VMs)
 - **Special Hardware:** None
-- **Storage:** Use the following common OCS/ODF and HPP classes, plus the explicitly created OCS WFFC test class. All selected snapshot classes must use the same driver as their storage class.
+- **Storage:** Use the following OCS/ODF and HPP classes. Verify the existing OCS WFFC class and snapshot-class mapping on the selected cluster; availability on one cluster does not establish availability on another. All selected snapshot classes must use the same driver as their storage class.
 
   | Storage provider | StorageClass | Binding mode | Volume modes | Provisioner | VolumeSnapshotClass | Use in this plan |
   |:-----------------|:-------------|:-------------|:-------------|:------------|:--------------------|:-----------------|
   | OCS/ODF Ceph RBD | `ocs-storagecluster-ceph-rbd-virtualization` | Immediate | Block, Filesystem | `openshift-storage.rbd.csi.ceph.com` | `ocs-storagecluster-rbdplugin-snapclass` | Stopped-VM backup/restore and failure-path scenarios |
-  | OCS/ODF Ceph RBD, test class | `ocs-storagecluster-ceph-rbd-virtualization-wffc` | WaitForFirstConsumer | Block, Filesystem | `openshift-storage.rbd.csi.ceph.com` | `ocs-storagecluster-rbdplugin-snapclass` | Running- and stopped-VM WFFC backup/restore; P2 topology validation requires zone-aware storage |
+  | OCS/ODF Ceph RBD, WFFC class | `ocs-storagecluster-ceph-rbd-wffc` | WaitForFirstConsumer | Block, Filesystem | `openshift-storage.rbd.csi.ceph.com` | `ocs-storagecluster-rbdplugin-snapclass` | Running- and stopped-VM WFFC backup/restore; P2 topology validation requires zone-aware storage |
   | HPP | `hostpath-csi-basic`, `hostpath-csi-pvc-block` | WaitForFirstConsumer | Filesystem | `kubevirt.io.hostpath-provisioner` | None — snapshots unsupported | Common cluster storage; cannot run this snapshot-based DataMover path |
 
-  _Storage sources:_ The [test-suite storage matrix](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/global_config.py) and [HPP capabilities](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/utilities/constants/storage.py) define the common classes and supported modes. The `pvc-block` HPP name describes its backing storage pool; the VM-facing volume mode is Filesystem. The OCS snapshot-class mapping is documented in the [Red Hat storage guide](https://docs.redhat.com/en/documentation/openshift_container_platform/4.16/html/virtualization/storage).
+  _Storage sources:_ The [test-suite storage matrix](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/global_config.py) and [HPP capabilities](https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/utilities/constants/storage.py) describe the standard OCS and HPP classes. The WFFC class settings are based on the cluster inventory below and must be checked on the selected cluster. The `pvc-block` HPP name describes its backing storage pool; the VM-facing volume mode is Filesystem. The OCS snapshot-class mapping is documented in the [Red Hat storage guide](https://docs.redhat.com/en/documentation/openshift_container_platform/4.16/html/virtualization/storage).
+
+  _Observed cluster storage inventory (2026-11-24):_ On `c01-acinko500`, `ocs-storagecluster-ceph-rbd-wffc` is owned by `StorageClient`, uses WaitForFirstConsumer, and has the same provisioner, pool, image features, and storage parameters as `ocs-storagecluster-ceph-rbd-virtualization`. Both storage profiles advertise Block (RWO/RWX) and Filesystem (RWO), and identify `ocs-storagecluster-rbdplugin-snapclass`; that snapshot class uses the matching RBD driver and carries the Velero selection label. All three workers report zone `nova`, so this cluster does not meet the P2 two-zone prerequisite. These are configuration observations, not evidence of a successful snapshot, backup/restore, or Storage Ecosystem approval.
 
 - **Network:** Standard cluster networking (OVN-Kubernetes)
 - **Required Operators:** OpenShift Virtualization Operator, OADP Operator (with Velero and DataMover components), OpenShift Data Foundation Operator for OCS storage
@@ -279,7 +281,7 @@ No verification activities will be performed for these items during this test cy
   | Workload-only account | No permission to submit backup or restore requests | Manage the VM in A; no access to B | Cross-namespace restore submission is denied |
 
 - **Platform:** RHOS PSI (OpenStack) or AWS, with ODF installed and both listed OCS classes available. Record the platform, cluster, and region used for each result. For P2, validate multiple worker zones and matching storage topology on the chosen platform; the platform name alone does not establish that prerequisite.
-- **Special Configurations:** Create `ocs-storagecluster-ceph-rbd-virtualization-wffc` from the standard OCS virtualization class, preserving its provisioner and storage parameters and selecting WaitForFirstConsumer binding. This is a test-created class, not an ODF default. Keep the standard class unchanged. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the OCS driver and verify snapshot creation and restore. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Before executing this plan, record the exact OADP, Velero, and DataMover versions on the selected cluster and obtain dated Storage Ecosystem confirmation for the topology and snapshot-class compatibility.
+- **Special Configurations:** Use the existing `ocs-storagecluster-ceph-rbd-wffc` class. Before execution, verify its WaitForFirstConsumer binding, RBD provisioner, pool, image features, and advertised Block and Filesystem modes on the selected cluster. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the matching OCS driver and verify snapshot creation and restore in both volume modes. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Obtain Storage Ecosystem confirmation that the selected topology supports the proposed PV-zone and worker-zone comparison; the WFFC binding mode alone does not establish that oracle. Record the exact OADP, Velero, and DataMover versions and dated Storage Ecosystem confirmation for topology and snapshot-class compatibility before execution.
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -296,8 +298,8 @@ The following conditions must be met before testing can begin:
 - [ ] OADP operator installs successfully via OLM on the selected OCP 4.23 or later / CNV v5.0.0 or later environment, and a sample VM backup and restore completes successfully as a smoke check; record the date, cluster, and installed OADP/Velero/DataMover versions before marking complete. The 2026-11-13 inventory in Section II.3 does not establish that the smoke check passed.
 - [x] The common storage matrix includes snapshot support through `ocs-storagecluster-ceph-rbd-virtualization`
 - [ ] `ocs-storagecluster-rbdplugin-snapclass` has been validated with the installed OADP/Velero/DataMover versions for both volume modes
-- [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-virtualization-wffc` is configured and supports successful snapshot-based backup and restore
-- [ ] For the P2 topology scenario: the OCS storage topology has been confirmed against at least two worker zones
+- [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-wffc` is available with the settings in Section II.3 and supports successful snapshot-based backup and restore in both volume modes
+- [ ] For the P2 topology scenario: the OCS storage topology has been confirmed against at least two worker zones, including whether the proposed PV-zone and worker-zone comparison is valid
 - [ ] The authorization-test accounts and namespaces A/B are configured, and their effective operation permissions match the matrix in Section II.3
 
 #### **5. Risks**
@@ -318,8 +320,8 @@ The following conditions must be met before testing can begin:
 
 **Test Environment**
 
-- **Risk:** None -- this plan uses the existing OCS snapshot backend; the WFFC test class and P2 storage topology are checked as entry criteria.
-  - **Mitigation:** Configure the OCS WFFC test class and validate the snapshot and topology entry criteria before scheduling execution. HPP availability alone does not establish readiness for this DataMover path; report an unmet prerequisite as blocked coverage.
+- **Risk:** None -- this plan uses the existing OCS snapshot backend; the WFFC class and P2 storage topology are checked as entry criteria.
+  - **Mitigation:** Verify the existing OCS WFFC class and validate the snapshot and topology entry criteria before scheduling execution. HPP availability alone does not establish readiness for this DataMover path; report an unmet prerequisite as blocked coverage.
 
 **Untestable Aspects**
 
