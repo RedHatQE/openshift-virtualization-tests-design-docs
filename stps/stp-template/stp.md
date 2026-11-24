@@ -14,10 +14,9 @@ out-of-scope exclusion, technology challenge, API extension, topology item, test
 criterion, risk entry, scenario, or Document Conventions term — is content, not a new field.
 
 If a field is missing or badly shaped, that is a template change and needs a separate PR to this
-repository that updates the template it changes, docs/stp-guide.md, the `Template Structure Compliance`
-section of the AGENTS.md review guide,
-the structure block in `.coderabbit.yaml` and the `extra_instructions` in `.pr_agent.toml` together,
-so the five copies cannot drift. Content with no matching field goes into free prose
+repository that updates the template it changes together with the accompanying review guidance
+(`docs/stp-guide.md`, `AGENTS.md`, `.coderabbit.yaml`, and `.pr_agent.toml`) so all copies stay in
+sync. Content with no matching field goes into free prose
 in an existing field, or outside the STP (design doc, VEP, tests repository) — never into a new
 field, label, `Key: value` line, or table invented for one STP.
 
@@ -128,7 +127,8 @@ before testing starts, so reviewers should check it against their own understand
     fleet) — never a generic "user".
   - Name the action and the outcome, not the mechanism.
   - Each use case must trace to a Section III scenario, or to named existing regression coverage in
-    Test Strategy. If neither covers it, either add the scenario or drop the use case.
+    Test Strategy. If neither covers it, add the scenario or record the gap as a signed-off Out of
+    Scope or Test Limitation entry (do not silently drop a valid customer use case).
   Example: "As a cluster admin draining a node during business hours, I want running VMs to keep
   serving traffic, so that planned maintenance does not need a maintenance window." -->
   - *Value:* [The customer cost of not having this feature]
@@ -268,12 +268,12 @@ phase names from Feature Maturity (from the parent STP for a child STP). Add it 
 pass at that earlier phase — a phase tag is not required for a goal that follows the feature to GA.
 
 **Write one goal per bullet, P0 first.** Each P0 functional goal needs a negative or failure-path
-goal next to it — with a matching Section III scenario (or named existing regression coverage in
-Test Strategy) — covering what happens if the operation fails, if the VM starts mid-operation, or if
-the input is invalid — or, if that negative-path coverage is genuinely out of scope, an Out of Scope
-entry with Quality Owner or Product Manager sign-off ("considered" alone is insufficient). A negative
-path that is also an Acceptance Criterion cannot be moved to Out of Scope: Section III covers it, or
-named existing regression coverage in Test Strategy. The `[P0]`/`[P1]`/`[P2]` lines below are
+goal next to it — with a matching Section III scenario — covering what happens if the operation
+fails, if the VM starts mid-operation, or if the input is invalid — or, if that negative-path
+coverage is genuinely out of scope, an Out of Scope entry with Quality Owner or Product Manager
+sign-off ("considered" alone is insufficient). A negative path that is also an Acceptance Criterion
+cannot be moved to Out of Scope: Section III covers it, or named existing regression coverage in
+Test Strategy. The `[P0]`/`[P1]`/`[P2]` lines below are
 repeatable goal examples: keep only the priority levels that apply (omit `[P1]` or `[P2]` if none
 apply, and omit a negative `[P0]` line if it was waived in Out of Scope). -->
 
