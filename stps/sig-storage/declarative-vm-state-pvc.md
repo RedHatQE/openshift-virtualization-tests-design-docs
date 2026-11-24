@@ -328,12 +328,12 @@ QE interprets the clone and migration requirements as preserving usable guest st
     - *Priority:* P1 [DP]
 
 - **[CNV-79308]** — As a VM owner, I want to keep using saved vTPM and EFI state when I adopt released storage or the cluster is upgraded.
-  - *Test Scenario:* **TS-014**: [Tier 3] Verify adopted Windows preserves vTPM and EFI across reboot
+  - *Test Scenario:* **TS-015**: [Tier 3] Verify adopted Windows preserves vTPM and EFI across reboot
     - *Priority:* P1 [DP]
   - *Test Scenario:* **TS-016**: [Tier 2] Verify Linux VM reads pre-upgrade vTPM and EFI state
-    - *Priority:* P1
+    - *Priority:* P2
   - *Test Scenario:* **TS-017**: [Tier 3] Verify Windows VM reads pre-upgrade vTPM and EFI state
-    - *Priority:* P1
+    - *Priority:* P2
 
 - **[CNV-79308]** — As a VM owner, I want my incremental backup history to follow my VM when its VMState storage moves or is reused.
   - *Coverage notes:* Establish a backup checkpoint before each operation and retain the tracked guest disk PVC and volume name. For TS-018, verify that the adopter uses the released VMState PVC, the previous VM's checkpoint bitmap is gone before the first backup, and that backup is full. For TS-019, verify that the same VM uses the new VMState PVC on the target storage class and that the next backup of the tracked disk succeeds incrementally from its pre-migration checkpoint.
