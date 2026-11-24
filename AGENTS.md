@@ -6,17 +6,21 @@ and content requirements are defined by the template (`stps/stp-template/stp.md`
 are described in `docs/stp-guide.md`. When this checklist and the template differ, the template is right and
 this checklist needs fixing. The one exception is
 [Template Structure Compliance](#template-structure-compliance), whose rule text is normative here and
-is kept in sync with the other four copies — the template it changes, `docs/stp-guide.md`, the
+is kept in sync with the other four copies — the templates, `docs/stp-guide.md`, the
 `.coderabbit.yaml` structure block and the `.pr_agent.toml` `extra_instructions` — so no copy drifts
-from the others. The templates define what an STP must contain; this section defines how that is
-reviewed.
+from the others. The five copies are `AGENTS.md`, the templates (`stps/stp-template/stp.md`
+and `stps/stp-template/child-stp.md`, counted as one copy),
+`docs/stp-guide.md`, `.coderabbit.yaml` and `.pr_agent.toml`. `README.md` and `CLAUDE.md` only
+point at these rules and carry no copy of them. The templates define what an STP must contain; this
+section defines how that is reviewed.
 If they ever disagree, the copies are out of sync: that is a template-PR defect to fix in all five,
 not an STP finding.
 
 Evaluate new and edited STPs against the current template and guide. Existing STPs do not have to comply
-with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
-for the entries a PR does not touch; an entry a PR adds or modifies follows the current template, and
-divergence there is CRITICAL (see Template Structure Compliance).
+with updated guidelines and templates. For merged STPs still under refinement, untouched legacy entries
+keep the shape they were approved with (do not flag them); an entry a PR adds or modifies follows the
+current template, and divergence there is CRITICAL (see
+[Template Structure Compliance](#template-structure-compliance)).
 
 ---
 
@@ -53,7 +57,8 @@ An STP **fills** the template — it does not change it.
 - **Splitting** one field into several, or nesting new keys inside an existing field
 - **Field-shaped content inside a field**: a bold or italic run followed by `:` and a value, a
   `Key: value` line, or a table column that behaves like a field is a new field wherever it appears.
-  Bold/italic used as emphasis inside a sentence (`**Note:**`) is prose and allowed.
+  Bold/italic emphasis in prose (such as `**Note:**` starting an explanatory sentence) is prose,
+  not a new field.
 - **A new group heading inside a section** — a standalone bold or italic line, or a heading, that
   introduces a group of items — is a new subsection, wherever it appears.
 - **Inside a field, only two things are allowed:** plain sentences, and the template's own lines
@@ -63,25 +68,27 @@ An STP **fills** the template — it does not change it.
 
 The bracketed *labels* the template itself defines stay in a filled field: `[Jira-ID]` on a
 Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the optional phase tag on a goal as
-`[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` at the start of
-`Test Scenario`. Also sanctioned, because the template itself writes them: markdown link labels
+`[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` (that is `[Tier 1]`,
+`[Tier 2]`, or `[Tier 3]`) at the start of `Test Scenario`. Also sanctioned, because the template
+itself writes them: markdown link labels
 (`[sig-network](./network.md)`, `([Risks](./stp.md#5-risks))`), the checklist markers `[ ]`/`[x]`,
-the `Document Conventions` term line, and bracketed placeholders such as `[version or N/A]` or
-`[Name]`, which are replaced when the field is filled. Any other bracketed *token acting as a
+and the `Document Conventions` term line. Bracketed placeholders (such as `[version or N/A]` or
+`[Name]`) are replaced when the field is filled. Any other bracketed *token acting as a
 key or label* is a new field.
 
 **Repeating a template line is content, not structure.** Extra entry criteria, extra risk entries
 inside one category, extra scenarios, and extra requirements, criteria, NFRs, or limitations all
 repeat an item the template already defines — that is allowed and expected.
 
-**Conditional items — the only permitted omissions:**
+**Conditional items — the only permitted omissions in a feature STP:**
 
 - `Document Conventions (if applicable)`
-- the supplemental field and `Sign-off` line of a risk category that has no risk
+- the supplemental field and `Sign-off` line of a risk category that has no risk — such a category
+  reads `None — [why]` in `Risk`, gives the matching justification in `Mitigation`, and drops the
+  supplemental field and `Sign-off`
 
-Nothing else is optional. Template wording such as "if applicable", "if needed", or "if separate"
-never licenses deleting a labelled field — every field the template shows stays; what the template
-shows for a field that does not apply is the template's own business, not a licence to delete it.
+Nothing else is optional in a feature STP. Template wording such as "if applicable", "if needed",
+or "if separate" never licenses deleting a labelled field — every field the template shows stays.
 
 Child STPs are held to their own field set — `child-stp.md` has no `Enhancement(s)`, `Feature
 Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only its own `SIG` —
@@ -134,7 +141,7 @@ PR adds, renames, or removes in a template, `AGENTS.md`, `docs/stp-guide.md`, `.
 `.pr_agent.toml`, flag it CRITICAL and ask for a split: the structure change must be reviewed alone. The same applies to any PR that changes a rule
 source — `AGENTS.md`, `docs/stp-guide.md`, `.coderabbit.yaml`, `.pr_agent.toml`, or a template — and
 an STP in the same diff: split it, so the rule cannot be rewritten under cover of the STP that
-benefits from it. An unrelated typo fix in a template is fine.
+benefits from it. An unrelated typo fix in a template or rule source is fine.
 
 **Where the content belongs instead:** details a proposed field would carry go into free prose in
 an existing field, or outside the STP (design doc, VEP, tests repository). A detail that is
@@ -148,10 +155,9 @@ one STP.
   documented replacement is allowed, an unexplained deletion is not
 - when it changes structure or shared rule guidance — adding, renaming, reordering, or removing a
   section, numbered subsection, checklist item, metadata field, field inside a checklist item, or
-  Section III key — updates the template it changes, `AGENTS.md` (this section), `docs/stp-guide.md`,
-  the structure block in `.coderabbit.yaml`, and the `extra_instructions` in `.pr_agent.toml` in the
-  same PR, so the five copies cannot drift
-- applies the change to both templates where the item exists in both
+  Section III key — updates the template it changes (both templates where the item exists in both),
+  `AGENTS.md` (this section), `docs/stp-guide.md`, the structure block in `.coderabbit.yaml`, and the
+  `extra_instructions` in `.pr_agent.toml` in the same PR, so the five copies cannot drift
 
 A typo, wording, or comment-only template edit that leaves the fields and the rules unchanged is
 exempt: it needs no rule-copy update and must not be flagged for one.
@@ -220,7 +226,8 @@ CRITICAL. Only divergence from the **current** template counts.
   paid-for workaround) — not a list of product capabilities
 - [ ] Customer use cases are in user story format ("As a [role], I want [action], so that [benefit]")
 - [ ] Use cases name a concrete role a customer would recognize (VM owner, cluster admin, SRE),
-  not a generic "user", and each maps to a Section III scenario
+  not a generic "user", and each maps to a Section III scenario or to named existing regression
+  coverage in Test Strategy
 - [ ] Acceptance criteria are individual list items — each is a specific, verifiable pass/fail condition
 - [ ] Acceptance criteria describe observable user outcomes, not internal system behavior
 - [ ] For features claiming seamless or non-disruptive behavior, acceptance criteria must include
@@ -248,7 +255,7 @@ CRITICAL. Only divergence from the **current** template counts.
 - Requirements are one generic sentence that could describe any feature, with no behavior and no
   condition to test against
 - *Value* or use cases list product capabilities instead of customer consequence, or use cases are
-  written for an unnamed "user" and trace to no scenario
+  written for an unnamed "user" and trace to no scenario or named existing regression coverage
 - NFRs section says "N/A" without explaining why each NFR category doesn't apply
 - Scalability NFR dismissed as "no new requirements" when the feature depends on a mechanism with
   existing cluster-level scale limits
@@ -400,13 +407,13 @@ Reviewers must verify these cross-references between sections:
 
 ### II.5 — Risks
 
-- [ ] ALL standard risk categories are addressed — in a child STP too, every category stays and reads
-  `None — [why]` when the SIG has no risk (see the Risk bullet under "Multi-SIG Features and Child STPs"
-  in `docs/stp-guide.md`); even if no risk, include Mitigation with brief justification:
-  Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects,
-  Resource Constraints, Dependencies
-- [ ] "Other" category is present, holding the risks that don't fit the 6 standard categories —
-  or `None — [why]` when nothing fits it
+- [ ] ALL standard risk categories are addressed — Timeline/Schedule, Test Coverage, Test Environment,
+  Untestable Aspects, Resource Constraints, Dependencies — and no category is dropped where the
+  template keeps it: a feature STP keeps all of them, and a child STP follows `child-stp.md` for
+  which categories it carries and the no-risk form (see "Multi-SIG Features and Child STPs" in
+  `docs/stp-guide.md`)
+- [ ] "Other" category is present wherever the template keeps it, holding risks that don't fit the
+  standard categories — or `None — [why]` when nothing fits it
 - [ ] When a risk exists: full entry required — Risk description, Mitigation strategy, Sign-off,
   and the category-specific supplemental field:
   *Estimated impact on schedule* (Timeline/Schedule),
@@ -415,8 +422,9 @@ Reviewers must verify these cross-references between sections:
   *Current capacity gaps* (Resource Constraints),
   *Dependent teams or components* (Dependencies),
   *Alternative validation approach* (Untestable Aspects)
-- [ ] When no risk exists: only a short justification in the Mitigation field is needed
-  (not just "N/A"); no Sign-off or category-specific supplemental fields are required
+- [ ] When no risk exists: the shape is explicit — `Risk` reads `None — [why]`, `Mitigation` gives
+  the matching justification (not just "N/A"), and the category's supplemental field and `Sign-off`
+  line are dropped
 - [ ] Mitigations are specific and actionable (not "we will address this")
 
 **Common rejection reasons:**
@@ -544,7 +552,8 @@ SIG the child covers.
 - Link every test scenario to a Jira requirement
 - Clearly separate: Feature Limitations | Test Limitations | Out of Scope | Risks
 - Use the current template format for STPs being added or modified in the PR
-  (do not retroactively enforce on already-merged STPs — see Template Structure Compliance)
+  (do not retroactively enforce on already-merged STPs —
+  see [Template Structure Compliance](#template-structure-compliance))
 - Fill the template exactly as defined — every section, checklist item, metadata field, and
   scenario key keeps its template name, shape, and position (see [Template Structure Compliance](#template-structure-compliance))
 - Put content that has no matching field as free prose inside an existing field (no new bullet,

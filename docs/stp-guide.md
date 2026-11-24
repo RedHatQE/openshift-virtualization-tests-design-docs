@@ -29,11 +29,10 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 [`stps/stp-template/stp.md`](../stps/stp-template/stp.md) (child STPs:
 [`child-stp.md`](../stps/stp-template/child-stp.md)). It contains inline instructions for most fields.
 This guide does not restate those instructions; it maps the template's parts and explains their purpose and the
-process around them. The one exception is the fixed structure below, which is a shared rule: it is stated
-in full here as well so this guide can be read on its own, and it is kept in sync with the four other copies.
-If this guide and the template ever disagree, the template wins and the guide must be fixed. The one
-exception is the structure rule below: a disagreement between it and a template is a copy-sync defect to
-fix in all copies, not an STP finding.
+process around them. If this guide and the template ever disagree, the template wins and the guide must be
+fixed. The one exception is the fixed-structure rule below: it is stated in full here and kept in sync with
+the four other copies, so a disagreement between it and a template is a copy-sync defect to fix in all five
+copies, not an STP finding.
 
 | Template part | Purpose |
 |:--------------|:--------|
@@ -61,20 +60,22 @@ Not allowed in a feature STP, and blocking on review:
 - removing any of those that is not listed as conditional below
 - splitting one field into several, or nesting new keys inside an existing field
 - field-shaped content inside a field: a bold or italic label followed by `:` and a value, a
-  `Key: value` line, or a table column that behaves like a field. Emphasis inside a sentence
-  (`**Note:**`) is prose, and extra detail must be free prose
+  `Key: value` line, or a table column that behaves like a field. Bold/italic emphasis in prose
+  (such as `**Note:**` starting an explanatory sentence) is prose, not a new field, and extra detail
+  must be free prose
 - a new group heading inside a section: a standalone bold or italic line, or a heading, that
   introduces a group of items — that is a new subsection
 
 Inside a field value, the bracketed labels the template itself defines stay in a filled field:
 `[Jira-ID]` on a Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the optional phase tag on a
-goal as `[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` at the start of
-`Test Scenario`. Also sanctioned, because the template itself writes them: markdown link labels, the
-checklist markers `[ ]`/`[x]`, the `Document Conventions` term line, and bracketed placeholders such
-as `[version or N/A]`, which are replaced when the field is filled. Any other bracketed *token acting as
+goal as `[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` (that is `[Tier 1]`,
+`[Tier 2]`, or `[Tier 3]`) at the start of `Test Scenario`. Also sanctioned, because the template
+itself writes them: markdown link labels, the checklist markers `[ ]`/`[x]`, and the
+`Document Conventions` term line. Bracketed placeholders (such as `[version or N/A]` or `[Name]`)
+are replaced when the field is filled. Any other bracketed *token acting as
 a key or label* is a new field.
 
-**Section III has one entry shape.** Each entry is a bullet with the Jira key bold, the requirement
+**Section III has one entry shape.** Each entry is a bullet with the Jira ID bold, the requirement
 summary as a user story, then exactly two keys — the tier inline as the first token of
 `Test Scenario`:
 
@@ -98,7 +99,9 @@ entries, extra scenarios, requirements, criteria, NFRs, or limitations are all a
 
 **Conditional items — the only permitted omissions in a feature STP:** `Document Conventions
 (if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that has no
-risk. Nothing else is optional there: template wording like "if applicable" or "if needed" never
+risk — such a category reads `None — [why]` in `Risk`, gives the matching justification in
+`Mitigation`, and drops the supplemental field and `Sign-off`. Nothing else is optional there:
+template wording like "if applicable" or "if needed" never
 licenses deleting a labelled field — every field the template shows stays.
 
 Child STPs are held to `child-stp.md`'s own field set, which legitimately has no `Enhancement(s)`,
@@ -111,10 +114,11 @@ the document, and in `AGENTS.md` and `docs/*.md` they are guidance too — comme
 finding.
 
 If a field is missing or badly shaped, that is a **template change** and needs its own PR to this
-repository, changing the template it changes, this guide, the `Template Structure Compliance` section
-of `AGENTS.md`, the structure block in `.coderabbit.yaml`, and the `extra_instructions` in
-`.pr_agent.toml` together — and to the same item in the other template wherever it exists in both —
-so the five copies cannot drift. STPs adopt the new structure only after
+repository, updating all five copies — the template it changes (`stps/stp-template/stp.md` and
+`stps/stp-template/child-stp.md` where the item exists in both, counted as one copy), this guide, the
+`Template Structure Compliance` section of `AGENTS.md`, the structure block in `.coderabbit.yaml`,
+and the `extra_instructions` in `.pr_agent.toml` — together, so they cannot drift. `README.md` and
+`CLAUDE.md` only point at these rules and carry no copy of them. STPs adopt the new structure only after
 that PR merges. A rename or a documented replacement is allowed in that PR; an unexplained deletion of a required
 item is not. A typo, wording, or comment-only template edit that leaves the fields and the rules
 unchanged needs no rule-copy update and should not be flagged for one. A detail that has no matching
@@ -124,7 +128,7 @@ repository).
 A structure change must not ride along inside an STP PR: flag any PR where an STP change uses a
 field, key, or section the same PR adds, renames, or removes in a template, in `AGENTS.md`, in this
 guide, in `.coderabbit.yaml`, or in `.pr_agent.toml` — a PR that changes a rule source and an STP
-in the same diff must be split. An unrelated template typo fix is fine.
+in the same diff must be split. An unrelated typo fix in a template or rule source is fine.
 
 Consequence for reviewers: a useful-but-unknown field in an STP is a CRITICAL structure violation,
 not a suggestion to extend the template. A structure change is reviewed on its own, from the
@@ -243,9 +247,10 @@ An STP keeps the following kinds of constraints apart. Never mix them.
 
 Rule of thumb: Feature Limitations and Test Limitations are *known facts* (about the product and about what QE
 can test), risks are *uncertainties*, Out of Scope is a *decision*.
-Every entry that states a limitation, an exclusion or a risk is signed off; a risk category with no
-risk keeps its `Mitigation` line and reads `None — [why]` — not a bare "N/A". The template shows
-where each sign-off goes.
+Every entry that states a limitation, an exclusion or a risk is signed off. A risk category that stays
+in the STP with no risk reads `None — [why]` in `Risk`, gives the matching justification in
+`Mitigation` — not a bare "N/A" — and drops the category's supplemental field and `Sign-off` line.
+The template shows where each sign-off goes.
 
 ## Priority and Tier
 
@@ -260,11 +265,13 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
   `[Name]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
 - Traceability holds: every non-regression Testing Goal has a Section III scenario, and every acceptance
   criterion is covered by a scenario or by named existing regression coverage in Test Strategy
-- Every limitation, exclusion and risk entry is signed off (see Constraint Categories)
+- Every limitation, exclusion and real risk entry is signed off (see Constraint Categories; a risk
+  category with no risk drops its `Sign-off` line)
 - Structure matches the template: no section, checklist item, metadata field, field inside a
   checklist item, Section III key, or risk field added, renamed, reordered, or removed, and the only
-  bracketed tokens are the ones the template sanctions — its own labels, markdown link labels, the
-  checklist markers and placeholders (see "The Template Is Fixed")
+  bracketed tokens kept in a filled STP are the ones the template sanctions — its own labels,
+  markdown link labels, the checklist markers, and the `Document Conventions` term line (see "The
+  Template Is Fixed")
 
 ## Moving an STP
 
