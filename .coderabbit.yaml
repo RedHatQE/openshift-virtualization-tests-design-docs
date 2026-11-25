@@ -68,8 +68,8 @@ reviews:
         entries inside one category, extra scenarios, requirements, criteria, NFRs, or limitations
         are all allowed.
 
-        Conditional items — the only permitted omissions in a feature STP: `Document Conventions
-        (if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that
+        Conditional items — the only permitted omissions in a feature STP: `Document Conventions`,
+        and the supplemental field plus `Sign-off` line of a risk category that
         has no risk — such a category reads `None — [why]` in `Risk` and gives the matching
         justification in `Mitigation`. Template wording like "if applicable", "if needed", or
         "if separate" never licenses deleting a labelled field — every field the template shows stays.

@@ -97,9 +97,8 @@ field is a new field (HTML comments excepted).
 **Repeating a template line is content, not structure** — extra entry criteria, extra risk
 entries, extra scenarios, requirements, criteria, NFRs, or limitations are all allowed.
 
-**Conditional items — the only permitted omissions in a feature STP:** `Document Conventions
-(if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that has no
-risk — such a category reads `None — [why]` in `Risk`, gives the matching justification in
+**Conditional items — the only permitted omissions in a feature STP:** `Document Conventions`,
+and the supplemental field plus `Sign-off` line of a risk category that has no risk — such a category reads `None — [why]` in `Risk`, gives the matching justification in
 `Mitigation`, and drops the supplemental field and `Sign-off`. Nothing else is optional there:
 template wording like "if applicable" or "if needed" never
 licenses deleting a labelled field — every field the template shows stays.

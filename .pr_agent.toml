@@ -45,7 +45,7 @@ Core principles:
   A structure change belongs in a separate template PR.
 - Repeating a template line is content, not structure: extra entry criteria, extra risk entries
   inside one category, extra scenarios, requirements, criteria, NFRs, or limitations are allowed.
-- Conditional items — the only omissions in a feature STP: `Document Conventions (if applicable)`,
+- Conditional items — the only omissions in a feature STP: `Document Conventions`,
   and the supplemental field plus `Sign-off` line of a risk category with no risk — such a category
   reads `None — [why]` in `Risk` and gives the matching justification in `Mitigation`. "if applicable"
   or "if needed" never licenses deleting a labelled field — every field the template shows stays.

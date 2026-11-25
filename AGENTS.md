@@ -82,7 +82,7 @@ repeat an item the template already defines — that is allowed and expected.
 
 **Conditional items — the only permitted omissions in a feature STP:**
 
-- `Document Conventions (if applicable)`
+- `Document Conventions`
 - the supplemental field and `Sign-off` line of a risk category that has no risk — such a category
   reads `None — [why]` in `Risk`, gives the matching justification in `Mitigation`, and drops the
   supplemental field and `Sign-off`
