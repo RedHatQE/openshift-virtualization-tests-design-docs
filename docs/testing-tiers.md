@@ -205,6 +205,7 @@ OpenShift Virtualization uses a tiered testing strategy to ensure comprehensive 
 ## Resources
 
 - [STP Guide](./stp-guide.md)
+- [Testing by Feature Maturity](./testing-maturity-guide.md)
 - [STP Template](../stps/stp-template/stp.md)
 - [Child STP Template](../stps/stp-template/child-stp.md)
 - [OpenShift Virtualization Test Repository](https://github.com/kubevirt/kubevirt/tree/main/tests)

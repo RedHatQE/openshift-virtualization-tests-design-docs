@@ -158,6 +158,10 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
 
 **Tier** — see [Testing Tiers](./testing-tiers.md). Every scenario in Section III states its tier.
 
+What each maturity phase (DP, TP, GA) must cover, and how to express it in the STP (Testing Goals,
+Test Strategy, Section III scenarios, and constraint sections), is in
+[Testing by Feature Maturity](./testing-maturity-guide.md).
+
 ## Checklist Before Requesting Review
 
 - Template HTML comments and example text removed; no template placeholder text is left (`[Add details]`,
