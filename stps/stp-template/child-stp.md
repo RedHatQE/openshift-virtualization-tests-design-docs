@@ -1,15 +1,41 @@
 # Openshift-virtualization-tests Test plan
 
+<!-- STRUCTURE IS FIXED.
+This child template defines the section structure and field set for a participating SIG's scope. Fill
+each field as it appears; do not add, rename, remove, or reorder sections, checklist items, fields,
+or Section III keys. Repeating a content line — a requirement, acceptance criterion, NFR,
+feature or test limitation, out-of-scope exclusion, challenge, API, topology item, goal,
+environment requirement, entry criterion, risk entry, scenario, or Document Conventions term —
+is content, not a new field.
+
+The only required-structure fields you may omit are `Document Conventions` and, in a
+no-risk category, the category-specific field (where present — Other has none) and the `Sign-off`
+line (unused example goal priority rows are repeatable content, not required fields). Every risk
+category heading stays as written; a category with no SIG-specific risk keeps its `Risk` line and
+fills it with `None — [reason]`. A structural change is a separate PR that updates the template it
+changes and the other four copies of the rule (AGENTS.md, docs/stp-guide.md, the `.coderabbit.yaml`
+structure block, the `.pr_agent.toml` instructions) — see Template Structure Compliance in AGENTS.md.
+
+Comments carry guidance only — never a field, key, or value — and are deleted before submitting.
+Replace every placeholder; never delete a required field (only the omissions listed above and unused
+example goal priorities may be dropped).
+
+An older child STP is re-shaped onto these lines in the entries it edits; the entries a PR leaves
+alone keep their approved shape. -->
+
 ## **[Feature Title — SIG-Specific Scope] - Quality Engineering Plan**
 
 ### **Metadata & Tracking**
 
 - **Feature Tracking:** [Link to the relevant feature in Jira]
-- **Epic Tracking:** [Link to the SIG-specific tracking Jira Epic, if separate from the parent]
+- **Epic Tracking:** [Link to the SIG-specific tracking Jira Epic, or "Same as parent"]
 - **QE Owner(s):** [Name (@github-handle, email)]
-- **SIG:** [This SIG — the one this child STP covers]
+- **SIG:** [sig-xyz — the SIG this child STP covers]
 
-**Document Conventions (if applicable):** [Define terms specific to this SIG's scope only]
+**Document Conventions**
+<!-- Optional: if no SIG-specific terms apply, omit both this label and the bullet below.
+Otherwise keep the label and repeat the bullet once per term. -->
+- **[term]** — [define a term specific to this SIG's scope only]
 
 ### **Feature Overview**
 
@@ -31,27 +57,38 @@ Feature-wide requirements, acceptance criteria, and NFRs are defined in the pare
 #### **1. Requirement & User Story Review Checklist**
 
 - [ ] **Review Requirements**
-  - *SIG-specific requirements:* [List requirements this SIG owns, or "None — all requirements are in the parent STP"]
+  <!-- List the requirements this SIG owns, or "None — all requirements are in the parent STP".
+  A requirement states a behavior and the condition it must hold under, so a test can pass or fail
+  on it. Repeat the line per requirement — content lines, not new fields. -->
+  - [SIG-specific requirement, or "None — all requirements are in the parent STP"]
 
 - [ ] **Acceptance Criteria**
-  <!-- Only list acceptance criteria specific to this SIG's scope. -->
-  - [List SIG-specific acceptance criteria, or "None — all acceptance criteria are in the parent STP"]
+  <!-- Only list acceptance criteria specific to this SIG's scope, each an observable pass/fail
+  condition. Repeat the line per criterion. -->
+  - [SIG-specific acceptance criterion, or "None — all acceptance criteria are in the parent STP"]
 
 - [ ] **Testability**
-  - *Note any SIG-specific requirements that are unclear or untestable:* [List or "None"]
+  <!-- Any SIG-specific requirement that is unclear, ambiguous, or untestable, and why. Repeat the
+  line per requirement. -->
+  - [Unclear or untestable SIG-specific requirement and why, or "None — [reason]"]
 
 - [ ] **Non-Functional Requirements (NFRs)**
-  <!-- Only list NFRs specific to this SIG's scope. If all NFRs are covered by the parent, state that. -->
-  - *SIG-specific NFRs:* [List or "None — all NFRs are covered by the parent STP"]
-  - *NFRs not covered and why:* [List with justification]
+  <!-- Only list NFRs specific to this SIG's scope. Repeat the nested bullet under either label as
+  needed — these are the template's own nested lines, not new fields. If all NFRs are covered by the
+  parent STP, state that under the first label and write "N/A — all NFRs are covered by the parent
+  STP" under the second. -->
+  - *SIG-specific NFRs:*
+    - [SIG-specific NFR and its target, or "None — all NFRs are covered by the parent STP"]
+  - *NFRs not covered or N/A:*
+    - [SIG-specific NFR not covered or not applicable and why, "None — all SIG-specific NFRs are covered", or "N/A — all NFRs are covered by the parent STP"]
 
 #### **2. Feature Limitations**
 
 <!-- List only SIG-specific limitations. Feature-wide limitations belong in the parent STP.
-If none, state: "None — reviewed and confirmed with [Name/Date]." -->
+If none, state "None — reviewed and confirmed with [Name]" and keep the `*Sign-off:*` line. -->
 
-- **[SIG-specific limitation]**
-  - *Sign-off:* [Name/Date]
+- **[SIG-specific limitation, or "None — reviewed and confirmed with [Name]"]**
+  - *Sign-off:* [Name]
 
 #### **3. Technology and Design Review**
 
@@ -59,20 +96,22 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
   - *Key takeaways and concerns:* [SIG-specific technical concerns]
 
 - [ ] **Technology Challenges**
-  - *List identified challenges:* [SIG-specific challenges]
+  <!-- The SIG-specific technical challenges, and their impact on how this SIG tests the feature. -->
+  - [SIG-specific testing challenge]
   - *Impact on testing approach:* [Impact on this SIG's tests]
 
 - [ ] **API Extensions**
   <!-- New APIs belong in the parent STP. List here only if this SIG tests existing APIs
   in a SIG-specific way, otherwise state "N/A — see parent STP". -->
-  - *List new or modified user-facing APIs:* [SIG-specific, or "N/A — see parent STP"]
+  - [SIG-specific testing of an existing user-facing API, or "N/A — see parent STP"]
   - *Testing impact:* [Impact]
 
 - [ ] **Test Environment Needs**
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
 - [ ] **Topology Considerations**
-  - *Describe topology requirements:* [SIG-specific topology needs]
+  <!-- Cluster and network topology the SIG needs — not internal resource creation. -->
+  - [SIG-specific topology requirement]
   - *Impact on test design:* [Impact]
 
 ### **II. Software Test Plan (STP)**
@@ -84,33 +123,43 @@ If none, state: "None — reviewed and confirmed with [Name/Date]." -->
 <!-- List only this SIG's testing goals. Feature-wide goals belong in the parent STP.
 Order by priority: P0 first, then P1, then P2. Priorities refer to GA. As in the parent STP, an optional phase tag
 (e.g. `[P0][TP]`) marks goals that must also pass at an intermediate phase; phase names come from the parent STP.
-As in the parent STP, each P0 functional goal has a negative or failure-path Testing Goal, or an Out of Scope entry
-with Quality Owner or Product Manager sign-off. -->
+
+Each P0 functional goal needs a negative or failure-path goal next to it — with a matching
+Section III scenario — or the omission documented in Out of Scope with Quality Owner or Product Manager
+sign-off — "considered" alone is insufficient. A negative path that is also an Acceptance Criterion
+cannot be moved to Out of Scope: Section III covers it (or named existing regression coverage in Test
+Strategy). The `[P0]`/`[P1]`/`[P2]` lines below are repeatable goal examples: keep only the priority
+levels that apply (omit `[P1]` or `[P2]` if this SIG has none, and omit a negative `[P0]` line if it
+was waived in Out of Scope). -->
 
 - **[P0]** [SIG-specific testing goal]
+- **[P0]** [SIG-specific negative or failure-path testing goal]
 - **[P1]** [SIG-specific testing goal]
 - **[P2]** [SIG-specific testing goal]
 
 **Out of Scope (Testing Scope Exclusions)**
 
 <!-- List items this SIG explicitly will not test. If something is out of scope for the
-entire feature, it belongs in the parent STP — not here. -->
+entire feature, it belongs in the parent STP — not here. If none, state "None — [why]" and keep the
+`*Rationale:*` and `*Sign-off (Quality Owner or Product Manager):*` lines. -->
 
 - **[Item]**
   - *Rationale:* [Why this SIG won't test it]
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 **Test Limitations**
 
-<!-- Constraints on this SIG's testing approach. -->
+<!-- Constraints on this SIG's testing approach. If none, state "None — [why]" and keep the
+`*Sign-off:*` line. -->
 
 - **[Test Limitation]**
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* [Name]
 
 #### **2. Test Strategy**
 
 <!-- Mark items that this SIG will test. For items covered by the parent STP or other SIGs,
-uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
+uncheck and state "Covered by parent STP" or "Covered by [SIG name]"; where an item does not apply
+to this SIG at all, uncheck and state "N/A — [reason]". -->
 
 **Functional**
 
@@ -146,7 +195,7 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing**
-  - *Details:* [SIG-specific, or "Not applicable for this STP"]
+  - *Details:* [SIG-specific, "Covered by parent STP", or "N/A — [reason]"]
 
 - [ ] **Upgrade Testing**
   - *Details:* [SIG-specific, or "Covered by parent STP"]
@@ -160,16 +209,19 @@ uncheck and state "Covered by parent STP" or "Covered by [SIG name]". -->
 **Infrastructure**
 
 - [ ] **Cloud Testing**
-  - *Details:* [SIG-specific, or "Not applicable"]
+  - *Details:* [SIG-specific, "Covered by parent STP", or "N/A — [reason]"]
 
 #### **3. Test Environment**
 
-<!-- Only what this SIG needs beyond the parent STP's Test Environment (topology, versions, hardware, storage,
-network, operators, platform, special configurations); the parent's environment applies as-is. -->
+<!-- Covered in the parent STP; state here only what this SIG adds or overrides. Repeat the line
+per requirement. If nothing applies, write "None — covered by the parent STP". -->
 
-- [SIG-specific environment needs, or "Covered by the parent STP"]
+- [SIG-specific environment requirement, or "None — covered by the parent STP"]
 
 #### **3.1. Testing Tools & Frameworks**
+
+<!-- List only tools this SIG adds that are new or non-standard to the feature's testing. `Standard`
+and `N/A` stay as they are when no such tool applies. -->
 
 - **Test Framework:** Standard
 
@@ -179,24 +231,77 @@ network, operators, platform, special configurations); the parent's environment 
 
 #### **4. Entry Criteria**
 
-<!-- Only entry criteria specific to this SIG; the parent STP's criteria apply as-is. -->
+<!-- Covered by the parent STP. Add SIG-specific entry criteria below — repeating the line for each
+one is content, not a new field. If none apply, write "None — covered by the parent STP". A child STP
+carries no completion status here: the parent tracks it. -->
 
-- [SIG-specific entry criteria, or "Covered by the parent STP"]
+- [SIG-specific entry criterion, or "None — covered by the parent STP"]
 
 #### **5. Risks**
 
 Feature-wide risks are stated in the parent STP ([Risks](./stp.md#5-risks)) and are not repeated here.
 
-<!-- List only risks specific to this SIG, grouped under the same categories as the parent
-(Timeline/Schedule, Test Coverage, Test Environment, Untestable Aspects, Resource Constraints,
-Dependencies, plus Other if needed). Omit categories with no SIG-specific risk. If there are none, state: "None beyond the parent STP." -->
+<!-- List only risks specific to this SIG, grouped under the same categories as the parent.
+Keep every category below — the field names are the ones the parent template defines.
+A risk is an uncertainty: something that might happen and could block testing. A constraint that is
+already true is a Test Limitation, and a testing decision already taken is Out of Scope; neither
+belongs here.
 
-**[Risk Category]**
+No SIG-specific risk in a category: write `None — [reason]` in `Risk` and `Not applicable — [same
+reason]` in `Mitigation`, and drop the category-specific field (where present — Other has none) and
+the `Sign-off` line. The reason is this SIG's own, e.g. "None — schedule is fully governed by the
+parent STP milestone with no SIG-specific gating"; "None — no SIG-specific risk" is not a reason.
+When the SIG has no specific risk anywhere, each category still gives its own reason. -->
 
-- **Risk:** [SIG-specific risk]
-  - **Mitigation:** [Mitigation plan]
-  - *[Category-specific field]:* [Details]
-  - *Sign-off:* [Name/Date]
+**Timeline/Schedule**
+
+- **Risk:** [What might delay this SIG's testing, or "None — reason"]
+  - **Mitigation:** [Mitigation plan, or "Not applicable — same reason"]
+  - *Estimated impact on schedule:* [Delay or schedule impact]
+  - *Sign-off:* [Name]
+
+**Test Coverage**
+
+- **Risk:** [Which areas might end up under-tested, or "None — reason"]
+  - **Mitigation:** [Mitigation plan, or "Not applicable — same reason"]
+  - *Areas with reduced coverage:* [Affected areas]
+  - *Sign-off:* [Name]
+
+**Test Environment**
+
+- **Risk:** [What environment resource might be unavailable, or "None — reason"]
+  - **Mitigation:** [Mitigation plan, or "Not applicable — same reason"]
+  - *Missing resources or infrastructure:* [What is unavailable]
+  - *Sign-off:* [Name]
+
+**Untestable Aspects**
+
+- **Risk:** [What this SIG might not be able to verify, or "None — reason"]
+  - **Mitigation:** [Alternative validation, or "Not applicable — same reason"]
+  - *Alternative validation approach:* [Fallback validation]
+  - *Sign-off:* [Name]
+
+**Resource Constraints**
+
+- **Risk:** [What capacity might fall short, or "None — reason"]
+  - **Mitigation:** [Prioritization plan, or "Not applicable — same reason"]
+  - *Current capacity gaps:* [Staffing or skill gaps]
+  - *Sign-off:* [Name]
+
+**Dependencies**
+
+- **Risk:** [Which external dependency might slip or change, or "None — reason"]
+  - **Mitigation:** [Coordination plan, or "Not applicable — same reason"]
+  - *Dependent teams or components:* [External dependencies]
+  - *Sign-off:* [Name]
+
+**Other**
+
+<!-- An uncertainty that does not fit the six categories above. -->
+
+- **Risk:** [Other uncertainty for this SIG, or "None — reason"]
+  - **Mitigation:** [Plan, or "Not applicable — same reason"]
+  - *Sign-off:* [Name]
 
 ---
 
@@ -205,15 +310,18 @@ Dependencies, plus Other if needed). Omit categories with no SIG-specific risk. 
 <!-- List only this SIG's NEW test scenarios. Each scenario must trace to a Jira requirement.
 Every non-regression Testing Goal above has a matching scenario here. Every SIG-specific Acceptance Criterion is
 covered by a scenario here, or by named existing regression coverage in Test Strategy (II.2). Regression tests are
-documented in Test Strategy (II.2), not in this section. -->
+documented in Test Strategy (II.2), not in this section. The entry shape is the parent's: the tier is inline in
+`Test Scenario`; how Tier 1 / Tier 2 / Tier 3 are defined is in `docs/testing-tiers.md`. -->
 
-- **[Jira-ID]** — As a [role], I want [action] so that [benefit]
-  - *Test Scenario:* [Tier 1/2/3] [Description]
+- **[Jira-ID]** — As a [role], I want [action], so that [benefit]
+  - *Test Scenario:* [Tier N] [Description, with an observable pass criterion]
   - *Priority:* [P0/P1/P2, with an optional phase tag as in the parent STP]
 
 ---
 
 ### **IV. Sign-off and Approval**
+
+<!-- Signed by this SIG's Feature Owner and Quality Owner, plus the feature's Product Manager. -->
 
 This Software Test Plan requires sign-off from at least one person per function:
 
