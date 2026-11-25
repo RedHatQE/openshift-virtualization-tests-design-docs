@@ -29,8 +29,11 @@ The STP is a **mandatory deliverable** for formal QE sign-off and feature accept
 [`stps/stp-template/stp.md`](../stps/stp-template/stp.md) (child STPs:
 [`child-stp.md`](../stps/stp-template/child-stp.md)). It contains inline instructions for most fields.
 This guide does not restate those instructions; it maps the template's parts and explains their purpose and the
-process around them.
-If this guide and the template ever disagree, the template wins and the guide must be fixed.
+process around them. The one exception is the fixed structure below, which is a shared rule: it is stated
+in full here as well so this guide can be read on its own, and it is kept in sync with the four other copies.
+If this guide and the template ever disagree, the template wins and the guide must be fixed. The one
+exception is the structure rule below: a disagreement between it and a template is a copy-sync defect to
+fix in all copies, not an STP finding.
 
 | Template part | Purpose |
 |:--------------|:--------|
@@ -41,8 +44,98 @@ If this guide and the template ever disagree, the template wins and the guide mu
 | II.3 / II.3.1 Environment, Tools | What the tests need to run; only new or non-standard tools |
 | II.4 Entry Criteria | What must be true before testing starts |
 | II.5 Risks | Uncertainties, grouped by the template's risk categories, each with mitigation and sign-off |
-| III. Test Scenarios & Traceability | Each new scenario traced to a Jira requirement, with tier and priority |
+| III. Test Scenarios & Traceability | Each new scenario traced to a requirement identifier from Section I.1, with tier and priority |
 | IV. Sign-off and Approval | Sign-off by at least one person per function (Feature Owner, Quality Owner, Product Manager) |
+
+### The Template Is Fixed
+
+[`stps/stp-template/stp.md`](../stps/stp-template/stp.md) (feature STPs) and
+[`stps/stp-template/child-stp.md`](../stps/stp-template/child-stp.md) (child STPs) define both the
+section structure **and** the field set. An STP fills the template; it does not extend it.
+
+Not allowed in a feature STP, and blocking on review:
+
+- adding a section, numbered subsection, checklist item, metadata field, field inside a checklist
+  item, or Section III key
+- renaming or reordering any of those
+- removing any of those that is not listed as conditional below
+- splitting one field into several, or nesting new keys inside an existing field
+- field-shaped content inside a field: a bold or italic label followed by `:` and a value, a
+  `Key: value` line, or a table column that behaves like a field. Emphasis inside a sentence
+  (`**Note:**`) is prose, and extra detail must be free prose
+- a new group heading inside a section: a standalone bold or italic line, or a heading, that
+  introduces a group of items — that is a new subsection
+
+Inside a field value, the bracketed labels the template itself defines stay in a filled field:
+`[req-N]` on a Section III entry, `[P0]`/`[P1]`/`[P2]` on a Testing Goal, the optional phase tag on a
+goal as `[P0][TP]` or on a scenario as `- *Priority:* P0 [TP]`, and `[Tier N]` at the start of
+`Test Scenario`. Also sanctioned, because the template itself writes them: markdown link labels, the
+checklist markers `[ ]`/`[x]`, the `Document Conventions` term line, and bracketed placeholders such
+as `[version or N/A]`, which are replaced when the field is filled. Any other bracketed *token acting as
+a key or label* is a new field.
+
+**Section III has one entry shape.** Each entry is a bullet with the requirement identifier from
+Section I.1 bold, the requirement
+summary as a user story, then exactly two keys — the tier inline as the first token of
+`Test Scenario`:
+
+```markdown
+- **[req-N]**
+  - *Test Scenario:* [Tier N] [scenario]
+  - *Priority:* P0
+```
+
+A child STP uses the same shape. A separate `Tier` key, `Test ID`, `Upstream coverage`,
+`Downstream required`, `Covered upstream`, `Pending (Tier 2 downstream)` and `Gap resolution` are new
+fields.
+
+**Inside a field, only two things are allowed:** plain sentences, and the template's own lines
+repeated — nested, or at the same level for the `Document Conventions` term line. Any other nested
+list item, ordered list, table, or content-bearing HTML element inside a
+field is a new field (HTML comments excepted).
+
+**Repeating a template line is content, not structure** — extra entry criteria, extra risk
+entries, extra scenarios, requirements, criteria, NFRs, or limitations are all allowed.
+
+**Conditional items — the only permitted omissions in a feature STP:** `Document Conventions
+(if applicable)`, and the supplemental field plus `Sign-off` line of a risk category that has no
+risk. Nothing else is optional there: template wording like "if applicable" or "if needed" never
+licenses deleting a labelled field — every field the template shows stays.
+
+Child STPs are held to `child-stp.md`'s own field set, which legitimately has no `Enhancement(s)`,
+`Feature Maturity`, `Owning SIG`, `Participating SIGs`, or `Child STPs` field — it names only its own
+`SIG` — and no `Value`/`Use cases` item, and may not add fields beyond it either.
+
+In a filled STP, HTML comments carry guidance only — never a field, key, or value the visible
+document does not show — and they are removed before submitting. In the templates the comments are
+the document, and in `AGENTS.md` and `docs/*.md` they are guidance too — comments there are never a
+finding.
+
+If a field is missing or badly shaped, that is a **template change** and needs its own PR to this
+repository, changing the template it changes, this guide, the `Template Structure Compliance` section
+of `AGENTS.md`, the structure block in `.coderabbit.yaml`, and the `extra_instructions` in
+`.pr_agent.toml` together — and to the same item in the other template wherever it exists in both —
+so the five copies cannot drift. STPs adopt the new structure only after
+that PR merges. A rename or a documented replacement is allowed in that PR; an unexplained deletion of a required
+item is not. A typo, wording, or comment-only template edit that leaves the fields and the rules
+unchanged needs no rule-copy update and should not be flagged for one. A detail that has no matching
+field belongs in free prose in an existing field, or outside the STP (design doc, VEP, tests
+repository).
+
+A structure change must not ride along inside an STP PR: flag any PR where an STP change uses a
+field, key, or section the same PR adds, renames, or removes in a template, in `AGENTS.md`, in this
+guide, in `.coderabbit.yaml`, or in `.pr_agent.toml` — a PR that changes a rule source and an STP
+in the same diff must be split. An unrelated template typo fix is fine.
+
+Consequence for reviewers: a useful-but-unknown field in an STP is a CRITICAL structure violation,
+not a suggestion to extend the template. A structure change is reviewed on its own, from the
+template PR that introduces it.
+
+**Already-merged STPs keep the shape they were approved with.** Template rules are not retroactively
+enforced. The exemption is per entry: entries a PR adds or modifies follow the current template, and
+legacy entries the PR leaves alone are not flagged. Re-shaping a legacy entry onto the current
+template — renaming its fields to the current names — is that required update, not a structure
+change. Only divergence from the **current** template counts. See the checklist in `AGENTS.md`.
 
 ### Purpose of Each Part
 
@@ -74,6 +167,8 @@ different from standard test infrastructure.
 
 **II.4 Entry Criteria.** The conditions that must hold before test execution starts, such as approved
 requirements and design and an environment that can be set up. Feature-specific conditions are added as needed.
+A "None" entry criterion is still marked `[x]` — the box records that the question was answered, not that
+a condition was met.
 
 **II.5 Risks.** Uncertainties that might affect testing, each with a mitigation, grouped by the template's
 risk categories. See Constraint Categories below for how risks differ from limitations and Out of Scope.
@@ -123,13 +218,14 @@ stps/<owning-sig>/<feature-name>/
 **Child STPs** — define SIG-specific testing goals, scenarios, strategy, and risks. They reference
 the parent for shared context and do NOT duplicate it. A child STP differs from the parent in these ways:
 
-- It omits Enhancement(s), Feature Maturity, Owning/Participating SIGs and the customer value and use cases of
-  the feature; it names only its own SIG.
+- It omits `Enhancement(s)`, `Feature Maturity`, `Owning SIG` and `Participating SIGs` (it names only its
+own `SIG`), `Child STPs`, and the `Value` and `Use cases` items of the feature.
 - Its Feature Overview describes only the SIG's scope.
-- Test Environment and Entry Criteria are covered by the parent; the child adds only SIG-specific needs.
-- It lists only SIG-specific risks and links to the parent for the rest. Risk categories with no
-  SIG-specific risk are omitted; if there are none, it states "None beyond the parent STP", and the rule that
-  every risk category is addressed applies to the parent STP.
+- Test Environment and Entry Criteria are covered by the parent; the child adds only SIG-specific needs
+  and carries no completion status for them.
+- It lists only SIG-specific risks and links to the parent for the rest; feature-wide risks belong to
+  the parent. The child template defines which risk categories a child STP carries and the form a
+  category takes when the SIG has no risk in it — follow the template, not a second list here.
 
 All other rules in this guide apply to child STPs unchanged.
 
@@ -148,8 +244,9 @@ An STP keeps the following kinds of constraints apart. Never mix them.
 
 Rule of thumb: Feature Limitations and Test Limitations are *known facts* (about the product and about what QE
 can test), risks are *uncertainties*, Out of Scope is a *decision*.
-Every entry that states a limitation, an exclusion or a risk is signed off; a risk category marked "N/A"
-needs only a justification in the Mitigation field. The template shows where each sign-off goes.
+Every entry that states a limitation, an exclusion or a risk is signed off; a risk category with no
+risk keeps its `Mitigation` line and reads `None — [why]` — not a bare "N/A". The template shows
+where each sign-off goes.
 
 ## Priority and Tier
 
@@ -161,10 +258,14 @@ section; they apply to testing goals and scenarios alike. See "Phase tag" there 
 ## Checklist Before Requesting Review
 
 - Template HTML comments and example text removed; no template placeholder text is left (`[Add details]`,
-  `[Name/Date]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
+  `[Name]`, `[TBD]`); the `[Tier N]` marker is not a placeholder
 - Traceability holds: every non-regression Testing Goal has a Section III scenario, and every acceptance
   criterion is covered by a scenario or by named existing regression coverage in Test Strategy
 - Every limitation, exclusion and risk entry is signed off (see Constraint Categories)
+- Structure matches the template: no section, checklist item, metadata field, field inside a
+  checklist item, Section III key, or risk field added, renamed, reordered, or removed, and the only
+  bracketed tokens are the ones the template sanctions — its own labels, markdown link labels, the
+  checklist markers and placeholders (see "The Template Is Fixed")
 
 ## Moving an STP
 
