@@ -1,0 +1,396 @@
+# Openshift-virtualization-tests Test plan
+
+## **Online VMSnapshot using QEMU external snapshots - Quality Engineering Plan**
+
+### **Metadata & Tracking**
+
+- **Enhancement(s):** [VEP 321](https://github.com/kubevirt/enhancements/blob/f04736fb08317fd2de7087fc18e44e8e4a2204d2/veps/sig-storage/321-online-vmsnapshot-qemu-external-snapshots/vep.md), completed design baseline [CNV-91568](https://redhat.atlassian.net/browse/CNV-91568)
+- **Feature Tracking:** [VIRTSTRAT-758](https://redhat.atlassian.net/browse/VIRTSTRAT-758), delivered for Dev Preview by parent epic [CNV-97387](https://redhat.atlassian.net/browse/CNV-97387)
+- **Epic Tracking:** [CNV-97387](https://redhat.atlassian.net/browse/CNV-97387), QE task [CNV-100735](https://redhat.atlassian.net/browse/CNV-100735)
+- **Feature Maturity:**
+  - DP: CNV v5.1.0
+  - TP: CNV v5.2.0 ([CNV-100817](https://redhat.atlassian.net/browse/CNV-100817))
+  - GA: CNV v5.3.0 [confirm]
+- **QE Owner(s):** Dalia Frank / @dalia-frank
+- **Owning SIG:** sig-storage (Storage Ecosystem)
+- **Participating SIGs:** None assigned for this Dev Preview storage plan
+
+**Document Conventions (if applicable):**
+
+- **External mode:** The online snapshot option that separates brief guest capture from storage snapshot completion.
+- **Crash consistency:** Recoverable disk state without a guarantee that guest applications completed their transactions.
+- **VSS:** Windows Volume Shadow Copy Service, used for application-consistent guest snapshots.
+
+### **Feature Overview**
+
+VM owners can take, restore and delete disk snapshots captured while their VMs are running. External mode aims to keep the guest filesystem freeze brief even when storage snapshot completion is slow, reducing application interruption during backups. This plan covers Dev Preview in CNV v5.1.0, including data integrity and failure recovery. The parent feature's planned GA user-interface delivery is tracked separately from this preview's API workflow.
+
+---
+
+### **I. Motivation and Requirements Review (QE Review Guidelines)**
+
+This review records the source requirements and the decisions requiring confirmation before execution.
+
+#### **1. Requirement & User Story Review Checklist**
+
+- [x] **Review Requirements**
+  - *List the key D/S requirements reviewed:*
+    - CNV-100735 requests taking, restoring and deleting snapshots of running VMs for CNV-97387 Dev Preview.
+    - VIRTSTRAT-758 supplies the latency, guest consistency, failure recovery, UI and documentation expectations.
+    - CNV-91568 and VEP 321 supply the design baseline.
+
+- [x] **Understand Value and Customer Use Cases**
+  - *Describe the feature's value to customers:*
+    - Slow storage completion should not extend the guest filesystem freeze for the full snapshot duration.
+  - *List the customer use cases identified:*
+    - As a VM owner, I want snapshots while my application runs so that backups do not require a planned shutdown.
+    - As a Windows VM owner, I want application-consistent multi-disk recovery without storage-delay-induced VSS failures.
+
+- [x] **Testability**
+  - *Note any requirements that are unclear or untestable:*
+    - The task has no explicit acceptance criteria or implementation PR links; coverage is derived through code impact analysis and the parent feature/design baseline.
+    - Noam confirmed that acknowledged writes must be preserved on retained disks before temporary storage cleanup when the VM is deleted during capture ([review comment](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#discussion_r4657342008)).
+    - The release owner must confirm the planned GA target before execution.
+
+- [x] **Acceptance Criteria**
+  - *List the acceptance criteria:*
+    - A completed External snapshot restores the captured disk data, excluding writes acknowledged after capture.
+    - The interval from filesystem freeze completion until thaw is triggered remains below 100 ms, including representative multi-disk cases with storage completion delayed beyond five seconds.
+    - Guest operations continue during the storage completion interval without a VM restart or connection loss caused by snapshotting.
+    - Snapshot deletion and failed requests preserve live guest data and safely release temporary storage when recovery completes.
+    - Missing guest agent or failed filesystem freeze produces a crash-consistent snapshot and reports its consistency; storage failures are distinguishable through user-visible error information.
+    - Windows VSS writers remain healthy and restored application data is consistent across disks after delayed storage completion.
+  - *Note any gaps or missing criteria:*
+    - These are proposed, source-derived criteria for review, not acceptance criteria recorded on CNV-100735.
+    - GA UI delivery and backup-provider integration boundaries require the agreements listed in Out of Scope.
+
+- [x] **Non-Functional Requirements (NFRs)**
+  - *List applicable NFRs and their targets:*
+    - Performance and downtime: measure the below-100-ms frozen interval separately from filesystem freezing, unfreezing and overall storage completion.
+    - Observability: success, guest quiesce errors and storage failures remain distinguishable to the requesting user.
+    - Scalability: verify multi-disk capture and scratch-capacity boundaries, acknowledging storage throughput, provisioner capacity and API rate limits.
+    - Documentation: validate mode selection, prerequisites, errors, limitations, backup guidance and release notes against the preview behavior.
+  - *Note any NFRs not covered and why:*
+    - Security introduces no new authorization model; existing snapshot permission tests remain regression coverage.
+    - Monitoring has no new metric or alert contract in the sources; user-facing status and errors are covered as functional observability.
+    - UI validation remains a customer-value requirement for GA; its omission from this preview needs PM/Lead agreement in Out of Scope.
+    - Portability across clouds and large fleet scalability are excluded by the scope decisions below.
+
+#### **2. Known Limitations**
+
+- **Alpha captures VM disks at the freeze point**
+  - Persistent TPM and EFI state and virtiofs data are captured while the guest is running, rather than at the disk freeze point. A fix is planned for Beta.
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
+
+- **Disk snapshots do not capture running memory state**
+  - Restoring disk data does not resume CPU, memory or device execution at the capture point. Offline snapshot changes, incremental backups, scheduling and cross-cluster replication are outside the feature's stated scope.
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
+
+- **Conflicting disk operations cannot run during active snapshot capture**
+  - Migration, backup, disk removal, storage migration and disk expansion must not invalidate an active snapshot. Delayed operations must become usable again after completion or recovery.
+  - *Sign-off:* Noam Assouline / 2026-11-24 ([LGTM](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666))
+
+#### **3. Technology and Design Review**
+
+- [ ] **Developer Handoff/QE Kickoff**
+  - *Key takeaways and concerns:*
+    - Design documents and the epic discussion were reviewed; no meeting evidence was supplied. Record the design-phase handoff with Dev/Arch: [Name/Date].
+    - Noam identified separate freezing, frozen and unfreezing durations; the 100-ms target applies to the frozen interval ([review comment](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#discussion_r4657382205)).
+
+- [x] **Technology Challenges**
+  - *List identified challenges:*
+    - Multi-disk capture, asynchronous storage completion and crash recovery can fail at different points, threatening acknowledged guest writes.
+    - The VEP describes sub-second capture, while the parent feature requires below 100 ms after VSS preparation.
+  - *Impact on testing approach:*
+    - Observe guest writes throughout capture and recovery, and compare restored data to the capture boundary.
+    - Use the stricter parent target and record filesystem freezing, frozen and unfreezing durations separately.
+
+- [x] **API Extensions**
+  - *List new or modified APIs:*
+    - Snapshot requests select External mode and optional temporary storage capacity; completion and failure information is visible to users.
+  - *Testing impact:*
+    - Verify explicit mode selection, availability controls, invalid requests and missing guest prerequisites.
+
+- [x] **Test Environment Needs**
+  - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
+    - Controlled slow storage, multi-disk Linux workloads, Windows VSS and recoverable fault injection are needed.
+
+- [x] **Topology Considerations**
+  - *Describe topology requirements:*
+    - One OpenShift cluster with at least two schedulable virtualization workers and shared snapshot-capable storage.
+  - *Impact on test design:*
+    - Two workers permit recovery after host disruption and migration conflict checks without adding a second cluster.
+
+### **II. Software Test Plan (STP)**
+
+#### **1. Scope of Testing**
+
+This Dev Preview plan covers API-selected online snapshots, guest capture latency, restore integrity, deletion, interrupted-operation recovery and conflicting VM operations. Storage QE owns these scenarios. Windows validation uses a dedicated cycle because of guest setup cost.
+
+**Testing Goals**
+
+- **[P0]** As a VM owner, verify online snapshots restore captured disk data while later live writes remain intact on the source VM.
+- **[P0]** As an application owner, verify the frozen interval stays below 100 ms despite storage delays, without snapshot-induced restarts or connection loss.
+- **[P1]** As a VM owner, verify failed capture or restore reports an error without replacing valid live data.
+- **[P1]** As an application owner, verify missing guest agent or failed freeze yields a reported crash-consistent snapshot, and storage failures are distinguishable.
+- **[P1]** As an administrator, verify deletion, capacity exhaustion and interrupted recovery preserve acknowledged writes and release temporary storage only when safe.
+- **[P1]** As an administrator, verify conflicting operations are refused or delayed while capture is active and become usable after merge back completes.
+- **[P1]** As a VM owner, verify stopping or deleting a VM during capture and sustained guest writes preserve acknowledged data through recovery.
+- **[P1]** As a VM owner, verify External mode rejects a snapshot of a stopped VM, captures persistent snapshot-capable hotplugged disks on a running VM, and excludes ephemeral disks.
+- **[P1]** As a Windows application owner, verify VSS multi-disk restore consistency and distinguish VSS failures from storage delay.
+- **[P2]** As an administrator, verify preview documentation accurately describes selectable modes, recovery and limitations.
+
+**Out of Scope (Testing Scope Exclusions)**
+
+- **GA console mode selection and error presentation**
+  - *Rationale:* VIRTSTRAT-758 schedules the UI delivery for CNV v5.3.0; this task targets API-based Dev Preview in CNV v5.1.0. The customer value remains valid and must receive UI-team validation before GA.
+  - *PM/Lead Agreement:* [Name/Date]
+
+- **Third-party backup-provider workflows**
+  - *Rationale:* VEP 321 excludes provider integration. This plan checks documentation guidance but does not certify external backup products.
+  - *PM/Lead Agreement:* [Name/Date]
+
+- **Cloud matrix, fleet-scale concurrency and long-running soak**
+  - *Rationale:* The preview focuses on representative single-VM and multi-disk workloads, including capacity boundaries. No new cloud-specific behavior or fleet throughput target is defined; broader execution needs a separately agreed release scope.
+  - *PM/Lead Agreement:* [Name/Date]
+
+**Test Limitations**
+
+None identified from the supplied lab information; environment readiness must be demonstrated by the Entry Criteria before execution.
+
+#### **2. Test Strategy**
+
+**Functional**
+
+- [x] **Functional Testing** — Validates that the feature works according to specified requirements and user stories
+  - *Details:* Validate the External snapshot lifecycle and user-visible failures. Snapshot consistency depends on whether the guest filesystem is quiesced, including in Direct mode.
+
+- [x] **Automation Testing** — Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
+  - *Details:* Storage QE automates Tier 1 and Tier 2 in openshift-virtualization-tests; Windows Tier 3 runs in a dedicated cycle. Confirm CI capacity with the release owner, since VIRTSTRAT-758 leaves lane suitability open.
+
+- [x] **Regression Testing** — Verifies that new changes do not break existing functionality
+  - *Details:* Run the Storage SIG's existing Direct snapshot creation, restore, deletion, permission, Windows and snapshot-upgrade suites on the feature-enabled build. They must retain their existing outcomes. The existing-test duplicate check ran; inspected tests do not explicitly select External mode, so they do not replace this feature's scenarios.
+
+- [ ] **Self-Validation Testing** — Should any of the new tests be included in the self-validation test package?
+  - *Details:* No self-diagnostic or product health-check capability is introduced; disruptive fault injection is unsuitable for a health-check package.
+
+**Non-Functional**
+
+- [x] **Performance Testing** — Validates feature performance meets requirements (latency, throughput, resource usage)
+  - *Details:* Measure the below-100-ms interval from freeze completion to thaw trigger, separately from freezing and unfreezing under storage completion delays beyond five seconds, with guest activity observed throughout capture and storage completion.
+
+- [ ] **Scale Testing** — Validates feature behavior under increased load and at production-like scale (e.g., large number of VMs, nodes, or concurrent operations)
+  - *Details:* Fleet concurrency and soak are excluded in Out of Scope. Multi-disk and temporary-capacity boundary scenarios remain functional coverage; storage throughput and API rate limits constrain achievable concurrency and must be recorded rather than treated as a new scale guarantee.
+
+- [ ] **Security Testing** — Verifies security requirements, RBAC, authentication, authorization, and vulnerability scanning
+  - *Details:* No changed authorization boundary is identified. Storage SIG snapshot permission coverage remains in regression; this plan adds no claim of security certification.
+
+- [ ] **Usability Testing** — Validates user experience and accessibility requirements
+  - *Details:* Console delivery belongs to the GA scope decision above. This preview validates API-visible errors and documentation as functional outcomes, retaining the UI requirement for PM/UX confirmation.
+
+- [ ] **Monitoring** — Does the feature require metrics and/or alerts?
+  - *Details:* No feature-specific metric or alert contract was supplied. Success and error visibility are tested functionally without inventing metric names.
+
+**Integration & Compatibility**
+
+- [x] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
+  - *Details:* Cover supported Linux volume modes and multi-disk configurations, plus Windows VSS behavior in Tier 3. Existing Direct behavior remains regression coverage.
+
+- [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
+  - *Details:* The upgrade path was considered. Completed External snapshots use the same volume snapshots as Direct mode; confirm existing snapshot-upgrade regression coverage.
+
+- [ ] **Dependencies** — Blocked by deliverables from other components/products. Identify what we need from other teams before we can test.
+  - *Details:* The parent epic says core testing can begin, and External support exists in the inspected code. No confirmed external delivery blocks the preview API workflow. UI delivery is tracked in Out of Scope.
+
+- [x] **Cross Integrations** — Does the feature affect other features or require testing by other teams? Identify the impact we cause.
+  - *Details:* Storage QE owns snapshot interactions with migration, backup and disk operations, and coordinates failures with virtualization developers. The UI team must validate its GA delivery separately before that scope can be accepted.
+
+**Infrastructure**
+
+- [ ] **Cloud Testing** — Does the feature require multi-cloud platform testing? Consider cloud-specific features.
+  - *Details:* No cloud-specific feature behavior is identified; the broader cloud matrix is excluded with explicit agreement above.
+
+#### **3. Test Environment**
+
+- **Cluster Topology:** One cluster with at least two schedulable virtualization workers, permitting cross-worker restart recovery and migration conflict validation.
+- **OCP & OpenShift Virtualization Version(s):** OpenShift Virtualization CNV v5.1.0 Dev Preview; use its supported OCP pairing, confirmed by the release owner. CNV v5.3.0 is the parent's planned GA target, outside this execution scope.
+- **CPU Virtualization:** Hardware virtualization enabled on both workers for representative Linux and Windows guests.
+- **Compute Resources:** Capacity for one active multi-disk guest, recovery placement and a concurrent workload probe; record allocated CPU, memory and disk sizes in execution evidence rather than assuming an unprovided lab inventory.
+- **Special Hardware:** N/A; no device-specific snapshot requirement is stated.
+- **Storage:** Shared CSI snapshot-capable storage supporting representative block and filesystem volumes, temporary write capacity and controlled storage snapshot latency. The temporary volume uses the first disk’s storage class and defaults to capacity up to 1.1 times the VM disks; provision sufficient capacity and quota. Use a lab storage class selected from the supported matrix.
+- **Network:** Guest connectivity permitting continuous application probes and post-recovery access; no new network topology is required.
+- **Required Operators:** OpenShift Virtualization and the supported storage operator/driver providing snapshots.
+- **Platform:** Supported bare-metal OpenShift lab, with node disruption isolated from other workloads.
+- **Special Configurations:** ExternalVMSnapshot availability enabled for positive tests and disabled for rejection tests; connected guest agent, Linux freeze hooks, Windows VSS and hotplugged disks. Provision reproducible slow-storage, temporary-capacity and restart fault injection.
+
+#### **3.1. Testing Tools & Frameworks**
+
+- **Test Framework:** Standard tooling; no additional framework required.
+- **CI/CD:** Feature-specific fault-injection and Windows execution capacity must be agreed before execution; no new lane is presumed delivered.
+- **Other Tools:** External snapshot logs report the freezing, frozen and unfreezing durations; use the frozen duration for the 100-ms target. Use controlled storage-delay injection and a guest workload probe that detects interruptions throughout the operation.
+
+#### **4. Entry Criteria**
+
+- [ ] Requirements and design documents are **approved and merged**; reconcile the remaining source conflicts with the release owner.
+- [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment), including recoverable fault injection and timing evidence.
+- [ ] Confirm CNV v5.1.0 Dev Preview versus the parent CNV v5.3.0 GA delivery scope, and the supported OCP pairing.
+- [ ] Confirm storage-delay and workload-continuity measurement acceptance with Dev/QE.
+- [ ] Collect the scope agreements, risk sign-offs, design handoff and human STP approval before execution.
+
+#### **5. Risks**
+
+**Timeline/Schedule**
+
+- **Risk:** Remaining recovery hardening may arrive too late for preview validation.
+  - **Mitigation:** Start core lifecycle coverage now as the epic permits; require a recovery-ready build before disruptive tests, and reassess release scope at code freeze.
+  - *Estimated impact on schedule:* Recovery testing could move to the next release candidate if hardening misses the agreed build.
+  - *Sign-off:* [Name/Date]
+
+**Test Coverage**
+
+- **Risk:** Accepted preview exclusions could be mistaken for full feature validation.
+  - **Mitigation:** Reduced coverage for console delivery, third-party workflows and fleet-scale testing is recorded in Out of Scope; require the corresponding agreements before release claims.
+  - *Areas with reduced coverage:* See Out of Scope.
+  - *Sign-off:* [Name/Date]
+
+**Test Environment**
+
+- **Risk:** Fault injection may not reproducibly separate filesystem freeze from storage completion delay.
+  - **Mitigation:** Calibrate delay injection and timestamp resolution against a baseline before using results to assess the 100-ms target.
+  - *Missing resources or infrastructure:* No resource is confirmed missing; measurement fidelity and reproducibility remain unproven.
+  - *Sign-off:* [Name/Date]
+
+**Untestable Aspects**
+
+- **Mitigation:** No risk identified beyond the product limitation and scope decisions already recorded; planned failure paths require the Entry Criteria before execution.
+
+**Resource Constraints**
+
+- **Risk:** Windows application-consistency expertise may not be available during the preview cycle.
+  - **Mitigation:** Reserve a Windows/VSS reviewer and dedicated execution slot before scheduling Tier 3 validation.
+  - *Current capacity gaps:* Staffing and Windows execution slot are unconfirmed.
+  - *Sign-off:* [Name/Date]
+
+**Dependencies**
+
+- **Mitigation:** No external delivery is confirmed as blocking the preview API workflow; verify the feature-enabled build is available before execution.
+
+---
+
+### **III. Test Scenarios & Traceability**
+
+- **[CNV-97387]** — As a VM owner, I want to capture disk snapshots while my VM runs
+  - *Test Scenario:* **TS-01**: [Tier 1] Verify External snapshot completes while VM remains running
+    - *Priority:* P0
+  - *Test Scenario:* **TS-02**: [Tier 1] Verify unavailable External mode rejects capture without guest changes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-03**: [Tier 1] Verify unsupported snapshot modes return a descriptive error
+    - *Priority:* P1
+
+- **[CNV-97387]** — As a VM owner, I want restored disks to contain the captured data
+  - *Test Scenario:* **TS-04**: [Tier 2] Verify restored disks contain capture-time data, excluding later writes
+    - *Priority:* P0
+  - *Test Scenario:* **TS-05**: [Tier 1] Verify incomplete snapshots cannot replace existing VM disks
+    - *Priority:* P1
+  - *Test Scenario:* **TS-06**: [Tier 2] Verify Linux freeze-hook checkpoints match across restored disks
+    - *Priority:* P1
+
+- **[VIRTSTRAT-758]** — As an application owner, I want slow storage completion to avoid prolonged guest freezes
+  - *Test Scenario:* **TS-07**: [Tier 2] Verify frozen-interval latency stays below 100 ms for a multi-disk VM when storage completion takes more than five seconds
+    - *Priority:* P0
+  - *Test Scenario:* **TS-08**: [Tier 2] Verify guest activity continues throughout delayed storage completion
+    - *Priority:* P1
+  - *Test Scenario:* **TS-09**: [Tier 1] Verify capture timeout releases guest writes and reports failure
+    - *Priority:* P1
+
+- **[CNV-97387]** — As a VM owner, I want capture failures to identify the failed prerequisite
+  - *Test Scenario:* **TS-10**: [Tier 1] Verify absent guest agent produces a reported crash-consistent snapshot
+    - *Priority:* P1
+  - *Test Scenario:* **TS-11**: [Tier 1] Verify failed guest freeze produces a reported crash-consistent snapshot
+    - *Priority:* P1
+  - *Test Scenario:* **TS-12**: [Tier 1] Verify storage failure reports storage error without false success
+    - *Priority:* P1
+
+- **[CNV-97387]** — As an administrator, I want snapshot deletion to preserve current guest data
+  - *Test Scenario:* **TS-13**: [Tier 2] Verify completed snapshot deletion preserves subsequent guest writes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-14**: [Tier 2] Verify in-progress deletion preserves writes and completes safe cleanup
+    - *Priority:* P1
+  - *Test Scenario:* **TS-15**: [Tier 2] Verify interrupted cleanup retains recoverable data until retry succeeds
+    - *Priority:* P1
+
+- **[CNV-97387]** — As an administrator, I want bounded temporary storage use during snapshot capture
+  - *Test Scenario:* **TS-16**: [Tier 1] Verify positive temporary-capacity settings are accepted for External snapshots
+    - *Priority:* P1
+  - *Test Scenario:* **TS-17**: [Tier 1] Verify invalid temporary-capacity requests return validation errors
+    - *Priority:* P1
+  - *Test Scenario:* **TS-18**: [Tier 2] Verify capacity exhaustion fails snapshot without losing acknowledged writes
+    - *Priority:* P1
+
+- **[CNV-97387]** — As a VM owner, I want interrupted capture to preserve acknowledged disk writes
+  - *Test Scenario:* **TS-19**: [Tier 2] Verify restart during capture preserves acknowledged post-capture writes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-20**: [Tier 2] Verify restart during cleanup preserves all acknowledged disk writes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-21**: [Tier 2] Verify failed recovery prevents startup without discarding recoverable data
+    - *Priority:* P1
+
+- **[CNV-97387]** — As an administrator, I want conflicting operations to respect an active snapshot
+  - *Test Scenario:* **TS-22**: [Tier 2] Verify migration is blocked during capture and succeeds after merge back
+    - *Priority:* P1
+  - *Test Scenario:* **TS-23**: [Tier 2] Verify backup is blocked during capture and succeeds after merge back
+    - *Priority:* P1
+  - *Test Scenario:* **TS-24**: [Tier 2] Verify disk removal is blocked during capture and succeeds after merge back
+    - *Priority:* P1
+  - *Test Scenario:* **TS-25**: [Tier 2] Verify storage migration is blocked during capture and succeeds after merge back
+    - *Priority:* P1
+  - *Test Scenario:* **TS-26**: [Tier 2] Verify disk expansion waits during capture and succeeds after merge back
+    - *Priority:* P1
+
+  - *Test Scenario:* **TS-27**: [Tier 2] Verify overlapping same-VM snapshots wait, then complete without data corruption
+    - *Priority:* P1
+
+- **[VIRTSTRAT-758]** — As a Windows application owner, I want recoverable application-consistent snapshots
+  - *Test Scenario:* **TS-28**: [Tier 3] Verify restored multi-disk VSS application data is consistent despite slow storage completion
+    - *Priority:* P1
+  - *Test Scenario:* **TS-29**: [Tier 3] Verify a failed VSS filesystem freeze yields a crash-consistent snapshot that reports its consistency
+    - *Priority:* P1
+
+- **[VIRTSTRAT-758]** — As an administrator, I want documentation that matches the preview behavior
+  - *Test Scenario:* **TS-30**: [Tier 1] Verify documentation covers mode selection, prerequisites, errors, recovery, limitations, backup guidance and release notes
+    - *Priority:* P2
+
+- **[CNV-97387]** — As a VM owner, I want capture to handle VM lifecycle and disk configuration
+  - *Test Scenario:* **TS-31**: [Tier 1] Verify External capture of a stopped VM is rejected
+    - *Priority:* P1
+  - *Test Scenario:* **TS-32**: [Tier 2] Verify capture includes persistent, snapshot-capable hotplugged disks and restores their captured data
+    - *Priority:* P1
+  - *Test Scenario:* **TS-33**: [Tier 2] Verify stopping the VM during capture preserves acknowledged disk writes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-34**: [Tier 2] Verify deleting the VM during capture reports the outcome and preserves acknowledged writes on retained disks before and after temporary storage cleanup completes
+    - *Priority:* P1
+  - *Test Scenario:* **TS-35**: [Tier 3] Verify sustained guest writes during merge back preserve acknowledged data, the merge completes with a convergence pause if needed, and guest I/O continues afterward
+    - *Priority:* P1
+
+- **[VIRTSTRAT-758]** — As a Windows application owner, I want VSS writers to remain healthy
+  - *Test Scenario:* **TS-36**: [Tier 3] Verify VSS writers report healthy after capture with delayed storage completion
+    - *Priority:* P1
+
+- **[CNV-97387]** — As a VM owner, I want snapshot contents to reflect supported disk types
+  - *Test Scenario:* **TS-37**: [Tier 2] Verify ephemeral disks are excluded from the snapshot
+    - *Priority:* P1
+
+---
+
+### **IV. Sign-off and Approval**
+
+This Software Test Plan requires approval from the following stakeholders:
+
+* **Reviewers:**
+  - QE Architect (OCP-V): Ruth Netser / @rnetser
+  - QE: Jenia Peimer / @jpeimer, Dalia Frank / @dalia-frank, Adam Cinko / @acinko-rh (OCP-V members)
+  - Development: Noam Assouline / @noamasu — [LGTM, 2026-11-24](https://github.com/RedHatQE/openshift-virtualization-tests-design-docs/pull/208#issuecomment-7127383666)
+* **Approvers:**
+  - QE Lead: Ruth Netser / @rnetser
+  - Dev Lead: Krzysztof Majcher / @kmajcher-rh
+  - Product Manager: Peter Lauterbach / @pelauter
