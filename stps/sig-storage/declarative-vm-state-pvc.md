@@ -63,6 +63,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
     - After storage migration, the VM reports the target VMState PVC as active and can read the vTPM-protected data and EFI variables saved before the move.
     - After Windows live storage conversion, all guest disks and the active VMState PVC use the target storage class.
     - During Windows live storage conversion, the VM stays running from start to completion without a stop or restart.
+    - After Windows live storage conversion, the VM starts from the same target VMState PVC and reads the saved vTPM-protected data and EFI variable while the original PVC is inaccessible.
     - A clone from a declarative-source snapshot without captured VMState reports the missing state. With a claim template inherited from the snapshot, the clone warns and starts with fresh independent state. Without an inherited template, the clone is rejected.
     - The same VM can take an incremental backup from its pre-migration checkpoint after RWO VMState relocation.
     - A different VM adopting the released PVC takes a full backup of the tracked disk.
@@ -121,7 +122,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 
 - [x] **Topology Considerations**
   - *Describe topology requirements:* Use an OpenShift Virtualization cluster with two distinct supported storage classes and schedulable source and destination nodes for live migration.
-  - *Impact on test design:* Clone and storage-migration scenarios can share cluster setup. Keep both storage classes available to the workers selected for Windows live conversion. Use a disposable source volume for TS-011 so the check can make that volume unavailable while keeping target storage available.
+  - *Impact on test design:* Clone and storage-migration scenarios can share cluster setup. Keep both storage classes available to the workers selected for Windows live conversion. Use a disposable source volume for TS-011 and TS-024 so the checks can make that volume unavailable while keeping target storage available.
 
 ### **II. Software Test Plan (STP)**
 
@@ -134,7 +135,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 - **[P1] [DP]** Verify that a failed clone leaves original state usable. For a declarative-source snapshot without captured state, verify rejection without an inherited claim template and a warning with fresh, independent state when the clone inherits a template.
 - **[P1] [DP]** Verify that failed native relocation or Windows live conversion leaves the original vTPM and EFI state usable.
 - **[P1] [DP]** Verify that a VM with a source-only RWO VMState PVC reports why live migration is blocked and can migrate after the owner adds a volume claim template and restarts the VM.
-- **[P1] [DP]** Verify that a VM can start from the relocated VMState PVC and use saved vTPM and EFI state while the original PVC is inaccessible.
+- **[P1] [DP]** Verify that after native RWO relocation or Windows live storage conversion, the VM can start from the relocated VMState PVC and use saved vTPM and EFI state while the original PVC is inaccessible.
 - **[P1] [DP]** Verify that Windows can adopt released state and retain saved vTPM and EFI state across reboot. Run the existing Linux adoption and startup-error checks in II.2.
 - **[P1]** Verify that a different VM adopting a released VMState PVC starts its own backup chain with a full backup. The ownership regression in II.2 verifies that adoption clears the previous VM's CBT data.
 - **[P1]** Verify that the same VM retains its CBT checkpoint and can continue incremental backups after its RWO VMState PVC moves to the target storage class.
@@ -254,7 +255,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 - [x] Requirements and design documents are **approved and merged**
 - [ ] The QE owner qualifies the OCP/CNV build for each test milestone, the planned storage classes, guest images, snapshot support, and Windows live conversion with declarative RWO VMState.
 - [ ] For legacy-source clone variants only, confirm that the tested build for the milestone includes [CNV-100645](https://redhat.atlassian.net/browse/CNV-100645).
-- [ ] For TS-011 only, the QE owner qualifies a disposable setup that keeps the original VMState volume inaccessible and target storage available through a VM stop and start.
+- [ ] For TS-011 and TS-024, the QE owner qualifies a disposable setup that keeps the original VMState volume inaccessible and target storage available through a VM stop and start.
 - [ ] For TS-020 and TS-021, PM confirms the GA target and the QE owner records the supported source and target OCP/CNV builds in [CNV-79312](https://redhat.atlassian.net/browse/CNV-79312).
 
 #### **5. Risks**
@@ -266,7 +267,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 **Test Coverage**
 
 - **Risk:** Existing Windows vTPM migration tests can pass while VMState remains on source storage or saved guest state is lost.
-  - **Mitigation:** Run TS-009 through TS-011 for native relocation. Run TS-015, TS-017, and TS-018 for Windows saved state, target placement, and uninterrupted runtime. TS-016 covers failure before handoff and verifies that the original VM can still use its saved state.
+  - **Mitigation:** Run TS-009 through TS-011 for native relocation. Run TS-015, TS-017, and TS-018 for Windows saved state, target placement, and uninterrupted runtime. TS-024 checks that a fresh Windows instance uses the target state after conversion while the source is inaccessible. TS-016 covers failure before handoff and verifies that the original VM can still use its saved state.
   - *Areas with reduced coverage:* Existing automation lacks VMState-specific assertions and may miss offline fallback. Execute the native and Windows conversion success and failure cases plus the Windows clone and adoption checks before sign-off.
   - *Sign-off:* [Alvaro Romero](https://github.com/alromeros)/2026-11-25
 
@@ -285,8 +286,8 @@ QE interprets the clone and migration requirements as preserving usable guest st
 **Untestable Aspects**
 
 - **Risk:** Source-independence evidence may remain incomplete if the isolated fault-injection capability is not qualified before execution.
-  - **Mitigation:** Meet the isolation constraint in Test Limitations before this case starts; schedule a disposable source/target environment and prove that the selected fault makes source state inaccessible while target state remains usable. Keep the entry criterion open until that qualification succeeds.
-  - *Alternative validation approach:* Use a scoped source-volume disconnect. If no safe scoped fault can be qualified, the source-independence case remains unexecuted and requires an explicit coverage decision before sign-off.
+  - **Mitigation:** Qualify an isolated, disposable environment for TS-011 and TS-024. Verify that the selected fault makes the original VMState volume inaccessible while target storage stays available through a VM stop and start. Keep the entry criterion open until qualification succeeds.
+  - *Alternative validation approach:* Use a scoped source-volume disconnect. If no safe scoped fault can be qualified for a scenario, leave it unexecuted and obtain an explicit coverage decision before sign-off.
   - *Sign-off:* [Alvaro Romero](https://github.com/alromeros)/2026-11-25
 
 **Resource Constraints**
@@ -388,6 +389,11 @@ QE interprets the clone and migration requirements as preserving usable guest st
   - *Test Scenario:* **TS-023**: [Tier 2] [PARTIAL_COVERAGE] Verify incremental backups continue after same-VM VMState relocation
     - *Priority:* P1
     - *Check* — The same VM reports a new active PVC on the target class. Its next backup uses the original tracker and recorded checkpoint and reports Incremental for the tracked disk.
+
+- **[CNV-98256](https://redhat.atlassian.net/browse/CNV-98256)** — As a VM owner, I want Windows to start using its saved state on the target after live storage conversion.
+  - *Test Scenario:* **TS-024**: [Tier 3] Verify Windows starts from the converted VMState PVC with the original PVC inaccessible
+    - *Priority:* P1 [DP]
+    - *Check* — After live storage conversion succeeds, record the active target VMState PVC. Stop and start the VM while the original VMState PVC remains inaccessible. The new instance reports the same target PVC as active and reads the vTPM-protected data and EFI variable saved before conversion.
 
 ---
 
