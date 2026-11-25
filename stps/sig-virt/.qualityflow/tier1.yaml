@@ -1,0 +1,7 @@
+# Tier 1 for sig-virt.
+description: >-
+  Go/Ginkgo tests for one virtualization feature in kubevirt/kubevirt, run
+  against a cluster with OpenShift Virtualization installed.
+default_package: "compute"
+reference_tests:
+  - "https://github.com/kubevirt/kubevirt/blob/main/tests/compute/vm_lifecycle.go"

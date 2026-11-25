@@ -1,0 +1,12 @@
+# Tier 1 for sig-infra.
+description: >-
+  Go/Ginkgo tests for one infrastructure feature: operator certificates and CRDs
+  in kubevirt/kubevirt, common templates in ssp-operator, and instance types in
+  common-instancetypes.
+# Common templates are SSP's, instance types are common-instancetypes',
+# and kubevirt's own tests/infrastructure covers operator certificates and CRDs.
+default_package: "infrastructure"
+reference_tests:
+  - "https://github.com/kubevirt/kubevirt/blob/main/tests/infrastructure/certificates.go"
+  - "https://github.com/kubevirt/ssp-operator/blob/main/tests/commonTemplates_test.go"
+  - "https://github.com/kubevirt/common-instancetypes/blob/main/tests/functests/instancetype_test.go"

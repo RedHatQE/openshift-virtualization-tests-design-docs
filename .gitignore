@@ -30,3 +30,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# QualityFlow local variable values — the template .qualityflow/env.example is tracked
+.env
+.qualityflow/.env

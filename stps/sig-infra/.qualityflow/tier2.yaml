@@ -1,0 +1,8 @@
+# Tier 2 for sig-infra.
+description: >-
+  Boot sources working together end to end: a golden image consumed through a
+  common template into an instance type, template and image reuse across
+  namespaces, and upgrades that keep existing sources bootable. One template,
+  image, or instance type behaving on its own stays Tier 1.
+reference_tests:
+  - "https://github.com/RedHatQE/openshift-virtualization-tests/blob/main/tests/infrastructure/golden_images/test_common_templates_data_volumes.py"
