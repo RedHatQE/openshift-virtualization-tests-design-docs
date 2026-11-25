@@ -233,7 +233,7 @@ QE interprets the clone and migration requirements as preserving usable guest st
 #### **3. Test Environment**
 
 - **Cluster Topology:** Planned three control-plane nodes and three worker nodes, with at least two schedulable workers for live migration.
-- **OCP & OpenShift Virtualization Version(s):** Use CNV v5.1.0 for Developer Preview. The GA upgrade candidate is the proposed TP release, CNV v5.2.0, to the proposed GA release, CNV v5.3.0. Before scheduling, the QE owner confirms the actual CNV builds, their supported OCP versions, and the upgrade path in [CNV-79312](https://redhat.atlassian.net/browse/CNV-79312). Use a source build that supports declarative VMState.
+- **OCP & OpenShift Virtualization Version(s):** Use OCP 5.1 with OpenShift Virtualization 5.1.0 for Developer Preview. [CNV-101545](https://redhat.atlassian.net/browse/CNV-101545) tracks CI targeting this pair. For GA upgrade testing, the proposed path is OCP 5.2 with CNV 5.2.0 to OCP 5.3 with CNV 5.3.0. Before scheduling, the QE owner confirms the exact builds and supported upgrade path in [CNV-79312](https://redhat.atlassian.net/browse/CNV-79312). Use a source build that supports declarative VMState.
 - **CPU Virtualization:** VT-x (Intel) or AMD-V enabled
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
 - **Special Hardware:** N/A - no special hardware needed.
