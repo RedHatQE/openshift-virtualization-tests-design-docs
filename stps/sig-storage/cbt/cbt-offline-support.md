@@ -463,8 +463,10 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
   - *Test Scenario:* [Tier 3] **TS-22:** Validate offline recovery integrity on supported non-default storage.
   - *Priority:* P2
 
-- **[CNV-96511]** — As a backup provider, I want clients to reject untrusted offline pull certificates before reading disk data
-  - *Test Scenario:* [Tier 1] **TS-23:** Verify untrusted certificates block offline pull data retrieval.
+- **[CNV-96511]** — As a backup provider, I want to verify the offline pull endpoint's identity before retrieving disk data.
+  - *Test Scenario:* [Tier 1] **TS-23:** Verify offline pull certificate trust and data retrieval.
+  - **Trusted CA** — Use the CA bundle published with the backup and a valid token. Verify that the client validates the endpoint hostname and certificate and retrieves the expected disk data.
+  - **Untrusted CA** — Repeat against the same endpoint with the same token using a client that trusts only an unrelated CA. Verify that the client rejects the certificate during the TLS handshake before receiving disk data.
   - *Priority:* P1
 
 - **[CNV-100648]** — As a backup provider, I want push and pull backups of never-started VMs in CNV v5.1.0 to return an error without backup output, source-data changes or blocked VM startup
