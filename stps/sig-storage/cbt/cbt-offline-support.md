@@ -154,7 +154,7 @@ and schedule.
 - **[P0] [TP] G03 — Linux recovery integrity:** As a backup provider, verify recovered Linux guests boot with checksums matching each backup point and that incomplete Linux backup chains fail recovery validation.
 - **[P0] G04 — History continuity:** As a backup provider, verify prior online and offline history remains usable across VM restart, and preserve that history when backup preparation or transfer fails.
 - **[P0] G05 — VM safety:** As a cluster admin, verify VM start is blocked during backup, resumes at the mode-specific completion boundary, and source deletion fails the backup without blocking deletion.
-- **[P0] G12 — Unchanged increments:** As a backup provider, verify the expected result of repeating an incremental backup when no disk data has changed.
+- **[P0] G12 — Unchanged increments:** As a backup provider, verify that a repeat offline incremental backup of an unchanged stopped VM succeeds with zero changed disk data and advances the checkpoint after completion.
 - **[P0] [TP] G13 — Extended backup integrity:** As a backup provider, verify recovered Windows guests boot with checksums matching each backup point and that incomplete Windows backup chains fail recovery validation. Verify that unavailable disks prevent successful recovery validation.
 - **[P1] G06 — Recovery and conflicts:** As a backup provider, verify retries recover from interruption while overlapping requests and residual source activity cannot produce unsafe backup output. In CNV v5.1.0, verify that backups of never-started VMs fail safely.
 - **[P1] G07 — Storage and transport security:** As a cluster admin, verify offline disk coverage, trusted TLS retrieval and rejection of invalid credentials or untrusted certificates.
@@ -401,9 +401,11 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
   - **Pull execution** — Verify that the API accepts a fresh full-backup request after successful retrieval and deletion of the original pull request.
   - *Priority:* P1
 
-- **[CNV-96511]** — As a backup provider, I want to know whether a repeat incremental backup succeeds when no disk data has changed. If the disk configuration is unchanged, I also want to take a full backup in push or pull mode without starting the VM again.
+- **[CNV-96511]** — As a backup provider, I want a repeat offline incremental backup to succeed with zero changed disk data and advance the checkpoint after completion. If the disk configuration is unchanged, I also want to take a full backup in push or pull mode without starting the VM again.
   - *Test Scenario:* [Tier 1] **TS-11:** Validate offline backup requests between VM starts.
-  - For repeat incremental backups, verify the expected result confirmed with Development under Test Coverage (Section II.5).
+  - With the VM still stopped and no writes since the previous checkpoint, submit another incremental backup. Verify that it remains incremental and contains zero changed disk data.
+  - **Push execution** — Verify that the checkpoint advances after the backup completes successfully.
+  - **Pull execution** — Verify that the checkpoint advances after retrieving the empty increment and deleting the request.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want eligible disks with usable history to remain incremental when another disk needs a full backup.
@@ -429,7 +431,7 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
 
 - **[CNV-96511]** — As a cluster admin, I want VM shutdown to finish before an offline backup produces data.
   - *Test Scenario:* [Tier 1] **TS-15:** Verify offline backup produces no data during shutdown cleanup.
-  - Submit the request after the VM stops while its launcher pod is still shutting down. Verify the behavior confirmed with Development under Test Coverage (Section II.5).
+  - Submit an offline backup after stopping the VM, while shutdown cleanup is still in progress. Verify that the request stays pending and exposes no backup data until cleanup finishes. Verify that the original request then proceeds without resubmission.
   - *Priority:* P1
 
 - **[CNV-96511]** — As a cluster admin, I want rollback to fail active offline backups without blocking later VM operations or backup requests in push and pull modes
