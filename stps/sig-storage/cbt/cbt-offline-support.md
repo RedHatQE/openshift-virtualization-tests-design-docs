@@ -177,23 +177,23 @@ found will not be classified as defects for this release.
 
 - **UI testing**
   - *Rationale:* The feature is API-only with no UI components.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* Peter Lauterbach, 2026-11-25
 
 - **Execution of online-versus-offline incremental backup benchmarking**
   - *Rationale:* We'll work with the Performance & Scale team to define the comparison, agree on what counts as comparable before setting a pass criterion, and run and report the benchmark under a proposed CNV 5.1 Jira ticket.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* Peter Lauterbach, 2026-11-25
 
 - **Certified backup partner validation**
   - *Rationale:* Partner integration and workflow validation are not covered by this STP; the epic’s external acceptance requirement remains separate.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* Peter Lauterbach, 2026-11-25
 
 - **Offline backup feature-gate persistence across operator restarts or configuration updates**
   - *Rationale:* The plan relies on standard operator configuration handling. TS-01 and TS-02 cover backup behavior with the gate disabled and enabled, respectively.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* Peter Lauterbach, 2026-11-25
 
 - **Verifying Portworx Stork placement preference**
   - *Rationale:* Offline CBT does not set node affinity for the export server pod; it can run on any eligible node where the required PVCs can attach. This STP covers backup and restore correctness, not replica-local placement. Verifying Stork's placement preference is non-blocking and can be deferred to follow-up investigations.
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+  - *Sign-off (Quality Owner or Product Manager):* Peter Lauterbach, 2026-11-25
 
 **Test Limitations**
 
@@ -312,19 +312,19 @@ The following conditions must be met before testing can begin:
 - **Risk:** Shareable-disk coverage depends on whether the target CNV build includes [KubeVirt PR #19708](https://github.com/kubevirt/kubevirt/pull/19708). With the change, full and incremental offline backups omit shareable disks in both modes. A backup can succeed while shared data, such as data on a Windows Server Failover Clustering (WSFC) disk, remains unprotected.
   - **Mitigation:** Confirm with Development whether the target CNV build includes the change before assessing backup coverage for shareable disks.
   - *Areas with reduced coverage:* Offline backup of shareable disks on the target build remains unverified.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 **Test Environment**
 
 - **Risk:** P0 testing is blocked until a compatible CNV v5.1 build is available.
   - **Mitigation:** Track build and HCO availability in Test Limitations and Entry Criteria. See Timeline/Schedule for the schedule impact.
   - *Missing resources or infrastructure:* A confirmed CNV v5.1 build exposing the HCO offline-backup feature gate and the offline backup API.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 - **Risk:** TS-25 execution depends on a confirmed OCP and CNV upgrade build pair.
   - **Mitigation:** Emanuele Prella (QE owner) confirms the supported OCP source and target releases and the exact CNV builds with the Virtualization release team before scheduling TS-25.
   - *Missing resources or infrastructure:* Supported source and target OCP releases and corresponding CNV build IDs for the planned upgrade.
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 **Untestable Aspects**
 
@@ -344,7 +344,7 @@ None — no in-scope requirement is omitted as untestable.
 - **Risk:** P1 coverage for full offline backups of never-started VMs (G11 and TS-26) depends on CNV-100648 landing in the CNV v5.2.0 GA build. A delay leaves this path unverified at GA.
   - **Mitigation:** Confirm that the target build includes the change before running TS-26. If delivery slips, record the P1 coverage gap and run TS-26 on the first build that includes the change.
   - *Dependent teams or components:* Full offline backup support for never-started VMs. [CNV-100648](https://redhat.atlassian.net/browse/CNV-100648)
-  - *Sign-off:* [Name/Date]
+  - *Sign-off:* Alvaro Romero, 2026-11-24
 
 ---
 
