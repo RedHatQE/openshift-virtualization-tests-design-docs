@@ -1,5 +1,23 @@
 # Openshift-virtualization-tests Test plan
 
+<!-- TEMPLATE RULES (delete all HTML comments before submitting)
+
+- **Keep the structure fixed:** fill in the existing sections, checklist items, metadata fields, and
+  Section III keys as shown. Do not add, rename, reorder, or delete fields.
+- **Only two fields may be omitted:** `Document Conventions` (when no terms apply), and a no-risk
+  category's category-specific field + `Sign-off` line. Unused `[P0]`/`[P1]`/`[P2]` example goal
+  lines may also be dropped.
+- **Repeating lines is allowed:** add as many content lines as needed (requirements, use cases,
+  acceptance criteria, NFRs, limitations, out-of-scope items, challenges, APIs, topology items,
+  goals, entry criteria, risk entries, scenarios, or terms).
+- **No empty or bare answers:** replace every placeholder with real content. When a field does not
+  apply, write "None" or "N/A" with a brief reason.
+- **Editing an existing STP?** Update only the entries you touch to match this template; leave
+  untouched legacy entries as they are.
+- **Need a new field?** Propose it in a separate template PR that updates the template together with
+  the review guidance (`docs/stp-guide.md`, `AGENTS.md`, `.coderabbit.yaml`, `.pr_agent.toml`).
+  Otherwise, put extra details as plain prose in an existing field or in the design doc / VEP. -->
+
 ## **[Feature Title/Name] - Quality Engineering Plan**
 
 ### **Metadata & Tracking**
@@ -11,7 +29,8 @@
 - **Feature Maturity:**
   <!-- List each maturity phase with its target version. Use N/A for phases that don't apply.
   Standard phases: Dev Preview (DP), Tech Preview (TP), General Availability (GA).
-  For features already GA with no prior phases, only list GA.
+  All three lines stay: a feature already GA with no prior phases writes `DP: N/A` and `TP: N/A`
+  rather than dropping the lines.
 
   Example:
   - DP: N/A
@@ -25,17 +44,21 @@
   - GA: [version]
 - **QE Owner(s):** [Name(s)]
 - **Owning SIG:** [sig-xyz]
-- **Participating SIGs:** [List of participating SIGs]
-- **Child STPs:** [List child STPs with links, or remove this field for single-SIG features]
-  <!-- For parent STPs in multi-SIG features only: list all child STPs in the feature directory.
-  Remove this field for single-SIG features and child STPs.
+- **Participating SIGs:** [sig-abc, sig-def]
+- **Child STPs:** [child STP links, or "None — single-SIG feature"]
+  <!-- In multi-SIG features, list all child STPs in the feature directory.
+  A single-SIG feature keeps this field and writes "None — single-SIG feature" — do not delete the
+  field. Child STPs have no such field in their own template.
 
   Example:
   - [sig-network](./network.md)
   - [sig-storage](./storage.md)
   - [sig-virt](./virt.md) -->
 
-**Document Conventions (if applicable):** [Define acronyms or terms specific to this document]
+**Document Conventions**
+<!-- Optional: if no feature-specific terms apply, omit both this label and the bullet below.
+Otherwise keep the label and repeat the bullet once per term. -->
+- **[term]** — [define a term specific to this document]
 
 ### **Feature Overview**
 
@@ -59,34 +82,89 @@ before testing starts, so reviewers should check it against their own understand
 #### **1. Requirement & User Story Review Checklist**
 
 <!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - add an explanation why in the `details` section
-2. Complete the relevant, needed details for the checklist item -->
+1. **Checkbox**: Mark [x] when complete; if an item cannot be checked, explain why in the bullet(s) directly under that checklist item.
+2. Fill in the details under each item. -->
 
 - [ ] **Review Requirements**
-  <!-- Review the D/S (Downstream) requirements as defined in Jira. Understand the difference between Upstream (U/S) and D/S requirements.
-  Example: "VMs must migrate without network downtime exceeding the defined threshold during node maintenance." -->
-  - *List the key D/S requirements reviewed:* [Summarize requirements here]
+  <!-- List the downstream (D/S) feature requirements from the Feature Tracking Jira issue (not an
+  engineering implementation epic). Upstream (U/S) VEPs often have wider scope — include only the
+  D/S commitments for this OpenShift Virtualization release.
+
+  Keep requirements at the product level: state the expected behavior and condition without
+  duplicating user stories (put those in Use cases) or detailed test steps (put those in Section III).
+  - Weak: "Support live migration." — too vague to verify
+  - Strong: "Live migration causes minimal network disruption to running VMs."
+  - Strong: "A VM keeps running when its guest agent is unavailable and its liveness probe is paused."
+
+  Do not restate the Feature Overview or describe internal implementation.
+  Repeat the bullet below once per requirement. -->
+  - [Requirement — expected behavior and condition]
 
 - [ ] **Understand Value and Customer Use Cases**
-  <!-- Understand why the feature matters to customers from a D/S perspective and what the real-world use cases are.
-  Example: "Customers need to migrate VMs without network downtime to maintain SLA compliance during node maintenance." -->
-  - *Describe the feature's value to customers:* [Describe the customer value here]
-  - *List the customer use cases identified:* [List use cases here]
+  <!-- Two different things, both required:
+
+  **Value** — the customer cost of *not* having the feature: the workflow that breaks, the SLA that
+  cannot be met, the workaround customers pay for today. Not a restatement of the requirement, and
+  not a list of product capabilities.
+  Example: "Node maintenance forces VMs offline, so customers schedule outages and break their
+  availability SLAs."
+
+  **Use cases** — who does what, and to what end, in user-story form:
+  "As a [role], I want [action], so that [benefit]".
+  - Name a concrete role a customer would recognize (VM owner, cluster admin, SRE running a
+    fleet) — never a generic "user".
+  - Name the action and the outcome, not the mechanism.
+  - Each use case must trace to a Section III scenario, or to named existing regression coverage in
+    Test Strategy. If neither covers it, add the scenario or record the gap as a signed-off Out of
+    Scope or Test Limitation entry (do not silently drop a valid customer use case).
+  Example: "As a cluster admin draining a node during business hours, I want running VMs to keep
+  serving traffic, so that planned maintenance does not need a maintenance window." -->
+  - *Value:* [The customer cost of not having this feature]
+  - *Use cases:*
+    - As a [role], I want to [action], so that [benefit]
 
 - [ ] **Testability**
-  <!-- Confirmed requirements are **testable and unambiguous**. -->
-  - *Note any requirements that are unclear or untestable:* [List unclear or untestable requirements, or "None"]
+  <!-- Confirm requirements are testable and unambiguous. List any requirement that cannot be tested
+  as written and why — or write "None — all requirements are testable and unambiguous".
+  Example: "Integration with third-party app X — cannot be validated due to missing test hardware or
+  licensing." -->
+  - *Unclear or untestable requirements:* [Requirement and why, or "None — all requirements are testable and unambiguous"]
 
 - [ ] **Acceptance Criteria**
-  <!-- Acceptance criteria are the specific, verifiable conditions that must be met for the feature to be considered complete — they define *how we know it works*.
-  Example: "VM migrates without network downtime exceeding 500ms", "VM deletion is blocked for non-admin users." -->
-  - *List the acceptance criteria:* [Add acceptance criteria here]
-  - *Note any gaps or missing criteria:* [Describe gaps, or "None"]
+  <!-- Verifiable pass/fail conditions that define when the feature is done.
+  How sections differ:
+  - **Acceptance Criteria (I.1):** product outcomes that prove the feature is done.
+  - **Testing Goals (II.1):** prioritized testing objectives (P0/P1/P2) that cover those criteria.
+  - **Test Scenarios (III):** concrete individual tests (Tier 1/2/3) that verify each goal.
+
+  - One criterion per bullet, describing observable user outcomes (not internal system behavior).
+  - Every value claim above ("non-disruptive", "no downtime", "isolated") needs a criterion that
+    would fail if disruption occurred (an end-state check alone is not enough).
+  Examples: "VM migrates with network downtime under 500ms", "Non-admin users are blocked from
+  deleting VMs."
+  Repeat the first bullet per criterion. -->
+  - [Acceptance criterion — observable, falsifiable pass/fail condition]
+  - *Gaps or missing criteria:* [Gap or missing criterion, or "None — acceptance criteria cover all requirements and value claims"]
 
 - [ ] **Non-Functional Requirements (NFRs)**
-  <!-- Confirmed coverage for NFRs, including Performance, Security, Usability, Downtime, Connectivity, Monitoring (alerts/metrics), Scalability, Portability (e.g., cloud support), and Docs.-->
-  - *List applicable NFRs and their targets:* [e.g., Resource Efficiency: < 5% CPU overhead on host during feature operation, Security: RBAC enforced, Scalability: supports 500 VMs]
-  - *Note any NFRs not covered and why:* [e.g., "Scalability — no test environment with 500+ VMs available", or "None"]
+  <!-- Every NFR category listed below must be addressed: fill in the measurable target under
+  *Applicable NFRs*, or move any category that does not apply / is not covered under
+  *Non-applicable or uncovered NFRs* with a brief reason ("N/A" alone is not a reason).
+  Examples: "Performance: Host CPU overhead stays under 5% during feature operation",
+  "Security: RBAC prevents non-admin users from deleting VMs", "Scalability: Supports 500 VMs". -->
+  - *Applicable NFRs:*
+    - Monitoring: [Target, or move below with reason]
+    - Observability: [Target, or move below with reason]
+    - UI: [Target, or move below with reason]
+    - Usability: [Target, or move below with reason]
+    - Documentation: [Target, or move below with reason]
+    - Performance: [Target, or move below with reason]
+    - Security: [Target, or move below with reason]
+    - Scalability: [Target, or move below with reason]
+    - Portability: [Target, or move below with reason]
+    - Downtime/Connectivity: [Target, or move below with reason]
+  - *Non-applicable or uncovered NFRs:*
+    - [NFR category and why it does not apply or is not covered, or "None — all listed NFRs apply and are covered"]
 
 #### **2. Feature Limitations**
 
@@ -106,13 +184,13 @@ Example: "Feature does not support IPv6" is a **limitation** (known, confirmed, 
 - No support for ARM64 architecture in this release
 - The feature is incompatible with ZZZ feature
 
-If there are no feature limitations, remove the example items and state: "None — reviewed and confirmed with [Name/Date] that no feature limitations apply for this release." -->
+If there are no feature limitations, replace the placeholder item below with
+"None — reviewed and confirmed with [Name] that no feature limitations apply for this release." and
+keep its `*Sign-off:*` line — only a risk category's supplemental and `Sign-off` lines may be
+dropped. Repeat the two-line entry once per limitation. -->
 
-- **[Feature Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-- **[Feature Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+- **[Feature Limitation]**
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **3. Technology and Design Review**
 
@@ -121,28 +199,37 @@ If there are no feature limitations, remove the example items and state: "None �
 2. Complete the relevant, needed details for the checklist item -->
 
 - [ ] **Developer Handoff/QE Kickoff**
-  <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**-->
-  - *Key takeaways and concerns:* [Summarize key points and concerns]
+  <!-- A meeting where Dev/Arch walked QE through the design, architecture, and implementation details. **Critical for identifying untestable aspects early.**
+  Summarize the actual takeaways and concerns raised — not "meeting held". -->
+  - *Key takeaways and concerns:* [What was learned, and what worries QE]
 
 - [ ] **Technology Challenges**
-  <!-- Identified potential testing challenges related to the underlying technology.-->
-  - *List identified challenges:* [Describe challenges here]
-  - *Impact on testing approach:* [Describe impact on testing]
+  <!-- Identify the potential testing challenges related to the underlying technology, and their
+  impact on how the feature will be tested. Repeat the first bullet per challenge, and the impact
+  bullet per challenge if the impacts differ. -->
+  - [Testing challenge]
+  - *Impact on testing approach:* [How the challenge changes the test approach]
 
 - [ ] **API Extensions**
-  <!-- Review new or modified APIs and their impact on testing. Covers both new tests for new APIs and updates to existing tests for modified APIs.
-  Example: "New VirtualMachineSnapshot API v1beta2 — 3 new endpoints, 1 modified endpoint. Existing snapshot tests need updating." -->
-  - *List new or modified APIs:* [Add APIs here]
-  - *Testing impact:* [Describe testing impact]
+  <!-- Review new or modified user-facing APIs and their impact on testing. Covers both new tests
+  for new APIs and updates to existing tests for modified APIs. No internal component APIs.
+  Example: "New VirtualMachineSnapshot API v1beta2 — 3 new endpoints, 1 modified endpoint.
+  Existing snapshot tests need updating."
+  Repeat the first bullet per API, and the testing-impact bullet per API. -->
+  - [New or modified user-facing API]
+  - *Testing impact:* [How the API change affects existing and new tests]
 
 - [ ] **Test Environment Needs**
   <!-- Identified whether special environment setups are needed beyond standard infrastructure.-->
   - *See environment requirements in Section II.3 and testing tools in Section II.3.1*
 
 - [ ] **Topology Considerations**
-  <!-- Evaluated multi-cluster, network topology, and architectural impacts.-->
-  - *Describe topology requirements:* [Add topology requirements here]
-  - *Impact on test design:* [Describe impact on test design]
+  <!-- Cluster and network topology only — not internal resource creation.
+  State the cluster requirements and their impact on test design.
+  Evaluated multi-cluster, network topology, and architectural impacts.
+  Repeat the first bullet per topology item, and the impact bullet per item. -->
+  - [Cluster and network topology required]
+  - *Impact on test design:* [How the topology shapes the test design]
 
 ### **II. Software Test Plan (STP)**
 
@@ -169,45 +256,39 @@ Each goal should tie back to requirements from Section I and be independently ve
 - **Relevant**: Directly supports feature acceptance criteria and user stories
 - **Verifiable**: Can be objectively confirmed as complete
 
-**Negative paths:** Each P0 functional goal has a negative or failure-path Testing Goal (e.g., "what happens if
-migration fails?", "what if the VM starts during the operation?"), or an Out of Scope entry with Quality Owner or
-Product Manager sign-off — "considered" alone is insufficient. A negative path that is also an Acceptance Criterion
-cannot be moved to Out of Scope: Section III covers it. -->
-
 **Priority Levels:**
 - **P0**: Blocks GA - must be complete before release
 - **P1**: High priority - required for full feature coverage
 - **P2**: Nice-to-have - can be deferred if timeline constraints exist
 
 **Phase tag (optional):** Priorities refer to GA. If a goal or scenario must also pass at an intermediate phase
-(e.g. Tech Preview), add a phase tag: `[P0][TP]` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
+(e.g. Tech Preview), add a phase tag: `**[P0][TP]**` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
 phase names from Feature Maturity (from the parent STP for a child STP).
 
-<!-- **Example - Functional Goals**:
-- **[P0]** Verify VM live migration completes successfully with new network binding plugin across
-  OVN-Kubernetes and secondary networks
-- **[P1]** Validate hotplug/hotunplug operations work with new storage class without VM restart
-- **[P0]** Confirm RBAC permissions model correctly restricts non-admin users from accessing
-  cluster-wide configuration API
-- **[P2]** Validate new metrics with real-time VM performance data (CPU, memory, network, disk I/O)
+**How to write Testing Goals** (higher-level objectives than Section III test scenarios; prioritized
+coverage of Section I.1 Acceptance Criteria):
+- List one goal per bullet, ordered **P0 first, then P1, then P2**. Omit priority levels that do not apply.
+- Pair each **P0 functional goal** with a **negative/failure-path goal** (and matching Section III
+  scenario) — e.g. operation fails, VM starts mid-operation, or invalid input.
+- If a P0 negative path is not tested, record it in **Out of Scope** with Quality Owner or Product
+  Manager sign-off — unless it is also an Acceptance Criterion, in which case Section III (or named
+  existing regression coverage in Test Strategy) must cover it. -->
 
-**Example - Quality Goals**:
-- **[P0]** Verify VM live migration completes in <30 seconds for VMs with <8GB memory
-  (performance baseline from VEP-XXXX)
-- **[P1]** Confirm feature operates correctly in disconnected/air-gapped environments with local
-  image registry
-- **[P0]** Validate zero data loss during live migration under network latency up to 100ms
+<!-- **Examples (flat list, P0 first — do not add category subheadings):**
+- **[P0]** VM live migration is supported with the new network binding plugin on OVN-Kubernetes and secondary networks
+- **[P0]** Live migration with an invalid network binding configuration fails cleanly without disrupting the running VM
+- **[P0]** RBAC restricts non-admin users from accessing cluster-wide feature configuration
+- **[P0]** Live migration meets the performance baseline (<30s for <8GB VMs) with zero data loss under 100ms latency
+- **[P0]** Cluster upgrade preserves existing VM feature configurations without manual intervention
+- **[P1]** Hotplug/hotunplug works with the new storage class without VM restart
+- **[P1]** Feature operates in disconnected/air-gapped environments using a local image registry
+- **[P1]** Prometheus metrics and Alertmanager alerts report feature health and failures
+- **[P2]** Real-time VM resource metrics are exposed during feature operation -->
 
-**Example - Integration Goals**:
-- **[P0]** Verify backward compatibility: upgrade from OCP 4.19 to 4.20 preserves existing VM
-  configurations without manual intervention
-- **[P0]** Confirm interoperability with OpenShift Service Mesh when VMs use Istio sidecar injection
-- **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
-  alerts fire correctly in Alertmanager -->
-
-- **[P0]** [List key functional areas to be tested with priority; add a phase tag such as `[P0][TP]` only if needed]
-- **[P1]** [List non-functional requirements to be tested with priority]
-- **[P2]** [Reference specific user stories from Section I with priority]
+- **[P0]** [Functional goal — what is verified and how success is measured; add a phase tag such as `[P0][TP]` only if needed]
+- **[P0]** [Negative / failure-path goal for the P0 functional goal above — expected error or recovery behaviour]
+- **[P1]** [High-priority functional, non-functional, or integration goal — what is verified and how success is measured]
+- **[P2]** [Nice-to-have goal — what is verified and how success is measured]
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -227,15 +308,19 @@ Example: "MultiArch cluster might not be available" is a **risk**. "We will not 
 **Difference from existing coverage:** Areas already covered by existing regression suites or other teams are
 not Out of Scope; record them under Regression Testing in Test Strategy (II.2).
 
-**Note:** Replace examples with your actual out-of-scope items. If there are no items, remove the examples and state: "None — reviewed and confirmed that all supported product functionality will be tested this cycle." -->
+**Examples:**
+- **Interface settings independent of the new network binding (e.g., NIC model)** — Rationale: feature
+  is agnostic to vNIC emulation towards the guest, so no feature-specific test is planned.
+- **Special guest OS coverage (e.g., Windows)** — Rationale: feature is expected to work with Windows
+  guests, but validation uses Fedora-based guests this cycle.
 
-- **[e.g., Interface settings that are independent of the new network binding (e.g., NIC model)]**
-  - *Rationale:* The feature is expected to work with any interface setting. These settings affect the vNIC emulation towards the guest and are agnostic to the binding choice, so no feature-specific test is planned
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+**Note:** Repeat the three-line entry below once per out-of-scope item. If there are none, replace the
+placeholder item with "None — reviewed and confirmed that all supported product functionality will
+be tested this cycle." and keep its `*Rationale:*` and `*Sign-off (Quality Owner or Product Manager):*` lines. -->
 
-- **[e.g., Special guest OS coverage (e.g., Windows)]**
-  - *Rationale:* Feature is expected to work with Windows guests but no explicit tests are planned; validation uses Fedora-based guests
-  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+- **[Out-of-scope item]**
+  - *Rationale:* [Why QE decided not to test this item this cycle]
+  - *Sign-off (Quality Owner or Product Manager):* [Name]
 
 **Test Limitations**
 
@@ -253,13 +338,12 @@ Example: "No bare-metal MultiArch cluster available" is a **test limitation** (Q
 - Performance testing limited to 100 VMs due to lab capacity
 - IPv6 testing constrained to single-stack due to dual-stack cluster unavailability
 
-If there are no test limitations, remove the example items and state: "None — reviewed and confirmed that no test limitations apply for this release." -->
+Repeat the two-line entry below once per limitation. If there are no test limitations, replace the
+placeholder item with "None — reviewed and confirmed that no test limitations apply for this release."
+and keep its `*Sign-off:*` line. -->
 
-- **[Test Limitation 1]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
-
-- **[Test Limitation 2]**
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this limitation]
+- **[Test Limitation]**
+  - *Sign-off:* [Name — confirms awareness and acceptance of this limitation]
 
 #### **2. Test Strategy**
 
@@ -302,9 +386,14 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
   - *Details:* [ Add details ]
 
 - [ ] **Usability Testing** — Validates user experience and accessibility requirements
-  - Does the feature require a UI? If so, ensure the UI aligns with the requirements (UI/UX consistency, accessibility)
-  - Does the feature expose CLI commands? If so, validate usability and that needed information is available (e.g., status conditions, clear output)
-  - Does the feature trigger backend operations that should be reported to the admin? If so, validate that the user receives clear feedback about the operation and its outcome (e.g., status conditions, events, or notifications indicating success or failure)
+  <!-- Consider, and answer in Details:
+  - Does the feature require a UI? If so, does it align with the requirements (UI/UX consistency,
+    accessibility)?
+  - Does the feature expose CLI commands? If so, validate usability, and that needed information is
+    available (e.g., status conditions, clear output).
+  - Does the feature trigger backend operations that should be reported to the admin? If so,
+    validate that the user receives clear feedback about the operation and its outcome (e.g.,
+    status conditions, events, or notifications indicating success or failure). -->
   - *Details:* [ Add details ]
 
 - [ ] **Monitoring** — Does the feature require metrics and/or alerts?
@@ -313,7 +402,7 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 **Integration & Compatibility**
 
 - [ ] **Compatibility Testing** — Ensures feature works across supported platforms, versions, and configurations
-  - Does the feature maintain backward compatibility with previous API versions and configurations?
+  <!-- Does the feature maintain backward compatibility with previous API versions and configurations? -->
   - *Details:* [ Add details ]
 
 - [ ] **Upgrade Testing** — Validates upgrade paths from previous versions, data migration, and configuration preservation
@@ -334,7 +423,10 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 
 #### **3. Test Environment**
 
-<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A. -->
+<!-- **Note:** "N/A" means explicitly not applicable. All items must be filled or marked N/A.
+Keep every field below — none may be added, removed, or renamed. Replace each value with the actual
+value for this feature, or write the value followed by how it differs from the default shown.
+A field that truly does not apply keeps its line and reads `N/A` plus the reason. -->
 
 - **Cluster Topology:** 3-master/3-worker bare-metal
   <!-- Change if different, e.g., SNO, Compact Cluster, HCP -->
@@ -348,8 +440,7 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 - **Compute Resources:** Minimum per worker node: 8 vCPUs, 32GB RAM
   <!-- Adjust based on feature requirements -->
 
-- **Special Hardware:** N/A
-  <!-- Fill if needed, e.g., SR-IOV NICs, GPUs -->
+- **Special Hardware:** [Special hardware required, e.g., SR-IOV NICs, GPUs, or "N/A — standard hardware only"]
 
 - **Storage:** ocs-storagecluster-ceph-rbd-virtualization
   <!-- Change if specific StorageClass(es) required -->
@@ -357,131 +448,178 @@ Example: Strategy says "Performance testing is applicable — we will measure mi
 - **Network:** OVN-Kubernetes, IPv4
   <!-- Change if needed, e.g., Secondary Networks, IPv6, dual-stack -->
 
-- **Required Operators:** N/A
-  <!-- Add if needed, e.g., NMState Operator -->
+- **Required Operators:** [Additional operators required, e.g., NMState Operator, or "N/A — standard OpenShift Virtualization operators only"]
 
 - **Platform:** Bare metal
   <!-- Change if needed, e.g., AWS, Azure, GCP -->
 
-- **Special Configurations:** N/A
-  <!-- Change if needed, e.g., Disconnected/air-gapped, Proxy, FIPS mode -->
+- **Special Configurations:** [Special cluster configs, e.g., Disconnected/air-gapped, Proxy, FIPS mode, or "N/A — standard connected cluster"]
 
 #### **3.1. Testing Tools & Frameworks**
 
 <!-- Document any **new or additional** testing tools, frameworks, or infrastructure required specifically
-for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure. -->
+for this feature. **Note:** Only list tools that are **new** or **different** from standard testing infrastructure.
+
+Keep every field below — none may be added, removed, or renamed. Keep `Standard` for `Test Framework`
+when no custom framework is needed; for `CI/CD` and `Other Tools`, replace the placeholder with the
+required lane/tool or `N/A` plus the reason. -->
 
 - **Test Framework:** Standard
-  <!-- Change if needed, e.g., new framework, custom test harness, significant changes in tests infrastructure code etc  -->
+  <!-- Change if needed, e.g., new framework, custom test harness, significant changes in tests infrastructure code etc -->
 
-- **CI/CD:** N/A
-  <!-- Change if needed, e.g., special test lane, custom pipeline config -->
+- **CI/CD:** [Special test lane or custom pipeline config, or "N/A — standard CI lanes cover this feature"]
 
-- **Other Tools:** N/A
-  <!-- Fill if needed, e.g., special monitoring, performance tools -->
+- **Other Tools:** [Additional monitoring/performance tools, or "N/A — no extra tooling needed"]
 
 #### **4. Entry Criteria**
 
 The following conditions must be met before testing can begin:
 
+<!-- Add feature-specific entry criteria as needed, and mark each item [x] when it holds. At STP
+approval time, unchecked environment criteria are expected — but a checked item must not contradict
+a listed dependency or test limitation. When no feature-specific criterion applies, write "None —
+the two criteria above cover this feature" in the third line and mark it [x]: the box records that
+the question was answered, and "None" is a complete answer. -->
+
 - [ ] Requirements and design documents are **approved and merged**
 - [ ] Test environment can be **set up and configured** (see Section II.3 - Test Environment)
-- [ ] [Add feature-specific entry criteria as needed]
+- [ ] [Feature-specific entry criterion, or "None — the two criteria above cover this feature"]
 
 #### **5. Risks**
 
-<!-- Document specific risks for this feature. If a risk category is not applicable, mark as "N/A" with
-justification in mitigation strategy. -->
+<!-- Document specific risks for this feature. A risk is an uncertainty — something that might
+prevent planned testing. A constraint that is already true is a Test Limitation, and a testing
+decision already taken is Out of Scope; neither belongs here. A risk category with no risk keeps its
+Mitigation line plus a one-line justification (not just "N/A") — no Sign-off or supplemental field
+is needed. A category with a real risk needs the full entry, including Sign-off (name). Repeat
+the entry for each risk inside a category.
+
+No-risk form (drop the category-specific field and `Sign-off` line):
+- **Risk:** None — [why no risk applies]
+  - **Mitigation:** Not applicable — [same reason] -->
 
 **Timeline/Schedule**
 
-- **Risk:** [Describe the specific scheduling or deadline risk that could delay testing]
-  - **Mitigation:** [Propose how to adjust scope, priorities, or resources to meet the timeline]
-  - *Estimated impact on schedule:* [Add estimated delay or schedule impact]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- The specific scheduling or deadline risk that might delay testing, and how scope, priorities,
+resources, or the timeline will be adjusted in response. -->
+
+- **Risk:** [Scheduling or deadline risk]
+  - **Mitigation:** [How scope, priorities, or resources adjust to meet the timeline]
+  - *Estimated impact on schedule:* [Delay or schedule impact]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Test Coverage**
 
-- **Risk:** [Describe gaps in test coverage and which areas remain unverified]
-  - **Mitigation:** [Propose alternative testing strategies or acceptance of reduced coverage]
-  - *Areas with reduced coverage:* [List affected areas]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- Coverage that may go unverified if something blocks it, and the alternative strategy or the
+reduction that would be accepted. Confirmed gaps are Test Limitations; agreed exclusions are Out of
+Scope. -->
+
+- **Risk:** [Coverage gap and which areas remain unverified]
+  - **Mitigation:** [Alternative testing strategy, or the accepted reduced coverage]
+  - *Areas with reduced coverage:* [Affected areas]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Test Environment**
 
-- **Risk:** [Describe hardware, software, or infrastructure constraints that limit testing]
-  - **Mitigation:** [Propose how to secure required resources or adapt the test plan]
-  - *Missing resources or infrastructure:* [List what is unavailable]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- Hardware, software, or infrastructure that may limit testing, and how the required resources
+will be secured or the plan adapted. A resource already confirmed unavailable is a Test
+Limitation. -->
+
+- **Risk:** [Environment resource or infrastructure that might be unavailable during testing]
+  - **Mitigation:** [How the required resources are secured, or how the plan adapts]
+  - *Missing resources or infrastructure:* [What is unavailable]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Untestable Aspects**
 
-- **Risk:** [Describe scenarios or conditions that cannot be reproduced in a test environment]
-  - **Mitigation:** [Propose alternative validation methods such as smaller-scale tests or production monitoring]
-  - *Alternative validation approach:* [Describe fallback validation method]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- Scenarios or conditions that may not be reproducible in a test environment, and the alternative
+validation method (smaller-scale test, unit test, production monitoring). An aspect already
+confirmed untestable is a Test Limitation. -->
+
+- **Risk:** [Scenario or condition that may not be reproducible in a test environment]
+  - **Mitigation:** [Alternative validation method]
+  - *Alternative validation approach:* [The fallback validation method]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Resource Constraints**
 
-- **Risk:** [Describe staffing, skill, or capacity limitations affecting test execution]
-  - **Mitigation:** [Propose how to prioritize work, cross-train, or coordinate with other teams]
-  - *Current capacity gaps:* [Describe staffing or skill gaps]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- Staffing, skill, or capacity that may limit test execution, and how work will be prioritized,
+cross-trained, or coordinated. A shortfall already confirmed is a Test Limitation. -->
+
+- **Risk:** [Staffing, skill, or capacity shortfall that could affect test execution]
+  - **Mitigation:** [How work is prioritized, cross-trained, or coordinated]
+  - *Current capacity gaps:* [Staffing or skill gaps]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Dependencies**
 
-- **Risk:** [Describe external team or component dependencies that could block testing]
-  - **Mitigation:** [Propose coordination plans, fallback strategies, or stub implementations]
-  - *Dependent teams or components:* [List external dependencies]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
+<!-- External team or component dependencies that could block testing, and the coordination plan,
+fallback strategy, or stub implementation. -->
+
+- **Risk:** [External team or component dependency that could block testing]
+  - **Mitigation:** [Coordination plan, fallback strategy, or stub implementation]
+  - *Dependent teams or components:* [External dependencies]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 **Other**
 
-- **Risk:** [Describe any additional risks not covered by the categories above]
-  - **Mitigation:** [Propose a specific plan to reduce or eliminate this risk]
-  - *Sign-off:* [Name/Date — confirms awareness and acceptance of this risk]
-  <!-- If more context is needed for this item, add an entry with any relevant details-->
+<!-- Only for risks that do not fit the six categories above. If none apply, keep this category,
+write `None — [why]` in the `Risk` line, write `Not applicable — [same reason]` in the `Mitigation`
+line, and drop the `Sign-off` line — do not delete the category. Add any context the entry needs. -->
+
+- **Risk:** [Risk not covered above — or write: None — <reason>]
+  - **Mitigation:** [Specific plan to reduce or eliminate this risk, or "Not applicable — <same reason>"]
+  - *Sign-off:* [Name — confirms awareness and acceptance of this risk]
 
 ---
 
 ### **III. Test Scenarios & Traceability**
 
-<!-- This section links D/S requirements to test coverage, enabling reviewers to verify all requirements are tested.
+<!-- This section links D/S requirements to test coverage, enabling reviewers to verify all
+requirements are tested.
 
-**What goes here:** New test scenarios specific to this feature. Each scenario should trace to a D/S Jira requirement.
-**Granularity:** If one scenario can fail while another passes, they should be separate items. For example:
-- Different conditions (VMs with feature X vs without) → separate scenarios
-- Feature Gate enable/disable → separate scenarios (different expected behavior)
-- Multiple alerts → separate if different trigger conditions, group if same flow
-**Traceability:** Every non-regression Testing Goal (II.1) has a matching scenario here; regression goals refer
-to their coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here, or by
-named existing regression coverage in Test Strategy (II.2).
-**What does NOT go here:** Regression tests (covered in Test Strategy). -->
+**What goes here:** New test scenarios specific to this feature. Each scenario traces to a D/S Jira
+requirement. **Granularity:** if one scenario can fail while another passes, they are separate
+entries (e.g., VMs with feature X vs without, alerts with different trigger conditions; for a DP/TP
+Feature Gate, focus on the gate enabled — only add a disabled-gate scenario for explicit safety
+cases such as disabling the gate while workloads are running). **What does NOT go here:** regression
+tests (covered in Test Strategy).
 
-<!-- **Requirement ID:**
-- Use Jira issue key (e.g., CNV-12345)
+The entry shape is fixed — the Jira key in bold, the requirement as a user story with a concrete
+role and a benefit, then exactly two keys: `Test Scenario` (tier inline as `[Tier N]`) and
+`Priority`. The role must be one a customer would recognize (VM owner, cluster admin, SRE running a
+fleet — never a generic "user") and the benefit must state the outcome, matching the use-case rules
+in Section I.1. The same inline tier is used in a child STP. Tier definitions are in
+`docs/testing-tiers.md` — Tier 1 is a functional test on a cluster, Tier 2 an end-to-end workflow
+test, Tier 3 an extended validation test; use it rather than guessing a tier.
 
-**Requirement Summary:** Brief description from the Jira issue (user story format preferred) -->
+Every non-regression Testing Goal (II.1) has a matching scenario here; a regression goal refers to
+its coverage in Test Strategy (II.2). Every Acceptance Criterion (I.1) is covered by a scenario here,
+or by named existing regression coverage in Test Strategy (II.2).
 
-- **[Jira-123]** — As a user...
+Copy the entry below once per scenario. The bracketed text is replaced — except the labels that keep
+their brackets: `[Jira-ID]` takes the real key, `[Tier N]` the tier number. `[role]`, `[action]`,
+`[benefit]`, `[P0/P1/P2]` and the scenario text are replaced without brackets.
+
+- **[Jira-123]** — As a cluster admin, I want to create a VM with feature X, so that VM workloads start without a separate configuration step
   - *Test Scenario:* [Tier 1] Verify VM can be created with new feature X
   - *Priority:* P0
-
-- **[Jira-124]** — As an admin...
+- **[Jira-124]** — As a VM owner, I want the feature X API to reject invalid input, so that a bad request fails fast instead of corrupting a VM
   - *Test Scenario:* [Tier 1] Verify API for feature X rejects invalid field values
   - *Priority:* P0
-
-- **[Jira-125]** — As an admin user, I want to block non-admin users from deleting VMs
+- **[Jira-125]** — As a cluster admin, I want non-admin users blocked from deleting VMs, so that a single tenant cannot remove another tenant's workload
   - *Test Scenario:* [Tier 2] Verify non-admin user cannot delete a VM
   - *Priority:* P1
-
-- **[Jira-126]** — As a cluster admin...
+- **[Jira-126]** — As a cluster admin, I want an upgrade to preserve feature X state, so that maintenance does not require reconfiguring running VMs
   - *Test Scenario:* [Tier 2] Verify upgrade from version X to Y preserves feature state
   - *Priority:* P2
-
-- **[Jira-127]** — As a Windows VM user...
+- **[Jira-127]** — As a Windows VM owner, I want feature X to work on NTFS guests, so that existing Windows workloads can adopt the feature
   - *Test Scenario:* [Tier 3] Verify feature X works on Windows guest with NTFS filesystem
-  - *Priority:* P1
+  - *Priority:* P1 -->
+
+- **[Jira-ID]** — As a [role], I want [action], so that [benefit]
+  - *Test Scenario:* [Tier N] [scenario, with an observable pass criterion]
+  - *Priority:* [P0/P1/P2]
 
 ---
 
