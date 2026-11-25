@@ -178,7 +178,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 - **P1**: High priority - required for full feature coverage
 - **P2**: Nice-to-have - can be deferred if timeline constraints exist
 
-- **[P0]** Verify every CNV service endpoint negotiates the key-exchange groups configured in the cluster TLS profile — including all newly added PQC hybrid groups — and that omitted groups are rejected (CNV-96294; PR #6653)
+- **[P0]** Verify every CNV service endpoint negotiates the key-exchange groups configured in the cluster TLS profile that its runtime supports — including all newly added PQC hybrid groups — and that omitted groups are rejected (CNV-96294; PR #6653)
 - **[P0]** Verify a custom TLS profile set on the APIServer CR (curves + version + ciphers) propagates to all CNV services and that the services remain reachable and communicating with the new profile (CNV-82576; extends the phase-1 propagation test to curves)
 - **[P0]** Verify all CNV service endpoints are TLS-compliant with the cluster TLS profile and PQC-capable by default (phase 1, CNV-74453; regression — merged automation)
 - **[P1]** Verify the `Groups` field is exposed in the HyperConverged CR and propagated into each managed component CR (KubeVirt, CDI, SSP, NetworkAddonsConfig, AAQ, MigController) and to HCO's own pods, the console plugin, the apiserver-proxy, the observability controller, the network-resources-injector, autopilot and the metrics exporter (CNV-84874…CNV-98975)
