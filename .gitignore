@@ -30,3 +30,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Scratch output from a persona review run (docs/review-personas/README.md)
+review-out/

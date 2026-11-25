@@ -10,6 +10,35 @@ Evaluate new and edited STPs against the current template and guide. Existing ST
 with updated guidelines and templates. For merged STPs still under refinement, recommend the new format
 rather than requiring it.
 
+## Review Personas
+
+Reviewer personas for STP pull requests live in [review personas](./docs/review-personas/README.md).
+The six `sections/` personas partition the checklist below by review focus; the three `roles/` personas
+carry the sign-off functions the template requires (Feature Owner, Quality Owner, Product Manager) and,
+between them, the four rules no section persona can perform — three checks filed as defects, plus one
+judgement filed as a decision:
+
+- **environment reality** — whether what `II.3` plans can actually be provisioned. Feature Owner alone
+- **falsifiability and stability** — whether a scenario could fail at all, or would fail only by flaking.
+  Quality Owner alone
+- **over-testing** — whether coverage is surplus, Tier 2 first, where a production-like run makes it the
+  most expensive kind. Quality Owner alone
+
+and one judgement that is a decision rather than a check: whether a requirement is *true* of what is being
+built, which the section personas cannot see because they only read the feature request. That one is the
+Feature Owner's as well. The Product Manager owns no rule of its own: it owns the product-commitment,
+waiver and accepted-risk decisions the other findings force on it.
+
+Personas compress this checklist. The section personas add no check of their own; those four are the
+roles' additions. The three checks are filed as defects; the fourth, requirement-versus-reality, is filed
+as a decision, because only the product side can settle what a requirement should say.
+
+**Who does what.** The automated reviewers configured in `.coderabbit.yaml` and `.pr_agent.toml` apply the
+checklist below to the diff, and are not expected to run the personas. A human reviewer runs them: the
+procedure, the base-branch rule, the report format and the run matrix are all in the
+[review personas README](./docs/review-personas/README.md#tell-your-assistant-to-use-them). Nothing about
+how to run a review is restated here, because a second copy is a second thing to drift.
+
 ---
 
 ## Core Principles
@@ -316,7 +345,8 @@ Reviewers must verify these cross-references between sections:
 ### IV — Sign-off and Approval
 
 - [ ] Sign-off lists at least one person per function required by the template
-  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle
+  (Feature Owner, Quality Owner, Product Manager), each with name and GitHub handle. Two people on one
+  function is allowed
 - [ ] No placeholder text remaining
 
 ---
@@ -425,6 +455,7 @@ SIG the child covers.
 - Trailing whitespace will be removed by pre-commit hooks
 - Files must end with a newline
 - Inline HTML is allowed for complex formatting
+- A relative link must resolve to a file in this repository
 
 ---
 
