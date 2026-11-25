@@ -1,33 +1,22 @@
 # Openshift-virtualization-tests Test plan
 
-<!-- STRUCTURE IS FIXED — read this before you write anything.
-This template defines both the section structure and the field set of an STP. When you write an STP
-from this file, fill each field as it appears: do NOT add, remove, rename, or reorder sections,
-checklist items, metadata fields, fields inside a checklist item, or Section III keys.
+<!-- TEMPLATE RULES (delete all HTML comments before submitting)
 
-The only required-structure fields you may omit are `Document Conventions (if applicable)` and, in a
-risk category with no risk, the supplemental and `Sign-off` lines (unused example goal priority rows
-are repeatable content, not required fields). Everything else stays: `Child STPs` is always present
-(single-SIG features write `None — single-SIG feature`) and every risk category is present. Repeating
-a line — another requirement, use case, acceptance criterion, NFR, feature or test limitation,
-out-of-scope exclusion, technology challenge, API extension, topology item, testing goal, entry
-criterion, risk entry, scenario, or Document Conventions term — is content, not a new field.
-
-If a field is missing or badly shaped, that is a template change and needs a separate PR to this
-repository that updates the template it changes together with the accompanying review guidance
-(`docs/stp-guide.md`, `AGENTS.md`, `.coderabbit.yaml`, and `.pr_agent.toml`) so all copies stay in
-sync. Content with no matching field goes into free prose
-in an existing field, or outside the STP (design doc, VEP, tests repository) — never into a new
-field, label, `Key: value` line, or table invented for one STP.
-
-Guidance lives in the HTML comments; the visible lines are what you fill in. Comments carry no field,
-key, or value of their own, and every comment is deleted before submitting. Replace each placeholder
-with real content — never delete a required field (only the omissions listed above and unused example
-goal priorities may be dropped). When a field does not apply, write "None" or "N/A" plus the reason
-in it.
-
-An older STP is re-shaped onto these lines in the entries it edits; the entries a PR leaves alone keep
-their approved shape. -->
+- **Keep the structure fixed:** fill in the existing sections, checklist items, metadata fields, and
+  Section III keys as shown. Do not add, rename, reorder, or delete fields.
+- **Only two fields may be omitted:** `Document Conventions` (when no terms apply), and a no-risk
+  category's category-specific field + `Sign-off` line. Unused `[P0]`/`[P1]`/`[P2]` example goal
+  lines may also be dropped.
+- **Repeating lines is allowed:** add as many content lines as needed (requirements, use cases,
+  acceptance criteria, NFRs, limitations, out-of-scope items, challenges, APIs, topology items,
+  goals, entry criteria, risk entries, scenarios, or terms).
+- **No empty or bare answers:** replace every placeholder with real content. When a field does not
+  apply, write "None" or "N/A" with a brief reason.
+- **Editing an existing STP?** Update only the entries you touch to match this template; leave
+  untouched legacy entries as they are.
+- **Need a new field?** Propose it in a separate template PR that updates the template together with
+  the review guidance (`docs/stp-guide.md`, `AGENTS.md`, `.coderabbit.yaml`, `.pr_agent.toml`).
+  Otherwise, put extra details as plain prose in an existing field or in the design doc / VEP. -->
 
 ## **[Feature Title/Name] - Quality Engineering Plan**
 
@@ -66,9 +55,9 @@ their approved shape. -->
   - [sig-storage](./storage.md)
   - [sig-virt](./virt.md) -->
 
-**Document Conventions (if applicable):**
-<!-- If no feature-specific terms apply, omit both the label and its bullet. Otherwise keep the label
-and repeat the bullet once per term — both lines are the template's own shape, not new fields. -->
+**Document Conventions**
+<!-- Optional: if no feature-specific terms apply, omit both this label and the bullet below.
+Otherwise keep the label and repeat the bullet once per term. -->
 - **[term]** — [define a term specific to this document]
 
 ### **Feature Overview**
@@ -93,24 +82,23 @@ before testing starts, so reviewers should check it against their own understand
 #### **1. Requirement & User Story Review Checklist**
 
 <!-- **How to complete this checklist:**
-1. **Checkbox**: Mark [x] if the check is complete; if the item cannot be checked - explain why in the item's own lines
-2. Complete the relevant, needed details for the checklist item -->
+1. **Checkbox**: Mark [x] when complete; if an item cannot be checked, explain why in the bullet(s) directly under that checklist item.
+2. Fill in the details under each item. -->
 
 - [ ] **Review Requirements**
-  <!-- Requirements are the D/S (downstream) commitments this release has to meet, as defined in
-  Jira. Separate U/S (upstream / VEP) scope from the D/S commitment.
+  <!-- List the downstream (D/S) feature requirements from the Feature Tracking Jira issue (not an
+  engineering implementation epic). Upstream (U/S) VEPs often have wider scope — include only the
+  D/S commitments for this OpenShift Virtualization release.
 
-  A requirement states a **behavior** and the **condition it must hold under**, so that a test can
-  pass or fail on it. One requirement per bullet.
-  - Weak: "Support live migration." — no behavior, no condition, nothing to verify
-  - Strong: "VMs must migrate without network downtime exceeding the defined threshold during node
-    maintenance."
-  - Strong: "A VM whose guest agent is unavailable keeps running while its liveness probe is
-    paused by the user."
+  Keep requirements at the product level: state the expected behavior and condition without
+  duplicating user stories (put those in Use cases) or detailed test steps (put those in Section III).
+  - Weak: "Support live migration." — too vague to verify
+  - Strong: "Live migration causes minimal network disruption to running VMs."
+  - Strong: "A VM keeps running when its guest agent is unavailable and its liveness probe is paused."
 
-  Do not restate the Feature Overview, and do not describe how the product implements it.
-  Repeat the bullet below for each requirement — these are content lines, not new fields. -->
-  - [Requirement — behavior and the condition it must hold under]
+  Do not restate the Feature Overview or describe internal implementation.
+  Repeat the bullet below once per requirement. -->
+  - [Requirement — expected behavior and condition]
 
 - [ ] **Understand Value and Customer Use Cases**
   <!-- Two different things, both required:
@@ -136,36 +124,47 @@ before testing starts, so reviewers should check it against their own understand
     - As a [role], I want to [action], so that [benefit]
 
 - [ ] **Testability**
-  <!-- Confirm requirements are testable and unambiguous. List any that are unclear, ambiguous, or
-  untestable and say why — or write "None — all requirements are testable and unambiguous". -->
+  <!-- Confirm requirements are testable and unambiguous. List any requirement that cannot be tested
+  as written and why — or write "None — all requirements are testable and unambiguous".
+  Example: "Integration with third-party app X — cannot be validated due to missing test hardware or
+  licensing." -->
   - *Unclear or untestable requirements:* [Requirement and why, or "None — all requirements are testable and unambiguous"]
 
 - [ ] **Acceptance Criteria**
-  <!-- The specific, verifiable conditions that must be met for the feature to be considered
-  complete — they define *how we know it works*.
-  - One criterion per bullet, each a pass/fail condition an observer can check.
-  - Describe the observable user outcome, not internal system behavior.
+  <!-- Verifiable pass/fail conditions that define when the feature is done.
+  How sections differ:
+  - **Acceptance Criteria (I.1):** product outcomes that prove the feature is done.
+  - **Testing Goals (II.1):** prioritized testing objectives (P0/P1/P2) that cover those criteria.
+  - **Test Scenarios (III):** concrete individual tests (Tier 1/2/3) that verify each goal.
+
+  - One criterion per bullet, describing observable user outcomes (not internal system behavior).
   - Every value claim above ("non-disruptive", "no downtime", "isolated") needs a criterion that
-    could only pass if that claim held. An end-state check that also passes after a disruptive
-    stop-and-restart is not enough.
-  Examples: "VM migrates without network downtime exceeding 500ms", "VM deletion is blocked for
-  non-admin users."
-  Repeat the first bullet per criterion — these are content lines, not new fields. -->
+    would fail if disruption occurred (an end-state check alone is not enough).
+  Examples: "VM migrates with network downtime under 500ms", "Non-admin users are blocked from
+  deleting VMs."
+  Repeat the first bullet per criterion. -->
   - [Acceptance criterion — observable, falsifiable pass/fail condition]
   - *Gaps or missing criteria:* [Gap or missing criterion, or "None — acceptance criteria cover all requirements and value claims"]
 
 - [ ] **Non-Functional Requirements (NFRs)**
-  <!-- Cover at minimum: Monitoring, Observability, UI, Usability, Documentation, Performance,
-  Security, Scalability, Portability, Downtime/Connectivity.
-  State explicitly which NFRs do not apply or are not covered and why — "N/A" alone is not a reason.
-  Example: "Host CPU overhead stays under 5% during the feature operation", "RBAC prevents
-  non-admin users from deleting VMs", "A single cluster supports 500 VMs".
-  Keep both labels below and repeat the nested bullet under either as needed — these are the
-  template's own nested lines, not new fields. -->
+  <!-- Every NFR category listed below must be addressed: fill in the measurable target under
+  *Applicable NFRs*, or move any category that does not apply / is not covered under
+  *Non-applicable or uncovered NFRs* with a brief reason ("N/A" alone is not a reason).
+  Examples: "Performance: Host CPU overhead stays under 5% during feature operation",
+  "Security: RBAC prevents non-admin users from deleting VMs", "Scalability: Supports 500 VMs". -->
   - *Applicable NFRs:*
-    - [Applicable NFR and its measurable target]
+    - Monitoring: [Target, or move below with reason]
+    - Observability: [Target, or move below with reason]
+    - UI: [Target, or move below with reason]
+    - Usability: [Target, or move below with reason]
+    - Documentation: [Target, or move below with reason]
+    - Performance: [Target, or move below with reason]
+    - Security: [Target, or move below with reason]
+    - Scalability: [Target, or move below with reason]
+    - Portability: [Target, or move below with reason]
+    - Downtime/Connectivity: [Target, or move below with reason]
   - *Non-applicable or uncovered NFRs:*
-    - [Non-applicable or uncovered NFR and its reason, or "None — all listed NFRs apply and are covered"]
+    - [NFR category and why it does not apply or is not covered, or "None — all listed NFRs apply and are covered"]
 
 #### **2. Feature Limitations**
 
@@ -264,38 +263,27 @@ Each goal should tie back to requirements from Section I and be independently ve
 
 **Phase tag (optional):** Priorities refer to GA. If a goal or scenario must also pass at an intermediate phase
 (e.g. Tech Preview), add a phase tag: `**[P0][TP]**` for a goal, `- *Priority:* P0 [TP]` for a scenario. Use the
-phase names from Feature Maturity (from the parent STP for a child STP). Add it only when the goal really has to
-pass at that earlier phase — a phase tag is not required for a goal that follows the feature to GA.
+phase names from Feature Maturity (from the parent STP for a child STP).
 
-**Write one goal per bullet, P0 first.** Each P0 functional goal needs a negative or failure-path
-goal next to it — with a matching Section III scenario — covering what happens if the operation
-fails, if the VM starts mid-operation, or if the input is invalid — or, if that negative-path
-coverage is genuinely out of scope, an Out of Scope entry with Quality Owner or Product Manager
-sign-off ("considered" alone is insufficient). A negative path that is also an Acceptance Criterion
-cannot be moved to Out of Scope: Section III covers it, or named existing regression coverage in
-Test Strategy. The `[P0]`/`[P1]`/`[P2]` lines below are
-repeatable goal examples: keep only the priority levels that apply (omit `[P1]` or `[P2]` if none
-apply, and omit a negative `[P0]` line if it was waived in Out of Scope). -->
+**How to write Testing Goals** (higher-level objectives than Section III test scenarios; prioritized
+coverage of Section I.1 Acceptance Criteria):
+- List one goal per bullet, ordered **P0 first, then P1, then P2**. Omit priority levels that do not apply.
+- Pair each **P0 functional goal** with a **negative/failure-path goal** (and matching Section III
+  scenario) — e.g. operation fails, VM starts mid-operation, or invalid input.
+- If a P0 negative path is not tested, record it in **Out of Scope** with Quality Owner or Product
+  Manager sign-off — unless it is also an Acceptance Criterion, in which case Section III (or named
+  existing regression coverage in Test Strategy) must cover it. -->
 
-<!-- **Examples (flat list, P0 first — do not add category subheadings to an STP):**
-- **[P0]** Verify VM live migration completes successfully with new network binding plugin across
-  OVN-Kubernetes and secondary networks
-- **[P0]** Verify live migration with an invalid network binding configuration fails cleanly with an
-  actionable error and leaves the running VM unaffected
-- **[P0]** Confirm RBAC permissions model correctly restricts non-admin users from accessing
-  cluster-wide configuration API
-- **[P0]** Verify VM live migration completes in <30 seconds for VMs with <8GB memory
-  (performance baseline from VEP-XXXX)
-- **[P0]** Validate zero data loss during live migration under network latency up to 100ms
-- **[P0]** Verify backward compatibility: upgrade from OCP 4.19 to 4.20 preserves existing VM
-  configurations without manual intervention
-- **[P0]** Confirm interoperability with OpenShift Service Mesh when VMs use Istio sidecar injection
-- **[P1]** Validate hotplug/hotunplug operations work with new storage class without VM restart
-- **[P1]** Confirm feature operates correctly in disconnected/air-gapped environments with local
-  image registry
-- **[P1]** Test integration with OpenShift monitoring stack: metrics appear in Prometheus,
-  alerts fire correctly in Alertmanager
-- **[P2]** Validate new metrics with real-time VM performance data (CPU, memory, network, disk I/O) -->
+<!-- **Examples (flat list, P0 first — do not add category subheadings):**
+- **[P0]** VM live migration is supported with the new network binding plugin on OVN-Kubernetes and secondary networks
+- **[P0]** Live migration with an invalid network binding configuration fails cleanly without disrupting the running VM
+- **[P0]** RBAC restricts non-admin users from accessing cluster-wide feature configuration
+- **[P0]** Live migration meets the performance baseline (<30s for <8GB VMs) with zero data loss under 100ms latency
+- **[P0]** Cluster upgrade preserves existing VM feature configurations without manual intervention
+- **[P1]** Hotplug/hotunplug works with the new storage class without VM restart
+- **[P1]** Feature operates in disconnected/air-gapped environments using a local image registry
+- **[P1]** Prometheus metrics and Alertmanager alerts report feature health and failures
+- **[P2]** Real-time VM resource metrics are exposed during feature operation -->
 
 - **[P0]** [Functional goal — what is verified and how success is measured; add a phase tag such as `[P0][TP]` only if needed]
 - **[P0]** [Negative / failure-path goal for the P0 functional goal above — expected error or recovery behaviour]
@@ -506,9 +494,7 @@ Mitigation line plus a one-line justification (not just "N/A") — no Sign-off o
 is needed. A category with a real risk needs the full entry, including Sign-off (name). Repeat
 the entry for each risk inside a category.
 
-No-risk form — for a category with no risk, write `None — [reason]` in `Risk` and
-`Not applicable — [same reason]` in `Mitigation`, and drop the category-specific field and the
-`Sign-off` line (the `Other` category has no category-specific field):
+No-risk form (drop the category-specific field and `Sign-off` line):
 - **Risk:** None — [why no risk applies]
   - **Mitigation:** Not applicable — [same reason] -->
 
@@ -594,8 +580,10 @@ requirements are tested.
 
 **What goes here:** New test scenarios specific to this feature. Each scenario traces to a D/S Jira
 requirement. **Granularity:** if one scenario can fail while another passes, they are separate
-entries (VMs with feature X vs without, feature gate on/off, alerts with different trigger
-conditions). **What does NOT go here:** regression tests (covered in Test Strategy).
+entries (e.g., VMs with feature X vs without, alerts with different trigger conditions; for a DP/TP
+Feature Gate, focus on the gate enabled — only add a disabled-gate scenario for explicit safety
+cases such as disabling the gate while workloads are running). **What does NOT go here:** regression
+tests (covered in Test Strategy).
 
 The entry shape is fixed — the Jira key in bold, the requirement as a user story with a concrete
 role and a benefit, then exactly two keys: `Test Scenario` (tier inline as `[Tier N]`) and
