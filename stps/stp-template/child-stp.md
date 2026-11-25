@@ -8,7 +8,7 @@ feature or test limitation, out-of-scope exclusion, challenge, API, topology ite
 environment requirement, entry criterion, risk entry, scenario, or Document Conventions term —
 is content, not a new field.
 
-The only required-structure fields you may omit are `Document Conventions (if applicable)` and, in a
+The only required-structure fields you may omit are `Document Conventions` and, in a
 no-risk category, the category-specific field (where present — Other has none) and the `Sign-off`
 line (unused example goal priority rows are repeatable content, not required fields). Every risk
 category heading stays as written; a category with no SIG-specific risk keeps its `Risk` line and
@@ -32,9 +32,9 @@ alone keep their approved shape. -->
 - **QE Owner(s):** [Name (@github-handle, email)]
 - **SIG:** [sig-xyz — the SIG this child STP covers]
 
-**Document Conventions (if applicable):**
-<!-- If no SIG-specific terms apply, omit both the label and its bullet. Otherwise keep the label and
-repeat the bullet once per term — both lines are the template's own shape, not new fields. -->
+**Document Conventions**
+<!-- Optional: if no SIG-specific terms apply, omit both this label and the bullet below.
+Otherwise keep the label and repeat the bullet once per term. -->
 - **[term]** — [define a term specific to this SIG's scope only]
 
 ### **Feature Overview**
