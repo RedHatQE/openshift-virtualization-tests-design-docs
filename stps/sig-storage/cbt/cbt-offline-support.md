@@ -191,6 +191,10 @@ found will not be classified as defects for this release.
   - *Rationale:* The plan relies on standard operator configuration handling. TS-01 and TS-02 cover backup behavior with the gate disabled and enabled, respectively.
   - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
 
+- **Verifying Portworx Stork placement preference**
+  - *Rationale:* Offline CBT does not set node affinity for the export server pod; it can run on any eligible node where the required PVCs can attach. This STP covers backup and restore correctness, not replica-local placement. Verifying Stork's placement preference is non-blocking and can be deferred to follow-up investigations.
+  - *Sign-off (Quality Owner or Product Manager):* [Name/Date]
+
 **Test Limitations**
 
 - **A runnable CNV v5.1 build including the HCO offline-backup feature gate is not yet confirmed**
