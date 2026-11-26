@@ -37,7 +37,7 @@ technology, and testability before formal test planning.
     - **R1 — Stopped-VM backup:** Administrators can back up a powered-off VM, including its configuration and stored data, with block or filesystem storage.
     - **R2 — Stopped-VM recovery:** A restored stopped VM retains its configuration and data, remains powered off, and starts only when requested.
     - **R3 — WFFC backup:** Administrators can back up running and stopped VMs using WFFC storage in block and filesystem modes.
-    - **R4 — WFFC recovery:** A restored VM retains its WFFC storage class and saved startup policy, starts successfully with bound storage, and retains its data. When zone-aware storage is enabled, its storage placement matches the scheduled worker's zone.
+    - **R4 — WFFC recovery:** A restored VM retains its WFFC storage class and saved startup policy, starts successfully with bound storage, and retains its data. Multi-zone placement expectations and their observable check require Storage Ecosystem confirmation for the selected topology.
     - **R5 — Backup failure reporting:** An unavailable backup dependency causes a clear backup failure without leftover backup artifacts.
     - **R6 — Restore failure reporting:** A missing or invalid snapshot causes a clear restore failure without a partially restored VM or storage.
     - **R7 — Operation permissions:** A service account granted backup, snapshot, or restore permissions can perform that operation; an account without the corresponding permission receives a permission-denied error and creates no resources for the denied operation.
@@ -49,11 +49,11 @@ technology, and testability before formal test planning.
     - As a cluster admin, I want to back up and restore template VMs that remain in a stopped state, so that my VM templates survive a disaster recovery event
     - As a cluster admin, I need to recover VMs that were powered off during a scheduled maintenance window, so that maintenance activity doesn't put those workloads at risk
     - As a cluster admin, I want to back up and restore VMs using WFFC StorageClasses within the same cluster and namespace, so that WaitForFirstConsumer workloads are protected by the same disaster-recovery flow as other VMs
-    - As a cluster admin, I expect a restored VM in a multi-zone cluster to come up with its storage co-located in the zone where it is scheduled, so that zone-local data access is preserved after restore
+    - As a cluster admin, I want to recover a VM in a supported multi-zone topology with its storage accessible, so that I can resume the workload after restore
     - As a cluster admin, I want backup, snapshot, and restore operations to require explicit permissions, so that workload-only or read-only accounts cannot perform administrative recovery operations
 
 - [x] **Testability**
-  - _Requirements unclear or untestable:_ None. All requirements are testable through the existing OADP/Velero test framework. The existing `data_protection/oadp/` infrastructure supports parameterized VM configurations and DataVolume modes.
+  - _Requirements unclear or untestable:_ The P2 multi-zone placement guarantee and its observable pass criterion require Storage Ecosystem confirmation. The existing `data_protection/oadp/` infrastructure supports parameterized VM configurations and DataVolume modes; the planned scenarios require new automation.
 
 - [x] **Acceptance Criteria**
   - _Acceptance criteria:_
@@ -63,7 +63,7 @@ technology, and testability before formal test planning.
     - Restored stopped VM preserves, unchanged from before backup, its resource configuration (CPU/memory, network interfaces) and its DataVolume storage attributes (size, StorageClass, volume mode); Velero-injected changes -- new resource identifiers (UID/resourceVersion), restore-tool labels/annotations, and object status -- are expected and are excluded from the comparison
     - Velero successfully backs up a VM with a WFFC StorageClass DataVolume
     - A restored running-source WFFC VM configured for automatic startup starts automatically without an explicit start request; a restored stopped-source WFFC VM remains powered off until explicitly started
-    - Restored WFFC storage retains its storage class and binds successfully, without requiring binding before a VM start request; placement matches the scheduled worker's zone when that storage topology is enabled. Both block and filesystem volumes are covered.
+    - Restored WFFC storage retains its storage class and binds successfully, without requiring binding before a VM start request. Both block and filesystem volumes are covered. The P2 multi-zone placement criterion remains subject to Storage Ecosystem confirmation (Section III).
     - An unavailable OADP/DataMover dependency causes a failed or partially failed backup with an identifying error and no leftover backup artifacts, for block and filesystem volumes
     - A missing or invalid snapshot causes a failed or partially failed restore with an identifying error and no partially restored VM or storage, for block and filesystem volumes
     - A trusted administrative service account can complete a VM backup; a read-only account cannot submit the same backup and creates no backup artifacts
@@ -109,7 +109,7 @@ technology, and testability before formal test planning.
 
 - [x] **Topology Considerations**
   - _Topology requirements:_ A multi-node cluster is required. The P2 topology scenario additionally requires workers in at least two zones and zone-aware storage; P0/P1 coverage does not require multiple zones.
-  - _Impact on test design:_ The P2 topology scenario requires the zone-aware OCS configuration in Section II.3. A WFFC class alone does not demonstrate zone-local storage; confirm the storage topology before executing that scenario.
+  - _Impact on test design:_ The P2 topology scenario requires the zone-aware OCS configuration in Section II.3. A WFFC class alone does not demonstrate zone-local storage; confirm the topology, its placement guarantee, and an observable criterion before executing that scenario.
 
 ### **II. Software Test Plan (STP)**
 
@@ -120,7 +120,7 @@ This STP serves as the **overall roadmap for testing**, detailing the scope, app
 This test plan covers the addition of two new VM configuration categories to the existing Velero/OADP backup and restore test suite:
 
 1. **Stopped VM backup/restore** -- Covering powered-off VMs with block and filesystem volumes; restored VMs remain powered off until an administrator starts them, and retain their configuration and data.
-2. **WFFC StorageClass backup/restore** -- Covering running and stopped VMs with block and filesystem volumes using the OCS WFFC class; restored volumes bind successfully, and the P2 scenario checks placement against the scheduled worker's zone.
+2. **WFFC StorageClass backup/restore** -- Covering running and stopped VMs with block and filesystem volumes using the OCS WFFC class; restored volumes bind successfully. The P2 multi-zone criterion requires Storage Ecosystem confirmation.
 
 Both categories are tested using the DataMover backup path (Velero with CSI DataMover) which is the primary backup mechanism for OpenShift Virtualization.
 
@@ -145,13 +145,13 @@ _Authorization boundary:_ Access to the Velero administrative backup/restore int
 - [P1] A service account with snapshot permissions can create a ready snapshot of each authorization-test disk; an account without snapshot-create permission receives a permission-denied error, creates no snapshot, and leaves the source unchanged.
 - [P1] A trusted administrative service account can complete a restore of each authorization-test VM with its expected power state and readable data; a read-only account receives a permission-denied error when submitting a restore, creates no restored VM or storage, and leaves existing workloads unchanged.
 - [P1] A trusted administrative service account can restore each authorization-test VM from namespace A into namespace B and start it with readable data, leaving the source unchanged; a workload-only account without backup-administration access cannot submit the same restore or create destination resources.
-- [P2] After restoring and starting a stopped VM with a WFFC DataVolume on zone-aware OCS storage, its PV and scheduled worker report the same zone.
+- [P2] Restore and start a stopped VM with a WFFC DataVolume on a multi-zone OCS topology and check the Storage Ecosystem-confirmed placement or accessibility behavior using its agreed observable criterion. The criterion is pending (Section III).
 
 _Priority note:_ Stopped VM backup/restore is prioritized P0 because it is a previously completely untested VM state for Velero, representing a higher risk of undetected regressions. WFFC StorageClass coverage is prioritized P1 because it extends an existing, well-established backup/restore path (running VMs) with an additional storage-binding dimension, representing incremental rather than foundational risk.
 
 _Implementation note:_ The two failure-path P0 goals above define the observable pass/fail (Backup/Restore phase, surfaced failure condition, and a post-run check for leftover artifacts). The concrete failure-injection mechanism -- how OADP/DataMover unavailability or a missing/corrupted snapshot is simulated non-destructively in a shared CI suite -- is a test-implementation detail to be designed in the STD before automation.
 
-_WFFC binding note:_ The source volume is already bound at backup time, so backup does not exercise deferred binding. During restore, DataMover can consume and bind storage before the VM starts, depending on the restore configuration; Pending immediately after restore is therefore not a universal requirement. For a stopped source, confirm the restored VM is powered off as soon as it is available, then explicitly request startup without waiting for a Pending volume to bind or for the entire restore to complete. Finally, wait for restore completion, bound storage, a running VM, and readable data. Record the restore binding configuration with results; the P2 check must still demonstrate placement consistent with the scheduled worker's zone.
+_WFFC binding note:_ The source volume is already bound at backup time, so backup does not exercise deferred binding. During restore, DataMover can consume and bind storage before the VM starts, depending on the restore configuration; Pending immediately after restore is therefore not a universal requirement. For a stopped source, confirm the restored VM is powered off as soon as it is available, then explicitly request startup without waiting for a Pending volume to bind or for the entire restore to complete. Finally, wait for restore completion, bound storage, a running VM, and readable data. Record the restore binding configuration with results; the P2 check must use the placement criterion confirmed for the selected topology.
 
 **Out of Scope (Testing Scope Exclusions)**
 
@@ -202,7 +202,7 @@ No verification activities will be performed for these items during this test cy
   - _Details:_ The scenarios follow four distinct workflow shapes:
     - _Positive backup/restore (the five functional scenarios):_ create a VM, write test data while it is running, stop it if the scenario uses a stopped source, perform a Velero backup, delete the original resources, and submit the restore. For stopped sources, confirm the restored VM is powered off as soon as it is available and explicitly request startup without waiting for pending storage to bind or for restore completion. For the running WFFC source, require automatic startup without a manual start. Finally, confirm restore completion, bound storage, a running VM, and data integrity.
     - _Failure-path (the two P0 negative scenarios):_ drive the backup or restore into the injected failure condition and assert it fails observably (a non-successful phase plus a surfaced failure condition) leaving no leftover artifacts; there is no delete-restore-verify step.
-    - _Topology (the P2 scenario):_ restore and start the stopped WFFC VM and assert its storage binds in a zone consistent with the node where the VM is scheduled.
+    - _Topology (the P2 scenario):_ restore and start the stopped WFFC VM, then check the placement or accessibility behavior using the criterion confirmed for the selected topology. The criterion remains pending (Section III).
     - _Authorization (eight scenarios):_ use the service-account matrix in Section II.3 to check permitted and denied backup, snapshot, restore, and cross-namespace restore requests separately. Permitted operations must complete; restored VMs must start with readable data. Denied requests must report a permission error, create no operation resources, and leave existing workloads unchanged.
 
 - [x] **Automation Testing** -- Confirms test automation plan is in place for CI and regression coverage (all tests are expected to be automated)
@@ -272,7 +272,9 @@ No verification activities will be performed for these items during this test cy
 
   _Observed smoke check (2026-11-24–25):_ On `c01-acinko500`, a stopped RHEL VM with a 30 GiB Block PVC on `ocs-storagecluster-ceph-rbd-virtualization` was backed up and restored using CSI DataMover. Completed DataUpload `oadp-vm-smoke-20261124125002-2szgv` recorded snapshot class `ocs-storagecluster-rbdplugin-snapclass`; backup `oadp-vm-smoke-20261124125002` and restore `oadp-restore-20261125012707` completed, the restored PVC bound, the VM was initially stopped, and a pre-backup marker was readable after startup. The restore reported missing original-PV metadata, image-pull secret references and existing CA ConfigMap warnings; the restored service accounts subsequently referenced existing image-pull secrets and the source and restored CA data hashes matched. Review the warnings before execution. This is one standard-class Block smoke check, not validation of Filesystem or WFFC backup/restore.
 
-  _Observed topology (2026-11-26):_ The restored standard-class PV had no zone label or node affinity. A temporary clone-preparation PV created with the separately test-created `ocs-storagecluster-ceph-rbd-virtualization-wffc` class also had neither; it was not a completed WFFC restore and is not the existing `ocs-storagecluster-ceph-rbd-wffc` class. The WFFC VM using that test-created class remained blocked during clone preparation because its CDI cloner image could not be pulled; no WFFC backup/restore was run. The proposed P2 PV-zone comparison cannot be applied to those observed PVs. A Storage Ecosystem owner must confirm the intended multi-zone topology, its placement guarantee, and an observable pass criterion before P2 execution.
+  _Observed topology (2026-11-26):_ The restored standard-class PV had no zone label or node affinity. A temporary clone-preparation PV created with the separately test-created `ocs-storagecluster-ceph-rbd-virtualization-wffc` class also had neither; it was not a completed WFFC restore and is not the existing `ocs-storagecluster-ceph-rbd-wffc` class. The WFFC VM using that test-created class remained blocked during clone preparation because its CDI cloner image could not be pulled; no WFFC backup/restore was run. The proposed P2 PV-zone comparison cannot be applied to those observed PVs. A Storage Ecosystem owner must confirm the intended multi-zone topology, its applicable placement or accessibility guarantees, and an observable pass criterion before P2 execution.
+
+  _Topology references:_ [ODF architecture](https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.20/html/red_hat_openshift_data_foundation_architecture/an-overview-of-openshift-data-foundation-architecture_rhodf) describes replica distribution across failure domains. [Velero's restore documentation](https://velero.io/docs/v1.18/data-movement-restore-pvc-configuration/) notes that ignoring delayed binding can leave a restored workload unable to mount storage under topology constraints. Neither source confirms a zone-local guarantee for the observed cluster.
 
 - **Network:** Standard cluster networking (OVN-Kubernetes)
 - **Required Operators:** OpenShift Virtualization Operator, OADP Operator (with Velero and DataMover components), OpenShift Data Foundation Operator for OCS storage
@@ -285,7 +287,7 @@ No verification activities will be performed for these items during this test cy
   | Workload-only account | No permission to submit backup or restore requests | Manage the VM in A; no access to B | Cross-namespace restore submission is denied |
 
 - **Platform:** RHOS PSI (OpenStack) or AWS, with ODF installed and both listed OCS classes available. Record the platform, cluster, and region used for each result. For P2, validate multiple worker zones and matching storage topology on the chosen platform; the platform name alone does not establish that prerequisite.
-- **Special Configurations:** Use the existing `ocs-storagecluster-ceph-rbd-wffc` class. Before execution, verify its WaitForFirstConsumer binding, RBD provisioner, pool, image features, and advertised Block and Filesystem modes on the selected cluster. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the matching OCS driver and verify snapshot creation and restore in both volume modes. For the P2 scenario, provide at least two worker nodes in different zones and zone-aware storage placement consistent with the selected worker zones. Obtain Storage Ecosystem confirmation that the selected topology supports the proposed PV-zone and worker-zone comparison; the WFFC binding mode alone does not establish that oracle. Record the exact OADP, Velero, and DataMover versions and dated Storage Ecosystem confirmation for topology and snapshot-class compatibility before execution.
+- **Special Configurations:** Use the existing `ocs-storagecluster-ceph-rbd-wffc` class. Before execution, verify its WaitForFirstConsumer binding, RBD provisioner, pool, image features, and advertised Block and Filesystem modes on the selected cluster. Configure OADP to use `ocs-storagecluster-rbdplugin-snapclass` for the matching OCS driver and verify snapshot creation and restore in both volume modes. For the P2 scenario, provide at least two worker nodes in different zones and a storage topology confirmed for the selected criterion. Obtain Storage Ecosystem confirmation of the applicable placement or accessibility guarantee and its observable check; the WFFC binding mode alone does not establish that a PV-zone and worker-zone comparison is valid. Record the exact OADP, Velero, and DataMover versions and dated Storage Ecosystem confirmation for topology and snapshot-class compatibility before execution.
 
 #### **3.1. Testing Tools & Frameworks**
 
@@ -303,7 +305,7 @@ The following conditions must be met before testing can begin:
 - [x] The common storage matrix includes snapshot support through `ocs-storagecluster-ceph-rbd-virtualization`
 - [ ] `ocs-storagecluster-rbdplugin-snapclass` has been validated with the installed OADP/Velero/DataMover versions for both volume modes
 - [ ] For WFFC tests: `ocs-storagecluster-ceph-rbd-wffc` is available with the settings in Section II.3 and supports successful snapshot-based backup and restore in both volume modes
-- [ ] For the P2 topology scenario: the OCS storage topology has been confirmed against at least two worker zones, including a Storage Ecosystem-confirmed placement guarantee and observable pass criterion; the PV-zone comparison cannot be applied to the PVs observed in Section II.3
+- [ ] For the P2 topology scenario: the OCS storage topology has been confirmed against at least two worker zones, including a Storage Ecosystem-confirmed placement or accessibility expectation and observable pass criterion; the PV-zone comparison cannot be applied to the PVs observed in Section II.3
 - [ ] The authorization-test accounts and namespaces A/B are configured, and their effective operation permissions match the matrix in Section II.3
 
 #### **5. Risks**
@@ -329,8 +331,10 @@ The following conditions must be met before testing can begin:
 
 **Untestable Aspects**
 
-- **Risk:** None -- stopped-VM recovery, WFFC binding, topology verification, and operation-permission checks are reproducible with test VMs and dedicated test accounts; none requires production-only conditions.
-  - **Mitigation:** Use the OCS snapshot and WFFC classes, worker topology, and authorization-account matrix in Section II.3 to exercise the identified scenarios.
+- **Risk:** The expected P2 multi-zone placement or accessibility behavior and its observable pass criterion are unconfirmed, so the topology assertion cannot yet be implemented for the selected OCS configuration.
+  - **Mitigation:** Ask Storage Ecosystem to identify the supported topology, its expected placement behavior, and the evidence needed to verify it before implementing P2. Use the OCS snapshot and WFFC classes and authorization-account matrix in Section II.3 for the remaining scenarios.
+  - *Alternative validation approach:* The PVs inspected in Section II.3 did not expose the proposed zone comparison; ask Storage Ecosystem to review the two-zone recovery candidate in Section III and confirm whether it meets the intended scope.
+  - *Sign-off:* [Name/Date]
 
 **Resource Constraints**
 
@@ -427,10 +431,12 @@ All scenarios use CNV-44308 as the QE tracking ID for existing behavior. The loc
   - _Test Scenario:_ [Tier 1] Using the workload-only account from A, which has no permission to submit backup-administration requests and no access to B, submit the same cross-namespace restore for each authorization-test VM. Require a permission-denied error, no new restore request or destination resources in B, and no change to existing workloads or data in A or B.
   - _Priority:_ P1
 
-- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want a restored stopped VM with a WFFC DataVolume to start with its storage bound in the same zone as the node where it is scheduled, so that zone-local data access is preserved after restore
+- **[CNV-44308](https://redhat.atlassian.net/browse/CNV-44308)** -- As a cluster admin, I want a restored stopped VM with a WFFC DataVolume to have accessible storage in a supported multi-zone topology, so that I can resume the workload after restore
   - _Coverage requirements:_ R4
   - _Test Scenario:_ [Tier 2] In a multi-zone OCS topology confirmed by Storage Ecosystem to expose a PV zone label and enforce zone-local placement, verify that a restored stopped VM with a WFFC DataVolume starts and the PV zone label matches its scheduled worker's zone. If the selected topology does not expose that label or guarantee, obtain a confirmed observable criterion before executing this scenario.
   - _Priority:_ P2
+
+  _Candidate for Storage Ecosystem review:_ If recoverability across eligible worker zones is the intended outcome, run an independent backup and restore for a source VM configured for each of two worker zones. For each restore, require the storage to bind, the VM to run in its configured zone, and pre-backup data to be readable. Record the restore binding configuration. This checks recoverability and storage access in each zone; it does not establish where storage replicas or reads are located. This alternative is not yet an agreed P2 criterion.
 
 ---
 
