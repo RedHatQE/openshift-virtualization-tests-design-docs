@@ -360,7 +360,7 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
 
 - **[CNV-96536]** — As a backup provider, I want Linux offline backups in both modes to capture complete disk data in the first full backup and only changed data in subsequent increments.
   - *Test Scenario:* [Tier 1] **TS-02:** Verify full and incremental Linux offline backup data.
-  - **Push execution** — With the VM stopped, omit the output mode to use default Push. Verify the full and incremental images on the target PVC and confirm the VM stays stopped throughout each backup, verify that the default Push backup reports offline.
+  - **Push execution** — With the VM stopped, omit the output mode to use default Push. Verify the full and incremental images on the target PVC and confirm the VM stays stopped throughout each backup. If Development confirms an offline mode indicator for the target build, check that it identifies both backups as offline. See Test Coverage under Risks.
   - **Pull execution** — Retrieve and verify the full and incremental disk data over trusted HTTPS before deleting each backup request.
   - *Priority:* P0 [TP]
 
@@ -370,7 +370,7 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
 
 - **[CNV-96537]** — As a backup provider, I want Windows Server 2022 offline recovery in both modes to produce bootable guests with matching data checksums and preserved persistent vTPM/EFI configuration. Verify recovery from a full baseline without prior backup history and from increments based on online and offline checkpoints. Verify that incomplete chains fail recovery validation.
   - *Test Scenario:* [Tier 3] **TS-04:** Validate Windows offline recovery integrity.
-  - *Priority:* P0
+  - *Priority:* P0 [TP]
 
 - **[CNV-96511]** — As a backup provider, I want Linux online history to support Linux offline increments and subsequent VM startup in push and pull modes
   - *Test Scenario:* [Tier 2] **TS-05:** Verify online checkpoints support offline increments across backup modes.
@@ -396,7 +396,7 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
 
 - **[CNV-96511]** — As a cluster admin, I want source deletion to abort offline backups without blocking VM deletion in push and pull modes
   - *Test Scenario:* [Tier 2] **TS-09:** Verify source deletion aborts offline backups without blocking removal.
-  - *Priority:* P1
+  - *Priority:* P0
 
 - **[CNV-96511]** — As a cluster admin, I want overlapping offline backup requests rejected while the existing backup remains active
   - *Test Scenario:* [Tier 1] **TS-10:** Verify the API rejects additional requests during an active offline backup.
@@ -410,6 +410,9 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
   - With the VM still stopped and no writes since the previous checkpoint, submit another incremental backup. Verify that it remains incremental and contains zero changed disk data.
   - **Push execution** — Verify that the checkpoint advances after the backup completes successfully.
   - **Pull execution** — Verify that the checkpoint advances after retrieving the empty increment and deleting the request.
+  - After the incremental check in each mode, submit a fresh full backup while the VM remains stopped and its disk configuration is unchanged.
+  - **Full Push execution** — When the request completes, verify that each eligible disk is reported as full and its image on the target PVC matches the expected data.
+  - **Full Pull execution** — Verify that each eligible disk is reported as full. Retrieve and verify the expected disk data over trusted HTTPS before deleting the request.
   - *Priority:* P0
 
 - **[CNV-96511]** — As a backup provider, I want eligible disks with usable history to remain incremental when another disk needs a full backup.
@@ -431,7 +434,7 @@ Scenarios use the applicable child Jira story or trace to CNV-96511 for the offl
   - Verify that each unavailable eligible disk is reported and that recovery validation rejects the backup as incomplete.
   - **Push execution** — Check disk reporting and validate recovery using the backup on the target PVC.
   - **Pull execution** — Check disk reporting and validate recovery using the retrieved backup data.
-  - *Priority:* P1
+  - *Priority:* P0 [TP]
 
 - **[CNV-96511]** — As a cluster admin, I want VM shutdown to finish before an offline backup produces data.
   - *Test Scenario:* [Tier 1] **TS-15:** Verify offline backup produces no data during shutdown cleanup.
